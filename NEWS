@@ -1,0 +1,75 @@
+User-visible changes in the SoundScape Renderer. Recent changes on top.
+
+0.4.0 (?? ??? 2013)
+
+ - the signal processing core of the SSR is now a separate thing and part of the
+   "Audio Processing Framework" (APF, http://audioprocessingframework.github.io)
+
+ - multi-threading support and other performance improvements
+
+ - brand new Near-Field-Corrected Higher-Order-Ambisonics (NFC-HOA) renderer
+   (which is still experimental and might have quite a few bugs)
+
+ - WAV, FLAC and OGG playback is now possible via ecasound & libsndfile
+
+ - binaural and BRS renderers now support IR files with arbitrary number of
+   channels (as long as they are divisible by 2)
+
+ - new option "--name" to set the JACK client name
+
+ - compatibility with the "clang" compiler
+
+ - experimental draft for Matlab MEX files (using the NFC-HOA renderer)
+
+ - VRPN tracker support (thanks to Rouven von der Burg, Daniel Schwingenheuer
+   and Johannes Arend!)
+
+ - many bugfixes and improvements (but most probably also new bugs)
+
+0.3.4 a.k.a. "Pianoforte" (13 November 2012)
+
+ - several bugfixes and improvements
+
+ - fixed Polhemus tracker support on MacOSX
+
+ - introduced "reference offset" for tracking people within loudspeaker arrays
+
+0.3.3 a.k.a. "Harpsichord" (1 February 2012)
+
+ - several bugfixes, including a nasty bug in the delay line
+
+ - support for the Razor AHRS headtracker:
+   http://dev.qu.tu-berlin.de/projects/sf-razor-9dof-ahrs/wiki
+
+ - support for MacOSX 10.7 (Lion)
+
+0.3.2 a.k.a. "Spinet" (6 September 2011)
+
+ - several bugfixes, mainly in the build system
+
+ - source code for "Android SSR Remote" is now included
+
+0.3.1 a.k.a. "Harmonium" (3 May 2011)
+
+ - several bugfixes
+
+ - the SSR can now be compiled for MacOSX, an App-Bundle is also provided
+
+ - the "Binaural Playback Renderer" is now available
+
+ - improvements in new renderer architecture, still to be activated with
+   ./configure --enable-newrenderer
+
+ - improvements in the build system
+
+ - current audio scene can now be saved (have a look in the "file" menu)
+
+ - improvements to the "source properties" context menu
+
+ - Pure Data (Pd) patches for remote-controlling the SSR are now included
+
+ - Android SSR remote control is provided for download as .apk file
+
+0.3.0 a.k.a. "Keytar" (23 May 2010)
+
+ - first public release (under the GPLv3+ license)

@@ -1,0 +1,522 @@
+% This is the section about the network interface.
+% It is included by SoundScapeRenderer.tex
+
+\section{Network Interface}
+\label{sec:network}
+
+This is just a short overview about the XML messages which can be sent to the
+SSR via TCP/IP.
+The messages have to be terminated with a binary zero (\verb|\0|).
+
+\textbf{WARNING:} We
+did not evaluate the network interface in terms of security. So please be sure
+that you are in a safe network when using it.
+
+% The SSR provides a network interface to enable a remote control of the audio
+% processing part. A typical usage could be to dynamically modify a sound scene
+% using any kind of interaction tool. This interaction tool (e.g. a head-tracker)
+% then communicates with the SSR via the SSR's network interface.
+
+% \begin{figure}
+% %\vspace{0.3cm}
+% \begin{center}
+% \includegraphics[width=\textwidth]{ssrsystem}
+% %\vspace{-2.0cm}
+% \caption{\label{fig:ssrsystem}{The SoundScape Renderer Build.}}
+% \end{center}
+% %\vspace{-0.7cm}
+% \end{figure}
+
+% \subsection{General Layout}
+%
+% The network server is connected to the main component of the SSR which is the audio
+% processing part. The server communicates with its clients such as GUIs or trackers
+% and transfers the received data to the core part of the SSR. Note that the
+% communication is bidirectional, i.e. clients can also receive messages from the
+% server.\\
+% The basic server thread initializes the network socket and waits for an incomming connection.
+% When a new client joins the server, the server starts the handling routines. These handling
+% routines are splitted into two seperate threads, one for receiving, the other for sending data.
+% Like this, it is possible to receive and send at the same
+% time.\\
+% Prepared but not finished are file handling routines, so that e.g. a sound file on the audio
+% processing computer can be opened from a remote GUI. The (intended) functinoality is comparable
+% to that of an ftp server.\\
+% The network protocol is TCP/IP. The data transport is in plaintext. The application protocol
+% is a simpler format than the ftp protokoll. Messages begin with a code number followed by the
+% payload.\\
+% The complete client-server-communication flow is shown in figure \ref{fig:networkflow}.
+
+% \begin{figure}
+% %\vspace{0.3cm}
+% \begin{center}
+% \includegraphics[width=\textwidth]{networkflow}
+% %\vspace{-2.0cm}
+% \caption{\label{fig:networkflow}{Network Subsystem.}}
+% \end{center}
+% %\vspace{-0.7cm}
+% \end{figure}
+
+% \subsection{Class Description}
+% %
+% \subsubsection{Files}
+% %
+% All the network related source files are stored in the folder \texttt{src/network} (see table \ref{tab:network_files}).
+% %
+% \begin{table}
+% \begin{center}
+% \begin{tabular}{ll}
+% \hline
+% \textsc{Name} & \textsc{Description} \\
+% \hline%\hline
+% Client.cpp & Client class implementation\\
+% %   \hline
+% Client.h & Client class declaration\\
+% %   \hline
+% ClientConfigFile.cpp & config-file parser for client\\
+% %   \hline
+% FileHandle.cpp & File handling routines for using like ftp\\
+% %   \hline
+% FileHandle.h & Class declaration\\
+% %   \hline
+% NetworkInterface.cpp & SSR Server Network Interface\\
+% %   \hline
+% NetworkInterface.h & Interface declaration\\
+% %   \hline
+% ParseXMLCommand.cpp & XML-String Parser for Server and Client\\
+% %   \hline
+% ParseXMLCommand.h & XML Parser declaration\\
+% %   \hline
+% RequestHandle.cpp & Client request handling at server side\\
+% %   \hline
+% RequestHandle.h & Class declaration\\
+% %   \hline
+% SSRClientNetworkInterface.cpp & SSR Client Network Interface\\
+% %   \hline
+% SSRClientNetworkInterface.h & Classe declaration\\
+% %   \hline
+% Server.cpp & SSR Server routines\\
+% %   \hline
+% Server.h & Class declaration\\
+% %   \hline
+% Socket.cpp & Fundamental Network routines\\
+% %   \hline
+% Socket.h & Class declaration\\
+% %   \hline
+% server\_codes.h & Server Codes for Messages\\
+% \hline
+% \end{tabular}
+% \label{tab:network_files}
+% \end{center}
+% \caption{Source files in folder \texttt{src/network}}
+% \end{table}
+% %
+% %
+% \subsubsection{Class ``Socket''}
+% %
+% This is the fundamental network class. It provides the functions to initialize the network,
+% requesting, binding, connecting and closing sockets. For further information, confer to the header file
+% \texttt{src/nework/Socket.h}.
+% %
+% %
+% \subsubsection{Class ``Server''}
+% %
+% The Server class is derived from the socket class. The Server is written for running standalone. It
+% can thus easily be reused in other projects. The initialization function expects four
+% optional arguments at startup. These are
+% %
+% \begin{enumerate}
+%     \item Server Name
+%   \item Network Port
+%   \item IP-Address
+%   \item XML File Directory
+% \end{enumerate}
+% %
+% The Server Name is a string which is send to each client when it joins. This is usefull
+% for the client to identify the server and see that the connection is established.\\
+% The Network Port specifies the network port on which server listens for incomming messages.\\
+% With the IP-Address option, it is possible to bind the server to one specific IP-Address. If
+% no IP-address is specified, the server listens on all network cards respectively IP-addresses.\\
+% Finally, the XML File Directory is not yet in use.\\
+% Note that all parameters are optional. When a parameter is not specified, default value are used.
+% These are defined in the header file \texttt{src/network/Server.h}. A client data structure is
+% also defined in the header. This structure contains status information about the clients.\\
+%
+% The main thread looks for incomming clients, sets the client structure
+% and starts the client request handling via a callback function. Upon successful connection, it stores the client object
+% in a list. Clients are removed from the list, upon disconnection. SSR creats aunique
+% ID for each connected client. These client identfiers are used in the SSR-subsystem.\\
+%
+% Figure \ref{fig:serverflow} illustrates the workflow of the server algorithm.\\
+%
+% The main job is the accepting and the administrating from clients. Therefore, a list is used.
+% The server thread assigns the client id's and creates a client list entry.
+% The list entry are objects from the structure ``client\_param\_r'' which is defined in {\em Server.h}.
+% The client list is used to address the clients.
+% After that the thread starts the client request handling threads via the callback
+% function {\em  start\_request\_thread(void* arg)}. The argument is a pointer to the new list entry.
+% Another job is to find ``zombie'' enties in the list. Zombie means that these are entry from clients
+% which are not longer connected to the server.
+% %\newpage
+%
+% \begin{figure}
+% %\vspace{0.3cm}
+% \begin{center}
+% \includegraphics[width=0.7\textwidth]{serverflowa}
+% %\vspace{-2.0cm}
+% \caption{\label{fig:serverflow}{Server Flowchart}}
+% \end{center}
+% %\vspace{-0.7cm}
+% \end{figure}
+%
+% %\newpage
+%
+% \begin{figure}
+% %\vspace{0.3cm}
+% \begin{center}
+% \includegraphics[width=0.7\textwidth]{serverflowb}
+% %\vspace{-2.0cm}
+% \caption{{Server Flowchart}}
+% \end{center}
+% %\vspace{-0.7cm}
+% \end{figure}
+%
+%
+% \subsubsection{Class ``RequestHandle''}
+%
+% The class {\em RequestHandle} is derived form the server class. The basic job of that class is the cummunication handling
+% between clients and the server computer. This class provides two threads per client. Thread one is only for receiving
+% client message and handle them.
+%
+% In general there is a problem when receiving. Data doesn't arrive as they send. The sequence is correct but it is possible
+% that the data are splitted or joined with previous messages. Therefor there is a search for complete messages implemented.
+% The search looks for the beginning of a message, the server code. And there is a search for the end of a message: {\em newline}.
+% If the code is inside the range between 100 and 900 (that means, a 3-digit number is found) and a message end is found,
+% the message will copied into another message buffer. The following switch-construct decides what is to do with the message.
+% If the message contains an xml-string the callback function {\em recv\_data\_callback(client-$>$id,client-$>$message)}
+% is called.
+%
+% Thread two is only for sending. Therefor exists one message queue per client. If the queue is empty, the transmitter thread
+% is sleeping. This is done with the help of {\em pthread\_cond\_wait()}. When {\em send\_msg()} is called, a condition is
+% set and the transmitter thread can work (figure \ref{fig:sendmsgflow}).
+%
+% The workflow of these two threads is illustrated in figure \ref{fig:requestflow}.
+%
+% The class implements the virtual ``Server''-class functions {\em  start\_request\_thread(void* arg)}
+% and {\em  stop\_all\_request\_thread()}. This allows the server class to handle the request thread
+% when the server stops.
+%
+% \begin{figure}
+% %\vspace{0.3cm}
+% \begin{center}
+% \includegraphics[width=\textwidth]{requestflow}
+% %\vspace{-2.0cm}
+% \caption{\label{fig:requestflow}{Request Handle Flowchart}}
+% \end{center}
+% %\vspace{-0.7cm}
+% \end{figure}
+%
+% \begin{figure}
+% %\vspace{0.3cm}
+% \begin{center}
+% \includegraphics[width=\textwidth]{sendmsgflow}
+% %\vspace{-2.0cm}
+% \caption{\label{fig:sendmsgflow}{send\_msg()}}
+% \end{center}
+% %\vspace{-0.7cm}
+% \end{figure}
+%
+%
+% \subsubsection{Class ``Network Interface''}
+%
+% The network interface class is the link between the renderer system and the network server system.
+% The interface is derived from the Request Handle class and the Subscriber class. The interface class
+% has two basic jobs. One is to implment the virtual Subscriber function to generate xml strings and send them
+% to the clients. The other job is to forwarding the incomming messages to the XML-Parser.
+%
+% When creating a new Network Interface object the constructor needs a reference to a {\em controller} object. This reference is
+% used for the XML-Parsing class. In the same time when creating the interface object, the constructor builds a xml-parser object
+% The XML-Parser uses the {\em controller} reference to call the corresponding functions to the received xml-strings.
+%
+%
+%
+% \subsubsection{Class ``ParseXMLCommand''}
+%
+% This class is the only class with access to the renderer system. The XML-Parser checks the xml strings for correctness
+% and extracts the information. Then he calls the corresponding functions.
+%
+% The XML-Parser is implemented as thread. A xml-data-queue contains all xml strings which has to parse.
+% If the queue is empty the thread waits. To add new data into this queue there must be call
+% {\em set\_new\_server\_data(int id, std::string data)} or {\em set\_new\_client\_data(std::string data)}.
+% With the Compiler switches ``BUILD\_CLIENT'' and ``BUILD\_SERVER'' it is possible to select between the xml parsing threads.
+% The difference is that the server parser thread is for messages from a client to the server and
+% the client parser thread for messages from the server to a client. Thereby this class
+% can be used for server and client implementations.
+%
+% \subsection{Client Description}
+%
+% The reference client is based on the same source code like the server system. The xml parsing function
+% are also in the file {\em ParseXMLCommand.cpp}. Even the Socket classe is reused. The {\em main()} function
+% is located in the file {\em SSRClientMain.cpp} in the directory {\em client\_gui}. In this folder there is also the
+% Makefile.
+%
+% The classes for the client software are located in the {\em /network} folder. The files {\em Client.h} and
+% {\em Client.cpp} contains the basic network functionality. The Client class looks similiar to the Request Handle class.
+% The class is derived from the Socket class. In operation there is a running thread only for receiving the server messages.
+% The thead is nearly the same implementation like the receiving thread from the Request Handle class.
+% For sending messages there is no extra thread but a {\em send\_msg()} function.
+%
+% The interface class for the link between GUI and network is called {\em SSRClientNetworkInterface}.
+% The client can be configured with commandline arguments or via a configure file.
+
+%\subsection{Messages}
+
+% In general a message looks like following example:
+%
+% \begin{verbatim}
+% 500 message-string\n\r
+% \end{verbatim}
+% The first element in this string is the server code. This number says the server what payload is following and what
+% is to deal with it. Next character is an empty space.
+%
+% After that is following the payload string. This string is depend on the message code.
+%
+%
+% \subsubsection{The Message Codes}
+%
+% Table \ref{tab:message_codes} shows the message codes which are used to detect what is to do.
+% \begin{table}
+% \begin{center}
+% \begin{tabular}{lcll}
+% \hline
+% \textsc{Code Name} & \textsc{Code} & \textsc{Description} & \textsc{Payload}\\
+% \hline%\hline
+% WELCOME &       100   & Server Welcome Message & optional\\
+% CLIENT\_READY &   120   & Client is ready to receive & optional\\
+% KEEP\_ALIVE &     150   & to look, if the opponent is alive & optional\\
+% ILIVE &       160   & Answer to a Keep alive message & optional\\
+% COMMAND &       200   & Send a Command (for file handling only) & command string\\
+% COMMAND\_OK &     210   & Command successful & optional \\
+% COMMAND\_RES &    220   & Command result & result string\\
+% COMMAND\_ERROR &  300   & Command does not exists or not successful & optional\\
+% CONN\_CLOSE &     400   & Close connection & optional\\
+% SVR\_SHTDWN &     410   & Server Shutdown & optional\\
+% XML\_DATA &     500   & send/receive XML Data & XML-Data String\\
+% ERROR &       900   & Unknown error happend & optional\\
+% \hline
+% \end{tabular}
+% \caption{Message codes}
+% \label{tab:message_codes}
+% \end{center}
+% \end{table}
+%
+% The names are not important but the numbers are relevant.
+% The Codes are defined in the the file server\_codes.h
+%
+% \subsubsection{Buildup XML Messages}
+%
+% In general a message for the Sound Scrape Rendering System is build as a xml-message.
+% There is a differenz in the message from a client to the server and from the server to a client.
+% In the first case the key word is {\em request} in the second case it's {\em update}.
+
+% \subsubsection{Server Messages}
+
+% Server messages means xml-strings from a client to the server. The basic xml-string contains
+%
+% {\em $<$request$>$ ... $<$request$>$}.
+
+\subsection{Scene}
+
+\begin{itemize}
+  \item Load Scene:\\
+    \verb|<request><scene load="path/to/scene.asd"/></request>|
+  \item Clear Scene (remove all sources):\\
+    \verb|<request><scene clear="true"/></request>|
+  \item Set Master Volume (in dB):\\
+    \verb|<request><scene volume="6"/></request>|
+\end{itemize}
+
+\subsection{State}
+
+\begin{itemize}
+  \item Start processing:\\
+    \verb|<request><state processing="start"/></request>|
+
+  \item Stop processing:\\
+    \verb|<request><state processing="stop"/></request>|
+
+  \item Transport Start (Play):\\
+    \verb|<request><state transport="start"/></request>|
+
+  \item Transport Stop (Pause):\\
+    \verb|<request><state transport="stop"/></request>|
+
+  \item Transport Rewind:\\
+    \verb|<request><state transport="rewind"/></request>|
+
+  \item Transport Locate:\\
+    \verb|<request><state seek="4:33"/></request>|\\
+    \verb|<request><state seek="1.5 h"/></request>|\\
+    \verb|<request><state seek="42"/></request>| \emph{(seconds)}\\
+    \verb|<request><state seek="4:23:12.322"/></request>|
+  \item Reset/Calibrate Head-Tracker:\\
+    \verb|<request><state tracker="reset"/></request>|
+\end{itemize}
+
+\subsection{Source}
+
+\begin{itemize}
+  \item Set Source Position (in meters):\\
+    \verb|<request><source id="42"><position x="1.2" y="-2"/></source></request>|
+
+  \item Fixed Position (\verb|true|/\verb|false|):\\
+    \verb|<request><source id="42"><position fixed="true"/></source></request>|
+    \begin{verbatim}
+<request><source id="42">
+  <position x="1.2" y="-2" fixed="true"/>
+</source></request>
+    \end{verbatim}
+
+  \item Set Source Orientation (in degrees, zero in positive x-direction):\\
+    \verb|<request><source id="42"><orientation azimuth="93"/></source></request>|
+
+  \item Set Source Gain (Volume in dB):\\
+    \verb|<request><source id="42" volume="-2"/></request>|
+
+  \item Set Source Mute (\verb|true|/\verb|false|):\\
+    \verb|<request><source id="42" mute="true"/></request>|
+
+  \item Set Source Name:\\
+    \verb|<request><source id="42" name="My first source" /></request>|
+
+  \item Set Source Model (\verb|point|/\verb|plane|):\\
+    \verb|<request><source id="42" model="point"/></request>|
+
+  \item Set Source Port Name (any JACK port):\\
+    \verb|<request><source id="42" port_name="system:capture_3"/></request>|
+
+  \item New Source (some of the parameters are optional):
+    \begin{verbatim}
+<request>
+  <source new="true" name="a new source"
+      file="path/to/audio.wav" channel="2">
+    <postition x="-0.3" y="1" fixed="true"/>
+    <orientation azimuth="99"/>
+  </source>
+</request>
+    \end{verbatim}
+    \begin{verbatim}
+<request>
+  <source new="true" name="a source from pd"
+      port="pure_data_0:output0" volume="-6">
+    <postition x="0.7" y="2.3"/>
+  </source>
+</request>
+    \end{verbatim}
+  \item Delete Source:\\
+    \verb|<request><delete><source id="42"/></delete></request>|
+\end{itemize}
+
+\subsection{Reference}
+
+\begin{itemize}
+  \item Set Reference Position (in meters):\\
+    \verb|<request><reference><position x="-0.3" y="1.1"/></reference></request>|
+
+  \item Set Reference Orientation (in degrees, zero in positive x-direction):\\
+    \verb|<request><reference><orientation azimuth="90"/></reference></request>|
+\end{itemize}
+
+%\subsubsection{Client Messages}
+% Client messages means xml-strings from the server to a client. The basic xml-string contains
+%
+% {\em $<$update$>$ ... $<$update$>$}.
+%
+% \begin{itemize}
+% \item New Source:\\
+%   $<$update$>$$<$source id='{\em ID}'/$>$$<$/update$>$
+%
+% \item Delete Source:\\
+%   $<$update$>$$<$delete$>$$<$source id='{\em ID}'/$>$$<$/delete$>$$<$/update$>$
+%
+% \item Delete All Sources:\\
+%   $<$update$>$$<$delete$>$$<$source id='0'/$>$$<$/delete$>$$<$/update$>$
+%
+% \item Set Source Position:\\
+%   $<$update$>$$<$source id='{\em ID}'$>$$<$position x='{\em VALUE}' y='{\em VALUE}'/$>$$<$/source$>$$<$/update$>$
+%
+% \item Set Source Orientation:\\
+%   $<$update$>$$<$source id='{\em ID}'$>$$<$orientation azimuth='{\em VALUE}'/$>$$<$/source$>$$<$/update$>$
+%
+% \item Set Source Gain (Volume):\\
+%   $<$update$>$$<$source id='{\em ID}' volume='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Source Mute:\\
+%   $<$update$>$$<$source id='{\em ID}' mute='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Source Name:\\
+%   $<$update$>$$<$source id='{\em ID}' name='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Source Model:\\
+%   $<$update$>$$<$source id='{\em ID}' model='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Source Port Name:\\
+%   $<$update$>$$<$source id='{\em ID}' port\_name='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Source File Length:\\
+%   $<$update$>$$<$source id='{\em ID}' file\_length='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Reference Position:\\
+%   $<$update$>$$<$reference$>$$<$position x='{\em VALUE}' y='{\em VALUE}'/$>$$<$/reference$>$$<$/update$>$
+%
+% \item Set Reference Orientation:\\
+%   $<$update$>$$<$reference$>$$<$orientation azimuth='{\em VALUE}'/$>$$<$/reference$>$$<$/update$>$
+%
+% \item Set Master Volume:\\
+%   $<$update$>$$<$volume$>${\em VALUE}$<$/volume$>$$<$/update$>$
+%
+% \item Set CPU Load:\\
+%   $<$update$>$$<$cpu load='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Master Signal Level:\\
+%   $<$update$>$$<$master level='{\em VALUE}'/$>$$<$/update$>$
+%
+% \item Set Source Signal Level:\\
+%   $<$update$>$$<$source id='{\em ID}' level='{\em VALUE}'/$>$$<$/update$>$
+%
+% \end{itemize}
+%
+% A special thing is the loudspeaker setup. In the beginning of the communication the server transmit the
+% loudspeaker adjustment. This is defined with following xml-commands:
+%
+% $<$update$>$$<$loadspeaker model="{\em VALUE}"$>$$<$position x="{\em VALUE}" y="{\em VALUE}"/$>$$<$orientation azimuth="{\em VALUE}"/$>$$<$/loudspeaker$>$...$<$/update$>$.
+%
+% All loudspeaker are set inside the $<$update$>$ tags.
+% In the Attachment is the complete arrangement for the circual loudspeaker setup with 56 loudspeakers and one subwoofer.
+
+
+
+
+% \subsection{XML-Setup for a 56-Loudspeaker Circle}
+% %
+% For the complete loudspeaker setup look at the file {\em loadspeaker.txt}.
+% %
+% \subsection{Building Client}
+% %
+% The Makefile is stored in the subfolder {\em /client\_gui}.\\
+% Open this file and adjust the preference for the actually operating system.\\
+% To building the reference client with Network Interface and
+% Graphical User Interface only type:\\
+%
+% {\em make client}\\
+
+% \subsection{Starting the Client}
+% %
+% If the building is successful the binary in located in the {\em /bin} folder above the {\em /src} directory.
+% It is possible to use a configuration file or use comandline parameters.\\
+% Type {\em ./ssr\_client --help} to see the programm options.\\
+%
+% Example: {\em ./ssr\_client -i 192.168.1.1 -p 5555}
+
+% Settings for Vim (http://www.vim.org/), please do not remove:
+% vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80

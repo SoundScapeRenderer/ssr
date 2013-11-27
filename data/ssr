@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# default executable
+SSR_EXECUTABLE=ssr-binaural
+
+# add all options except renderer type to $OPTIONS:
+while [[ $1 ]]; do
+  case "$1" in
+    --binaural)
+      SSR_EXECUTABLE=ssr-binaural
+      ;;
+    --brs)
+      SSR_EXECUTABLE=ssr-brs
+      ;;
+    --bpb)
+      SSR_EXECUTABLE=ssr-bpb
+      ;;
+    --wfs)
+      SSR_EXECUTABLE=ssr-wfs
+      ;;
+    --aap)
+      SSR_EXECUTABLE=ssr-aap
+      ;;
+    --vbap)
+      SSR_EXECUTABLE=ssr-vbap
+      ;;
+    --generic)
+      SSR_EXECUTABLE=ssr-generic
+      ;;
+    --nfc-hoa)
+      SSR_EXECUTABLE=ssr-nfc-hoa
+      ;;
+    *)
+      OPTIONS+=("$1")
+      ;;
+  esac
+  shift
+done
+
+SSR_EXECUTABLE=$(dirname $0)/$SSR_EXECUTABLE
+
+if [ ! -x $SSR_EXECUTABLE ]
+then
+  echo "'$SSR_EXECUTABLE' isn't available. Did you compile and install it?"
+  exit 1
+fi
+
+$SSR_EXECUTABLE "${OPTIONS[@]}"

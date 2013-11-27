@@ -1,0 +1,99 @@
+################################################################################
+# Example configuration file for the SoundScape Renderer (SSR)                 #
+#                                                                              #
+# Configuration files are processed in this order:                             #
+# 1) /Library/SoundScapeRenderer/ssr.conf                                      #
+# 2) /etc/ssr.conf                                                             #
+# 3) $HOME/Library/SoundScapeRenderer/ssr.conf                                 #
+# 4) $HOME/.ssr/ssr.conf                                                       #
+# 5) anything specified on the command line with "ssr --config=my_conf.file"   #
+#                                                                              #
+# If a parameter is specified more than once, the last occurrence counts!      #
+################################################################################
+
+# Correction of master volume in dB
+#MASTER_VOLUME_CORRECTION = 6
+
+# Distance in m of equal level for plane waves and point sources
+#STANDARD_AMPLITUDE_REFERENCE_DISTANCE = 3
+
+# Default Scene file name 
+#SCENE_FILE_NAME = my_scene.asd
+
+# GUI scene shortcuts
+#SCENE_MENU = scene_menu.conf
+
+# Default playback setup file
+#PLAYBACK_SETUP_FILE_NAME = default_setup.asd
+
+# XML Schema file name to validate XML scene and reproduction setup files
+#XML_SCHEMA_FILE_NAME = asdf.xsd
+
+# audio recorder file name
+#AUDIO_RECORDER_FILE_NAME = test07.wav
+
+# renderer type: WFS, binaural, BRS, VBAP, AAP, generic
+#RENDERER_TYPE = WFS
+
+########################## JACK settings #######################################
+
+# alsa input port prefix
+#INPUT_PREFIX = "alsa_pcm:capture_"
+
+# alsa output port prefix
+#OUTPUT_PREFIX = "alsa_pcm:playback_"
+
+########################## Renderer type settings ##############################
+
+# WFS:
+#WFS_PREFILTER = impulse_responses/wfs_prefilter_120_1500_44100.wav
+#DELAYLINE_SIZE = 100000
+#INITIAL_DELAY = 1000
+
+# binaural
+#HRIR_FILE_NAME = default_hrirs.wav
+#HRIR_SIZE = 512
+
+# Ambisonics
+#AMBISONICS_ORDER = 3
+#IN_PHASE_RENDERING = TRUE # "true" works as well
+
+################################# GUI settings #################################
+
+# location of images for GUI
+#PATH_TO_GUI_IMAGES = images
+
+# Enable GUI
+#GUI = on
+
+############################# head tracker settings ############################
+
+# select head tracker
+#TRACKER = polhemus
+#TRACKER = intersense
+#TRACKER = razor
+
+# space separated list of serial ports which are tried for Polhemus Fastrak
+#TRACKER_PORTS = "/dev/ttyUSB2 /dev/ttyS1"
+
+############################ IP Interface configuration ########################
+
+# ENABLE IP Server Interface
+#NETWORK_INTERFACE = on
+
+# Listening server port
+#SERVER_PORT = 8443
+
+############################## Verbosity Level #################################
+
+# Set the level of system information
+#
+# Level 0: Only errors and warnings are shown.
+# Level 1: A few more messages are shown.
+# Level 2: Quite a lot messages are shown.
+# Level 3: Even messages which can repeat many times per second are shown.
+#	    This is a lot of messages!
+#
+#VERBOSE = "1"
+
+################################################################################

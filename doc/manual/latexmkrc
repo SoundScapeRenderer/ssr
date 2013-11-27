@@ -1,0 +1,4 @@
+@default_files = ('SoundScapeRenderer');
+$pdf_mode = 2; # ps -> pdf
+$ps2pdf = 'ps2pdf -dPDFSETTINGS=/prepress'; # Get rid of compression artefacts
+$clean_ext = "bbl";

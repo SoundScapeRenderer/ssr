@@ -1,0 +1,19 @@
+# You can use this file if you run the SSR locally (without installation)
+#
+# It is automatically used if you start ./ssr-* within the data/ directory.
+#
+# See ssr.conf.example for a more extensive configuration file.
+
+# location of images for GUI
+PATH_TO_GUI_IMAGES = images
+
+# head related impulse responses
+HRIR_FILE_NAME = impulse_responses/hrirs/hrirs_fabian.wav
+
+# default reproduction setup
+PLAYBACK_SETUP_FILE_NAME = reproduction_setups/rounded_rectangle.asd
+
+# XML Schema file name to validate XML files
+XML_SCHEMA_FILE_NAME = asdf.xsd
+
+WFS_PREFILTER = impulse_responses/wfs_prefilters/wfs_prefilter_120_1500_44100.wav

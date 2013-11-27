@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:annotation><xs:documentation xml:lang="en">
+      This is the first draft for a XML format to describe a virtual audio scene
+      and (in the most cases alternatively) a reproduction setup. The
+      reproduction setup can either be a loudspeaker setup or some kind of
+      headphone setup. The first emphasis is on loudspeakers.
+
+      Author: Matthias Geier
+      Date: April-November 2007
+  </xs:documentation></xs:annotation>
+
+  <xs:element name="asdf">
+    <xs:annotation><xs:documentation xml:lang="en">
+        root element, ASDF means "Audio Scene Description Format"
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="header" minOccurs="0"/>
+        <xs:element ref="reproduction_setup" minOccurs="0"/>
+        <xs:element ref="scene_setup" minOccurs="0"/>
+        <xs:element ref="score" minOccurs="0"/>
+      </xs:all>
+      <xs:attribute name="version" type="xs:decimal" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="header">
+    <xs:annotation><xs:documentation xml:lang="en">
+        The header can contain the name of the scene and a description.
+        There can also be a version string and a date/time.
+    </xs:documentation></xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:all>
+        <xs:element ref="name" minOccurs="0"/>
+        <xs:element name="description" type="xs:string" minOccurs="0"/>
+        <xs:element name="version" type="xs:token" minOccurs="0"/>
+        <xs:element name="date" type="xs:dateTime" minOccurs="0"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="reproduction_setup">
+    <xs:annotation><xs:documentation xml:lang="en">
+        This section is for the setup of the reproduction system. This can
+        be a loudspeaker setup or headphones or ...
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="loudspeaker"/>
+        <xs:element ref="circular_array"/>
+        <xs:element ref="linear_array"/>
+        <xs:element name="skip">
+          <xs:complexType>
+            <xs:attribute name="number" type="xs:positiveInteger" default="1"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="scene_setup">
+    <xs:annotation><xs:documentation xml:lang="en">
+        The static content of the scene is saved here. That can be
+        information about sources an the reference point and their initial
+        position and orientation.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <!-- the order doesn't really matter, but the "all" element
+        doesn't allow a maxOccurs of more than 1 -->
+        <!-- volume in dB! -->
+        <xs:element name="volume" type="xs:float" minOccurs="0"/>
+        <xs:element name="amplitude_reference_distance" type="xs:decimal" minOccurs="0"/>
+        <xs:element ref="reference" minOccurs="0"/>
+        <xs:element ref="source" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="score">
+    <xs:annotation><xs:documentation xml:lang="en">
+        This holds the dynamic content of the scene, i.e. movement of
+        sources/reference, start/end/length/loop information of
+        soundfiles, ...
+        Right now, it's not really defined and just to get an idea that
+        such functionalities will be implemented sometime (hopefully).
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="event"/>
+        <!-- There may be other elements here? -->
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="event">
+    <xs:annotation><xs:documentation xml:lang="en">
+        The usage of events is not defined yet!
+        This is just a very raw draft!
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="set"/>
+        <xs:element ref="play"/>
+      </xs:choice>
+      <xs:attribute name="start" type="time_t" use="optional"/>
+      <xs:attribute name="duration" type="time_t" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="set">
+    <xs:annotation><xs:documentation xml:lang="en">
+        The usage of this event is not completely defined yet!
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <!-- At least one should be present, but any number of elements can be
+        present. However, each element may be there only once.
+        I don't know how to write that in schema ... -->
+        <xs:element ref="position" minOccurs="0"/>
+        <xs:element ref="orientation" minOccurs="0"/>
+        <xs:element ref="name" minOccurs="0"/>
+      </xs:all>
+      <xs:attribute ref="id" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="play">
+    <xs:annotation><xs:documentation xml:lang="en">
+        The usage of this event is not completely defined yet!
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:attribute ref="id" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Type definitions: -->
+  <xs:complexType name="position_t">
+    <xs:attribute name="x" type="xs:decimal" use="required"/>
+    <xs:attribute name="y" type="xs:decimal" use="required"/>
+    <xs:attribute name="z" type="xs:decimal" use="optional"/>
+    <xs:attribute name="fixed" type="xs:boolean" default="false" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="orientation_t">
+    <xs:attribute name="azimuth" type="xs:decimal" use="required"/>
+    <xs:attribute name="elevation" type="xs:decimal" use="optional"/>
+    <xs:attribute name="tilt" type="xs:decimal" use="optional"/>
+  </xs:complexType>
+  <xs:simpleType name="time_t">
+    <xs:restriction base="xs:token">
+      <xs:pattern value="(\d+:[0-5]\d|[0-5]?\d):[0-5]\d(\.\d+)?"/>
+      <xs:pattern value="(\d+|\d*\.\d+)(\s?(h|min|sec|s|ms|msec))?"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="more_than_one">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="source_model_t">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="point"/>
+      <xs:enumeration value="plane"/>
+      <xs:enumeration value="directional"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="loudspeaker_model_t">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="normal"/>
+      <xs:enumeration value="subwoofer"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="name" type="xs:token"/>
+  <xs:element name="description" type="xs:string"/>
+  <xs:element name="position" type="position_t"/>
+  <xs:element name="orientation" type="orientation_t"/>
+  <xs:element name="angle" type="orientation_t"/>
+  <xs:element name="gain" type="xs:float"/> <!-- in dB! -->
+  <xs:attribute name="id" type="xs:ID"/>
+  <xs:attribute name="name" type="xs:token"/>
+  <xs:attribute name="volume" type="xs:float"/> <!-- in dB! -->
+  <xs:attribute name="delay" type="xs:decimal"/>
+  <xs:attribute name="weight" type="xs:decimal"/>
+
+  <!-- reference point (= listener position) -->
+  <xs:element name="reference">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="position"/>
+        <xs:element ref="orientation"/>
+      </xs:all>
+      <xs:attribute ref="id"   use="optional"/>
+      <xs:attribute ref="name" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="source">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0">
+          <xs:element ref="file"/>
+          <xs:element ref="port"/>
+        </xs:choice>
+        <xs:element ref="position"/>
+        <xs:element ref="orientation" minOccurs="0"/>
+        <xs:any minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute ref="id"     use="optional"/>
+      <!--
+      <xs:attribute name="id" use="optional"/>
+      -->
+      <!-- uses xs:key below! -->
+
+      <xs:attribute ref="name"   use="optional"/>
+      <xs:attribute name="properties_file" type="xs:token" use="optional"/>
+      <xs:attribute ref="volume" use="optional"/>
+      <xs:attribute name="model" type="source_model_t" use="optional"/>
+      <xs:attribute name="mute"  type="xs:boolean" default="false" use="optional"/>
+      <xs:attribute name="doppler_effect"  type="xs:boolean" default="false" use="optional"/>
+      <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+
+    <!--
+    <xs:key name="sourceKey">
+      <xs:selector xpath="source"/>
+      <xs:field xpath="@id"/>
+    </xs:key>
+    -->
+
+  </xs:element>
+
+  <!--
+  <xs:complexType name="barType">
+    ...
+    <xs:attribute name="idref" type="xs:IDREF"/>
+    ...
+  </xs:complexType>
+  <xs:keyref refer="sourceKey" name="barKey">
+    <xs:selector xpath="foo"/>
+    <xs:field xpath="@idref"/>
+  </xs:keyref>
+  -->
+
+  <xs:element name="loudspeaker">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="position"/>    <!-- required -->
+        <xs:element ref="orientation"/> <!-- required -->
+      </xs:all>
+      <xs:attribute ref="name"/>
+      <xs:attribute ref="delay"/>
+      <xs:attribute ref="weight"/>
+      <xs:attribute name="model" type="loudspeaker_model_t"/>
+      <!-- extensible by any attribute -->
+      <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="circular_array">
+    <xs:complexType>
+      <xs:annotation><xs:documentation xml:lang="en">
+          Circular loudspeaker array.
+          Position (and orientation) is relative to the reference point (given
+          in the scene_setup/score section).
+          If no "center" element is present, the center of the circle is the
+          reference point.
+          All positions and orientations refer to the coordinate system given
+          by the reference point.
+          It is possible to define segments of circles with a "second" or a
+          "last" element (compare the "linear_array" section).
+      </xs:documentation></xs:annotation>
+      <xs:sequence>
+        <xs:element name="center" minOccurs="0">
+          <xs:complexType>
+            <xs:all> <!-- is that necessary for only one element? -->
+              <xs:element ref="position"/> <!-- no orientation! -->
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="first">
+          <xs:complexType>
+            <xs:all>
+              <xs:element ref="position"/>
+              <xs:element ref="orientation"/> <!-- required! -->
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:choice minOccurs="0">
+          <!-- "second" and "last" are optional. If not specified, a full
+          circle is assumed -->
+          <xs:element name="second">
+            <xs:complexType>
+              <xs:all>
+                <xs:element ref="angle"/>
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="last">
+            <xs:complexType>
+              <xs:all>
+                <xs:element ref="angle"/>
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <!-- an ID doesn't really make sense for a loudspeaker array, does it? -->
+      <!-- <xs:attribute ref="id" use="optional"/> -->
+      <xs:attribute name="number" type="more_than_one" use="required"/>
+      <xs:attribute ref="name" use="optional"/>
+
+      <!-- extensible by any attribute: -->
+      <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="linear_array">
+    <xs:complexType>
+      <xs:annotation><xs:documentation xml:lang="en">
+          Linear loudspeaker array.
+          Position (and orientation) is relative to the reference point (given
+          in the scene_setup/score section).
+      </xs:documentation></xs:annotation>
+      <xs:sequence>
+        <!-- This cannot be "xs:all" because it includes a "xs:choice" -->
+        <xs:element name="first">
+          <xs:complexType>
+            <xs:all>
+              <xs:element ref="position"/>
+              <xs:element ref="orientation"/> <!-- required! -->
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:choice>
+          <xs:element name="second">
+            <xs:complexType>
+              <xs:all>
+                <xs:element ref="position"/>
+                <xs:element ref="orientation" minOccurs="0"/> <!-- optional -->
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="last">
+            <xs:complexType>
+              <xs:all>
+                <xs:element ref="position"/>
+                <xs:element ref="orientation" minOccurs="0"/> <!-- optional -->
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="number" type="more_than_one" use="required"/>
+      <xs:attribute ref="name"/>
+      <!-- extensible by any attribute -->
+      <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="file">
+    <xs:annotation><xs:documentation xml:lang="en">
+        A local filename or (theoretically) an URL to an audio file/stream.
+        This can be a multichannel file. The optional attribute "channel" can
+        specify a channel in a multichannel file. It defaults to 1.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:token">
+          <xs:attribute name="channel" type="xs:positiveInteger" default="1"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="port" type="xs:token">
+    <xs:annotation><xs:documentation xml:lang="en">
+        Instead of a filename also a port can be specified. This is preferably a
+        port number, but it can also be a port name.
+        It is still unclear how to specify a port in a general manner so that it
+        is independent of the audio server and the hardware.
+    </xs:documentation></xs:annotation>
+  </xs:element>
+
+</xs:schema>
+
+<!--
+Settings for Vim (http://www.vim.org/), please do not remove:
+vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80
+-->

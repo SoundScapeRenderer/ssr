@@ -1,0 +1,235 @@
+// CODING STYLE
+
+// following rules should be obeyed when writing new SSR code and overhauling
+// old code.
+
+// there are always exceptional cases where these rules don't apply, but they
+// should always be taken into consideration.
+
+// maximum line length 80 characters (using 2 spaces for each indentation).
+// no TAB characters are used!
+
+// typenames get a '_t' postfixed if appropriate
+typedef int my_counter_t;
+// variable names in lowercase letters, words separated by underscore (_)
+my_counter_t my_counter = 3;
+// in the most cases, full words should be used. no abbreviations.
+sr_it = fr_it + bl_sz;  // bad.
+second_read_iterator = first_read_iterator + block_size;  // better.
+
+// opening brace on new line. Always on same indentation level as closing brace.
+// exception: empty braces: {}
+if (something)
+{
+  a = c;
+  do_something();
+}
+else  // comment for the "else" part
+{
+  a = b;
+  do_something_else();
+  // no empty line before closing brace
+}
+
+// if (and only if) it can be written in one line, braces can be omitted:
+if (something) a = c;
+
+// PARENTHESES, SPACES
+//
+// no space between function name and opening parenthesis,
+// nor after ( and [
+// nor before , ) ] and ;
+// in most cases, no space before [
+// no space before comma but 1 space afterwards.
+my_function ( arg1, arg2 ) ;  // bad
+my_function(arg1, arg2);      // better
+
+// but: spaces after if, for, while, switch, ...
+
+// spaces around operators are generally recommended, but sometimes it looks
+// nicer without ...
+result = (a + b) * factor;
+
+// never use more than one empty line.
+
+// * and & are next to the types, not next to the variables
+float *data;  // bad, old-school C-style
+float* data;  // better
+
+// CLASSES
+//
+// traditional class names start with a capital letter per word (CamelCase),
+// no underscores (_), no hideous prefix like in 'CMyClass'.
+// "special" classes (traits, iterators, policies, ...) can be in lowercase and
+// may use underscores.
+class MyClass : public MyBaseClass
+{
+  public:
+    // no empty line between public/protected/private and following line
+    // but empty line before it, except if there is an opening brace ({)
+    MyClass();
+
+    // similar functions grouped together without newlines
+    void my_function1(int my_argument);
+    bool my_function2(const std::string my_string);
+
+    // also add "virtual" in inherited functions (once virtual - always virtual)
+    virtual my_base_function(int base_argument);
+
+    int public_val1;
+
+  private:
+    // private (and protected) member variables and member functions are
+    // "uglified" with '_'
+    int _priv_val1;
+    int _priv_val2;
+}
+
+// constructor initiator lists
+//
+// first line starts with : all others with ,
+// each member variable gets its own line.
+MyClass::MyClass()
+  : public_val1(99)
+  , _priv_val1(129)
+  , _priv_val2(0)
+{}
+
+// within the class implementation, non-uglified functions/variables are used
+// with a prefixed "this->".
+// This is redundant, but it helps to show where a function/variable belongs to.
+my_function1(2);       // unclear where this function comes from (is it global?)
+this->my_function1(3); // better.
+_priv_val1 = 42;
+// clear: it has to be a class member (because uglified = private/protected)
+
+// NAMESPACES
+//
+// namespaces follow the same naming conventions as classes, but names can be in
+// lowercase letters.
+// there is no extra indentation level for a namespace!
+namespace mynamespace
+{
+int my_namespace_member(int arg);
+}
+
+// if a namespace member is implemented in a .cpp file, the namespace is
+// prepended to the function name
+mynamespace::my_namespace_member(int arg) { return 42; }
+
+// TYPE CASTING
+//
+// use C++ casting instead of C-style casting
+float value;
+int step;
+step = (int)value;  // not good, this should only be used in C
+step = static_cast<int>(value);  // better
+
+// LINE BREAKS
+//
+// as mentioned before, maximum line length should be 80 characters.
+// if a function definition doesn't fit on a line, consider breaking after the
+// return type.
+// if lines are broken at operators or punctuation marks, those should end up at
+// the beginning of the second line.
+int my_very_special_and_long_function(my_rather_special_data_t input1
+    , my_rather_special_data_t input2)
+{
+  my_very_long_result = 27 * my_other_very_special_and_long_function(input1)
+    + my_other_very_special_and_long_function(input2);
+  return my_very_long_result * my_very_long_result;
+}
+
+// if the declaration of a for-loop doesn't fit on one line, put each semicolon
+// on a new line
+for (MyContainerClass::iterator i = my_container.begin()
+    ; i != my_container.end()
+    ; ++i)
+{
+  do_something(*i);
+}
+
+// template definitions always go on their own line, return types, especially if
+// they are nested types, may also use their own line
+template<typename T>
+T::my_inner_type
+some_function(const T& input)
+{
+  // ...
+  return something;
+}
+
+// COMPILER WARNINGS
+//
+// compiler warnings should be taken seriously.
+//
+// if a function has to be defined but is not implemented, one can use following
+// workaround to avoid the warning about an unused variable:
+void my_function(int unused_arg)
+{
+  (void)unused_arg;  // no "unused variable" warning is shown.
+}
+
+// this is another possibility:
+void my_function(int /* unused_arg */) {}
+
+// at least following warnings should be used:
+// -W -Wall -pedantic -Wpointer-arith -Wcast-align -Wwrite-strings
+// -Wredundant-decls -Wno-long-long -Wconversion
+//
+// shadowing should be avoided and can be checked by -Wshadow
+//
+// suggestions from Meyers' "Effective C++" can be activated by -Weffc++
+
+// COMMENTS
+//
+// one-line comments should always use "//".
+// if a comment is on the same line as actual source code, it's separated by two
+// spaces.
+// multi-line comments should always have an empty line before them.
+//
+// C-style comments (/* ... */) should only be used for
+// function/class/file/...-headers (mainly with Doxygen) and not within
+// functions.
+// Remember: C-style comments cannot be nested!
+#if 0
+Code can also be deactivated by surrounding it with #if 0 ... #endif
+#endif
+
+// DOXYGEN COMMENTS
+//
+// everything should be documented, doxygen should run without warnings.
+// 
+// the abovementioned rules for C and C++-style comments apply.
+// especially, there should be an empty line before multi-line comments.
+// C-style comments should only be used for class and function documentation and
+// should have more or less this form:
+
+/** Brief description (ending with a dot!).
+ * Afterwards, there can be a longer description.
+ * This kind of comments should only be used if there are at least three lines
+ * of text.
+ * @tparam T Template parameter
+ * @param x Input parameter
+ * @param[out] y Parameter used as output
+ * @param[in,out] z Parameter used as input and output
+ * @return Documentation of the return value
+ * @throw std::runtime_error Documentation of the exception
+ **/
+template<typename T>
+T example_function(const T& x, T& y, T& z)
+{
+  y = x + z++;
+  if (y == z) throw std::runtime_error("y and z are equal!");
+  return x * y;
+}
+
+// MODELINES
+//
+// all source files should include a modeline for Vim as shown in the last two
+// lines of this file.
+
+// Only necessary for this textfile: vim:syntax=cpp.doxygen
+
+// Settings for Vim (http://www.vim.org/), please do not remove:
+// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent
