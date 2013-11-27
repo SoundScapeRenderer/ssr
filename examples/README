@@ -1,0 +1,11 @@
+Some examples of how the Audio Processing Framework (APF) can be used.
+
+Compilation:
+
+make
+
+make pd
+
+make mex
+
+make mex-double
