@@ -1,0 +1,24 @@
+User-visible changes in the Audio Processing Framework. Recent changes on top.
+
+0.2.0 (03 July 2013)
+
+ - new: Convolver and BlockDelayLine
+
+ - new: query_policy for getting information out of the audio thread
+
+ - new: fixed_vector and fixed_list, changed Matrix to fixed_matrix
+
+ - new: ScopedThread, DetatchedThread, fftw_allocator, PortAudio policy
+
+ - re-design of the crossfade, tools for parameter interpolation were added.
+   see CombineChannels, CombineChannelsCrossfade, CombineChannelsInterpolation
+
+ - posix_thread_policy and posix_sync_policy were combined
+
+ - several bug-fixes and many improvements, more unit tests
+
+ - re-organization of the directory structure, some separate files were combined
+
+0.1.0 (10 April 2012)
+
+ - first release

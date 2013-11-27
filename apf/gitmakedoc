@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# Create Doxygen documentation and (if on "master" branch) push to git server.
+
+# Prepare your working copy for pushing the documentation to Github:
+#
+#   cd doc
+#   git clone https://user@github.com/AudioProcessingFramework/apf-doc.git html
+
+set -e
+
+VERSION=$(git describe)
+BRANCH=$(git symbolic-ref --short HEAD)
+
+cd doc
+
+if [ -d html ]
+then
+  cd html
+  if [ -d .git -a "$BRANCH" = master ]
+  then
+    git rm -rf .
+  fi
+  cd ..
+fi
+
+( cat Doxyfile \
+; echo PROJECT_NUMBER = \"version $VERSION\"\
+; echo OUTPUT_DIRECTORY = . \
+; echo QUIET = YES \
+; echo WARNINGS = NO \
+; echo GENERATE_LATEX = NO \
+; echo GENERATE_RTF = NO \
+; echo GENERATE_MAN = NO \
+; echo GENERATE_XML = NO \
+) | doxygen - > /dev/null
+
+cd html
+
+if [ -d .git -a "$BRANCH" = master ]
+then
+  echo -n "Push to Github? [yN] "
+  read ANSWER
+  if [ "$ANSWER" = Y -o "$ANSWER" = y ]
+  then
+    git add . && git commit -m "Doxygen documentation for $VERSION" \
+	    && git push --force
+  fi
+fi
