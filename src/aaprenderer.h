@@ -102,9 +102,6 @@ bool
 AapRenderer::Source::get_output_levels(sample_type* first
     , sample_type* last) const
 {
-  // TODO: currently the reference offset is broken, therefore the active
-  // loudspeakers are turned by 90 degrees. The audio should be correct, though.
-
   assert(
       static_cast<sourcechannels_t::size_type>(std::distance(first, last))
       == this->sourcechannels.size());
