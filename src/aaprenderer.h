@@ -108,6 +108,7 @@ AapRenderer::Source::get_output_levels(sample_type* first
   assert(
       static_cast<sourcechannels_t::size_type>(std::distance(first, last))
       == this->sourcechannels.size());
+  (void)last;
 
   for (const auto& channel: this->sourcechannels)
   {
