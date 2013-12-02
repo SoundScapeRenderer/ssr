@@ -71,6 +71,8 @@ SECTION("constructor from size", "uses default constructor")
   CHECK(fv2.size() == 0);
 }
 
+// TODO: constructor from size and allocator is missing in C++11 (but not C++14)
+#if 0
 SECTION("constructor from size and allocator", "")
 {
   auto a = std::allocator<int>();
@@ -83,6 +85,7 @@ SECTION("constructor from size and allocator", "")
   // rvalue allocator
   CHECK(apf::fixed_vector<int>(0, std::allocator<int>()).size() == 0);
 }
+#endif
 
 SECTION("constructor from size and default value", "")
 {

@@ -98,10 +98,16 @@ class fixed_vector : public std::vector<T, Allocator>
       : _base(std::forward<Args>(args)...)
     {}
 
+// TODO: constructor from size and allocator is missing in C++11 (but not C++14)
+#if 0
+    // TODO: re-activate with C++14:
     template<typename Size, typename = internal::if_integral<Size>>
     fixed_vector(Size n, const Allocator& a = Allocator())
       : _base(n, a)
     {}
+#else
+    explicit fixed_vector(size_type n) : _base(n) {}
+#endif
 
     template<typename Size, typename Arg
       , typename = internal::if_integral<Size>>
