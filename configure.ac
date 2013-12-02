@@ -100,8 +100,8 @@ AC_PROG_CC
 dnl Determine a C++ compiler to use
 AC_PROG_CXX
 
-AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], ,
-  AC_MSG_ERROR([C++ compiler not found!]))
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])], ,
+  AC_MSG_ERROR([C++ compiler ($CXX) not found!]))
 
 dnl Add support for the `--enable-shared' and `--disable-shared' configure flags
 dnl we don't need that (yet)
