@@ -67,7 +67,7 @@ class VbapRenderer : public LoudspeakerRenderer<VbapRenderer>
       , _overhang_angle(
           params.get("vbap_overhang_angle", apf::math::deg2rad(30.0)))
       , _overhang_func(2 * _overhang_angle)
-      , _reference_offset_position(this->state.reference_offset_position)
+      , _reference_offset_position(this->state.reference_offset_position.get())
     {}
 
     void load_reproduction_setup();
