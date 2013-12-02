@@ -182,6 +182,19 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], AC_MSG_RESULT([yes]),
   AC_MSG_ERROR([C++11 not supported! Please upgrade.])
 ])
 
+dnl see http://www.open-std.org/JTC1/SC22/WG21/docs/cwg_defects.html#1123
+dnl and http://stackoverflow.com/q/11497252/500098
+AC_MSG_CHECKING([if $CXX implements core/1123])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+[
+  struct X { virtual ~X() = default; };
+  struct Y : X { virtual ~Y() = default; };
+], [])], AC_MSG_RESULT([yes]),
+[
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([core/1123 not implemented! Please upgrade.])
+])
+
 ENABLE_AUTO([optimization], [code optimization],
 [
   dnl for now, we have only optimization if GCC is used
