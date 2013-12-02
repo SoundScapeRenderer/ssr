@@ -100,7 +100,7 @@ AC_PROG_CC
 dnl Determine a C++ compiler to use
 AC_PROG_CXX
 
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])], ,
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], ,
   AC_MSG_ERROR([C++ compiler ($CXX) not found!]))
 
 dnl Add support for the `--enable-shared' and `--disable-shared' configure flags
@@ -175,6 +175,12 @@ AS_IF([test x$usercxxflags = xno], [CXXFLAGS="-g"])
 
 dnl select C++11 (unconditionally)
 CXXFLAGS="$CXXFLAGS -std=c++11"
+AC_MSG_CHECKING([if $CXX supports "-std=c++11"])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], AC_MSG_RESULT([yes]),
+[
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([C++11 not supported! Please upgrade.])
+])
 
 ENABLE_AUTO([optimization], [code optimization],
 [
