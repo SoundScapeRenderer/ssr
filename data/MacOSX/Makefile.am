@@ -34,7 +34,7 @@ dist_noinst_DATA = dylibbundler/help.html dylibbundler/makefile
 
 # this is done after installing the executable
 install-exec-hook:
-	for exec in $(bin_PROGRAMS) ; do \
+	for exec in $(SSR_executables) ; do \
 		$(builddir)/dylibbundler/dylibbundler \
 		--overwrite-dir --bundle-deps \
 		--fix-file $(DESTDIR)$(bindir)/$$exec \
