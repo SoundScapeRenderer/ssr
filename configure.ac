@@ -130,6 +130,11 @@ dnl AC_DEFINE writes values in config.h
 dnl AC_DEFINE_UNQUOTED performs additional shell expansions, e.g. substitution
 dnl of variable with value.
 
+dnl TODO: option(s) for selecting a subset of renderers!
+dnl Note: For full list of possible executables see src/Makefile.am
+SSR_executables="ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-nfc-hoa ssr-vbap ssr-aap"
+AC_SUBST(SSR_executables)
+
 dnl Checking for sndfile
 PKG_CHECK_MODULES([SNDFILE], [sndfile >= 1.0],
 [
@@ -727,6 +732,8 @@ dnl any other files resulting from configuration
 dnl usage with arguments, e.g. AC_OUTPUT(Makefile src/Makefile), is deprecated!
 AC_OUTPUT
 
+echo
+echo SSR_executables: $SSR_executables
 echo
 echo CXX: $CXX
 echo

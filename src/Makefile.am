@@ -5,8 +5,8 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
-## TODO: make optional
-bin_PROGRAMS = ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-nfc-hoa ssr-vbap ssr-aap
+## See configure.ac
+bin_PROGRAMS = $(SSR_executables)
 
 ## All possible optional programs must be listed here
 EXTRA_PROGRAMS = ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-nfc-hoa ssr-vbap ssr-aap
