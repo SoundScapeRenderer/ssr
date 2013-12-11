@@ -34,14 +34,14 @@ dist_noinst_DATA = dylibbundler/help.html dylibbundler/makefile
 
 # this is done after installing the executable
 install-exec-hook:
-	for exec in $(SSR_executables) ; do \
+	cp `which ecasound` $(DESTDIR)$(bindir)
+	for exec in $(SSR_executables) ecasound; do \
 		$(builddir)/dylibbundler/dylibbundler \
 		--overwrite-dir --bundle-deps \
 		--fix-file $(DESTDIR)$(bindir)/$$exec \
 		--dest-dir $(DESTDIR)$(contentsdir)/Libraries \
 		--install-path @executable_path/../Libraries \
 	; done
-	cp `which ecasound` $(DESTDIR)$(bindir)
 
 install-data-hook:
 	cp -r $(QTLIBDIR)/Resources/qt_menu.nib $(DESTDIR)$(pkgdatadir)/
