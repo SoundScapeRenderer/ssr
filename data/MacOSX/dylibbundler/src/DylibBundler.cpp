@@ -16,8 +16,7 @@
 
 #include "DylibBundler.h"
 #include <iostream>
-#include <cstdlib> // for exit()
-#include <cstdio>  // for fflush() and stdout
+#include <cstdlib>
 #include "Utils.h"
 #include "Settings.h"
 #include "Dependency.h"
@@ -84,6 +83,7 @@ void collectDependencies(std::string filename)
     {
         std::cout << "."; fflush(stdout);
         if(lines[n][0] != '\t') continue; // only lines beginning with a tab interest us
+        if( lines[n].find(".framework") != std::string::npos ) continue; //Ignore frameworks, we can not handle them
         
         addDependency( // trim useless info, keep only library name
                        lines[n].substr(1, lines[n].find(" (") )
@@ -109,6 +109,7 @@ void collectSubDependencies()
             for(int n=0; n<line_amount; n++)
             {
                 if(lines[n][0] != '\t') continue; // only lines beginning with a tab interest us
+                if( lines[n].find(".framework") != std::string::npos ) continue; //Ignore frameworks, we can not handle them
                 
                 addDependency( // trim useless info, keep only library name
                                lines[n].substr(1, lines[n].find(" (") )
@@ -124,41 +125,41 @@ void createDestDir()
 {
     std::string dest_folder = Settings::destFolder();
     std::cout << "* Checking output directory " << dest_folder.c_str() << std::endl;
-	
-	// ----------- check dest folder stuff ----------
-	bool dest_exists = fileExists(dest_folder);
-	
-	if(dest_exists and Settings::canOverwriteDir())
-	{
+    
+    // ----------- check dest folder stuff ----------
+    bool dest_exists = fileExists(dest_folder);
+    
+    if(dest_exists and Settings::canOverwriteDir())
+    {
         std::cout << "* Erasing old output directory " << dest_folder.c_str() << std::endl;
         std::string command = std::string("rm -r ") + dest_folder;
-		if( systemp( command ) != 0)
-		{
+        if( systemp( command ) != 0)
+        {
             std::cerr << "\n\nError : An error occured while attempting to override dest folder." << std::endl;
-			exit(1);
-		}
-		dest_exists = false;
-	}
-	
-	if(!dest_exists)
-	{
-		
-		if(Settings::canCreateDir())
-		{
+            exit(1);
+        }
+        dest_exists = false;
+    }
+    
+    if(!dest_exists)
+    {
+        
+        if(Settings::canCreateDir())
+        {
             std::cout << "* Creating output directory " << dest_folder.c_str() << std::endl;
             std::string command = std::string("mkdir -p ") + dest_folder;
-			if( systemp( command ) != 0)
-			{
+            if( systemp( command ) != 0)
+            {
                 std::cerr << "\n\nError : An error occured while creating dest folder." << std::endl;
-				exit(1);
-			}
-		}
-		else
-		{
+                exit(1);
+            }
+        }
+        else
+        {
             std::cerr << "\n\nError : Dest folder does not exist. Create it or pass the appropriate flag for automatic dest dir creation." << std::endl;
-			exit(1);
-		}
-	}
+            exit(1);
+        }
+    }
     
 }
 

@@ -30,7 +30,8 @@ dylibbundler_dylibbundler_SOURCES = \
 	dylibbundler/src/Utils.h
 
 ## the makefile is actually not used, we include it for the sake of completeness
-dist_noinst_DATA = dylibbundler/help.html dylibbundler/makefile
+dist_noinst_DATA = dylibbundler/index.html dylibbundler/makefile \
+		   dylibbundler/dylibbundler.png dylibbundler/maclib.jpg
 
 # this is done after installing the executable
 install-exec-hook:

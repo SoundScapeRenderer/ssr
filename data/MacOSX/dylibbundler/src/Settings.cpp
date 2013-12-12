@@ -44,7 +44,7 @@ void destFolder(std::string path)
 {
     dest_folder_str = path;
     // fix path if needed so it ends with '/'
-	if( dest_folder_str[ dest_folder_str.size()-1 ] != '/' ) dest_folder_str += "/";
+    if( dest_folder_str[ dest_folder_str.size()-1 ] != '/' ) dest_folder_str += "/";
 }
 
 std::vector<std::string> files;
@@ -58,7 +58,7 @@ void inside_lib_path(std::string p)
 {
     inside_path_str = p;
     // fix path if needed so it ends with '/'
-	if( inside_path_str[ inside_path_str.size()-1 ] != '/' ) inside_path_str += "/";
+    if( inside_path_str[ inside_path_str.size()-1 ] != '/' ) inside_path_str += "/";
 }
 
 std::vector<std::string> prefixes_to_ignore;

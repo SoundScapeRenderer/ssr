@@ -16,15 +16,52 @@
 
 #include "Dependency.h"
 #include <iostream>
-#include <cstdlib> // for system()
-#include <cstdio>  // for fflush() and stdout
+#include <cstdlib>
+#include <sys/param.h>
 #include "Utils.h"
 #include "Settings.h"
 
+#include <stdlib.h>
+#include <sstream>
+#include <vector>
 
 std::string stripPrefix(std::string in)
 {
     return in.substr(in.rfind("/")+1);
+}
+
+//the pathes to search for dylibs, store it globally to parse the environment variables only once
+std::vector<std::string> pathes;
+
+//initialize the dylib search pathes
+void initSearchPathes(){
+    //Check the same pathes the system would search for dylibs
+    std::string searchPathes;
+    char *dyldLibPath = std::getenv("DYLD_LIBRARY_PATH");
+    if( dyldLibPath!=0 )
+        searchPathes = dyldLibPath;
+    dyldLibPath = std::getenv("DYLD_FALLBACK_FRAMEWORK_PATH");
+    if (dyldLibPath != 0)
+    {
+        if (!searchPathes.empty() && searchPathes[ searchPathes.size()-1 ] != ':') searchPathes += ":"; 
+        searchPathes += dyldLibPath;
+    }
+    dyldLibPath = std::getenv("DYLD_FALLBACK_LIBRARY_PATH");
+    if (dyldLibPath!=0 )
+    {
+        if (!searchPathes.empty() && searchPathes[ searchPathes.size()-1 ] != ':') searchPathes += ":"; 
+        searchPathes += dyldLibPath;
+    }
+    if (!searchPathes.empty())
+    {
+        std::stringstream ss(searchPathes);
+        std::string item;
+        while(std::getline(ss, item, ':'))
+        {
+            if (item[ item.size()-1 ] != '/') item += "/";
+            pathes.push_back(item);
+        }
+    }
 }
 
 // if some libs are missing prefixes, this will be set to true
@@ -33,59 +70,90 @@ bool missing_prefixes = false;
 
 Dependency::Dependency(std::string path)
 {
-        // check if given path is a symlink
-        std::string cmd = "readlink -n " + path;
-        const bool is_symlink = system( (cmd+" > /dev/null").c_str())==0;
-        if(is_symlink)
+    // check if given path is a symlink
+    std::string cmd = "readlink -n " + path;
+    const bool is_symlink = system( (cmd+" > /dev/null").c_str())==0;
+    if (is_symlink)
+    {
+        char original_file_buffer[PATH_MAX];
+        std::string original_file;
+        
+        if (not realpath(path.c_str(), original_file_buffer))
         {
-            std::string original_file = system_get_output(cmd);
-            //original_file = original_file.substr(0, original_file.find("\n") );
-            
-            filename = stripPrefix(original_file);
-            prefix = path.substr(0, path.rfind("/")+1);
-            addSymlink(path);
+            std::cerr << "\n/!\\ WARNING : Cannot resolve symlink '" << path.c_str() << "'" << std::endl;
+            original_file = path;
         }
         else
         {
-            filename = stripPrefix(path);
-            prefix = path.substr(0, path.rfind("/")+1);
+            original_file = original_file_buffer;
         }
+        //original_file = original_file.substr(0, original_file.find("\n") );
         
-        // if no prefix is specified
-        if(prefix.size()<1)
+        filename = stripPrefix(original_file);
+        prefix = path.substr(0, path.rfind("/")+1);
+        addSymlink(path);
+    }
+    else
+    {
+        filename = stripPrefix(path);
+        prefix = path.substr(0, path.rfind("/")+1);
+    }
+    
+    //check if the lib is in a known location
+    if( !prefix.empty() && prefix[ prefix.size()-1 ] != '/' ) prefix += "/";
+    if( prefix.empty() || !fileExists( prefix+filename ) )
+    {
+        //the pathes contains at least /usr/lib so if it is empty we have not initilazed it
+        if( pathes.empty() ) initSearchPathes();
+        
+        //check if file is contained in one of the pathes
+        for( size_t i=0; i<pathes.size(); ++i)
         {
-            std::cout << "\n/!\\ WARNING : Library " << filename << " has an incomplete name (location unknown)" << std::endl;
-            missing_prefixes = true;
-            
-            while(true)
+            if (fileExists( pathes[i]+filename ))
             {
-                std::cout << "Please specify now where this library can be found (or write 'quit' to abort): ";  fflush(stdout);
-                
-                char buffer[128];
-                std::cin >> buffer;
-                prefix = buffer;
-                std::cout << std::endl;
-                
-                if(prefix.compare("quit")==0) exit(1);
-                
-                if( prefix[ prefix.size()-1 ] != '/' ) prefix += "/";
-                
-                if( !fileExists( prefix+filename ) )
-                {
-                    std::cerr << (prefix+filename) << " does not exist. Try again" << std::endl;
-                    continue;
-                }
-                else
-                {
-                    std::cerr << (prefix+filename) << " was found. /!\\MANUALLY CHECK THE EXECUTABLE WITH 'otool -L', DYLIBBUNDLDER MAY NOT HANDLE CORRECTLY THIS UNSTANDARD/ILL-FORMED DEPENDENCY" << std::endl;
-                    break;
-                }
+                std::cout << "FOUND " << filename << " in " << pathes[i] << std::endl;
+                prefix = pathes[i];
+                missing_prefixes = true; //the prefix was missing
+                break;
             }
-            
         }
+    }
+    
+    //If the location is still unknown, ask the user for search path
+    if( prefix.empty() || !fileExists( prefix+filename ) )
+    {
+        std::cerr << "\n/!\\ WARNING : Library " << filename << " has an incomplete name (location unknown)" << std::endl;
+        missing_prefixes = true;
         
-        //new_name  = filename.substr(0, filename.find(".")) + ".dylib";
-        new_name = filename;
+        while (true)
+        {
+            std::cout << "Please specify now where this library can be found (or write 'quit' to abort): ";  fflush(stdout);
+            
+            char buffer[128];
+            std::cin >> buffer;
+            prefix = buffer;
+            std::cout << std::endl;
+            
+            if(prefix.compare("quit")==0) exit(1);
+            
+            if( !prefix.empty() && prefix[ prefix.size()-1 ] != '/' ) prefix += "/";
+            
+            if( !fileExists( prefix+filename ) )
+            {
+                std::cerr << (prefix+filename) << " does not exist. Try again" << std::endl;
+                continue;
+            }
+            else
+            {
+                pathes.push_back( prefix );
+                std::cerr << (prefix+filename) << " was found. /!\\MANUALLY CHECK THE EXECUTABLE WITH 'otool -L', DYLIBBUNDLDER MAY NOT HANDLE CORRECTLY THIS UNSTANDARD/ILL-FORMED DEPENDENCY" << std::endl;
+                break;
+            }
+        }
+    }
+    
+    //new_name  = filename.substr(0, filename.find(".")) + ".dylib";
+    new_name = filename;
 }
 
 void Dependency::print()
@@ -129,19 +197,19 @@ void Dependency::copyYourself()
     copyFile(getOriginalPath(), getInstallPath());
     
     // Fix the lib's inner name
-	std::string command = std::string("install_name_tool -id ") + getInnerPath() + " " + getInstallPath();
-	if( systemp( command ) != 0 )
-	{
+    std::string command = std::string("install_name_tool -id ") + getInnerPath() + " " + getInstallPath();
+    if( systemp( command ) != 0 )
+    {
         std::cerr << "\n\nError : An error occured while trying to change identity of library " << getInstallPath() << std::endl;
-		exit(1);
-	}
+        exit(1);
+    }
 }
 
 void Dependency::fixFileThatDependsOnMe(std::string file_to_fix)
 {
     // for main lib file
     std::string command = std::string("install_name_tool -change ") +
-        getOriginalPath() + " " + getInnerPath() + " " + file_to_fix;
+    getOriginalPath() + " " + getInnerPath() + " " + file_to_fix;
     
     if( systemp( command ) != 0 )
     {
@@ -154,7 +222,7 @@ void Dependency::fixFileThatDependsOnMe(std::string file_to_fix)
     for(int n=0; n<symamount; n++)
     {
         std::string command = std::string("install_name_tool -change ") +
-            prefix+symlinks[n] + " " + getInnerPath() + " " + file_to_fix;
+        prefix+symlinks[n] + " " + getInnerPath() + " " + file_to_fix;
         
         if( systemp( command ) != 0 )
         {
