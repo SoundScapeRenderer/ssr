@@ -37,7 +37,7 @@ install-exec-hook:
 	cp `which ecasound` $(DESTDIR)$(bindir)
 	for exec in $(SSR_executables) ecasound; do \
 		$(builddir)/dylibbundler/dylibbundler \
-		--overwrite-dir --bundle-deps \
+		--create-dir --overwrite-files --bundle-deps \
 		--fix-file $(DESTDIR)$(bindir)/$$exec \
 		--dest-dir $(DESTDIR)$(contentsdir)/Libraries \
 		--install-path @executable_path/../Libraries \

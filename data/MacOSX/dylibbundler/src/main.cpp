@@ -89,7 +89,7 @@ int main (int argc, char * const argv[])
             Settings::destFolder(argv[i]);
 			continue;
 		}
-		else if(strcmp(argv[i],"-of")==0 or strcmp(argv[i]," --overwrite-files")==0)
+		else if(strcmp(argv[i],"-of")==0 or strcmp(argv[i],"--overwrite-files")==0)
 		{
             Settings::canOverwriteFiles(true);
 			continue;	
