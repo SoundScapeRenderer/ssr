@@ -421,7 +421,7 @@ ENABLE_FORCED([gui], [graphical user interface (using Qt)],
   AC_CHECK_HEADER([GL/glu.h], ,
   [
     # this is only needed on MacOSX:
-    CPPFLAGS="$CPPFLAGS -FOpenGL"
+    CPPFLAGS="$CPPFLAGS -iframeworkOpenGL"
     AC_CHECK_HEADER([OpenGL/glu.h], , [have_gui=no])
     LIBS="$LIBS -framework OpenGL"
   ])
