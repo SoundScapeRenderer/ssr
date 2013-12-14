@@ -88,6 +88,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
     NetworkSubscriber _subscriber;
     /// Commandparser obj 
     CommandParser _commandparser;
+
+    bool _is_subscribed;
 };
 
 }  // namespace ssr

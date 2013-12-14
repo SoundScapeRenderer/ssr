@@ -40,13 +40,14 @@ ssr::Connection::Connection(boost::asio::io_service &io_service
   , _controller(controller)
   , _subscriber(*this)
   , _commandparser(controller)
+  , _is_subscribed(false)
 {}
 
 /// dtor
 ssr::Connection::~Connection()
 {
-  _controller.unsubscribe(&_subscriber);
-  std::cout << "Connection destroyed" << std::endl;
+  if (_is_subscribed) _controller.unsubscribe(&_subscriber);
+  _is_subscribed = false;
 }
 
 /** Get an instance of Connection.
@@ -74,6 +75,7 @@ ssr::Connection::start()
   // now we can connect the NetworkSubscriber.
 
   _controller.subscribe(&_subscriber);
+  _is_subscribed = true;
   // this stuff should perhaps get refactored.
   // need to think about this. not sure if i like this mixed into
   // the Connection code. 
