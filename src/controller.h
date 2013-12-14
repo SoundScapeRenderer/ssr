@@ -262,17 +262,13 @@ class Controller : public Publisher
     /// check if audio player is running and start it if necessary
     bool _audio_player_is_running();
 
-    void _subscribe(Subscriber* const subscriber); ///< add a new subscriber
-
-    // TODO: write _unsubscribe() ?
-
     /// Publishing function.
     /// The first argument is a pointer to a member function of the Subscriber
     /// class, the rest are arguments to said member function.
-    // FIXME: THREAD
     template<typename R, typename... FuncArgs, typename... Args>
     inline void _publish(R (Subscriber::*f)(FuncArgs...), Args&&... args)
     {
+      ScopedLock guard(_subscribers_lock);
       for (auto& subscriber: _subscribers)
       {
         (subscriber->*f)(std::forward<Args>(args)...);  // ignore return value
@@ -309,6 +305,9 @@ class Controller : public Publisher
 
     std::unique_ptr<typename Renderer::template ScopedThread<
       typename Renderer::QueryThread>> _query_thread;
+
+    typename Renderer::Lock _subscribers_lock;
+    using ScopedLock = typename Renderer::ScopedLock;
 };
 
 template<typename Renderer>
@@ -364,7 +363,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   // temporary solution:
   this->set_loop_mode(_conf.loop);
 
-  _subscribe(&_scene);
+  this->subscribe(&_scene);
 
   this->publish_sample_rate(_renderer.sample_rate());
 
@@ -374,7 +373,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 
   // TODO: memory leak, subscriber is never deleted!
   auto subscriber = new RenderSubscriber<Renderer>(_renderer);
-  _subscribe(subscriber);
+  this->subscribe(subscriber);
 
 #ifdef ENABLE_ECASOUND
   _load_audio_recorder(_conf.audio_recorder_file_name);
@@ -613,7 +612,10 @@ Controller<Renderer>::~Controller()
     ERROR("Couldn't write XML scene! (It's an ugly hack anyway ...");
   }
 
-  _subscribers.clear();
+  {
+    ScopedLock guard(_subscribers_lock);
+    _subscribers.clear();
+  }  // unlock
 
   this->deactivate();
 }
@@ -759,30 +761,28 @@ get_file_or_port_name(const Node& node, std::string& file_or_port_name)
 
 } // end of anonymous namespace
 
-// Public version of subscribe... private method will soon
-// be phased out.
-//
-// FIXME: THREAD
 template<typename Renderer>
 void
 Controller<Renderer>::subscribe(Subscriber* const subscriber)
 {
+  ScopedLock guard(_subscribers_lock);
   _subscribers.push_back(subscriber);
 }
 
-// FIXME: THREAD
 template<typename Renderer>
 void
 Controller<Renderer>::unsubscribe(Subscriber* subscriber)
 {
-  std::remove(_subscribers.begin(), _subscribers.end(), subscriber);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::_subscribe(Subscriber* const subscriber)
-{
-  _subscribers.push_back(subscriber);
+  ScopedLock guard(_subscribers_lock);
+  auto s = std::find(_subscribers.begin(), _subscribers.end(), subscriber);
+  if (s != _subscribers.end())
+  {
+    _subscribers.erase(s);
+  }
+  else
+  {
+    WARNING("unsubscribe(): given subscriber not found!");
+  }
 }
 
 template<typename Renderer>
