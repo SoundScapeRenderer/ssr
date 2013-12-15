@@ -143,7 +143,7 @@ class Controller : public Publisher
     virtual void stop_processing();
 
     virtual void new_source(const std::string& name, Source::model_t model
-        , const std::string& file_or_port_name, int channel = 0
+        , const std::string& file_name_or_port_number, int channel = 0
         , const Position& position = Position(), const bool pos_fix = false
         , const Orientation& orientation = Orientation()
         , const bool or_fix = false
@@ -298,7 +298,6 @@ class Controller : public Publisher
     void _add_sources(Node& node, const std::string& filename = "") const;
     void _add_audio_file_name(Node& node, const std::string& name
         , int channel) const;
-    void _add_port_name(Node& node, const std::string& name) const;
     bool _create_spontaneous_scene(const std::string& audio_file_name);
 
     bool _loop; ///< part of a quick-hack. should be removed some time.
@@ -729,20 +728,21 @@ get_attribute_of_node(const Node& node, const std::string attribute
 
 /** check for file/port
  * @param node parent node
- * @param file_or_port_name a string where the obtained file- or portname is
- * stored
+ * @param file_name_or_port_number a string where the obtained file name or
+ * port number is stored.
  * @return channel number, 0 if port was given.
- * @note on error, file_or_port_name is set to the empty string "" and 0 is
- * returned.
+ * @note on error, @p file_name_or_port_number is set to the empty string ""
+ * and 0 is returned.
  **/
 inline int
-get_file_or_port_name(const Node& node, std::string& file_or_port_name)
+get_file_name_or_port_number(const Node& node
+    , std::string& file_name_or_port_number)
 {
   for (Node i = node.child(); !!i; ++i)
   {
     if (i == "file")
     {
-      file_or_port_name = get_content(i);
+      file_name_or_port_number = get_content(i);
       int channel = apf::str::S2RV(i.get_attribute("channel"), 1);
       // TODO: raise error if channel is negative?
       assert(channel >= 0);
@@ -750,12 +750,12 @@ get_file_or_port_name(const Node& node, std::string& file_or_port_name)
     }
     else if (i == "port")
     {
-      file_or_port_name = get_content(i);
+      file_name_or_port_number = get_content(i);
       return 0;
     }
   }
   // nothing found:
-  file_or_port_name = "";
+  file_name_or_port_number = "";
   return 0;
 }
 
@@ -947,32 +947,22 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
           continue; // next source
         }
 
-        std::string file_or_port_name;
-        int channel = internal::get_file_or_port_name(node, file_or_port_name);
-        //if (file_or_port_name == "")
-        //{
-        //  ERROR("Either a file name or a port name/number have to be specified!"
-        //      << id_str << name_str << "! Not loaded");
-        //  continue; // next source
-        //}
-        if (channel == 0) // port specified
+        std::string file_name_or_port_number;
+        int channel = internal::get_file_name_or_port_number(node
+              , file_name_or_port_number);
+
+        if (channel != 0)  // --> soundfile
         {
-          if (file_or_port_name != "")
-          {
-            file_or_port_name = _conf.input_port_prefix + file_or_port_name;
-          }
-        }
-        else // channel != 0 --> soundfile
-        {
-          file_or_port_name = posixpathtools::make_path_relative_to_current_dir(
-              file_or_port_name, scene_file_name);
+          file_name_or_port_number
+            = posixpathtools::make_path_relative_to_current_dir(
+              file_name_or_port_number, scene_file_name);
         }
 
         float gain_dB = internal::get_attribute_of_node(node, "volume", 0.0f);
         bool muted = internal::get_attribute_of_node(node, "mute", false);
         // bool doppler = internal::get_attribute_of_node(node, "doppler_effect", false);
 
-        this->new_source(name, model, file_or_port_name, channel
+        this->new_source(name, model, file_name_or_port_number, channel
             , *pos_ptr, pos_ptr->fixed, *dir_ptr, false
             , apf::math::dB2linear(gain_dB), muted, properties_file);
       }
@@ -1044,7 +1034,6 @@ Controller<Renderer>::_create_spontaneous_scene(const std::string& audio_file_na
   switch (no_of_audio_channels)
   {
     case 1: // mono file
-      // create source
       this->new_source(source_name, Source::point, audio_file_name, 1
           , Position(0.0f, default_source_distance), false, Orientation()
           , false, apf::math::dB2linear(0.0f), false, "");
@@ -1342,7 +1331,7 @@ Controller<Renderer>::transport_locate(float time)
 /** Create a new source.
  * @param name Source name
  * @param model Source model
- * @param file_or_port_name File or port name
+ * @param file_name_or_port_number File name or port number (as string)
  * @param channel Channel of soundfile. If 0, a JACK portname is expected.
  * @param position initial position of the source.
  * @param orientation initial orientation of the source.
@@ -1351,8 +1340,9 @@ Controller<Renderer>::transport_locate(float time)
  **/
 template<typename Renderer>
 void
-Controller<Renderer>::new_source(const std::string& name, const Source::model_t model
-    , const std::string& file_or_port_name, int channel
+Controller<Renderer>::new_source(const std::string& name
+    , const Source::model_t model
+    , const std::string& file_name_or_port_number, int channel
     , const Position& position, const bool pos_fixed
     , const Orientation& orientation, const bool or_fixed, const float gain
     , const bool muted, const std::string& properties_file)
@@ -1362,7 +1352,6 @@ Controller<Renderer>::new_source(const std::string& name, const Source::model_t 
   assert(channel >= 0);
 
   std::string port_name;
-  std::string file_name = "";
   long int file_length = 0;
 
   if (channel > 0) // we're dealing with a soundfile
@@ -1373,23 +1362,25 @@ Controller<Renderer>::new_source(const std::string& name, const Source::model_t 
     {
       _audio_player = AudioPlayer::ptr_t(new AudioPlayer);
     }
+    port_name = _audio_player->get_port_name(file_name_or_port_number, channel
     // the thing with _loop is a temporary hack, should be removed some time:
-    port_name = _audio_player->get_port_name(file_or_port_name, channel, _loop);
-    //port_name   = _audio_player->get_port_name  (file_or_port_name, channel);
-    file_length = _audio_player->get_file_length(file_or_port_name);
-    file_name   = file_or_port_name;
+        , _loop);
+    file_length = _audio_player->get_file_length(file_name_or_port_number);
 #else
-    ERROR("Couldn't open audio file \"" << file_or_port_name
+    ERROR("Couldn't open audio file \"" << file_name_or_port_number
         << "\"! Ecasound was disabled at compile time.");
     return;
 #endif
   }
-  else // no audio file
+  else  // no audio file
   {
-    port_name = file_or_port_name;
+    if (file_name_or_port_number != "")
+    {
+      port_name = _conf.input_port_prefix + file_name_or_port_number;
+    }
   }
 
-  if (port_name == "" && get_renderer_name() != "bpb")
+  if (port_name == "")
   {
     VERBOSE("No audio file or port specified for source '" << name << "'.");
   }
@@ -1420,9 +1411,9 @@ Controller<Renderer>::new_source(const std::string& name, const Source::model_t 
   _publish(&Subscriber::set_source_name, id, name);
   _publish(&Subscriber::set_source_model, id, model);
   _publish(&Subscriber::set_source_port_name, id, port_name);
-  if (file_name != "")
+  if (file_name_or_port_number != "")
   {
-    _publish(&Subscriber::set_source_file_name, id, file_name);
+    _publish(&Subscriber::set_source_file_name, id, file_name_or_port_number);
     _publish(&Subscriber::set_source_file_channel, id, channel);
   }
   _publish(&Subscriber::set_source_file_length, id, file_length);
@@ -1780,7 +1771,8 @@ Controller<Renderer>::_add_loudspeakers(Node& node) const
 
 template<typename Renderer>
 void
-Controller<Renderer>::_add_sources(Node& node, const std::string& scene_file_name) const
+Controller<Renderer>::_add_sources(Node& node
+    , const std::string& scene_file_name) const
 {
   typename SourceCopy::container_t sources;
   _scene.get_sources(sources);
@@ -1797,20 +1789,27 @@ Controller<Renderer>::_add_sources(Node& node, const std::string& scene_file_nam
     }
     source_node.new_attribute("name", apf::str::A2S(source.name));
     source_node.new_attribute("model", apf::str::A2S(source.model));
-    if (source.audio_file_name != "") // ugly work-around
+
+    if (scene_file_name == "" || source.audio_file_channel > 0)
     {
-      _add_audio_file_name(source_node
-          , posixpathtools::make_path_relative_to_file(source.audio_file_name
-            , scene_file_name), source.audio_file_channel);
+      if (source.audio_file_name != "")
+      {
+        _add_audio_file_name(source_node
+            , posixpathtools::make_path_relative_to_file(source.audio_file_name
+              , scene_file_name), source.audio_file_channel);
+      }
     }
 
-    if (scene_file_name != "") // ugly quick hack
+    if (scene_file_name == "")
     {
-      // don't add port name!
+      if (source.port_name != "")
+      {
+        source_node.new_child("port", source.port_name);
+      }
     }
-    else
+    else if (source.audio_file_channel == 0 && source.audio_file_name != "")
     {
-      _add_port_name(source_node, source.port_name);
+      source_node.new_child("port", source.audio_file_name);
     }
 
     _add_position(source_node, source.position, source.fixed_position);
@@ -1847,13 +1846,6 @@ Controller<Renderer>::_add_audio_file_name(Node& node, const std::string& name
   {
     file_node.new_attribute("channel", apf::str::A2S(channel));
   }
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::_add_port_name(Node& node, const std::string& name) const
-{
-  node.new_child("port", name);
 }
 
 }  // namespace ssr
