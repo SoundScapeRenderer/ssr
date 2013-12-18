@@ -200,6 +200,9 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
   AC_MSG_ERROR([core/1123 not implemented! Please upgrade.])
 ])
 
+# on some systems this is needed, on the others it doesn't hurt:
+AC_SEARCH_LIBS([pthread_join], [pthread], , [have_ip_interface=no])
+
 ENABLE_AUTO([optimization], [code optimization],
 [
   dnl for now, we have only optimization if GCC is used
@@ -523,9 +526,6 @@ ENABLE_FORCED([ip-interface], [network (TCP/IP) interface],
   # try to find the Boost.System library
   BOOST_LIBS_CHECK([system], [BOOST_SYSTEM_LIBS], , [have_ip_interface=no])
   BOOST_LIBS_CHECK([thread], [BOOST_THREAD_LIBS], , [have_ip_interface=no])
-
-  # on some systems this is needed, on the others it doesn't hurt:
-  AC_SEARCH_LIBS([pthread_join], [pthread], , [have_ip_interface=no])
 
   AS_IF([test x$have_ip_interface != xno],
   [
