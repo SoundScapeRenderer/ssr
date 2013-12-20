@@ -1,6 +1,6 @@
 User-visible changes in the SoundScape Renderer. Recent changes on top.
 
-0.4.0 (?? ??? 2013)
+0.4.0 (20 December 2013)
 
  - the signal processing core of the SSR is now a separate thing and part of the
    "Audio Processing Framework" (APF, http://audioprocessingframework.github.io)
@@ -17,7 +17,7 @@ User-visible changes in the SoundScape Renderer. Recent changes on top.
 
  - new option "--name" to set the JACK client name
 
- - compatibility with the "clang" compiler
+ - compatibility with the "Clang" compiler
 
  - experimental draft for Matlab MEX files (using the NFC-HOA renderer)
 
