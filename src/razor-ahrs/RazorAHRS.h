@@ -17,7 +17,7 @@
 
 #include <string>
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 #include <stdexcept>
 #include <sstream>
 #include <unistd.h>  // for write(), close(), ...
@@ -40,8 +40,8 @@ class RazorAHRS
       ACC_MAG_GYR_CALIBRATED
     };
 
-    typedef std::tr1::function<void(const float[])> DataCallbackFunc;
-    typedef std::tr1::function<void(const std::string&)> ErrorCallbackFunc;
+    typedef std::function<void(const float[])> DataCallbackFunc;
+    typedef std::function<void(const std::string&)> ErrorCallbackFunc;
 
     RazorAHRS(const std::string &port, DataCallbackFunc data_func, ErrorCallbackFunc error_func,
         Mode mode, int connect_timeout_ms = 5000, speed_t speed = B57600);
