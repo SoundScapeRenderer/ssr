@@ -476,7 +476,7 @@ AC_DEFUN([BOOST_LIBS_CHECK],
 [
   # try to find the given Boost library
   AC_MSG_CHECKING([for boost_$1 library])
-  for dir in $BOOST_LIB_DIR /{usr,opt}/{local/,}lib{,64}; do
+  for dir in $BOOST_LIB_DIR /{usr,opt}/{local/,}lib{,64}{,/x86_64-linux-gnu}; do
     for ext in so a dylib; do
       # check for "-mt" version first
       for lib in $dir/libboost_$1*-mt*.$ext $dir/libboost_$1*.$ext; do
