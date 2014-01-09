@@ -29,7 +29,8 @@
 
 #include <cmath>  // for std::pow(), ...
 #include <iterator> // for std::iterator_traits
-#include <numeric>  // for std::accumulate
+#include <numeric>  // for std::accumulate()
+#include <algorithm>  // for std::max()
 
 namespace apf
 {

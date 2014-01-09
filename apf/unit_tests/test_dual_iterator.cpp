@@ -38,6 +38,7 @@ int y[] = { 0, 0 };
 SECTION("default ctor", "")
 {
   di one;
+  (void)one;  // avoid "unused variable" warning
   di();
 }
 

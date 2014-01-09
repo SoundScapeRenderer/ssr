@@ -28,6 +28,7 @@
 #define APF_CONVOLVER_H
 
 #include <algorithm>  // for std::transform()
+#include <functional>  // for std::bind()
 #include <cassert>
 
 #ifdef __SSE__
