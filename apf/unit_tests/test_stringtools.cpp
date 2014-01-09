@@ -50,6 +50,8 @@ SECTION("S2A", "String to Anything")
   std::string res_str;
   bool res_bool = false;
 
+  CHECK(S2A("42", res_int));
+  CHECK(res_int == 42);
   CHECK(S2A(" 42    ", res_int));
   CHECK(res_int == 42);
   CHECK(S2A(" 42    ", res_dbl));
