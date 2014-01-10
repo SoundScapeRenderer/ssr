@@ -67,13 +67,21 @@ SECTION("S2A", "String to Anything")
   CHECK_FALSE(S2A("  true ", res_dbl));
   CHECK(S2A("  true ", res_str));
   CHECK(res_str == "true");
+  CHECK(S2A("true", res_bool));
+  CHECK(res_bool == true);
   CHECK(S2A("  true ", res_bool));
   CHECK(res_bool == true);
   CHECK(S2A(" false ", res_bool));
   CHECK(res_bool == false);
+  CHECK(S2A("false", res_bool));
+  CHECK(res_bool == false);
   CHECK(S2A(" 1 ", res_bool));
   CHECK(res_bool == true);
+  CHECK(S2A("1", res_bool));
+  CHECK(res_bool == true);
   CHECK(S2A(" 0 ", res_bool));
+  CHECK(res_bool == false);
+  CHECK(S2A("0", res_bool));
   CHECK(res_bool == false);
   CHECK_FALSE(S2A("True", res_bool));
   CHECK_FALSE(S2A("False", res_bool));
@@ -107,6 +115,90 @@ SECTION("S2RV", "String to Return Value")
   CHECK_THROWS_AS(S2RV<int>(" 42.0 "), std::invalid_argument);
 }
 
+SECTION("convert_chars()", "")
+{
+  std::istringstream iss;
+  int i;
+
+  iss.str("2");
+  CHECK_FALSE(convert_chars<1>(iss, i).fail());
+  CHECK(i == 2);
+
+  iss.str(" 2");
+  iss >> std::noskipws;
+  CHECK(convert_chars<1>(iss, i).fail());
+
+  iss.clear();
+  iss.str(" 7");
+  iss >> std::skipws;
+  CHECK_FALSE(convert_chars<1>(iss, i).fail());
+  CHECK(i == 7);
+
+  iss.str("a");
+  CHECK(convert_chars<1>(iss, i).fail());
+
+  iss.clear();
+  iss.str("123");
+  CHECK_FALSE(convert_chars<3>(iss, i).fail());
+  CHECK(i == 123);
+
+  // empty stream:
+  CHECK(convert_chars<1>(iss, i).fail());
+}
+
+SECTION("remove_char()", "")
+{
+  std::istringstream iss;
+
+  iss.str("a");
+  CHECK_FALSE(remove_char(iss, 'a').fail());
+  CHECK(remove_char(iss, 'a').fail());
+
+  iss.clear();
+  iss.str(" a");
+  CHECK_FALSE(remove_char(iss, 'a').fail());
+
+  iss.str(" a");
+  iss >> std::noskipws;
+  CHECK(remove_char(iss, 'a').fail());
+  iss.clear();
+  CHECK_FALSE(remove_char(iss, 'a').fail());
+
+  iss.str("a");
+  CHECK(remove_char(iss, 'b').fail());
+
+  // TODO: check if iss is empty now
+}
+
+SECTION("remove_colon()", "")
+{
+  std::istringstream iss;
+
+  iss.str("::");
+  iss >> remove_colon;
+  CHECK_FALSE(iss.fail());
+  iss >> remove_colon;
+  CHECK_FALSE(iss.fail());
+  iss >> remove_colon;
+  CHECK(iss.fail());
+
+  iss.clear();
+  iss.str("a");
+  iss >> remove_colon;
+  CHECK(iss.fail());
+
+  iss.clear();
+  iss.str(" :");
+  iss >> remove_colon;
+  CHECK_FALSE(iss.fail());
+
+  iss.clear();
+  iss.str(" :");
+  iss >> std::noskipws;
+  iss >> remove_colon;
+  CHECK(iss.fail());
+}
+
 SECTION("string2time", "String to Time in Seconds")
 {
   double res;
@@ -119,6 +211,10 @@ SECTION("string2time", "String to Time in Seconds")
   CHECK(res == 93.3);
   CHECK(string2time("-2:11:33", res));
   CHECK(res == -7893);
+  CHECK(string2time("33", res2));
+  CHECK(res2 == 33);
+  CHECK(string2time("33h", res2));
+  CHECK(res2 == 118800);
   CHECK(string2time(" 33h ", res2));
   CHECK(res2 == 118800);
   CHECK(string2time(" 33min ", res));
