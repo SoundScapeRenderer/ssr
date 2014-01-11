@@ -66,13 +66,15 @@ template<typename out_T>
 inline bool convert(std::istream& input, out_T& output)
 {
   auto result = out_T();
-  input >> result >> std::ws;
-  if (!input.fail() && input.eof())
-  {
-    output = result;
-    return true;
-  }
-  return false;
+
+  input >> result;
+  if (input.fail()) return false;
+
+  input >> std::ws;
+  if (!input.eof()) return false;
+
+  output = result;
+  return true;
 }
 
 /** This is a overloaded function for boolean output.
@@ -86,20 +88,21 @@ inline bool convert(std::istream& input, bool& output)
 {
   bool result;
   // first try: if input == "1" or "0":
-  input >> result >> std::ws;
+  input >> result;
   if (input.fail())
   {
     input.clear();  // clear error flags
     input.seekg(0); // go back to the beginning of the stream
     // second try: if input == "true" or "false":
-    input >> std::boolalpha >> result >> std::ws;
+    input >> std::boolalpha >> result;
   }
-  if (!input.fail() && input.eof())
-  {
-    output = result;
-    return true;
-  }
-  return false;
+  if (input.fail()) return false;
+
+  input >> std::ws;
+  if (!input.eof()) return false;
+
+  output = result;
+  return true;
 }
 
 /** Converter <em>"String to Anything"</em>.
@@ -185,6 +188,29 @@ out_T S2RV(const in_T& input)
   return result;
 }
 
+/** Clear the state of a stream but leave @c eofbit as is.
+ * It can be used as stream modifier to ignore @c failbit and @c badbit but
+ * still respect @c eofbit:
+ *                                                                         @code
+ * my_stream >> std::ws >> clear_iostate_except_eof;
+ *                                                                      @endcode
+ * This may be useful because some implementations (e.g. libc++) set @c failbit
+ * if @c std::ws is used to extract whitespace from the end of a stream but no
+ * whitespace is present.
+ * @see http://stackoverflow.com/q/13423514/500098
+ * @tparam char_T character type of the stream (also used for the output)
+ * @tparam traits traits class for @c std::basic_ios
+ * @param[in,out] stream the stream to manipulate
+ * @return a reference to the modified stream.
+ **/
+template<typename char_T, typename traits>
+std::basic_ios<char_T, traits>&
+clear_iostate_except_eof(std::basic_ios<char_T, traits>& stream)
+{
+  stream.clear(stream.rdstate() & std::ios_base::eofbit);
+  return stream;
+}
+
 /** Remove a specified number of characters from a stream and convert them to
  * a numeric type.
  * If the stream flag @c skipws is set, leading whitespace is removed first.
@@ -203,6 +229,8 @@ template<int digits, typename char_T, typename traits, typename out_T>
 std::basic_istream<char_T, traits>&
 convert_chars(std::basic_istream<char_T, traits>& input, out_T& output)
 {
+  static_assert(digits > 0, "'digits' must be at least 1!");
+
   // if an error bit is set on the input, just return without doing anything:
   if (input.fail()) return input;
   // skip whitespace if std::skipws is set
@@ -316,18 +344,22 @@ bool string2time(const in_T<char_T, traits, Allocator>& input, out_T& output)
   {
     // no colons, but maybe suffixes like "s", "min", "h" or "ms"
     out_T number;
-    if ((iss >> number >> std::ws).fail()) return false;
-    if (iss.eof()) // that's everything, no suffixes!
+    iss >> number;
+    if (iss.fail()) return false;
+
+    iss >> std::ws >> clear_iostate_except_eof;
+    if (iss.eof())  // that's everything, no suffixes!
     {
       seconds = number;
     }
     else // still something left ...
     {
       auto the_rest = std::basic_string<char_T>();
-      // read the rest and remove following whitespace (see below why)
-      if ((iss >> the_rest >> std::ws).fail()) return false;
-      // now we check if some garbage is left after the time-string.
-      // whitespace was removed in the previous line.
+
+      iss >> the_rest;
+      if (iss.fail()) return false;
+
+      iss >> std::ws >> clear_iostate_except_eof;
       if (!iss.eof()) return false;
 
       // now check for possible suffixes:
