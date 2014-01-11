@@ -87,8 +87,6 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
     Input* _input;
     Output* _output;
 
-    size_t _partitions;
-
     apf::conv::Filter _filter;
     apf::conv::Convolver _convolver;
 

@@ -54,13 +54,13 @@ int mimoprocessor_file_io(Processor& processor
 
   if (in.samplerate() != static_cast<int>(processor.sample_rate()))
   {
-    std::cout << "Samplerate mismatch!" << std::cout;
+    std::cout << "Samplerate mismatch!" << std::endl;
     return 42;
   }
 
   if (in.channels() != processor.in_channels())
   {
-    std::cout << "Input channel mismatch!" << std::cout;
+    std::cout << "Input channel mismatch!" << std::endl;
     return 666;
   }
 
