@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -100,7 +100,7 @@ inline void print_about_message()
     "    ___/  /    " PACKAGE_NAME " version " PACKAGE_VERSION "\n"
     "         /     \n"
     "               \n"
-    " Copyright (c) 2012-2013 Institut für Nachrichtentechnik, "
+    " Copyright (c) 2012-2014 Institut für Nachrichtentechnik, "
                                                          "Universität Rostock\n"
     " Copyright (c) 2006-2012 Quality & Usability Lab\n"
     "                         Deutsche Telekom Laboratories, TU Berlin\n"
