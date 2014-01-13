@@ -31,6 +31,7 @@
 #define SSR_WFSRENDERER_H
 
 #include "loudspeakerrenderer.h"
+#include "ssr_global.h"
 
 #include "apf/convolver.h"  // for apf::conv::...
 #include "apf/blockdelayline.h"  // for NonCausalBlockDelayLine

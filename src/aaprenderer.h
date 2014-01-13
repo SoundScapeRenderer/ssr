@@ -30,6 +30,7 @@
 #ifndef SSR_AAPRENDERER_H
 #define SSR_AAPRENDERER_H
 
+#include "ssr_global.h"
 #include "loudspeakerrenderer.h"
 #include "apf/combine_channels.h"
 
