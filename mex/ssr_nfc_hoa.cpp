@@ -26,15 +26,15 @@
 
 // NFC-HOA renderer as MEX file for GNU Octave and MATLAB.
 
-#include <mex.h>
-#include <memory>  // for std::auto_ptr
-
 #ifdef SSR_MEX_USE_DOUBLE
 #define APF_MIMOPROCESSOR_SAMPLE_TYPE double
 #else
 #define APF_MIMOPROCESSOR_SAMPLE_TYPE float
 #endif
 
+#include <memory>  // for std::unique_ptr
+
+#include "apf/mextools.h"
 #include "apf/pointer_policy.h"
 #include "apf/posix_thread_policy.h"
 #include "apf/stringtools.h"
@@ -46,115 +46,12 @@ using apf::str::S2A;
 // The single entry-point for Matlab is the function mexFunction(), see below!
 
 // global variables holding the state
-std::auto_ptr<ssr::NfcHoaRenderer> engine;
+std::unique_ptr<ssr::NfcHoaRenderer> engine;
 mwSize in_channels, out_channels, block_size, sample_rate, threads;
 typedef ssr::NfcHoaRenderer::sample_type sample_type;
 std::vector<sample_type*> inputs, outputs;
 
-// TODO: separate file with generic helper functions (maybe apf::mex namespace?)
-
-#define APF_MEX_ERROR_NO_OUTPUT_SUPPORTED(name) \
-(void)plhs; \
-if (nlhs > 0) { \
-  std::string msg("No output parameters are supported for '" \
-      + std::string(name) + "'!"); \
-  mexErrMsgTxt(msg.c_str()); }
-
-#define APF_MEX_ERROR_NO_FURTHER_INPUTS(name) \
-(void)prhs; \
-if (nrhs > 0) { \
-  std::string msg("No further input parameters are supported for '" \
-      + std::string(name) + "'!"); \
-  mexErrMsgTxt(msg.c_str()); }
-
-#define APF_MEX_ERROR_ONLY_ONE_OUTPUT(name) \
-(void)plhs; \
-if (nlhs > 1) { \
-  std::string msg("Only one output parameter is supported for '" \
-      + std::string(name) + "'!"); \
-  mexErrMsgTxt(msg.c_str()); }
-
-namespace mex
-{
-
-// TODO: check if (and how) user-specified overloads of convert() work
-// TODO: use a traits class, if necessary
-
-bool convert(const mxArray* in, std::string& out)
-{
-  if (!mxIsChar(in)) return false;
-  if (mxGetM(in) != 1) return false;
-
-  char* temp = mxArrayToString(in);
-  out = temp;
-  mxFree(temp);
-  return true;
-}
-
-bool convert(const mxArray* in, double& out)
-{
-  if (!mxIsDouble(in) || mxIsComplex(in)) return false;
-  if (mxGetNumberOfElements(in) != 1) return false;
-  out = mxGetScalar(in);
-  return true;
-}
-
-bool convert(const mxArray* in, int& out)
-{
-  if (!mxIsDouble(in) || mxIsComplex(in)) return false;
-  if (mxGetNumberOfElements(in) != 1) return false;
-  double temp = mxGetScalar(in);
-  if (temp != floor(temp)) return false;
-  out = temp;
-  return true;
-}
-
-bool convert(const mxArray* in, size_t& out)
-{
-  if (!mxIsDouble(in) || mxIsComplex(in)) return false;
-  if (mxGetNumberOfElements(in) != 1) return false;
-  double temp = mxGetScalar(in);
-  if (temp < 0 || temp != floor(temp)) return false;
-  out = temp;
-  return true;
-}
-
-namespace internal
-{
-
-template<bool optional, typename T>
-bool next_arg_helper(int& n, const mxArray**& p, T& data)
-{
-  return (n-- < 1) ? optional : convert(p++[0], data);
-}
-
-}  // namespace internal
-
-template<typename T>
-bool next_arg(int& n, const mxArray**& p, T& data)
-{
-  return internal::next_arg_helper<false>(n, p, data);
-}
-
-template<typename T>
-bool next_optarg(int& n, const mxArray**& p, T& data)
-{
-  return internal::next_arg_helper<true>(n, p, data);
-}
-
-template<typename T>
-void next_arg(int& n, const mxArray**& p, T& data, const std::string& error)
-{
-  if (!next_arg(n, p, data)) mexErrMsgTxt(error.c_str());
-}
-
-template<typename T>
-void next_optarg(int& n, const mxArray**& p, T& data, const std::string& error)
-{
-  if (!next_optarg(n, p, data)) mexErrMsgTxt(error.c_str());
-}
-
-}  // namespace mex
+namespace mex = apf::mex;
 
 void error_init()
 {
