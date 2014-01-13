@@ -9,6 +9,11 @@ Compile for Matlab:
 
     make matlab
 
+By default, all available renderers are compiled, specific renderers can be
+selected with the variable MEXFILES, e.g.
+
+    make octave MEXFILES="ssr_binaural ssr_wfs"
+
 Matlab comes with a very old default GCC, so you may have to create
 a symbolic link in `$MATLAB_DIR/sys/os/glnxa64/` pointing to
 `/usr/lib/x86_64-linux-gnu/libstdc++.so.6` (or similar).

@@ -3,6 +3,8 @@
 # Makefile example:
 # http://www.klab.caltech.edu/~harel/share/gbvs_scale/sift/Makefile
 
+MEXFILES ?= ssr_nfc_hoa
+
 SOURCES := ssr_global position orientation directionalpoint xmlparser
 
 LIBRARIES += libxml-2.0 fftw3f
@@ -20,6 +22,9 @@ CXXFLAGS += -O3
 #CXXFLAGS += -march=native
 CPPFLAGS += -DNDEBUG
 # TODO: check for SSE?
+
+OCTAVE_TARGETS := $(MEXFILES:%=%.octave)
+MATLAB_TARGETS := $(MEXFILES:%=%.matlab)
 
 SOURCES := $(SOURCES:%=$(SRC_DIR)/%.cpp)
 
@@ -62,25 +67,27 @@ LDLIBS += $(MEX_LDLIBS)
 # don't use implicit rules:
 .SUFFIXES:
 
-ALL = octave matlab
+all: octave matlab
 
-all: $(ALL)
+octave: $(OCTAVE_TARGETS)
+
+matlab: $(MATLAB_TARGETS)
 
 # Targets have different extension depending on the platform.
 # To avoid finding out the extension, we use empty *.stamp files.
 
-$(ALL): %: .%.stamp
+$(OCTAVE_TARGETS) $(MATLAB_TARGETS): %: .%.stamp
 
-.octave.stamp: ssr_nfc_hoa.cpp $(SOURCES)
+.%.octave.stamp: %.cpp $(SOURCES)
 	CC="$(CXX)" CXX="$(CXX)" LD="$(CXX)" \
 	   CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" \
 	   $(OCT) $(MEX_CPPFLAGS) $(MEX_CFLAGS) $(MEX_CXXFLAGS) $(MEX_LDLIBS) $^
 	@touch $@
 
 # TODO: this works for 64bit systems, check if it also works on 32bit
-.matlab.stamp: CXXFLAGS += -fPIC
+.%.matlab.stamp: CXXFLAGS += -fPIC
 
-.matlab.stamp: ssr_nfc_hoa.cpp $(SOURCES)
+.%.matlab.stamp: %.cpp $(SOURCES)
 	$(MEX) $(MEX_CPPFLAGS) $(MEX_CFLAGS) $(MEX_CXXFLAGS) $(MEX_LDLIBS) \
 		CC="$(CXX)" CXX="$(CXX)" LD="$(CXX)" \
 		CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" $^
@@ -89,19 +96,19 @@ $(ALL): %: .%.stamp
 # To specify MEX file name: -output bla
 
 clean:
-	$(RM) ssr_nfc_hoa.mexa64
-	$(RM) ssr_nfc_hoa.mexglx
-	$(RM) ssr_nfc_hoa.mexmaci
-	$(RM) ssr_nfc_hoa.mexmaci64
-	$(RM) ssr_nfc_hoa.mex
+	$(RM) $(MEXFILES:%=%.mexa64)
+	$(RM) $(MEXFILES:%=%.mexglx)
+	$(RM) $(MEXFILES:%=%.mexmaci)
+	$(RM) $(MEXFILES:%=%.mexmaci64)
+	$(RM) $(MEXFILES:%=%.mex)
 	$(RM) *.o
 	$(RM) .*.stamp
 
-.PHONY: all octave matlab clean
+.PHONY: all octave matlab clean $(OCTAVE_TARGETS) $(MATLAB_TARGETS)
 
 .DELETE_ON_ERROR:
 
-DEPENDENCIES = ssr_nfc_hoa
+DEPENDENCIES = $(MEXFILES)
 
 # TODO: include *.o files from $SOURCES to $DEPENDENCIES
 
