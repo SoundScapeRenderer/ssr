@@ -176,6 +176,8 @@ class SsrMex
 
       apf::parameter_map params;
       params.set("reproduction_setup", reproduction_setup);
+      // This is just a hack to allow both reproduction setup and HRIR file:
+      params.set("hrir_file", reproduction_setup);
       // TODO: set XML Schema file?
       //params.set("xml_schema", xml_schema);
       params.set("block_size", _block_size);

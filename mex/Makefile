@@ -3,11 +3,12 @@
 # Makefile example:
 # http://www.klab.caltech.edu/~harel/share/gbvs_scale/sift/Makefile
 
-MEXFILES ?= ssr_nfc_hoa
+MEXFILES ?= ssr_nfc_hoa ssr_binaural ssr_vbap ssr_aap
 
 SOURCES := ssr_global position orientation directionalpoint xmlparser
 
-LIBRARIES += libxml-2.0 fftw3f
+# TODO: separate libraries for different renderers?
+LIBRARIES += libxml-2.0 fftw3f sndfile
 
 APF_DIR ?= ../apf
 SRC_DIR ?= ../src
