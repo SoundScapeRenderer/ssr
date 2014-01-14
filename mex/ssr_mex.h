@@ -56,8 +56,6 @@ class SsrMex
 
     void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     {
-      namespace mex = apf::mex;
-
       try
       {
         if (nrhs == 0)
@@ -67,7 +65,7 @@ class SsrMex
         }
 
         std::string command;
-        mex::next_arg(nrhs, prhs, command
+        apf::mex::next_arg(nrhs, prhs, command
             , "First argument must be a string (e.g. 'help')!");
 
         if (command == "help")
@@ -81,22 +79,22 @@ class SsrMex
         else if (command == "block_size")
         {
           _error_init();
-          APF_MEX_ERROR_NO_FURTHER_INPUTS("block_size");
-          APF_MEX_ERROR_ONLY_ONE_OUTPUT("block_size");
+          APF_MEX_ERROR_NO_FURTHER_INPUTS("'block_size'");
+          APF_MEX_ERROR_EXACTLY_ONE_OUTPUT("'block_size'");
           plhs[0] = mxCreateDoubleScalar(_block_size);
         }
         else if (command == "out_channels")
         {
           _error_init();
-          APF_MEX_ERROR_NO_FURTHER_INPUTS("out_channels");
-          APF_MEX_ERROR_ONLY_ONE_OUTPUT("out_channels");
+          APF_MEX_ERROR_NO_FURTHER_INPUTS("'out_channels'");
+          APF_MEX_ERROR_EXACTLY_ONE_OUTPUT("'out_channels'");
           plhs[0] = mxCreateDoubleScalar(_out_channels);
         }
         // Only "clear" shall be documented, the others are hidden features
         else if (command == "free" || command == "delete" || command == "clear")
         {
-          APF_MEX_ERROR_NO_FURTHER_INPUTS("clear");
-          APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("clear");
+          APF_MEX_ERROR_NO_FURTHER_INPUTS("'clear'");
+          APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("'clear'");
           // This is safe even if engine wasn't initialized before:
           _engine.reset();
         }
@@ -115,16 +113,11 @@ class SsrMex
       }
     }
 
-  protected:
-    std::unique_ptr<Renderer> _engine;
-    mwSize _in_channels, _out_channels, _block_size;
-    std::vector<sample_type*> _inputs, _outputs;
-
   private:
     void _help(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     {
-      APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("help");
-      APF_MEX_ERROR_NO_FURTHER_INPUTS("help");
+      APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("'help'");
+      APF_MEX_ERROR_NO_FURTHER_INPUTS("'help'");
 
       mexPrintf("\n%1$s: SSR as MEX file\n\n"
 "...\n"
@@ -154,21 +147,19 @@ class SsrMex
 
     void _init(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     {
-      namespace mex = apf::mex;
+      APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("'init'");
 
-      APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("init");
-
-      mex::next_arg(nrhs, prhs, _in_channels
+      apf::mex::next_arg(nrhs, prhs, _in_channels
           , "First argument to 'init' must be the number of sources!");
 
       std::map<std::string, std::string> options;
 
-      mex::next_arg(nrhs, prhs, options
+      apf::mex::next_arg(nrhs, prhs, options
           , "Second argument to 'init' must be a scalar structure!");
 
       // Note: Fields are not checked, the SSR is supposed to do that.
 
-      APF_MEX_ERROR_NO_FURTHER_INPUTS("init");
+      APF_MEX_ERROR_NO_FURTHER_INPUTS("'init'");
 
       auto info = std::string("Starting the SSR with following settings:\n");
 
@@ -215,8 +206,6 @@ class SsrMex
     void _chained_commands(const std::string& command
         , int& nlhs, mxArray**& plhs, int& nrhs, const mxArray**& prhs)
     {
-      namespace mex = apf::mex;
-
       _error_init();
 
       if (command == "source_position")
@@ -244,7 +233,7 @@ class SsrMex
       if (nrhs > 0)
       {
         std::string command;
-        mex::next_arg(nrhs, prhs, command
+        apf::mex::next_arg(nrhs, prhs, command
             , "Too many arguments (or missing command string)!");
         _chained_commands(command, nlhs, plhs, nrhs, prhs);
       }
@@ -257,16 +246,10 @@ class SsrMex
 
     void _process(int& nlhs, mxArray**& plhs, int& nrhs, const mxArray**& prhs)
     {
-      if (nlhs != 1)
-      {
-        mexErrMsgTxt("Exactly one output is needed for 'process'!\n"
-            "(And 'process' can only be used once in a chained comand!)");
-      }
+      APF_MEX_ERROR_EXACTLY_ONE_OUTPUT("'process'!\n"
+          "And 'process' can only be used once in a chained comand");
 
-      if (nrhs < 1)
-      {
-        mexErrMsgTxt("'process' needs an argument!");
-      }
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'process'");
 
       if (static_cast<mwSize>(mxGetM(prhs[0])) != _block_size)
       {
@@ -276,14 +259,8 @@ class SsrMex
       {
         mexErrMsgTxt("Number of columns must be the same as number of inputs!");
       }
-      if (mxIsComplex(prhs[0]))
-      {
-        mexErrMsgTxt("Complex values are not allowed!");
-      }
-      if (!mxIsNumeric(prhs[0]))
-      {
-        mexErrMsgTxt("Input must be a numeric matrix!");
-      }
+
+      APF_MEX_ERROR_REAL_INPUT("Argument to 'process'");
 
 #ifdef SSR_MEX_USE_DOUBLE
       if (!mxIsDouble(prhs[0]))
@@ -324,22 +301,11 @@ class SsrMex
 
     void _source_position(int& nrhs, const mxArray**& prhs)
     {
-      if (nrhs < 1)
-      {
-        mexErrMsgTxt("'source_position' needs a further argument!");
-      }
-      if (mxIsComplex(prhs[0]))
-      {
-        mexErrMsgTxt("Complex values are not allowed!");
-      }
-      if (!mxIsNumeric(prhs[0]))
-      {
-        mexErrMsgTxt("source positions must be in a numeric matrix!");
-      }
-      if (static_cast<mwSize>(mxGetN(prhs[0])) != _in_channels)
-      {
-        mexErrMsgTxt("Number of columns must be the same as number of sources!");
-      }
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_position'");
+      APF_MEX_ERROR_REAL_INPUT("Source positions");
+      APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
+          , "as number of sources");
+
       if (mxGetM(prhs[0]) == 3)
       {
         mexErrMsgTxt("Three-dimensional positions are not supported (yet)!");
@@ -365,22 +331,11 @@ class SsrMex
 
     void _source_orientation(int& nrhs, const mxArray**& prhs)
     {
-      if (nrhs < 1)
-      {
-        mexErrMsgTxt("'source_orientation' needs a further argument!");
-      }
-      if (mxIsComplex(prhs[0]))
-      {
-        mexErrMsgTxt("Complex values are not allowed!");
-      }
-      if (!mxIsNumeric(prhs[0]))
-      {
-        mexErrMsgTxt("source orientations must be in a numeric matrix!");
-      }
-      if (static_cast<mwSize>(mxGetN(prhs[0])) != _in_channels)
-      {
-        mexErrMsgTxt("Number of columns must be the same as number of sources!");
-      }
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_orientation'");
+      APF_MEX_ERROR_REAL_INPUT("Source orientations");
+      APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
+          , "as number of sources!");
+
       if (mxGetM(prhs[0]) != 1)
       {
         mexErrMsgTxt("Last argument must be a row vector of angles!");
@@ -400,7 +355,6 @@ class SsrMex
 
     void _source_model(int& nrhs, const mxArray**& prhs)
     {
-      namespace mex = apf::mex;
       if (nrhs < _in_channels)
       {
         mexErrMsgTxt("Specify as many model strings as there are sources!");
@@ -409,7 +363,7 @@ class SsrMex
       for (int i = 0; i < _in_channels; ++i)
       {
         std::string model_str;
-        mex::next_arg(nrhs, prhs, model_str, "All further arguments to "
+        apf::mex::next_arg(nrhs, prhs, model_str, "All further arguments to "
             "'source_model' must be a valid source model strings!");
 
         Source::model_t model = Source::unknown;
@@ -421,6 +375,10 @@ class SsrMex
         _engine->get_source(i + 1)->model = model;
       }
     }
+
+    std::unique_ptr<Renderer> _engine;
+    mwSize _in_channels, _out_channels, _block_size;
+    std::vector<sample_type*> _inputs, _outputs;
 };
 
 #endif
