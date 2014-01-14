@@ -31,6 +31,11 @@ sources = size(inputblock, 2);
 params.block_size = size(inputblock, 1);
 params.sample_rate = 44100;
 params.reproduction_setup = '../data/reproduction_setups/circle.asd';
+% for ssr_binaural:
+%params.hrir_file = '../data/impulse_responses/hrirs/hrirs_fabian.wav';
+% for ssr_wfs:
+%params.prefilter_file = ...
+%'../data/impulse_responses/wfs_prefilters/wfs_prefilter_120_1500_44100.wav';
 params.threads = 4;
 ssr_nfc_hoa('init', sources, params)
 positions = [0; 2];  % one column for each source
@@ -41,7 +46,7 @@ ssr_nfc_hoa('source', 'orientation', orientations)
 ssr_nfc_hoa('source', 'model', models{:})
 % TODO: set more source parameters
 % process (and discard) one block for interpolation
-outputblock = ssr_nfc_hoa('process', single(zeros(blocksize, sources)));
+outputblock = ssr_nfc_hoa('process', single(zeros(params.block_size, sources)));
 % now the source parameters have reached their desired values
 outputblock = ssr_nfc_hoa('process', inputblock);
 % do something with 'outputblock' ...

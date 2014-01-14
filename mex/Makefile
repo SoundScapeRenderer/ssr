@@ -3,7 +3,7 @@
 # Makefile example:
 # http://www.klab.caltech.edu/~harel/share/gbvs_scale/sift/Makefile
 
-MEXFILES ?= ssr_nfc_hoa ssr_binaural ssr_vbap ssr_aap
+MEXFILES ?= ssr_nfc_hoa ssr_binaural ssr_vbap ssr_aap ssr_wfs
 
 SOURCES := ssr_global position orientation directionalpoint xmlparser
 
