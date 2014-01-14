@@ -109,8 +109,3 @@ clean:
 
 .DELETE_ON_ERROR:
 
-DEPENDENCIES = $(MEXFILES)
-
-# TODO: include *.o files from $SOURCES to $DEPENDENCIES
-
-include ../apf/misc/Makefile.dependencies
