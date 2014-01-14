@@ -60,6 +60,16 @@ namespace apf
  **/
 struct parameter_map
 {
+  parameter_map() = default;
+
+  parameter_map(const std::map<std::string, std::string>& map)
+    : _map(map)
+  {}
+
+  parameter_map(std::map<std::string, std::string>&& map)
+    : _map(std::move(map))
+  {}
+
   /** "Getter".
    * @param k Name of the parameter which should be retrieved.
    * @return const reference to the value referenced by @p k.
