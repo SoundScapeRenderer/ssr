@@ -60,6 +60,12 @@ class SsrMex
 
       try
       {
+        if (nrhs == 0)
+        {
+          _help(nlhs, plhs, nrhs, prhs);
+          return;
+        }
+
         std::string command;
         mex::next_arg(nrhs, prhs, command
             , "First argument must be a string (e.g. 'help')!");
@@ -120,7 +126,7 @@ class SsrMex
 
   protected:
     std::unique_ptr<Renderer> _engine;
-    mwSize _in_channels, _out_channels, _block_size, _sample_rate, _threads;
+    mwSize _in_channels, _out_channels, _block_size;
     std::vector<sample_type*> _inputs, _outputs;
 
   private:
@@ -129,7 +135,22 @@ class SsrMex
       APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("help");
       APF_MEX_ERROR_NO_FURTHER_INPUTS("help");
 
-      mexPrintf("TODO: write help text!\n");
+      mexPrintf("\n%1$s: SSR as MEX file\n\n"
+"...\n"
+"sub-commands: 'init', ...\n"
+"...\n"
+"\n"
+"'init'\n"
+"\n"
+"...\n"
+"    sources = 4;\n"
+"    params.sample_rate = 44100;\n"
+"    params.block_size = 128;\n"
+"    %1$s('init', sources, params)\n"
+"...\n"
+"TODO: write more help text!\n"
+"\n"
+          , mexFunctionName());
     }
 
     void _error_init()
@@ -146,44 +167,40 @@ class SsrMex
 
       APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("init");
 
-      std::string reproduction_setup;
-      mex::next_arg(nrhs, prhs, reproduction_setup, "'init': Second argument "
-          "must be a string (the reproduction setup file name)!");
-
       mex::next_arg(nrhs, prhs, _in_channels
-          , "'init': Third argument must be the number of input channels!");
+          , "First argument to 'init' must be the number of sources!");
 
-      mex::next_arg(nrhs, prhs, _block_size
-          , "'init': Fourth argument must be the block size!");
+      std::map<std::string, std::string> options;
 
-      mex::next_arg(nrhs, prhs, _sample_rate
-          , "'init': Fifth argument must be the sample rate!");
+      mex::next_arg(nrhs, prhs, options
+          , "Second argument to 'init' must be a scalar structure!");
 
-      _threads = 1;  // TODO: get reasonable default value
-      mex::next_optarg(nrhs, prhs, _threads
-          , "'init': Sixth argument: number of threads!");
+      // Note: Fields are not checked, the SSR is supposed to do that.
 
       APF_MEX_ERROR_NO_FURTHER_INPUTS("init");
 
-      mexPrintf("Starting the SSR with following settings:\n"
-          " * reproduction setup: %s\n"
-          " * in channels: %d\n"
-          " * block size: %d\n"
-          " * sample rate: %d\n"
-          " * threads: %d\n"
-          , reproduction_setup.c_str(), _in_channels
-          , _block_size, _sample_rate, _threads);
+      auto info = std::string("Starting the SSR with following settings:\n");
 
-      apf::parameter_map params;
-      params.set("reproduction_setup", reproduction_setup);
-      // This is just a hack to allow both reproduction setup and HRIR file:
-      params.set("hrir_file", reproduction_setup);
-      // TODO: set XML Schema file?
-      //params.set("xml_schema", xml_schema);
-      params.set("block_size", _block_size);
-      params.set("sample_rate", _sample_rate);
-      params.set("threads", _threads);
+      info += " * number of sources: ";
+      info += apf::str::A2S(_in_channels);
+      info += "\n";
+
+      for (auto it: options)
+      {
+        info += " * ";
+        info += it.first;
+        info += ": ";
+        info += it.second;
+        info += "\n";
+      }
+
+      mexPrintf(info.c_str());
+
+      auto params = apf::parameter_map(std::move(options));
+
       _engine.reset(new Renderer(params));
+
+      _block_size = _engine->block_size();
 
       _engine->load_reproduction_setup();
 
@@ -201,6 +218,7 @@ class SsrMex
       _engine->activate();  // start parallel processing (if threads > 1)
 
       mexPrintf("Initialization completed, %d outputs available.\n", _out_channels);
+      // TODO: print renderer name?
     }
 
     void _process(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
@@ -233,7 +251,7 @@ class SsrMex
       {
         mexErrMsgTxt("This function only works with double precision data!");
       }
-      plhs[0] = mxCreateDoubleMatrix(block_size, out_channels, mxREAL);
+      plhs[0] = mxCreateDoubleMatrix(_block_size, _out_channels, mxREAL);
       sample_type* output = mxGetPr(plhs[0]);
       sample_type*  input = mxGetPr(prhs[0]);
 #else

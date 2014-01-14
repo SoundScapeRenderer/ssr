@@ -28,10 +28,11 @@ Usage example:
 
 inputblock = transpose(single([0 0 1 0 0 0 0 0]));
 sources = size(inputblock, 2);
-blocksize = size(inputblock, 1);
-fs = 44100;
-setup = '../data/reproduction_setups/circle.asd';
-ssr_nfc_hoa('init', setup, sources, blocksize, fs)
+params.block_size = size(inputblock, 1);
+params.sample_rate = 44100;
+params.reproduction_setup = '../data/reproduction_setups/circle.asd';
+params.threads = 4;
+ssr_nfc_hoa('init', sources, params)
 positions = [0; 2];  % one column for each source
 orientations = -90;  % row vector of angles in degrees
 models = { 'plane' };
