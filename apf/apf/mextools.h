@@ -37,22 +37,48 @@
 #define APF_MEX_ERROR_NO_OUTPUT_SUPPORTED(name) \
 (void)plhs; \
 if (nlhs > 0) { \
-  std::string msg("No output parameters are supported for '" \
-      + std::string(name) + "'!"); \
+  std::string msg("No output parameters are supported for " \
+      + std::string(name) + "!"); \
+  mexErrMsgTxt(msg.c_str()); }
+
+#define APF_MEX_ERROR_EXACTLY_ONE_OUTPUT(name) \
+(void)plhs; \
+if (nlhs != 1) { \
+  std::string msg("Exactly one output parameter is supported for " \
+      + std::string(name) + "!"); \
   mexErrMsgTxt(msg.c_str()); }
 
 #define APF_MEX_ERROR_NO_FURTHER_INPUTS(name) \
 (void)prhs; \
 if (nrhs > 0) { \
-  std::string msg("No further input parameters are supported for '" \
-      + std::string(name) + "'!"); \
+  std::string msg("No further input parameters are supported for " \
+      + std::string(name) + "!"); \
   mexErrMsgTxt(msg.c_str()); }
 
-#define APF_MEX_ERROR_ONLY_ONE_OUTPUT(name) \
-(void)plhs; \
-if (nlhs > 1) { \
-  std::string msg("Only one output parameter is supported for '" \
-      + std::string(name) + "'!"); \
+#define APF_MEX_ERROR_FURTHER_INPUT_NEEDED(text) \
+(void)prhs; \
+if (nrhs < 1) { \
+  std::string msg(std::string(text) + " needs a further input parameter!"); \
+  mexErrMsgTxt(msg.c_str()); }
+
+#define APF_MEX_ERROR_NUMERIC_INPUT(text) \
+(void)prhs; \
+if (!mxIsNumeric(prhs[0])) { \
+  std::string msg(std::string(text) + " must be a numeric matrix!"); \
+  mexErrMsgTxt(msg.c_str()); }
+
+#define APF_MEX_ERROR_REAL_INPUT(text) \
+(void)prhs; \
+APF_MEX_ERROR_NUMERIC_INPUT(text); \
+if (mxIsComplex(prhs[0])) { \
+  std::string msg(std::string(text) + " must not be complex!"); \
+  mexErrMsgTxt(msg.c_str()); }
+
+#define APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(value, text) \
+(void)prhs; \
+if (static_cast<mwSize>(mxGetN(prhs[0])) != (value)) { \
+  std::string msg("Number of columns must be the same " \
+      + std::string(text) + "!"); \
   mexErrMsgTxt(msg.c_str()); }
 
 namespace apf
