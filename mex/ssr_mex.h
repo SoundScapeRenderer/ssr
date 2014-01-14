@@ -217,8 +217,8 @@ class SsrMex
 
       _engine->activate();  // start parallel processing (if threads > 1)
 
-      mexPrintf("Initialization completed, %d outputs available.\n", _out_channels);
-      // TODO: print renderer name?
+      mexPrintf("Initialization of %s completed, %d outputs available.\n"
+          , _engine->name(), _out_channels);
     }
 
     void _process(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
