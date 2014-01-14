@@ -219,9 +219,17 @@ class SsrMex
 
       _error_init();
 
-      if (command == "source")
+      if (command == "source_position")
       {
-        _source(nrhs, prhs);
+        _source_position(nrhs, prhs);
+      }
+      else if (command == "source_orientation")
+      {
+        _source_orientation(nrhs, prhs);
+      }
+      else if (command == "source_model")
+      {
+        _source_model(nrhs, prhs);
       }
       else if (command == "process")
       {
@@ -314,116 +322,103 @@ class SsrMex
       --nrhs; ++prhs;
     }
 
-    void _source(int& nrhs, const mxArray**& prhs)
+    void _source_position(int& nrhs, const mxArray**& prhs)
+    {
+      if (nrhs < 1)
+      {
+        mexErrMsgTxt("'source_position' needs a further argument!");
+      }
+      if (mxIsComplex(prhs[0]))
+      {
+        mexErrMsgTxt("Complex values are not allowed!");
+      }
+      if (!mxIsNumeric(prhs[0]))
+      {
+        mexErrMsgTxt("source positions must be in a numeric matrix!");
+      }
+      if (static_cast<mwSize>(mxGetN(prhs[0])) != _in_channels)
+      {
+        mexErrMsgTxt("Number of columns must be the same as number of sources!");
+      }
+      if (mxGetM(prhs[0]) == 3)
+      {
+        mexErrMsgTxt("Three-dimensional positions are not supported (yet)!");
+      }
+      if (mxGetM(prhs[0]) != 2)
+      {
+        mexErrMsgTxt("Number of rows must be 2 (x and y coordinates)!");
+      }
+
+      double* coordinates = mxGetPr(prhs[0]);
+
+      --nrhs; ++prhs;
+
+      for (mwSize i = 0; i < _in_channels; ++i)
+      {
+        // TODO: handle 3D coordinates
+
+        auto* source = _engine->get_source(i + 1);
+        // TODO: check if source == nullptr
+        source->position = Position(coordinates[i*2], coordinates[i*2+1]);
+      }
+    }
+
+    void _source_orientation(int& nrhs, const mxArray**& prhs)
+    {
+      if (nrhs < 1)
+      {
+        mexErrMsgTxt("'source_orientation' needs a further argument!");
+      }
+      if (mxIsComplex(prhs[0]))
+      {
+        mexErrMsgTxt("Complex values are not allowed!");
+      }
+      if (!mxIsNumeric(prhs[0]))
+      {
+        mexErrMsgTxt("source orientations must be in a numeric matrix!");
+      }
+      if (static_cast<mwSize>(mxGetN(prhs[0])) != _in_channels)
+      {
+        mexErrMsgTxt("Number of columns must be the same as number of sources!");
+      }
+      if (mxGetM(prhs[0]) != 1)
+      {
+        mexErrMsgTxt("Last argument must be a row vector of angles!");
+      }
+
+      double* angles = mxGetPr(prhs[0]);
+
+      --nrhs; ++prhs;
+
+      for (mwSize i = 0; i < _in_channels; ++i)
+      {
+        auto* source = _engine->get_source(i + 1);
+        // TODO: check if source == nullptr
+        source->orientation = Orientation(angles[i]);  // degree
+      }
+    }
+
+    void _source_model(int& nrhs, const mxArray**& prhs)
     {
       namespace mex = apf::mex;
-
-      std::string command;
-      mex::next_arg(nrhs, prhs, command, "'source': second argument must be a "
-          "string (the source property to set)!");
-
-      if (command == "position")
+      if (nrhs < _in_channels)
       {
-        if (nrhs < 1)
-        {
-          mexErrMsgTxt("'source position' needs a further argument!");
-        }
-        if (mxIsComplex(prhs[0]))
-        {
-          mexErrMsgTxt("Complex values are not allowed!");
-        }
-        if (!mxIsNumeric(prhs[0]))
-        {
-          mexErrMsgTxt("source positions must be in a numeric matrix!");
-        }
-        if (static_cast<mwSize>(mxGetN(prhs[0])) != _in_channels)
-        {
-          mexErrMsgTxt("Number of columns must be the same as number of sources!");
-        }
-        if (mxGetM(prhs[0]) == 3)
-        {
-          mexErrMsgTxt("Three-dimensional positions are not supported (yet)!");
-        }
-        if (mxGetM(prhs[0]) != 2)
-        {
-          mexErrMsgTxt("Number of rows must be 2 (x and y coordinates)!");
-        }
-
-        double* coordinates = mxGetPr(prhs[0]);
-
-        --nrhs; ++prhs;
-
-        for (mwSize i = 0; i < _in_channels; ++i)
-        {
-          // TODO: handle 3D coordinates
-
-          auto* source = _engine->get_source(i + 1);
-          // TODO: check if source == nullptr
-          source->position = Position(coordinates[i*2], coordinates[i*2+1]);
-        }
+        mexErrMsgTxt("Specify as many model strings as there are sources!");
       }
-      else if (command == "orientation")
+
+      for (int i = 0; i < _in_channels; ++i)
       {
-        if (nrhs < 1)
-        {
-          mexErrMsgTxt("'source orientation' needs a further argument!");
-        }
-        if (mxIsComplex(prhs[0]))
-        {
-          mexErrMsgTxt("Complex values are not allowed!");
-        }
-        if (!mxIsNumeric(prhs[0]))
-        {
-          mexErrMsgTxt("source orientations must be in a numeric matrix!");
-        }
-        if (static_cast<mwSize>(mxGetN(prhs[0])) != _in_channels)
-        {
-          mexErrMsgTxt("Number of columns must be the same as number of sources!");
-        }
-        if (mxGetM(prhs[0]) != 1)
-        {
-          mexErrMsgTxt("Last argument must be a row vector of angles!");
-        }
+        std::string model_str;
+        mex::next_arg(nrhs, prhs, model_str, "All further arguments to "
+            "'source_model' must be a valid source model strings!");
 
-        double* angles = mxGetPr(prhs[0]);
-
-        --nrhs; ++prhs;
-
-        for (mwSize i = 0; i < _in_channels; ++i)
+        Source::model_t model = Source::unknown;
+        if (!apf::str::S2A(model_str, model))
         {
-          auto* source = _engine->get_source(i + 1);
-          // TODO: check if source == nullptr
-          source->orientation = Orientation(angles[i]);  // degree
+          mexPrintf("Model string '%s':", model_str.c_str());
+          mexErrMsgTxt("Couldn't convert source model string!");
         }
-      }
-      else if (command == "model")
-      {
-        if (nrhs < _in_channels)
-        {
-          mexErrMsgTxt("Specify as many model strings as there are sources!");
-        }
-
-        for (int i = 0; i < _in_channels; ++i)
-        {
-          std::string model_str;
-          mex::next_arg(nrhs, prhs, model_str, "All further arguments to "
-              "'source model' must be a valid source model strings!");
-
-          Source::model_t model = Source::unknown;
-          if (!apf::str::S2A(model_str, model))
-          {
-            mexPrintf("Model string '%s':", model_str.c_str());
-            mexErrMsgTxt("Couldn't convert source model string!");
-          }
-          _engine->get_source(i + 1)->model = model;
-        }
-      }
-      else
-      {
-        // TODO: more stuff: mute, volume, ...
-
-        mexPrintf("Command: 'source %s'\n", command.c_str());
-        mexErrMsgTxt("Unknown command!");
+        _engine->get_source(i + 1)->model = model;
       }
     }
 };

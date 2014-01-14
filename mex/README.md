@@ -41,9 +41,9 @@ ssr_nfc_hoa('init', sources, params)
 positions = [0; 2];  % one column for each source
 orientations = -90;  % row vector of angles in degrees
 models = { 'plane' };
-ssr_nfc_hoa('source', 'position', positions)
-ssr_nfc_hoa('source', 'orientation', orientations)
-ssr_nfc_hoa('source', 'model', models{:})
+ssr_nfc_hoa('source_position', positions)
+ssr_nfc_hoa('source_orientation', orientations)
+ssr_nfc_hoa('source_model', models{:})
 % TODO: set more source parameters
 % process (and discard) one block for interpolation
 outputblock = ssr_nfc_hoa('process', single(zeros(params.block_size, sources)));
