@@ -78,14 +78,6 @@ class SsrMex
         {
           _init(nlhs, plhs, nrhs, prhs);
         }
-        else if (command == "process")
-        {
-          _process(nlhs, plhs, nrhs, prhs);
-        }
-        else if (command == "source")
-        {
-          _source(nlhs, plhs, nrhs, prhs);
-        }
         else if (command == "block_size")
         {
           _error_init();
@@ -110,8 +102,7 @@ class SsrMex
         }
         else
         {
-          mexPrintf("Command: '%s'\n", command.c_str());
-          mexErrMsgTxt("Unknown command!");
+          _chained_commands(command, nlhs, plhs, nrhs, prhs);
         }
       }
       catch (std::exception& e)
@@ -221,14 +212,54 @@ class SsrMex
           , _engine->name(), _out_channels);
     }
 
-    void _process(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
+    void _chained_commands(const std::string& command
+        , int& nlhs, mxArray**& plhs, int& nrhs, const mxArray**& prhs)
     {
+      namespace mex = apf::mex;
+
       _error_init();
 
-      if (nlhs != 1 || nrhs != 1)
+      if (command == "source")
       {
-        mexErrMsgTxt("Exactly one input and one output is needed for 'process'!");
+        _source(nrhs, prhs);
       }
+      else if (command == "process")
+      {
+        _process(nlhs, plhs, nrhs, prhs);
+      }
+      else
+      {
+        mexPrintf("Command: '%s'\n", command.c_str());
+        mexErrMsgTxt("Unknown command!");
+      }
+
+      if (nrhs > 0)
+      {
+        std::string command;
+        mex::next_arg(nrhs, prhs, command
+            , "Too many arguments (or missing command string)!");
+        _chained_commands(command, nlhs, plhs, nrhs, prhs);
+      }
+
+      if (nlhs != 0)
+      {
+        mexErrMsgTxt("Output argument(s) available but not needed!");
+      }
+    }
+
+    void _process(int& nlhs, mxArray**& plhs, int& nrhs, const mxArray**& prhs)
+    {
+      if (nlhs != 1)
+      {
+        mexErrMsgTxt("Exactly one output is needed for 'process'!\n"
+            "(And 'process' can only be used once in a chained comand!)");
+      }
+
+      if (nrhs < 1)
+      {
+        mexErrMsgTxt("'process' needs an argument!");
+      }
+
       if (static_cast<mwSize>(mxGetM(prhs[0])) != _block_size)
       {
         mexErrMsgTxt("Number of rows must be the same as block size!");
@@ -278,14 +309,14 @@ class SsrMex
       }
 
       _engine->audio_callback(_block_size, _inputs.data(), _outputs.data());
+
+      --nlhs; ++plhs;
+      --nrhs; ++prhs;
     }
 
-    void _source(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
+    void _source(int& nrhs, const mxArray**& prhs)
     {
       namespace mex = apf::mex;
-
-      _error_init();
-      APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("source");
 
       std::string command;
       mex::next_arg(nrhs, prhs, command, "'source': second argument must be a "
@@ -321,7 +352,6 @@ class SsrMex
         double* coordinates = mxGetPr(prhs[0]);
 
         --nrhs; ++prhs;
-        APF_MEX_ERROR_NO_FURTHER_INPUTS("source position");
 
         for (mwSize i = 0; i < _in_channels; ++i)
         {
@@ -358,7 +388,6 @@ class SsrMex
         double* angles = mxGetPr(prhs[0]);
 
         --nrhs; ++prhs;
-        APF_MEX_ERROR_NO_FURTHER_INPUTS("source orientation");
 
         for (mwSize i = 0; i < _in_channels; ++i)
         {
@@ -369,7 +398,7 @@ class SsrMex
       }
       else if (command == "model")
       {
-        if (nrhs != _in_channels)
+        if (nrhs < _in_channels)
         {
           mexErrMsgTxt("Specify as many model strings as there are sources!");
         }
