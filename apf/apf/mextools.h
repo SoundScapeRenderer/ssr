@@ -29,7 +29,10 @@
 
 #include <mex.h>
 #include <string>
+#include <map>
 #include <cmath>  // for std::floor()
+
+#include "apf/stringtools.h"  // for A2S()
 
 #define APF_MEX_ERROR_NO_OUTPUT_SUPPORTED(name) \
 (void)plhs; \
@@ -96,6 +99,45 @@ bool convert(const mxArray* in, size_t& out)
   double temp = mxGetScalar(in);
   if (temp < 0 || temp != std::floor(temp)) return false;
   out = temp;
+  return true;
+}
+
+// TODO: allow wstring?
+// This expects a scalar structure!
+// Values must be real scalar numbers or strings!
+// WARNING: In case of a conversion error, the map may be partly filled!
+bool convert(const mxArray* in, std::map<std::string, std::string>& out)
+{
+  if (!mxIsStruct(in)) return false;
+  if (mxGetNumberOfElements(in) != 1) return false;
+
+  for (int i = 0; i < mxGetNumberOfFields(in); ++i)
+  {
+    auto fieldname = std::string(mxGetFieldNameByNumber(in, i));
+
+    // Second argument: number of element (we expect only one):
+    mxArray* field = mxGetFieldByNumber(in, 0, i);
+
+    double doublevalue;
+    std::string stringvalue;
+
+    // TODO: check for size_t and int?
+
+    if (convert(field, doublevalue))
+    {
+      stringvalue = apf::str::A2S(doublevalue);
+    }
+    else if (convert(field, stringvalue))
+    {
+      // do nothing
+    }
+    else
+    {
+      mexPrintf("Trying to convert '%s' ...\n", fieldname.c_str());
+      mexErrMsgTxt("Value must be a real scalar number or a string!");
+    }
+    out[fieldname] = stringvalue;
+  }
   return true;
 }
 
