@@ -251,14 +251,9 @@ class SsrMex
 
       APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'process'");
 
-      if (static_cast<mwSize>(mxGetM(prhs[0])) != _block_size)
-      {
-        mexErrMsgTxt("Number of rows must be the same as block size!");
-      }
-      if (static_cast<mwSize>(mxGetN(prhs[0])) != _in_channels)
-      {
-        mexErrMsgTxt("Number of columns must be the same as number of inputs!");
-      }
+      APF_MEX_ERROR_SAME_NUMBER_OF_ROWS(_block_size, "as block size");
+      APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
+          , "as number of sources");
 
       APF_MEX_ERROR_REAL_INPUT("Argument to 'process'");
 
