@@ -85,7 +85,7 @@ class RendererBase : public apf::MimoProcessor<Derived
     {
       State(apf::CommandQueue& fifo)
         : reference_position(fifo)
-        , reference_orientation(fifo)
+        , reference_orientation(fifo, Orientation(90))
         , reference_offset_position(fifo)
         , reference_offset_orientation(fifo)
         , master_volume(fifo, 1)
