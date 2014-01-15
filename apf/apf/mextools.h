@@ -74,6 +74,13 @@ if (mxIsComplex(prhs[0])) { \
   std::string msg(std::string(text) + " must not be complex!"); \
   mexErrMsgTxt(msg.c_str()); }
 
+#define APF_MEX_ERROR_SAME_NUMBER_OF_ROWS(value, text) \
+(void)prhs; \
+if (static_cast<mwSize>(mxGetM(prhs[0])) != (value)) { \
+  std::string msg("Number of rows must be the same " \
+      + std::string(text) + "!"); \
+  mexErrMsgTxt(msg.c_str()); }
+
 #define APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(value, text) \
 (void)prhs; \
 if (static_cast<mwSize>(mxGetN(prhs[0])) != (value)) { \
