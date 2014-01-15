@@ -26,6 +26,7 @@ Usage example:
 
 ``` octave
 
+ssr = @ssr_nfc_hoa;
 inputblock = transpose(single([0 0 1 0 0 0 0 0]));
 sources = size(inputblock, 2);
 params.block_size = size(inputblock, 1);
@@ -37,22 +38,22 @@ params.reproduction_setup = '../data/reproduction_setups/circle.asd';
 %params.prefilter_file = ...
 %'../data/impulse_responses/wfs_prefilters/wfs_prefilter_120_1500_44100.wav';
 params.threads = 4;
-ssr_nfc_hoa('init', sources, params)
+ssr('init', sources, params)
 positions = [0; 2];  % one column for each source
 orientations = -90;  % row vector of angles in degrees
 models = { 'plane' };
-ssr_nfc_hoa('source_position', positions)
-ssr_nfc_hoa('source_orientation', orientations)
-ssr_nfc_hoa('source_model', models{:})
+ssr('source_position', positions)
+ssr('source_orientation', orientations)
+ssr('source_model', models{:})
 % TODO: set more source parameters
 % process (and discard) one block for interpolation
-outputblock = ssr_nfc_hoa('process', single(zeros(params.block_size, sources)));
+outputblock = ssr('process', single(zeros(params.block_size, sources)));
 % now the source parameters have reached their desired values
-outputblock = ssr_nfc_hoa('process', inputblock);
+outputblock = ssr('process', inputblock);
 % do something with 'outputblock' ...
 % repeat for each block ...
-ssr_nfc_hoa out_channels
-ssr_nfc_hoa clear
-ssr_nfc_hoa help
+out_ch = ssr('out_channels')
+ssr('clear')
+ssr('help')
 
 ```
