@@ -26,34 +26,32 @@ Usage example:
 
 ``` octave
 
-ssr = @ssr_nfc_hoa;
 inputblock = transpose(single([0 0 1 0 0 0 0 0]));
 sources = size(inputblock, 2);
 params.block_size = size(inputblock, 1);
 params.sample_rate = 44100;
 params.reproduction_setup = '../data/reproduction_setups/circle.asd';
-% for ssr_binaural:
-%params.hrir_file = '../data/impulse_responses/hrirs/hrirs_fabian.wav';
-% for ssr_wfs:
-%params.prefilter_file = ...
-%'../data/impulse_responses/wfs_prefilters/wfs_prefilter_120_1500_44100.wav';
 params.threads = 4;
-ssr('init', sources, params)
+
+ssr_nfc_hoa('init', sources, params)
+
 positions = [0; 2];  % one column for each source
-orientations = -90;  % row vector of angles in degrees
-models = { 'plane' };
-ssr('source_position', positions)
-ssr('source_orientation', orientations)
-ssr('source_model', models{:})
-% TODO: set more source parameters
-% process (and discard) one block for interpolation
-outputblock = ssr('process', single(zeros(params.block_size, sources)));
+
+ssr_nfc_hoa('source_position', positions)
+
+% for more parameters see test_ssr.m
+
+% process (and discard) one block for interpolation:
+outputblock = ssr_nfc_hoa('process', single(zeros(params.block_size, sources)));
+
 % now the source parameters have reached their desired values
-outputblock = ssr('process', inputblock);
+outputblock = ssr_nfc_hoa('process', inputblock);
+
 % do something with 'outputblock' ...
 % repeat for each block ...
-out_ch = ssr('out_channels')
-ssr('clear')
-ssr('help')
+
+out_ch = ssr_nfc_hoa('out_channels')
+ssr_nfc_hoa clear
+ssr_nfc_hoa help
 
 ```
