@@ -220,6 +220,14 @@ class SsrMex
       {
         _source_model(nrhs, prhs);
       }
+      else if (command == "reference_position")
+      {
+        _reference_position(nrhs, prhs);
+      }
+      else if (command == "reference_orientation")
+      {
+        _reference_orientation(nrhs, prhs);
+      }
       else if (command == "process")
       {
         _process(nlhs, plhs, nrhs, prhs);
@@ -369,6 +377,49 @@ class SsrMex
         }
         _engine->get_source(i + 1)->model = model;
       }
+    }
+
+    void _reference_position(int& nrhs, const mxArray**& prhs)
+    {
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'reference_position'");
+      APF_MEX_ERROR_REAL_INPUT("Reference position");
+
+      if (mxGetN(prhs[0]) != 1)
+      {
+        mexErrMsgTxt("Number of columns must be 1");
+      }
+      if (mxGetM(prhs[0]) == 3)
+      {
+        mexErrMsgTxt("Three-dimensional positions are not supported (yet)!");
+      }
+      if (mxGetM(prhs[0]) != 2)
+      {
+        mexErrMsgTxt("Number of rows must be 2 (x and y coordinates)!");
+      }
+
+      double* coordinates = mxGetPr(prhs[0]);
+
+      --nrhs; ++prhs;
+
+      _engine->state.reference_position =
+        Position(coordinates[0], coordinates[1]);
+    }
+
+    void _reference_orientation(int& nrhs, const mxArray**& prhs)
+    {
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'reference_orientation'");
+      APF_MEX_ERROR_REAL_INPUT("Reference orientation");
+
+      if (mxGetN(prhs[0]) != 1 || mxGetM(prhs[0]) != 1)
+      {
+        mexErrMsgTxt("Last argument must be a scalar");
+      }
+
+      double* angle = mxGetPr(prhs[0]);
+
+      --nrhs; ++prhs;
+
+      _engine->state.reference_orientation = Orientation(*angle);
     }
 
     std::unique_ptr<Renderer> _engine;

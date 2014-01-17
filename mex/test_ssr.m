@@ -7,6 +7,9 @@ positions = [0; 2];  % one column for each input channel
 orientations = -90;  % row vector of angles in degree
 models = { 'plane' };  % cell array of model strings
 
+reference_position = [-1; 0]; % one column vector
+reference_orientation = 90; % one angle in degree
+
 params.block_size = 1024;
 params.threads = 2;
 
@@ -33,6 +36,8 @@ ssr('init', sources, params)
 ssr('source_position', positions)
 ssr('source_orientation', orientations)
 ssr('source_model', models{:})
+ssr('reference_position', reference_position)
+ssr('reference_orientation', reference_orientation)
 
 out = ssr_helper(sig, ssr);
 
