@@ -57,7 +57,7 @@ SECTION("S2A", "String to Anything")
   CHECK(S2A(" 42    ", res_dbl));
   CHECK(res_dbl == 42.0);
   CHECK(S2A(" 42    ", res_str));
-  CHECK(res_str == "42");
+  CHECK(res_str == " 42    ");
 
   CHECK_FALSE(S2A(" - 42    ", res_int));
   CHECK(S2A(" -42    ", res_int));
@@ -66,7 +66,7 @@ SECTION("S2A", "String to Anything")
   CHECK_FALSE(S2A("  true ", res_int));
   CHECK_FALSE(S2A("  true ", res_dbl));
   CHECK(S2A("  true ", res_str));
-  CHECK(res_str == "true");
+  CHECK(res_str == "  true ");
   CHECK(S2A("true", res_bool));
   CHECK(res_bool == true);
   CHECK(S2A("  true ", res_bool));
@@ -94,6 +94,8 @@ SECTION("S2A", "String to Anything")
   // too lazy to repeat all tests for std::string ...
   CHECK(S2A(std::string(" 42    "), res_int));
   CHECK(res_int == 42);
+  CHECK(S2A(std::string(" 42    "), res_str));
+  CHECK(res_str == " 42    ");
 }
 
 SECTION("S2RV", "String to Return Value")
@@ -103,6 +105,8 @@ SECTION("S2RV", "String to Return Value")
   CHECK(S2RV("  42  ", 0) == 42);
   CHECK(S2RV("  42.42 ", 0) == 0);
   CHECK(S2RV("  42.42 ", 0.0) == 42.42);
+  CHECK(S2RV("  42  ", "") == "  42  ");
+  CHECK(S2RV("  42  ", std::string("")) == "  42  ");
   CHECK(S2RV("  0 ", true) == false);
   CHECK(S2RV("  42 ", true) == true);
   CHECK(S2RV(" false ", true) == false);
@@ -112,6 +116,7 @@ SECTION("S2RV", "String to Return Value")
 
   CHECK(S2RV<int>(" 42 ") == 42);
   CHECK(S2RV<float>(" 42 ") == 42.0);
+  CHECK(S2RV<std::string>(" 42 ") == " 42 ");
   CHECK_THROWS_AS(S2RV<int>(" 42.0 "), std::invalid_argument);
 }
 

@@ -122,6 +122,16 @@ bool S2A(const std::string& input, out_T& output)
   return convert(converter, output);
 }
 
+/** Overloaded function with a @c std::string as output.
+ * The input is simply assigned to the output.
+ * @return always @b true
+ **/
+inline bool S2A(const std::string& input, std::string& output)
+{
+  output = input;
+  return true;
+}
+
 /** Converter <em>"String to Return Value"</em>.
  * Convert a string (either a zero-terminated @c char* or a @c std::string)
  * to a given numeric type and return the result.
@@ -140,6 +150,17 @@ out_T S2RV(const std::string& input, out_T def)
 {
   S2A(input, def);  // ignore return value
   return def;
+}
+
+/** Overloaded function with C-string as default value.
+ * @return a @c std::string
+ * @see S2RV()
+ **/
+inline std::string S2RV(const std::string& input, const char* def)
+{
+  std::string temp(def);
+  S2A(input, temp);  // ignore return value
+  return temp;
 }
 
 /** Throwing version of S2RV().
