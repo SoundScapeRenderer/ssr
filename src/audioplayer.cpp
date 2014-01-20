@@ -200,11 +200,10 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
     const std::string& prefix) throw (soundfile_error) :
   output_prefix(prefix),
   _filename(filename),
-  _escaped_filename(posixpathtools::get_escaped_filename(filename)),
   _client_name(""),
   _channels(0)
 {
-  _sample_format = get_format(_escaped_filename, _channels, _sample_rate);
+  _sample_format = get_format(_filename, _channels, _sample_rate);
   size_t jack_sample_rate = _get_jack_sample_rate();
 
   _eca.command("cs-add real_chainsetup");
@@ -220,7 +219,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
 
   if (_sample_rate != jack_sample_rate)
   {
-    WARNING("'" + _escaped_filename
+    WARNING("'" + _filename
         + "' has a different sample rate than JACK! ("
         + apf::str::A2S(_sample_rate) + " vs. "
         + apf::str::A2S(jack_sample_rate) + ")");
@@ -228,7 +227,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
   }
 
   ai_add += "sndfile,";
-  ai_add += _escaped_filename;
+  ai_add += posixpathtools::get_escaped_filename(filename);
 
   _eca.command(ai_add);
   _eca.command("ao-add jack_generic," + this->output_prefix);
@@ -245,11 +244,11 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
   max_size--; // max_size includes the terminating \0 character!
   max_size -= 3; // to allow ecasound to append a number up to "_99"
   max_size--; // we will add a special character at the beginning (maybe '['?)
-  _client_name = _escaped_filename;
+  _client_name = _filename;
   assert(max_size >= 0);
-  if (_escaped_filename.size() > static_cast<size_t>(max_size))
+  if (_filename.size() > static_cast<size_t>(max_size))
   {
-    _client_name = _escaped_filename.substr(_escaped_filename.size() - max_size);
+    _client_name = _filename.substr(_filename.size() - max_size);
     // to visualize the truncation
     _client_name[0] = '<';
   }
@@ -284,7 +283,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
   // This is a little ugly, but I don't know a better way to do it.
   // If you know one, tell me, please!
   usleep(ssr::usleeptime);
-  VERBOSE2("Added '" + _escaped_filename
+  VERBOSE2("Added '" + _filename
       + "', format: '" + apf::str::A2S(_sample_format)
       + "', channels: " + apf::str::A2S(_channels)
       + ", sample rate: " + apf::str::A2S(_sample_rate) + ".");
@@ -295,7 +294,7 @@ AudioPlayer::Soundfile::~Soundfile()
 {
   // TODO: check if ecasound is really running.
   _eca.command("cs-disconnect"); // implies "stop" and "engine-halt"
-  VERBOSE2("AudioPlayer::Soundfile: '" + _escaped_filename + "' disconnected.");
+  VERBOSE2("AudioPlayer::Soundfile: '" + _filename + "' disconnected.");
 }
 
 AudioPlayer::Soundfile::ptr_t AudioPlayer::Soundfile::create(
