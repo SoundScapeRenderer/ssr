@@ -106,51 +106,25 @@ inline bool convert(std::istream& input, bool& output)
 }
 
 /** Converter <em>"String to Anything"</em>.
- * Convert a string (in this case meant as an array of a certain character
- * type) to a given numeric type (or, if you insist on it, to a
- * @c std::string, in which case it would not be very efficient).
+ * Convert a @c std::string or C-string to a given numeric type.
  * Also, convert @c "1", @c "true", @c "0" and @c "false" to the respective
  * boolean values.
- * @tparam char_T character type of the input array
  * @tparam out_T desired output type (must have an input stream operator!)
- * @param input pointer to a zero-terminated string of any character type.
+ * @param input a @c std::string or @c char*
  * @param[out] output result converted to the desired type.
  * @return @b true on success
  * @note If @b false is returned, @a output is unchanged.
  **/
-template<typename char_T, typename out_T>
-bool S2A(const char_T* input, out_T& output)
+template<typename out_T>
+bool S2A(const std::string& input, out_T& output)
 {
-  std::basic_istringstream<char_T> converter(input);
-  return convert(converter, output);
-}
-
-/** Overloaded function for a STL-like string type.
- * @see S2A()
- * @tparam in_T input string type (e.g. @c std::string)
- * @tparam char_T character type of the input string (e.g. @c char)
- * @tparam traits traits class for the string type @p in_T
- * @tparam Allocator allocator for the string type @p in_T
- * @tparam out_T desired output type (must have an input stream operator!)
- * @param input a string object like @c std::string or @c std::wstring or ...
- * @param[out] output result converted to the desired type.
- * @return @b true on success
- * @note If @b false is returned, @a output is unchanged.
- * @note This uses a template template to allow any input type that has
- * the same structure as @c std::string
- **/
-template<template<typename, typename, typename> class in_T,
-  typename char_T, typename traits, typename Allocator, typename out_T>
-bool S2A(const in_T<char_T, traits, Allocator>& input, out_T& output)
-{
-  std::basic_istringstream<char_T, traits, Allocator> converter(input);
+  std::istringstream converter(input);
   return convert(converter, output);
 }
 
 /** Converter <em>"String to Return Value"</em>.
- * Convert a string (either an array of a certain character type or an
- * STL-style string class) to a given numeric type and return the result.
- * @tparam int_T string type
+ * Convert a string (either a zero-terminated @c char* or a @c std::string)
+ * to a given numeric type and return the result.
  * @tparam out_T desired output type (must have an input stream operator!)
  * @param input string to be converted.
  * @param def default value.
@@ -161,10 +135,10 @@ bool S2A(const in_T<char_T, traits, Allocator>& input, out_T& output)
  *   S2A() if you want to make sure.
  * @see S2A()
  **/
-template<typename out_T, typename in_T>
-out_T S2RV(const in_T& input, out_T def)
+template<typename out_T>
+out_T S2RV(const std::string& input, out_T def)
 {
-  S2A(input, def); // ignore return value
+  S2A(input, def);  // ignore return value
   return def;
 }
 
