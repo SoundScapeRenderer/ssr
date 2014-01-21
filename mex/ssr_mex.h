@@ -284,13 +284,13 @@ class SsrMex
       sample_type*  input = static_cast<sample_type*>(mxGetData(prhs[0]));
 #endif
 
-      for (int i = 0; i <= _in_channels; ++i)
+      for (int i = 0; i < _in_channels; ++i)
       {
         _inputs[i] = input;
         input += _block_size;
       }
 
-      for (int i = 0; i <= _out_channels; ++i)
+      for (int i = 0; i < _out_channels; ++i)
       {
         _outputs[i] = output;
         output += _block_size;
