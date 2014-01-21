@@ -216,6 +216,10 @@ class SsrMex
       {
         _source_orientation(nrhs, prhs);
       }
+      else if (command == "source_mute")
+      {
+        _source_mute(nrhs, prhs);
+      }
       else if (command == "source_model")
       {
         _source_model(nrhs, prhs);
@@ -353,6 +357,32 @@ class SsrMex
         auto* source = _engine->get_source(i + 1);
         // TODO: check if source == nullptr
         source->orientation = Orientation(angles[i]);  // degree
+      }
+    }
+
+    void _source_mute(int& nrhs, const mxArray**& prhs)
+    {
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_mute'");
+      APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
+          , "as number of sources!");
+
+      if (!mxIsLogical(prhs[0]))
+      {
+        mexErrMsgTxt("Argument after 'source_mute' must be of logical type!");
+      }
+      if (mxGetM(prhs[0]) != 1)
+      {
+        mexErrMsgTxt("Argument after 'source_mute' must be a row vector!");
+      }
+
+      mxLogical* mute = mxGetLogicals(prhs[0]);
+
+      --nrhs; ++prhs;
+
+      for (mwSize i = 0; i < _in_channels; ++i)
+      {
+        auto* source = _engine->get_source(i + 1);
+        source->mute = mute[i];  // logical
       }
     }
 
