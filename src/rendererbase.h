@@ -170,17 +170,13 @@ class RendererBase : public apf::MimoProcessor<Derived
     }
 
     int add_source(const apf::parameter_map& p = apf::parameter_map());
-    void rem_source(Source* source);
+    void rem_source(id_t id);
     void rem_all_sources();
 
     Source* get_source(int id);
 
     // May only be used in realtime thread!
     const rtlist_t& get_source_list() const { return _source_list; }
-
-    const std::map<int, Source*>& get_source_map() const { return _source_map; }
-
-    sample_type get_master_level() const { return _master_level; }
 
     bool show_head() const { return _show_head; }
 
@@ -246,8 +242,6 @@ RendererBase<Derived>::RendererBase(const apf::parameter_map& p)
 template<typename Derived>
 int RendererBase<Derived>::add_source(const apf::parameter_map& p)
 {
-  ScopedLock guard(_lock);
-
   int id = _get_new_id();
 
   typename Derived::Input::Params in_params;
@@ -262,6 +256,9 @@ int RendererBase<Derived>::add_source(const apf::parameter_map& p)
   src_params.parent = &this->derived();
   src_params.fifo = &_fifo;
   src_params.input = in;
+
+  // For now, Input ID and Source ID are the same:
+  src_params.id = id;
 
   typename Derived::Source* src;
 
@@ -287,21 +284,21 @@ int RendererBase<Derived>::add_source(const apf::parameter_map& p)
 }
 
 template<typename Derived>
-void RendererBase<Derived>::rem_source(Source* source)
+void RendererBase<Derived>::rem_source(id_t id)
 {
-  assert(source);
+  auto delinquent = _source_map.find(id);
 
-  // TODO: remove by ID instead of by pointer?
-  ScopedLock guard(_lock);
+  if (delinquent == _source_map.end())
+  {
+    // TODO: warning?
+    return;
+  }
 
-  // work-around to delete source from _source_map
-  auto delinquent = std::find_if(_source_map.begin(), _source_map.end()
-        , [source] (const std::pair<int, Source*>& in)
-          {
-            return in.second == source;
-          });
+  auto* source = delinquent->second;
+
   _source_map.erase(delinquent);
 
+  assert(source);
   source->derived().disconnect();
 
   auto input = const_cast<Input*>(&source->_input);
@@ -318,7 +315,7 @@ void RendererBase<Derived>::rem_all_sources()
 {
   while (!_source_map.empty())
   {
-    this->rem_source(_source_map.begin()->second);
+    this->rem_source(_source_map.begin()->first);
   }
   _highest_id = 0;
 }
@@ -355,16 +352,12 @@ class RendererBase<Derived>::Source
 
     struct Params : apf::parameter_map
     {
-      Params() : parent(0) {}
-      Derived* parent;
-      const typename Derived::Input* input;
-      apf::CommandQueue* fifo;
+      Derived* parent = nullptr;
+      const typename Derived::Input* input = nullptr;
+      apf::CommandQueue* fifo = nullptr;
+      int id = 0;
 
-      Params& operator=(const apf::parameter_map& p)
-      {
-        this->apf::parameter_map::operator=(p);
-        return *this;
-      }
+      using apf::parameter_map::operator=;
     };
 
     explicit Source(const Params& p)
@@ -377,6 +370,7 @@ class RendererBase<Derived>::Source
       , mute(*p.fifo, false)
       , model(*p.fifo, ::Source::point)
       , weighting_factor()
+      , id(p.id)
       , _input(*(p.input ? p.input : throw std::logic_error(
               "Bug (RendererBase::Source): input == NULL!")))
       , _pre_fader_level()
@@ -423,6 +417,8 @@ class RendererBase<Derived>::Source
     apf::SharedData< ::Source::model_t> model;
 
     apf::BlockParameter<sample_type> weighting_factor;
+
+    const int id;
 
   protected:
     const Input& _input;

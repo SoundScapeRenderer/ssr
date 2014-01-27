@@ -408,8 +408,6 @@ class Controller<Renderer>::query_state
     query_state(Controller& controller, Renderer& renderer)
       : _controller(controller)
       , _renderer(renderer)
-      , _discard_source_levels(true)
-      , _last_source(0)
     {}
 
     void query()
@@ -425,8 +423,6 @@ class Controller<Renderer>::query_state
         _master_level = std::max(_master_level, out.get_level());
       }
 
-      _last_source = 0;
-
       using source_list_t
         = typename Renderer::template rtlist_proxy<typename Renderer::Source>;
       auto source_list = source_list_t(_renderer.get_source_list());
@@ -437,8 +433,8 @@ class Controller<Renderer>::query_state
 
         for (const auto& source: source_list)
         {
-          _last_source = &source;
-          levels->source = source.get_level();
+          levels->source_id = source.id;
+          levels->source_level = source.get_level();
 
           levels->outputs_available = source.get_output_levels(
               &*levels->outputs.begin(), &*levels->outputs.end());
@@ -450,6 +446,7 @@ class Controller<Renderer>::query_state
       else
       {
         _discard_source_levels = true;
+        _new_size = source_list.size();
       }
     }
 
@@ -459,19 +456,26 @@ class Controller<Renderer>::query_state
       _controller.set_cpu_load(_cpu_load);
       _controller.set_master_signal_level(_master_level);
 
-      auto lock = _renderer.get_scoped_lock();
-
-      // To check the size is not sufficient, we also check the last element
-      if (!_discard_source_levels
-          && _source_levels.size() == _renderer.get_source_map().size()
-          && (_renderer.get_source_map().empty()
-              || _last_source == _renderer.get_source_map().rbegin()->second))
+      if (!_discard_source_levels)
       {
-        _set_source_signal_levels(_renderer.get_source_map().begin()
-            , _renderer.get_source_map().end());
+        for (auto& item: _source_levels)
+        {
+          _controller.set_source_signal_level(item.source_id
+              , item.source_level);
+
+          // TODO: make this a compile-time decision:
+          if (item.outputs_available)
+          {
+            _controller.set_source_output_levels(item.source_id
+                , &*item.outputs.begin(), &*item.outputs.end());
+          }
+        }
       }
-      _source_levels.resize(_renderer.get_source_map().size()
+      else
+      {
+        _source_levels.resize(_new_size
           , SourceLevel(_renderer.get_output_list().size()));
+      }
     }
 
   private:
@@ -482,7 +486,9 @@ class Controller<Renderer>::query_state
         , outputs(n)
       {}
 
-      typename Renderer::sample_type source;
+      typename Renderer::sample_type source_level;
+
+      int source_id;
 
       bool outputs_available;
       // this may never be resized:
@@ -491,28 +497,6 @@ class Controller<Renderer>::query_state
 
     using source_levels_t = std::vector<SourceLevel>;
 
-    // TODO: quick hack, maybe implement properly some day?
-    template<typename MapIterator>
-    void _set_source_signal_levels(MapIterator first, MapIterator last)
-    {
-      assert(size_t(std::distance(first, last)) == _source_levels.size());
-
-      auto levels = _source_levels.begin();
-
-      for (; first != last; ++first)
-      {
-        _controller.set_source_signal_level(first->first, levels->source);
-
-        // TODO: make this a compile-time decision:
-        if (levels->outputs_available)
-        {
-          _controller.set_source_output_levels(first->first
-              , &*levels->outputs.begin(), &*levels->outputs.end());
-        }
-        ++levels;
-      }
-    }
-
     Controller& _controller;
     Renderer& _renderer;
     std::pair<bool, jack_nframes_t> _state;
@@ -520,8 +504,8 @@ class Controller<Renderer>::query_state
     typename Renderer::sample_type _master_level;
 
     source_levels_t _source_levels;
-    bool _discard_source_levels;
-    const typename Renderer::Source* _last_source;
+    bool _discard_source_levels = true;
+    size_t _new_size = 0;
 };
 
 template<typename Renderer>
@@ -1392,6 +1376,7 @@ Controller<Renderer>::new_source(const std::string& name
 
   try
   {
+    auto guard = _renderer.get_scoped_lock();
     id = _renderer.add_source(p);
   }
   catch (std::exception& e)
