@@ -1,5 +1,13 @@
 User-visible changes in the SoundScape Renderer. Recent changes on top.
 
+0.4.1 (28 January 2014)
+
+ - all renderers (except BRS and generic) are now available as MEX files
+
+ - SSR can now be compiled with clang++ and libc++ on OSX 10.9 (Mavericks)
+
+ - several bugfixes
+
 0.4.0 (20 December 2013)
 
  - the signal processing core of the SSR is now a separate thing and part of the
