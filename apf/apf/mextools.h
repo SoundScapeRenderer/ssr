@@ -48,6 +48,13 @@ if (nlhs != 1) { \
       + std::string(name) + "!"); \
   mexErrMsgTxt(msg.c_str()); }
 
+#define APF_MEX_ERROR_ONE_OPTIONAL_OUTPUT(name) \
+(void)plhs; \
+if (nlhs > 1) { \
+  std::string msg("No more than one output parameter is supported for " \
+      + std::string(name) + "!"); \
+  mexErrMsgTxt(msg.c_str()); }
+
 #define APF_MEX_ERROR_NO_FURTHER_INPUTS(name) \
 (void)prhs; \
 if (nrhs > 0) { \
