@@ -50,7 +50,7 @@ outputblock = ssr_nfc_hoa('process', inputblock);
 % do something with 'outputblock' ...
 % repeat for each block ...
 
-out_ch = ssr_nfc_hoa('out_channels')
+ssr_nfc_hoa out_channels
 ssr_nfc_hoa clear
 ssr_nfc_hoa help
 

@@ -80,14 +80,14 @@ class SsrMex
         {
           _error_init();
           APF_MEX_ERROR_NO_FURTHER_INPUTS("'block_size'");
-          APF_MEX_ERROR_EXACTLY_ONE_OUTPUT("'block_size'");
+          APF_MEX_ERROR_ONE_OPTIONAL_OUTPUT("'block_size'");
           plhs[0] = mxCreateDoubleScalar(_block_size);
         }
         else if (command == "out_channels")
         {
           _error_init();
           APF_MEX_ERROR_NO_FURTHER_INPUTS("'out_channels'");
-          APF_MEX_ERROR_EXACTLY_ONE_OUTPUT("'out_channels'");
+          APF_MEX_ERROR_ONE_OPTIONAL_OUTPUT("'out_channels'");
           plhs[0] = mxCreateDoubleScalar(_out_channels);
         }
         // Only "clear" shall be documented, the others are hidden features
@@ -178,9 +178,7 @@ class SsrMex
 
       mexPrintf(info.c_str());
 
-      auto params = apf::parameter_map(std::move(options));
-
-      _engine.reset(new Renderer(params));
+      _engine.reset(new Renderer(apf::parameter_map(std::move(options))));
 
       _block_size = _engine->block_size();
 
