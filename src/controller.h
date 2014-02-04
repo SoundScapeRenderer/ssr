@@ -257,8 +257,6 @@ class Controller : public Publisher
 #endif
     std::unique_ptr<Tracker> _tracker;
 
-    float _stand_ampl_ref_dist;
-
     /// check if audio player is running and start it if necessary
     bool _audio_player_is_running();
 
@@ -838,7 +836,8 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
 
     // GET AMPLITUDE REFERENCE DISTANCE
 
-    float ref_dist = _conf.stand_ampl_ref_dist;
+    auto ref_dist = _conf.renderer_params.get<float>(
+        "amplitude_reference_distance");  // throws on error!
 
     xpath_result
       = scene_file->eval_xpath("//scene_setup/amplitude_reference_distance");
@@ -853,7 +852,7 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
     // always use default value when nothing is specified
     VERBOSE("Setting amplitude reference distance to "
         << ref_dist << " meters.");
-    _scene.set_amplitude_reference_distance(ref_dist);
+    this->set_amplitude_reference_distance(ref_dist);
 
     // LOAD REFERENCE
 
@@ -1006,7 +1005,8 @@ Controller<Renderer>::_create_spontaneous_scene(const std::string& audio_file_na
 
   // set master volume
   this->set_master_volume(apf::math::dB2linear(-6.0f));
-  this->set_amplitude_reference_distance(_conf.stand_ampl_ref_dist);
+  this->set_amplitude_reference_distance(_conf.renderer_params.get<float>(
+        "amplitude_reference_distance"));  // throws on error!
   // set reference
   this->set_reference_position(Position());
   this->set_reference_orientation(Orientation(90.0f));

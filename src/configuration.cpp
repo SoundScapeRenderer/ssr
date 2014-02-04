@@ -124,7 +124,6 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 #endif
 
   // hard coded default values:
-  conf.stand_ampl_ref_dist = 3.0f; // meters
 #ifdef ENABLE_GUI
   conf.gui = true;
 #else
@@ -149,6 +148,8 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   conf.output_port_prefix = "system:playback_";
   conf.path_to_gui_images = SSR_DATA_DIR"/images";
   conf.path_to_scene_menu = "./scene_menu.conf";
+
+  conf.renderer_params.set("amplitude_reference_distance", 3);  // meters
 
   // for WFS renderer
   conf.renderer_params.set("prefilter_file"
@@ -640,7 +641,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     }
     else if (!strcmp(key, "STANDARD_AMPLITUDE_REFERENCE_DISTANCE"))
     {
-      conf.stand_ampl_ref_dist = atof(value);
+      conf.renderer_params.set("amplitude_reference_distance", value);
     }
     else if (!strcmp(key, "SCENE_FILE_NAME"))
     {

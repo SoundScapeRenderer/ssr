@@ -83,14 +83,15 @@ class RendererBase : public apf::MimoProcessor<Derived
 
     struct State
     {
-      State(apf::CommandQueue& fifo)
+      State(apf::CommandQueue& fifo, const apf::parameter_map& params)
         : reference_position(fifo)
         , reference_orientation(fifo, Orientation(90))
         , reference_offset_position(fifo)
         , reference_offset_orientation(fifo)
         , master_volume(fifo, 1)
         , processing(fifo, true)
-        , amplitude_reference_distance(fifo, 3)
+        , amplitude_reference_distance(fifo
+            , params.get("amplitude_reference_distance", 3))
       {}
 
       apf::SharedData<Position> reference_position;
@@ -226,7 +227,7 @@ class RendererBase : public apf::MimoProcessor<Derived
 template<typename Derived>
 RendererBase<Derived>::RendererBase(const apf::parameter_map& p)
   : _base(_add_params(p))
-  , state(_fifo)
+  , state(_fifo, p)
   , master_volume_correction(apf::math::dB2linear(
         this->params.get("master_volume_correction", 0.0)))
   , _master_level()

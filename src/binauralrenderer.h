@@ -282,7 +282,7 @@ void BinauralRenderer::Source::_process()
 
       // 1/sqrt(r):
       //weight *= 0.25f / sqrt(
-      //    _input.parent.state.amplitude_reference_distance());
+      //    _input.parent.state.amplitude_reference_distance);
     }
     else
     {
