@@ -69,10 +69,10 @@ class RendererBase : public apf::MimoProcessor<Derived
       , APF_MIMOPROCESSOR_THREAD_POLICY, SSR_QUERY_POLICY>;
 
   public:
-    using rtlist_t = typename _base::rtlist_t;
+    using typename _base::rtlist_t;
+    using typename _base::ScopedLock;
+    using typename _base::sample_type;
     using Input = typename _base::DefaultInput;
-    using ScopedLock = typename _base::ScopedLock;
-    using sample_type = typename _base::sample_type;
 
     using _base::_fifo;
 
@@ -478,11 +478,11 @@ class RendererBase<Derived>::Output : public _base::Output
 template<typename Derived, template<typename> class Base>
 struct SourceToOutput : Base<Derived>
 {
-  using Input = typename Base<Derived>::Input;
+  using typename Base<Derived>::Input;
 
   struct Source : Base<Derived>::Source
   {
-    using Params = typename Base<Derived>::Source::Params;
+    using typename Base<Derived>::Source::Params;
     using sourcechannels_t = apf::fixed_vector<typename Derived::SourceChannel>;
 
     template<typename... Args>
@@ -517,7 +517,7 @@ struct SourceToOutput : Base<Derived>
 
   struct Output : Base<Derived>::Output
   {
-    using Params = typename Base<Derived>::Output::Params;
+    using typename Base<Derived>::Output::Params;
     using sourcechannels_t = std::list<typename Derived::SourceChannel*>;
 
     Output(const Params& p) : Base<Derived>::Output(p) {}

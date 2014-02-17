@@ -235,7 +235,7 @@ class CombineChannelsInterpolation: public CombineChannelsBase<
   private:
     using _base
       = CombineChannelsBase<CombineChannelsInterpolation<L, Out>, L, Out>;
-    using T = typename _base::T;
+    using typename _base::T;
     using _base::_selection;
     using _base::_accumulate;
     using _base::_out;
@@ -277,7 +277,7 @@ class CombineChannelsCrossfadeBase : public CombineChannelsBase<Derived, L, Out>
 {
   private:
     using _base = CombineChannelsBase<Derived, L, Out>;
-    using T = typename _base::T;
+    using typename _base::T;
     using _base::_accumulate;
     using _base::_out;
 

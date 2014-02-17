@@ -50,7 +50,7 @@
 
 // The single entry-point for Matlab is the function mexFunction(), see below!
 
-using sample_type = SimpleProcessor::sample_type;
+using typename SimpleProcessor::sample_type;
 
 // global variables holding the state
 std::unique_ptr<SimpleProcessor> engine;

@@ -208,9 +208,9 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
     using _base = BlockDelayLine<T, Container>;
 
   public:
-    using size_type = typename _base::size_type;
-    using circulator = typename _base::circulator;
-    using difference_type = typename circulator::difference_type;
+    using typename _base::size_type;
+    using typename _base::circulator;
+    using difference_type = typename _base::circulator::difference_type;
 
     /// Constructor. @param initial_delay initial delay
     /// @param block_size Block size

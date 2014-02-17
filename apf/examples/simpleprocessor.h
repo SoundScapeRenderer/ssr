@@ -49,7 +49,7 @@ class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
           = apf::has_begin_and_end<MimoProcessorBase::Input::iterator>;
 
       public:
-        using iterator = _begin_end_base::iterator;
+        using typename _begin_end_base::iterator;
 
         explicit Input(const Params& p)
           : MimoProcessorBase::Input(p)
@@ -84,7 +84,7 @@ class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
 class SimpleProcessor::Output : public MimoProcessorBase::DefaultOutput
 {
   public:
-    using Params = MimoProcessorBase::Output::Params;
+    using typename MimoProcessorBase::Output::Params;
 
     explicit Output(const Params& p)
       : MimoProcessorBase::DefaultOutput(p)

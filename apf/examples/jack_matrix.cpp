@@ -38,10 +38,10 @@ class MatrixProcessor : public apf::MimoProcessor<MatrixProcessor
 {
   public:
     using matrix_t = apf::fixed_matrix<sample_type>;
-    using channel_iterator = matrix_t::channel_iterator;
-    using slice_iterator = matrix_t::slice_iterator;
-    using Channel = matrix_t::Channel;
-    using Slice = matrix_t::Slice;
+    using typename matrix_t::channel_iterator;
+    using typename matrix_t::slice_iterator;
+    using typename matrix_t::Channel;
+    using typename matrix_t::Slice;
 
     using Input = MimoProcessorBase::DefaultInput;
 

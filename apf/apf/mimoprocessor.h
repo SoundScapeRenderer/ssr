@@ -117,7 +117,7 @@ class MimoProcessor : public interface_policy
                     , NonCopyable
 {
   public:
-    using sample_type = typename interface_policy::sample_type;
+    using typename interface_policy::sample_type;
     using query_policy::_query_fifo;
 
     class Input;
@@ -545,8 +545,8 @@ APF_MIMOPROCESSOR_TEMPLATES
 class APF_MIMOPROCESSOR_BASE::DefaultInput : public Input
 {
   public:
-    using Params = typename Input::Params;
-    using iterator = typename Input::iterator;
+    using typename Input::Params;
+    using typename Input::iterator;
 
     DefaultInput(const Params& p) : Input(p) {}
 
@@ -587,8 +587,8 @@ APF_MIMOPROCESSOR_TEMPLATES
 class APF_MIMOPROCESSOR_BASE::DefaultOutput : public Output
 {
   public:
-    using Params = typename Output::Params;
-    using iterator = typename Output::iterator;
+    using typename Output::Params;
+    using typename Output::iterator;
 
     DefaultOutput(const Params& p) : Output(p) {}
 
