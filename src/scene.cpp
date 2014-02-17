@@ -74,7 +74,7 @@ void ssr::Scene::set_loudspeakers(const Loudspeaker::container_t& loudspeakers)
 void ssr::Scene::new_source(const id_t id)
 {
   // do nothing if id already exists:
-  if (maptools::get_item(_source_map, id) == false)
+  if (maptools::get_item(_source_map, id) == nullptr)
   {
      VERBOSE("Adding source " << id << " to source map!");
     _source_map[id] = Source(_loudspeakers.size());
