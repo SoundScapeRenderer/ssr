@@ -47,9 +47,51 @@ struct mystruct
 TEST_CASE("fixed_vector", "Test fixed_vector")
 {
 
+using fvi = apf::fixed_vector<int>;
+
+SECTION("inherited types", "")
+{
+  void f01(fvi::value_type);
+  void f02(fvi::allocator_type);
+  void f03(fvi::reference);
+  void f04(fvi::const_reference);
+  void f05(fvi::pointer);
+  void f06(fvi::const_pointer);
+  void f07(fvi::iterator);
+  void f08(fvi::const_iterator);
+  void f09(fvi::reverse_iterator);
+  void f10(fvi::const_reverse_iterator);
+  void f11(fvi::difference_type);
+  void f12(fvi::size_type);
+}
+
+SECTION("inherited functions", "")
+{
+  fvi fv(1);
+
+  fv.front();
+  fv.back();
+  fv.begin();
+  fv.end();
+  fv.rbegin();
+  fv.rend();
+  fv.cbegin();
+  fv.cend();
+  fv.crbegin();
+  fv.crend();
+  fv.size();
+  fv.max_size();
+  fv.capacity();
+  fv.empty();
+  fv[0];
+  fv.at(0);
+  fv.data();
+  fv.get_allocator();
+}
+
 SECTION("default constructor", "")
 {
-  apf::fixed_vector<int> fv;
+  fvi fv;
   CHECK(fv.size() == 0);
   CHECK(fv.capacity() == 0);
 }
@@ -57,17 +99,17 @@ SECTION("default constructor", "")
 SECTION("default constructor and allocator", "")
 {
   auto a = std::allocator<int>();
-  apf::fixed_vector<int> fv(a);
+  fvi fv(a);
   CHECK(fv.size() == 0);
   CHECK(fv.capacity() == 0);
 }
 
 SECTION("constructor from size", "uses default constructor")
 {
-  apf::fixed_vector<int> fv(3);
+  fvi fv(3);
   CHECK(fv[1] == 0);
 
-  apf::fixed_vector<int> fv2(0);
+  fvi fv2(0);
   CHECK(fv2.size() == 0);
 }
 
@@ -77,19 +119,19 @@ SECTION("constructor from size and allocator", "")
 {
   auto a = std::allocator<int>();
 
-  apf::fixed_vector<int> fv(3, a);
+  fvi fv(3, a);
   CHECK(fv[2] == 0);
 
-  CHECK(apf::fixed_vector<int>(0, a).size() == 0);
+  CHECK(fvi(0, a).size() == 0);
 
   // rvalue allocator
-  CHECK(apf::fixed_vector<int>(0, std::allocator<int>()).size() == 0);
+  CHECK(fvi(0, std::allocator<int>()).size() == 0);
 }
 #endif
 
 SECTION("constructor from size and default value", "")
 {
-  apf::fixed_vector<int> fv(3, 99);
+  fvi fv(3, 99);
 
   CHECK(fv[2] == 99);
 }
@@ -98,12 +140,12 @@ SECTION("constructor from size and default value and allocator", "")
 {
   auto a = std::allocator<int>();
 
-  apf::fixed_vector<int> fv(3, 99, a);
+  fvi fv(3, 99, a);
 
   CHECK(fv[2] == 99);
 
   // rvalue allocator
-  CHECK(apf::fixed_vector<int>(3, 99, std::allocator<int>())[2] == 99);
+  CHECK(fvi(3, 99, std::allocator<int>())[2] == 99);
 }
 
 SECTION("constructor from size and initializer arguments", "")
@@ -114,28 +156,28 @@ SECTION("constructor from size and initializer arguments", "")
 
 SECTION("copy constructor", "")
 {
-  apf::fixed_vector<int> fv(3, 99);
-  apf::fixed_vector<int> fv2(fv);
+  fvi fv(3, 99);
+  fvi fv2(fv);
   CHECK(fv[2] == 99);
   CHECK(fv2[2] == 99);
 }
 
 SECTION("move constructor", "")
 {
-  apf::fixed_vector<int> fv(apf::fixed_vector<int>(3, 99));
+  fvi fv(fvi(3, 99));
 
   CHECK(fv[2] == 99);
 }
 
 SECTION("constructor from initializer list", "")
 {
-  apf::fixed_vector<int> fv{42};
+  fvi fv{42};
   CHECK(fv.size() == 1);
   CHECK(fv[0] == 42);
 
   // Note: extra parentheses because of commas
-  CHECK((apf::fixed_vector<int>{42, 43}.size()) == 2);
-  CHECK((apf::fixed_vector<int>{42, 43, 44}.size()) == 3);
+  CHECK((fvi{42, 43}.size()) == 2);
+  CHECK((fvi{42, 43, 44}.size()) == 3);
 }
 
 const int size = 4;
@@ -143,7 +185,7 @@ int data[size] = { 1, 2, 3, 4 };
 
 SECTION("constructor from range", "")
 {
-  apf::fixed_vector<int> fv(data, data+size);
+  fvi fv(data, data+size);
   CHECK(fv[1] == 2);
   fv[1] = 100;
   CHECK(fv[1] == 100);
@@ -160,7 +202,7 @@ SECTION("constructor from range", "")
 
 SECTION("constructor from range (const)", "")
 {
-  const apf::fixed_vector<int> fv(data, data+4);
+  const fvi fv(data, data+4);
 
   CHECK(*fv.begin() == 1);
   CHECK(fv[2] == 3);
@@ -176,7 +218,7 @@ SECTION("constructor from range (const)", "")
 
 SECTION("reserve() and emplace_back()", "")
 {
-  apf::fixed_vector<int> fv;
+  fvi fv;
   CHECK(fv.size() == 0);
   CHECK(fv.capacity() == 0);
 
@@ -224,22 +266,61 @@ SECTION("fixed_vector of non-copyable type, emplace_back()", "")
 TEST_CASE("fixed_list", "Test fixed_list")
 {
 
+using fli = apf::fixed_list<int>;
+
+SECTION("inherited types", "")
+{
+  void f01(fli::value_type);
+  void f02(fli::allocator_type);
+  void f03(fli::reference);
+  void f04(fli::const_reference);
+  void f05(fli::pointer);
+  void f06(fli::const_pointer);
+  void f07(fli::iterator);
+  void f08(fli::const_iterator);
+  void f09(fli::reverse_iterator);
+  void f10(fli::const_reverse_iterator);
+  void f11(fli::difference_type);
+  void f12(fli::size_type);
+}
+
+SECTION("inherited functions", "")
+{
+  fli fl(1);
+  fl.begin();
+  fl.end();
+  fl.rbegin();
+  fl.rend();
+  fl.cbegin();
+  fl.cend();
+  fl.crbegin();
+  fl.crend();
+  fl.empty();
+  fl.size();
+  fl.max_size();
+  fl.front();
+  fl.back();
+  fl.get_allocator();
+  fl.reverse();
+  fl.sort();
+}
+
 SECTION("default constructor", "")
 {
-  apf::fixed_list<int> fl;
+  fli fl;
   CHECK(fl.size() == 0);
 }
 
 SECTION("constructor from size", "")
 {
-  apf::fixed_list<int> fl(3);
+  fli fl(3);
   CHECK(fl.size() == 3);
   CHECK(fl.front() == 0);
 }
 
 SECTION("constructor from size and initializer", "")
 {
-  apf::fixed_list<int> fl(3, 42);
+  fli fl(3, 42);
   CHECK(fl.size() == 3);
   CHECK(fl.front() == 42);
 }
@@ -253,7 +334,7 @@ SECTION("constructor from size and several initializers", "")
 
 SECTION("constructor from initializer list", "")
 {
-  apf::fixed_list<int> fl{3, 42};
+  fli fl{3, 42};
   CHECK(fl.size() == 2);
   CHECK(fl.front() == 3);
 }
@@ -261,7 +342,7 @@ SECTION("constructor from initializer list", "")
 SECTION("constructor from sequence and more", "")
 {
   int data[] = { 1, 2, 3, 4 };
-  apf::fixed_list<int> fl(data, data+4);
+  fli fl(data, data+4);
   CHECK(*fl.begin() == 1);
   CHECK(*(--fl.end()) == 4);
   CHECK(*fl.rbegin() == 4);
@@ -300,7 +381,7 @@ SECTION("constructor from sequence and more", "")
   CHECK(*(++++fl.begin()) == 3);
   CHECK(*(++++++fl.begin()) == 1);
 
-  const apf::fixed_list<int> cfl(data, data+4);
+  const fli cfl(data, data+4);
 
   CHECK(cfl.front() == 1);
   CHECK(cfl.back() == 4);
@@ -316,7 +397,7 @@ SECTION("constructor from sequence and more", "")
 
 SECTION("empty()", "not really useful ...")
 {
-  apf::fixed_list<int> fl(0);
+  fli fl(0);
   CHECK(fl.empty());
 }
 
