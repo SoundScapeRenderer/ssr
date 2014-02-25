@@ -54,6 +54,8 @@ class dummy_thread_policy
     class Lock;
     class Semaphore;
 
+    unsigned default_number_of_threads() { return 1; }
+
   protected:
      dummy_thread_policy() = default;  ///< Protected ctor.
     ~dummy_thread_policy() = default;  ///< Protected dtor.

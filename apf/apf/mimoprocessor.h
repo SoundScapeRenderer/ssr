@@ -39,10 +39,6 @@
 #define APF_MIMOPROCESSOR_TEMPLATES template<typename Derived, typename interface_policy, typename thread_policy, typename query_policy>
 #define APF_MIMOPROCESSOR_BASE MimoProcessor<Derived, interface_policy, thread_policy, query_policy>
 
-#ifndef APF_MIMOPROCESSOR_DEFAULT_THREADS
-#define APF_MIMOPROCESSOR_DEFAULT_THREADS 1
-#endif
-
 /** Macro to create a @c Process struct and a corresponding member function.
  * @param name Name of the containing class
  * @param parent Parent class (must have an inner class @c Process).
@@ -403,7 +399,8 @@ APF_MIMOPROCESSOR_BASE::MimoProcessor(const parameter_map& params_)
   , params(params_)
   , _fifo(params.get("fifo_size", 1024))
   , _current_list(nullptr)
-  , _num_threads(params.get("threads", APF_MIMOPROCESSOR_DEFAULT_THREADS))
+  , _num_threads(params.get("threads"
+        , thread_policy::default_number_of_threads()))
   , _input_list(_fifo)
   , _output_list(_fifo)
 {

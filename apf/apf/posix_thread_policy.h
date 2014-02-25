@@ -51,6 +51,7 @@
 #include <semaphore.h>
 #include <cerrno>
 #include <unistd.h>  // for usleep()
+#include <thread>  // for std::thread::hardware_concurrency()
 
 #ifdef APF_PSEUDO_UNNAMED_SEMAPHORES
 #include <fcntl.h>  // for O_CREAT, O_EXCL
@@ -74,6 +75,12 @@ class posix_thread_policy
     template<typename F> class DetachedThread;
     class Lock;  // TODO: read-write lock?
     class Semaphore;
+
+    unsigned default_number_of_threads()
+    {
+      // POSIX doesn't have it's own way to do it, so we borrow it from C++11:
+      return std::thread::hardware_concurrency();
+    }
 
   protected:
      posix_thread_policy() = default;  ///< Protected ctor.
