@@ -58,7 +58,6 @@ struct conf_struct
   std::string path_to_gui_images;       ///< dto.
   std::string path_to_scene_menu;       ///< path to scene_menu.conf
 
-  //int number_of_threads;
   int server_port;                      ///< listening port
   /// size of delay line (in samples)
   int wfs_delayline_size;

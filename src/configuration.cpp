@@ -142,7 +142,6 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
       , SSR_DATA_DIR"/default_setup.asd");
   conf.xml_schema = SSR_DATA_DIR"/asdf.xsd";
   conf.audio_recorder_file_name = ""; // default: no recording
-  conf.renderer_params.set("threads", 1);  // TODO: obtain reasonable default
 
   conf.input_port_prefix = "system:capture_";
   conf.output_port_prefix = "system:playback_";
@@ -216,7 +215,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "General options:\n"
 "-c, --config=FILE      Read configuration from FILE\n"
 "-s, --setup=FILE       Load reproduction setup from FILE\n"
-"    --threads=N        Number of audio threads (default N=1)\n"
+"    --threads=N        Number of audio threads (default N=auto)\n"
 "-r, --record=FILE      Record the audio output of the renderer to FILE\n"
 #ifndef ENABLE_ECASOUND
 "                       (disabled at compile time!)\n"
