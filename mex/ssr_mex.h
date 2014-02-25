@@ -41,10 +41,7 @@
 #include "apf/mextools.h"
 #include "apf/stringtools.h"
 #include "apf/pointer_policy.h"
-
-#ifndef APF_MIMOPROCESSOR_THREAD_POLICY
-#include "apf/posix_thread_policy.h"
-#endif
+#include "apf/default_thread_policy.h"
 
 #include "../src/source.h"
 
