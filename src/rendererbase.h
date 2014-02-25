@@ -171,7 +171,7 @@ class RendererBase : public apf::MimoProcessor<Derived
     }
 
     int add_source(const apf::parameter_map& p = apf::parameter_map());
-    void rem_source(id_t id);
+    void rem_source(int id);
     void rem_all_sources();
 
     Source* get_source(int id);
@@ -285,7 +285,7 @@ int RendererBase<Derived>::add_source(const apf::parameter_map& p)
 }
 
 template<typename Derived>
-void RendererBase<Derived>::rem_source(id_t id)
+void RendererBase<Derived>::rem_source(int id)
 {
   auto delinquent = _source_map.find(id);
 
