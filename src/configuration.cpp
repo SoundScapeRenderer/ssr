@@ -631,7 +631,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       conf.renderer_params.set("name", value);
     }
-    else if (!strcmp(key, "NUMBER_OF_THREADS"))
+    else if (!strcmp(key, "NUMBER_OF_THREADS") || !strcmp(key, "THREADS"))
     {
       conf.renderer_params.set("threads", value);
     }
