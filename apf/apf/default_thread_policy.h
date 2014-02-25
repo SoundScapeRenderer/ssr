@@ -21,49 +21,25 @@
  *                                 http://AudioProcessingFramework.github.com *
  ******************************************************************************/
 
-// Usage example for the MimoProcessor reading from and writing to multichannel
-// audio files.
+/// @file
+/// This header includes the default policy depending on the OS.
 
-#include "apf/mimoprocessor_file_io.h"
+#ifndef APF_DEFAULT_THREAD_POLICY_H
+#define APF_DEFAULT_THREAD_POLICY_H
 
-// First the policies ...
-#include "apf/pointer_policy.h"
-#include "apf/default_thread_policy.h"
-// ... then the SimpleProcessor.
-#include "simpleprocessor.h"
+// For all available preprocessor macros see:
+// https://sourceforge.net/p/predef/wiki/OperatingSystems/
 
-int main(int argc, char *argv[])
-{
-  const size_t blocksize = 65536;
+#ifndef APF_MIMOPROCESSOR_THREAD_POLICY
+#ifdef _WIN32
+#include "apf/dummy_thread_policy.h"
+#else
+#include "apf/posix_thread_policy.h"
+#endif
+#endif
 
-  if (argc < 4)
-  {
-    std::cerr << "Error: too few arguments!" << std::endl;
-    std::cout << "Usage: " << argv[0]
-      << " infilename outfilename outchannels [threads]" << std::endl;
-    return 42;
-  }
-
-  std::string infilename = argv[1];
-  std::string outfilename = argv[2];
-
-  apf::parameter_map e;
-  if (argc >= 5)
-  {
-    e.set("threads", argv[4]);
-  }
-
-  SndfileHandle in(infilename, SFM_READ);
-  e.set("in_channels", in.channels());
-  e.set("out_channels", apf::str::S2RV<int>(argv[3]));
-
-  e.set("block_size", blocksize);
-  e.set("sample_rate", in.samplerate());
-
-  SimpleProcessor engine(e);
-
-  return mimoprocessor_file_io(engine, infilename , outfilename);
-}
+#endif
 
 // Settings for Vim (http://www.vim.org/), please do not remove:
 // vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent
+// vim:fdm=expr:foldexpr=getline(v\:lnum)=~'/\\*\\*'&&getline(v\:lnum)!~'\\*\\*/'?'a1'\:getline(v\:lnum)=~'\\*\\*/'&&getline(v\:lnum)!~'/\\*\\*'?'s1'\:'='
