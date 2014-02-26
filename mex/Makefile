@@ -5,9 +5,8 @@
 
 MEXFILES ?= ssr_nfc_hoa ssr_binaural ssr_vbap ssr_aap ssr_wfs
 
-SOURCES := ssr_global position orientation directionalpoint xmlparser
+OBJECTS := ssr_global position orientation directionalpoint xmlparser
 
-# TODO: separate libraries for different renderers?
 LIBRARIES += libxml-2.0 fftw3f sndfile
 
 APF_DIR ?= ../apf
@@ -18,25 +17,21 @@ OCT ?= mkoctfile --mex --verbose
 CXXFLAGS += -std=c++11
 
 # optimization:
-CXXFLAGS += -O3
-#CXXFLAGS += -fomit-frame-pointer -ffast-math -funroll-loops
-#CXXFLAGS += -march=native
+CXXFLAGS_OPT += -O3
+#CXXFLAGS_OPT += -fomit-frame-pointer -ffast-math -funroll-loops
+#CXXFLAGS_OPT += -march=native
 CPPFLAGS += -DNDEBUG
 # TODO: check for SSE?
 
-OCTAVE_TARGETS := $(MEXFILES:%=%.octave)
-MATLAB_TARGETS := $(MEXFILES:%=%.matlab)
-
-SOURCES := $(SOURCES:%=$(SRC_DIR)/%.cpp)
-
 CXXFLAGS += -pthread
+
+# TODO: this works for 64bit systems, check if it also works on 32bit
+CXXFLAGS += -fPIC
 
 # maybe for Mac OS X:
 #CFLAGS += -fno-common -no-cpp-precomp -fexceptions
 
-#MEX_CPPFLAGS += -DSSR_MEX_USE_DOUBLE
-
-MEX_CPPFLAGS += -I$(APF_DIR) -I$(SRC_DIR)
+#CPPFLAGS += -DSSR_MEX_USE_DOUBLE
 
 # show many warnings
 CXXFLAGS += -Wall -Wextra
@@ -57,16 +52,22 @@ CXXFLAGS += -Wredundant-decls
 #CXXFLAGS += -Winline
 
 PKG_CONFIG ?= pkg-config
-MEX_CPPFLAGS += `$(PKG_CONFIG) --cflags $(LIBRARIES)`
-MEX_LDLIBS += `$(PKG_CONFIG) --libs $(LIBRARIES)`
+LDLIBS += `$(PKG_CONFIG) --libs $(LIBRARIES)`
+CPPFLAGS += `$(PKG_CONFIG) --cflags $(LIBRARIES)`
 
-CPPFLAGS += $(MEX_CPPFLAGS)
-CFLAGS += $(MEX_CFLAGS)
-CXXFLAGS += $(MEX_CXXFLAGS)
-LDLIBS += $(MEX_LDLIBS)
+CPPFLAGS += -I$(APF_DIR) -I$(SRC_DIR)
 
-# don't use implicit rules:
-.SUFFIXES:
+OCTAVE_TARGETS := $(MEXFILES:%=%.octave)
+MATLAB_TARGETS := $(MEXFILES:%=%.matlab)
+
+OBJECTS := $(OBJECTS:%=%.o)
+
+CXXFLAGS += $(CXXFLAGS_OPT)
+
+# prevent make from deleting intermediate files:
+.SECONDARY:
+
+vpath %.cpp $(SRC_DIR)
 
 all: octave matlab
 
@@ -79,22 +80,18 @@ matlab: $(MATLAB_TARGETS)
 
 $(OCTAVE_TARGETS) $(MATLAB_TARGETS): %: .%.stamp
 
-.%.octave.stamp: %.cpp $(SOURCES)
-	CC="$(CXX)" CXX="$(CXX)" LD="$(CXX)" \
-	   CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" \
-	   $(OCT) $(MEX_CPPFLAGS) $(MEX_CFLAGS) $(MEX_CXXFLAGS) $(MEX_LDLIBS) $^
+.%.octave.stamp: %.cpp $(OBJECTS)
+	CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" $(OCT) $(CPPFLAGS) $(LDLIBS) $^
 	@touch $@
 
-# TODO: this works for 64bit systems, check if it also works on 32bit
-.%.matlab.stamp: CXXFLAGS += -fPIC
+# TODO: somehow add -O3 to linking step
 
-.%.matlab.stamp: %.cpp $(SOURCES)
-	$(MEX) $(MEX_CPPFLAGS) $(MEX_CFLAGS) $(MEX_CXXFLAGS) $(MEX_LDLIBS) \
-		CC="$(CXX)" CXX="$(CXX)" LD="$(CXX)" \
-		CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" $^
+.%.matlab.stamp: %.cpp $(OBJECTS)
+	$(MEX) $(CPPFLAGS) $(LDLIBS) CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
+	    CXXOPTIMFLAGS="$(CXXFLAGS_OPT)" LDOPTIMFLAGS="$(CXXFLAGS_OPT)" $^
 	@touch $@
 
-# To specify MEX file name: -output bla
+# Reminder: to specify MEX file name: -output bla
 
 clean:
 	$(RM) $(MEXFILES:%=%.mexa64)
@@ -102,7 +99,7 @@ clean:
 	$(RM) $(MEXFILES:%=%.mexmaci)
 	$(RM) $(MEXFILES:%=%.mexmaci64)
 	$(RM) $(MEXFILES:%=%.mex)
-	$(RM) *.o
+	$(RM) $(OBJECTS)
 	$(RM) .*.stamp
 
 .PHONY: all octave matlab clean $(OCTAVE_TARGETS) $(MATLAB_TARGETS)
