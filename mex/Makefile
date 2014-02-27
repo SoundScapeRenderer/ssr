@@ -69,26 +69,35 @@ CXXFLAGS += $(CXXFLAGS_OPT)
 
 vpath %.cpp $(SRC_DIR)
 
-all: octave matlab
+all:
+	$(MAKE) octave
+	$(MAKE) matlab
 
 octave: $(OCTAVE_TARGETS)
 
 matlab: $(MATLAB_TARGETS)
 
+# Rebuild objects if Makefile has changed:
+$(OBJECTS): Makefile
+
 # Targets have different extension depending on the platform.
 # To avoid finding out the extension, we use empty *.stamp files.
 
-$(OCTAVE_TARGETS) $(MATLAB_TARGETS): %: .%.stamp
+$(OCTAVE_TARGETS) $(MATLAB_TARGETS): %: %.stamp
 
-.%.octave.stamp: %.cpp $(OBJECTS)
-	CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" $(OCT) $(CPPFLAGS) $(LDLIBS) $^
+STAMPFILES := $(OCTAVE_TARGETS:%=%.stamp) $(MATLAB_TARGETS:%=%.stamp)
+
+%.octave.stamp: %.cpp $(OBJECTS) | Makefile
+	CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" $(OCT) $(CPPFLAGS) $(LDLIBS) $< \
+	    $(filter %.o, $^)
 	@touch $@
 
 # TODO: somehow add -O3 to linking step
 
-.%.matlab.stamp: %.cpp $(OBJECTS)
+%.matlab.stamp: %.cpp $(OBJECTS) | Makefile
 	$(MEX) $(CPPFLAGS) $(LDLIBS) CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-	    CXXOPTIMFLAGS="$(CXXFLAGS_OPT)" LDOPTIMFLAGS="$(CXXFLAGS_OPT)" $^
+	    CXXOPTIMFLAGS="$(CXXFLAGS_OPT)" LDOPTIMFLAGS="$(CXXFLAGS_OPT)" $< \
+	    $(filter %.o, $^)
 	@touch $@
 
 # Reminder: to specify MEX file name: -output bla
@@ -99,10 +108,15 @@ clean:
 	$(RM) $(MEXFILES:%=%.mexmaci)
 	$(RM) $(MEXFILES:%=%.mexmaci64)
 	$(RM) $(MEXFILES:%=%.mex)
+	$(RM) $(MEXFILES:%=%.o)  # mkoctfile creates these
 	$(RM) $(OBJECTS)
-	$(RM) .*.stamp
+	$(RM) $(STAMPFILES)
 
 .PHONY: all octave matlab clean $(OCTAVE_TARGETS) $(MATLAB_TARGETS)
 
 .DELETE_ON_ERROR:
+
+DEPENDENCIES := $(OBJECTS) $(STAMPFILES)
+BINARY_EXTENSIONS := .o .octave.stamp .matlab.stamp
+include ../apf/misc/Makefile.dependencies
 
