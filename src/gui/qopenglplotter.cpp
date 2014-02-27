@@ -590,7 +590,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
 
   gluDisk(_glu_quadric, 0.0f, 0.15f * scale, LEVELOFDETAIL, 1);
 
-  // draw pizza slice
+  // fill source
   qglColor(_color_vector[source->id%_color_vector.size()]);
 
   gluPartialDisk(_glu_quadric, 0.0f, 0.125f * scale,
@@ -607,7 +607,6 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
 
   // choose color
   if (source->mute) glColor3f(0.5f, 0.5f, 0.5f);
-  //else glColor3f(0.0f, 0.0f, 0.0f);
   else qglColor(_color_vector[source->id%_color_vector.size()]);
     
   // draw ring around source
@@ -707,8 +706,9 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
     // rotate
     glRotatef(static_cast<GLfloat>(source->orientation.azimuth), 0.0f, 0.0f, 1.0f);
 
-    qglColor(_color_vector[source->id%_color_vector.size()]);
-
+    if (source->mute) glColor3f(0.5f, 0.5f, 0.5f);
+      else qglColor(_color_vector[source->id%_color_vector.size()]);
+      
     // plot ring segments
     gluPartialDisk(_glu_quadric, 0.18f * scale, 0.19f * scale, LEVELOFDETAIL, 1, 105.0f, 75.0f);
     gluPartialDisk(_glu_quadric, 0.18f * scale, 0.19f * scale, LEVELOFDETAIL, 1,   0.0f, 90.0f);
