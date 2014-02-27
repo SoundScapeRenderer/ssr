@@ -593,8 +593,8 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
   // draw pizza slice
   qglColor(_color_vector[source->id%_color_vector.size()]);
 
-  gluPartialDisk(_glu_quadric, 0.0f, 0.145f * scale,
-                 LEVELOFDETAIL, 1, 0.0f, 30.0f);
+  gluPartialDisk(_glu_quadric, 0.0f, 0.125f * scale,
+                 LEVELOFDETAIL, 1, 0.0f, 360.0f);
 
   // draw solo indication
   if (soloed)
@@ -607,8 +607,9 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
 
   // choose color
   if (source->mute) glColor3f(0.5f, 0.5f, 0.5f);
-  else glColor3f(0.0f, 0.0f, 0.0f);
-
+  //else glColor3f(0.0f, 0.0f, 0.0f);
+  else qglColor(_color_vector[source->id%_color_vector.size()]);
+    
   // draw ring around source
   gluDisk(_glu_quadric, 0.14f * scale, 0.15f * scale, LEVELOFDETAIL, 1);
 
