@@ -123,8 +123,7 @@ BinauralRenderer::_load_hrtfs(const std::string& filename, size_t size)
 
   if (no_of_channels % 2 != 0)
   {
-    throw std::logic_error(
-        "Number of channels in HRIR file must be a multiple of 2!");
+    throw std::logic_error("Number of channels must be a multiple of 2!");
   }
 
   _angles = no_of_channels / 2;
@@ -212,7 +211,14 @@ void BinauralRenderer::load_reproduction_setup()
 {
   // TODO: read settings from proper reproduction system
 
-  _load_hrtfs(this->params["hrir_file"], this->params.get("hrir_size", 0));
+  try
+  {
+    _load_hrtfs(this->params["hrir_file"], this->params.get("hrir_size", 0));
+  }
+  catch (const std::logic_error& e)
+  {
+    throw std::logic_error("Error loading HRIR file: " + std::string(e.what()));
+  }
 
   auto params = Output::Params();
 
