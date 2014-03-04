@@ -73,8 +73,18 @@ class WfsRenderer : public SourceToOutput<WfsRenderer, LoudspeakerRenderer>
       // TODO: get pre-filter from reproduction setup!
       // TODO: allow alternative files for different sample rates
 
-      auto prefilter = apf::load_sndfile(
-          this->params.get("prefilter_file", ""), this->sample_rate(), 1);
+      SndfileHandle prefilter;
+      try
+      {
+        prefilter = apf::load_sndfile(
+            this->params.get("prefilter_file", ""), this->sample_rate(), 1);
+      }
+      catch (const std::logic_error& e)
+      {
+        throw std::logic_error(
+            "Error loading WFS pre-equalization filter file: "
+            + std::string(e.what()));
+      }
 
       size_t size = prefilter.frames();
 
