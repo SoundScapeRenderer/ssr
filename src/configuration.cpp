@@ -494,6 +494,12 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     conf.renderer_params.set("system_output_prefix", conf.output_port_prefix);
   }
 
+  VERBOSE2("Requested renderer settings:");
+  for (const auto& entry: conf.renderer_params)
+  {
+    VERBOSE2(entry.first << " = " << entry.second);
+  }
+
   return conf;
 }
 
