@@ -28,7 +28,7 @@
 #define APF_PARAMETER_MAP_H
 
 #include <map>
-#include <stdexcept> // for std::range_error
+#include <stdexcept> // for std::out_of_range
 #include "stringtools.h"
 
 namespace apf
@@ -39,15 +39,15 @@ namespace apf
  *
  * Usage examples:
  *                                                                         @code
- * parameter_map params;
- * params["one"] = "first value";
- * params["two"] = "2";
+ * apf::parameter_map params;
+ * params.set("one", "first value");
+ * params.set("two", 2);
  * params.set("three", 3.1415);
  * std::string val1, val5;
  * int val2, val3, val4;
  * val1 = params["one"];
  * val2 = params.get<int>("two");
- * val3 = params.get<int>("one"); // val3 = 0 (default int ctor)
+ * val3 = params.get<int>("one");  // throws std::invalid_argument exception!
  * val4 = params.get("one", 42);  // default value 42 if conversion fails
  *                                // template argument is deduced from 2nd arg
  * if (params.has_key("four"))
@@ -55,48 +55,51 @@ namespace apf
  *   // this is not done because there is no key named "four":
  *   do_something();
  * }
- * val5 = params["four"]; // throws std::range_error exception!
+ * params["four"] = "42";  // throws std::out_of_range exception!
+ * val5 = params["four"];  // throws std::out_of_range exception!
  *                                                                      @endcode
  **/
-struct parameter_map
+struct parameter_map : std::map<std::string, std::string>
 {
-  parameter_map() = default;
-
-  parameter_map(const std::map<std::string, std::string>& map)
-    : _map(map)
-  {}
-
-  parameter_map(std::map<std::string, std::string>&& map)
-    : _map(std::move(map))
-  {}
-
   /** "Getter".
    * @param k Name of the parameter which should be retrieved.
    * @return const reference to the value referenced by @p k.
-   * @throw std::range_error if the key @p k doesn't exist. You should've
+   * @throw std::out_of_range if the key @p k doesn't exist. You should've
    *   checked beforehand with has_key() ...
+   * @see has_key(), get()
    **/
   const std::string& operator[](const std::string& k) const
-    throw (std::range_error)
   {
-    auto it = _map.find(k);
-    if (it == _map.end())
+    try
     {
-      throw std::range_error("Parameter \"" + k + "\" does not exist in map!");
+      return this->at(k);
     }
-    return it->second;
+    catch (const std::out_of_range&)
+    {
+      throw std::out_of_range("Parameter \"" + k + "\" does not exist in map!");
+    }
   }
 
   /** "Setter". Well, not really. It just gives you a reference where you can
    * assign stuff to.
-   * @param k Name of the parameter which should be set. If it doesn't exist
-   *   yet, it's created especially for you.
+   * @param k Name of the parameter which should be set. The parameter has to be
+   * in the map already, if not, an exception is thrown! If you want to add a
+   * new value, use set().
    * @return non-const reference to the value referenced by @p k.
    *   You can assign a @c std::string to actually set a new value.
+   * @throw std::out_of_range if the key @p k doesn't exist yet.
+   * @see has_key(), set()
    **/
   std::string& operator[](const std::string& k)
   {
-    return _map[k];
+    try
+    {
+      return this->at(k);
+    }
+    catch (const std::out_of_range&)
+    {
+      throw std::out_of_range("Parameter \"" + k + "\" does not exist in map!");
+    }
   }
 
   /** Get value converted to given type.
@@ -122,7 +125,7 @@ struct parameter_map
     {
       return this->get<T>(k);
     }
-    catch (const std::range_error&)
+    catch (const std::out_of_range&)
     {
       return def;
     }
@@ -136,8 +139,8 @@ struct parameter_map
    * This is mainly used to specify a string literal as default value, which
    * wouldn't work with the other get() version, e.g.
    *                                                                       @code
-   * parameter_map params;
-   * params["id"] = "item42";
+   * apf::parameter_map params;
+   * params.set("id", "item42");
    * std::string id1, id2, name1, name2;
    * id1   = params.get("id"  , "no_id_available"); // id1   = "item42";
    * id2   = params.get("id"  , "item42");          // id2   = "item42";
@@ -163,7 +166,7 @@ struct parameter_map
   /** Throwing getter.
    * @tparam T Desired output type
    * @param k Name of the parameter which should be retrieved.
-   * @throw std::range_error if the key @p k is not available
+   * @throw std::out_of_range if the key @p k is not available
    * @throw std::invalid_argument if the content cannot be converted to @p T
    **/
   template<typename T>
@@ -192,7 +195,7 @@ struct parameter_map
   template<typename T>
   const std::string& set(const std::string& k, const T& v)
   {
-    return _map[k] = str::A2S(v);
+    return std::map<std::string, std::string>::operator[](k) = str::A2S(v);
   }
 
   /** Check if a given parameter is available.
@@ -201,11 +204,8 @@ struct parameter_map
    **/
   bool has_key(const std::string& k) const
   {
-    return _map.count(k) > 0;
+    return this->count(k) > 0;
   }
-
-  private:
-    std::map<std::string, std::string> _map;
 };
 
 }  // namespace apf

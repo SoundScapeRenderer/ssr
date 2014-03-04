@@ -19,6 +19,7 @@ TESTS += test_container
 TESTS += test_mimoprocessor
 TESTS += test_combine_channels
 TESTS += test_misc
+TESTS += test_parameter_map
 
 ifneq (,$(findstring $(MAKECMDGOALS), fftw clean))
 TESTS += test_fftwtools
