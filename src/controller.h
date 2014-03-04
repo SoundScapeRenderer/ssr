@@ -1370,8 +1370,8 @@ Controller<Renderer>::new_source(const std::string& name
   }
 
   apf::parameter_map p;
-  p["connect_to"] = port_name;
-  p["properties_file"] = properties_file;
+  p.set("connect_to", port_name);
+  p.set("properties_file", properties_file);
   id_t id;
 
   try
