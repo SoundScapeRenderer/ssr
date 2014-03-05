@@ -130,9 +130,55 @@ dnl AC_DEFINE writes values in config.h
 dnl AC_DEFINE_UNQUOTED performs additional shell expansions, e.g. substitution
 dnl of variable with value.
 
-dnl TODO: option(s) for selecting a subset of renderers!
-dnl Note: For full list of possible executables see src/Makefile.am
-SSR_executables="ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-nfc-hoa ssr-vbap ssr-aap"
+ENABLE_AUTO([all],
+            [all renderers (use --enable-xyz to re-enable certain renderers)],
+[
+  AS_IF([test x$enable_all = xno], [have_all=no])
+])
+
+ENABLE_AUTO([binaural], [binaural renderer (using HRIRs)],
+[
+  AS_IF([test x$enable_binaural = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-binaural"])
+])
+
+ENABLE_AUTO([brs], [Binaural Room Synthesis renderer (using BRIRs)],
+[
+  AS_IF([test x$enable_brs = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-brs"])
+])
+
+ENABLE_AUTO([wfs], [Wave Field Synthesis renderer],
+[
+  AS_IF([test x$enable_wfs = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-wfs"])
+])
+
+ENABLE_AUTO([vbap], [Vector Base Amplitude Panning renderer],
+[
+  AS_IF([test x$enable_vbap = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-vbap"])
+])
+
+ENABLE_AUTO([aap], [Ambisonics Amplitude Panning renderer],
+[
+  AS_IF([test x$enable_aap = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-aap"])
+])
+
+ENABLE_AUTO([generic], [generic renderer],
+[
+  AS_IF([test x$enable_generic = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-generic"])
+])
+
+ENABLE_AUTO([nfc-hoa],[Near-Field-Compensated Higher-Order-Ambisonics renderer],
+[
+  AS_IF([test x$enable_nfc_hoa = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-nfc-hoa"])
+])
+
+dnl Note: For what happens with SSR_executables see src/Makefile.am
 AC_SUBST(SSR_executables)
 
 dnl Checking for sndfile
