@@ -555,19 +555,23 @@ OutputBase::_multiply_spectra()
 
   auto input = _input.spectra.begin();
 
-  for (const auto filter: _filter_ptrs)
+  for (const auto* filter: _filter_ptrs)
   {
     assert(filter != nullptr);
 
-    if (input->zero || filter->zero) continue;
-
+    if (input->zero || filter->zero)
+    {
+      // do nothing. There is no contribution if either is zero.
+    }
+    else
+    {
 #ifdef __SSE__
-    _multiply_partition_simd(input->data(), filter->data());
+      _multiply_partition_simd(input->data(), filter->data());
 #else
-    _multiply_partition_cpp(input->data(), filter->data());
+      _multiply_partition_cpp(input->data(), filter->data());
 #endif
-
-    _output_buffer.zero = false;
+      _output_buffer.zero = false;
+    }
     ++input;
   }
 }
