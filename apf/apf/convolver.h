@@ -216,7 +216,8 @@ TransformBase::prepare_partition(In first, In last, fft_node& partition) const
 
   auto chunk = std::min(_block_size, size_t(std::distance(first, last)));
 
-  if (chunk == 0)
+  // This also works for the case chunk==0:
+  if (math::has_only_zeros(first, first + chunk))
   {
     partition.zero = true;
     // No FFT has to be done (FFT of zero is also zero)
@@ -547,7 +548,7 @@ OutputBase::_multiply_partition_simd(const float* signal, const float* filter)
 void
 OutputBase::_multiply_spectra()
 {
-  // Clear IFFT buffer
+  // Clear IFFT buffer (must be actually filled with zeros!)
   std::fill(_output_buffer.begin(), _output_buffer.end(), 0.0f);
   _output_buffer.zero = true;
 
