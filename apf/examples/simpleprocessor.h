@@ -42,23 +42,14 @@ class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
 {
   public:
     class Input : public MimoProcessorBase::Input
-             , public apf::has_begin_and_end<std::vector<sample_type>::iterator>
     {
-      private:
-        using _begin_end_base
-          = apf::has_begin_and_end<std::vector<sample_type>::iterator>;
-
       public:
-        using typename _begin_end_base::iterator;
+        using iterator = std::vector<sample_type>::const_iterator;
 
         explicit Input(const Params& p)
           : MimoProcessorBase::Input(p)
           , _buffer(this->parent.block_size())
-        {
-          // initialize protected members from has_begin_and_end
-          _begin = _buffer.begin();
-          _end = _buffer.end();
-        }
+        {}
 
         APF_PROCESS(Input, MimoProcessorBase::Input)
         {
@@ -69,6 +60,9 @@ class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
 
           std::copy(this->buffer.begin(), this->buffer.end(), _buffer.begin());
         }
+
+        iterator begin() const { return _buffer.begin(); }
+        iterator end() const { return _buffer.end(); }
 
       private:
         std::vector<sample_type> _buffer;
