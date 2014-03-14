@@ -62,22 +62,14 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
 
         apf::CombineChannelsCopy<rtlist_proxy<Input>, Output> _combiner;
     };
-
-    MyProcessor(const apf::parameter_map& p)
-      : MimoProcessorBase(p)
-    {
-      this->add<Input>();
-    }
 };
 
 int main()
 {
   int out_channels = 20;
 
-  apf::parameter_map p;
-  p.set("threads", 1);
-  //p.set("threads", 2);  // not allowed with dummy_thread_policy!
-  MyProcessor engine(p);
+  MyProcessor engine;
+  engine.add<MyProcessor::Input>();
   engine.activate();
 
   sleep(2);
@@ -86,9 +78,10 @@ int main()
 
   for (int i = 1; i <= out_channels; ++i)
   {
-    MyProcessor::Output::Params op;
-    op.set("id", i * 10);
-    outputs.push_back(engine.add(op));
+    MyProcessor::Output::Params p;
+    p.set("id", i * 10);
+    p.set("connect_to", "system:playback_1");
+    outputs.push_back(engine.add(p));
     sleep(1);
   }
 

@@ -71,11 +71,6 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
 
         apf::CombineChannels<rtlist_proxy<Input>, Output> _combiner;
     };
-
-    MyProcessor()
-    {
-      this->add<Output>();
-    }
 };
 
 int main()
@@ -83,6 +78,7 @@ int main()
   int in_channels = 20;
 
   MyProcessor engine;
+  engine.add<MyProcessor::Output>();
   engine.activate();
 
   sleep(2);
@@ -93,6 +89,7 @@ int main()
   {
     MyProcessor::Input::Params p;
     p.set("id", i * 10);
+    p.set("connect_to", "system:capture_1");
     inputs.push_back(engine.add(p));
     sleep(1);
   }
