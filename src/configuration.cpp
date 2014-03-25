@@ -30,6 +30,9 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h> // for ENABLE_*, HAVE_*, WITH_*
 #endif
+#ifdef ENABLE_ISATTY
+#include <unistd.h>
+#endif
 
 #include <cassert>      // for assert()
 #include <getopt.h>     // for getopt_long()
@@ -55,11 +58,16 @@ namespace // anonymous
   /// show version and compiled-in features
   void print_version_details()
   {
-    std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-      " It's ... " << std::flush;
-    sleep(3);
-    std::cout <<
-      "the " PACKAGE_NAME
+#ifdef ENABLE_ISATTY
+    if (isatty(1))
+#endif
+    {
+      std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+        " It's ... " << std::flush;
+      sleep(3);
+      std::cout << "the ";
+    }
+    std::cout << PACKAGE_NAME
 #ifndef NDEBUG
       ", compiled in debug mode!"
 #endif

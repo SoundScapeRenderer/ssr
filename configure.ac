@@ -733,6 +733,12 @@ AS_IF([test x$have_warnings = xyes],
   ])
 ])
 
+ENABLE_AUTO([isatty], [support for isatty()],
+[
+  AC_CHECK_HEADER([unistd.h], , [have_isatty=no])
+  AC_SEARCH_LIBS([isatty], , , [have_isatty=no])
+])
+
 dnl trying to mimic the default setting
 pkgdatadir="\$(datadir)/$PACKAGE"
 
