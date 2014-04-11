@@ -1,0 +1,35 @@
+#N canvas 158 578 895 235 10;
+#X obj 47 77 osc~ 440;
+#X obj 47 101 *~ 0.2;
+#X obj 177 106 *~ 0.1;
+#X obj 176 82 noise~;
+#X text 115 21 <-- open this!;
+#X obj 30 22 ssr_messages;
+#X obj 30 135 ssr_vbap~ 2 8channels.asd;
+#X obj 30 196 dac~;
+#X obj 29 162 ssr_binaural~ 8 hrirs_fabian.wav;
+#X msg 427 106 src 1 pos 0 1.5 \, src 2 pos -1.06 1.06 \, src 3 pos
+-1.5 0 \, src 4 pos -1.06 -1.06 \, src 5 pos 0 -1.5 \, src 6 pos 1.06
+-1.06 \, src 7 pos 1.5 0 \, src 8 pos 1.06 1.06;
+#X obj 427 84 loadbang;
+#X text 320 84 set positions;
+#X text 320 100 of virtual;
+#X text 320 116 loudspeakers;
+#X text 320 132 on startup:;
+#X connect 0 0 1 0;
+#X connect 1 0 6 0;
+#X connect 2 0 6 1;
+#X connect 3 0 2 0;
+#X connect 5 0 6 0;
+#X connect 6 0 8 0;
+#X connect 6 1 8 1;
+#X connect 6 2 8 2;
+#X connect 6 3 8 3;
+#X connect 6 4 8 4;
+#X connect 6 5 8 5;
+#X connect 6 6 8 6;
+#X connect 6 7 8 7;
+#X connect 8 0 7 0;
+#X connect 8 1 7 1;
+#X connect 9 0 8 0;
+#X connect 10 0 9 0;
