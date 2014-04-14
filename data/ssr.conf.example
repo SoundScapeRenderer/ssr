@@ -97,3 +97,6 @@
 #VERBOSE = "1"
 
 ################################################################################
+
+# Loop audio files (individually, not synchronized!)
+#LOOP = yes

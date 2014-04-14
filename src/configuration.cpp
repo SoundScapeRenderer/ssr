@@ -769,6 +769,11 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       conf.tracker_ports = value;
     }
+    else if (!strcmp(key, "LOOP"))
+    {
+      if (!strcasecmp(value, "yes")) conf.loop = true;
+      else conf.loop = false;
+    }
     else
     {
       printf("%s:%u unknown option \"%s\"\n",filename, line_number, key);
