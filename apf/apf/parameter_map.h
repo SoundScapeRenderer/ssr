@@ -61,6 +61,14 @@ namespace apf
  **/
 struct parameter_map : std::map<std::string, std::string>
 {
+  /** Constructor.
+   * All parameters are forwarded to the @c std::map constructor.
+   **/
+  template<typename... Args>
+  explicit parameter_map(Args&&... args)
+    : std::map<std::string, std::string>(std::forward<Args>(args)...)
+  {}
+
   /** "Getter".
    * @param k Name of the parameter which should be retrieved.
    * @return const reference to the value referenced by @p k.
