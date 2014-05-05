@@ -11,7 +11,8 @@ if ENABLE_APP_BUNDLE
 dist_pkgdata_DATA = SSRIcon.icns qt.conf
 contentsdir = $(prefix)
 contents_DATA = Info.plist
-dist_bin_SCRIPTS = run-ssr.sh run-ssr.scpt
+dist_bin_SCRIPTS = run-ssr.sh
+dist_noinst_SCRIPTS = run-ssr.applescript
 
 nobase_dist_dmgroot_DATA = .background/background.png Jack.webloc Getting-Started.txt
 
@@ -43,6 +44,8 @@ install-exec-hook:
 		--dest-dir $(DESTDIR)$(contentsdir)/Libraries \
 		--install-path @executable_path/../Libraries \
 	; done
+	osacompile -o $(DESTDIR)$(bindir)/run-ssr.scpt \
+		$(srcdir)/run-ssr.applescript
 
 install-data-hook:
 	cp -r $(QTLIBDIR)/Resources/qt_menu.nib $(DESTDIR)$(pkgdatadir)/
