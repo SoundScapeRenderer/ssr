@@ -90,28 +90,20 @@ namespace ssr
 namespace internal
 {
 
-/// self-explanatory
 inline void print_about_message()
 {
   const std::string about_string =
     "       ___     \n"
     "      /  ___   \n"
     "  ___/  /  ___ \n"
-    "    ___/  /    " PACKAGE_NAME " version " PACKAGE_VERSION "\n"
+    "    ___/  /    " PACKAGE_STRING "\n"
     "         /     \n"
     "               \n"
-    " Copyright (c) 2012-2014 Institut für Nachrichtentechnik, "
-                                                         "Universität Rostock\n"
-    " Copyright (c) 2006-2012 Quality & Usability Lab\n"
-    "                         Deutsche Telekom Laboratories, TU Berlin\n"
+    "Website: <" PACKAGE_URL ">\n"
+    "Contact: <" PACKAGE_BUGREPORT ">\n"
     "\n"
-    " Website: " PACKAGE_URL "\n"
-    " Contact: " PACKAGE_BUGREPORT "\n"
-    "\n"
-    " This program comes with ABSOLUTELY NO WARRANTY;"
-    " this is free software,\n"
-    " and you are welcome to redistribute it under certain conditions;\n"
-    " for details, see the enclosed file COPYING.\n";
+    SSR_COPYRIGHT
+    ;
 
   std::cout << about_string << std::endl;
 }

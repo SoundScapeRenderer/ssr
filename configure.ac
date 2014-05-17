@@ -15,14 +15,18 @@ AC_PREREQ([2.65])
 dnl initialize autoconf, this should be the first thing in configure.ac
 dnl arguments: full package name, version, email address for bug reports,
 dnl tarball name, homepage
-AC_INIT([SoundScape Renderer (SSR)],
+AC_INIT([SoundScape Renderer],
         [m4_esyscmd_s([git describe || date +$USER%Y%m%d%H%M])],
         [ssr@spatialaudio.net],
         [ssr],
-        [http://spatialaudio.net/ssr])
+        [http://spatialaudio.net/ssr/])
+
+SSR_COPYRIGHT="Copyright © 2014 Institut für Nachrichtentechnik, Universität Rostock\nCopyright © 2012 Quality & Usability Lab, Telekom Innovation Labs, TU Berlin\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
+
+AC_DEFINE_UNQUOTED([SSR_COPYRIGHT], ["$SSR_COPYRIGHT"], [SSR copyright notice])
 
 dnl read AUTHORS file and save (reformatted by sed) to SSR_AUTHORS(_QT)
-SSR_AUTHORS=esyscmd([cat AUTHORS | sed -e :a -e '$!N;s/\n/\\n/;ta' -e 's/.*/"&"/'])
+SSR_AUTHORS=esyscmd([cat AUTHORS | sed -e :a -e '$!N;s/\n\n/\n/;ta' -e '$!N;s/\n/\\n/;ta' -e 's/.*/"&"/'])
 SSR_AUTHORS_QT=esyscmd([cat AUTHORS | sed -e 's|^.*:|<EM>&</EM>|' -e 's/ /\&nbsp;/g' -e 's/é/\&eacute;/g' -e 's/ö/\&ouml;/g' | sed -e :a -e '$!N;s/\n/<BR>/;ta' -e 's/.*/"&"/'])
 
 dnl reformat AUTHORS and write to authors.tex for the user manual:

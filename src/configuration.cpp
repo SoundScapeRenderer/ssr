@@ -63,42 +63,40 @@ namespace // anonymous
 #endif
     {
       std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-        " It's ... " << std::flush;
+        "It's ... " << std::flush;
       sleep(3);
       std::cout << "the ";
     }
-    std::cout << PACKAGE_NAME
+    std::cout << PACKAGE_STRING "\n" SSR_COPYRIGHT "\n"
+      "\nFollowing compile-time features are activated: |"
 #ifndef NDEBUG
-      ", compiled in debug mode!"
+      "debug mode|"
 #endif
-      "\n              version " PACKAGE_VERSION
-      "\n Following compile-time features are activated:\n"
-      " new renderer"
 #ifdef ENABLE_GUI
-      ", GUI"
+      "GUI|"
 #endif
 #ifdef ENABLE_IP_INTERFACE
-      ", IP interface"
+      "IP interface|"
 #endif
 #ifdef ENABLE_INTERSENSE
-      ", InterSense "
+      "InterSense "
 #ifdef HAVE_INTERSENSE_404
-      "(>= v4.04)"
+      "(>= v4.04)|"
 #else
-      "(< v4.04)"
+      "(< v4.04)|"
 #endif
 #endif // ENABLE_INTERSENSE
 #ifdef ENABLE_POLHEMUS
-      ", Polhemus"
+      "Polhemus|"
 #endif
 #ifdef ENABLE_VRPN
-      ", VRPN"
+      "VRPN|"
 #endif
 #ifdef ENABLE_RAZOR
-      ", Razor AHRS"
+      "Razor AHRS|"
 #endif
 #ifdef ENABLE_ECASOUND
-      ", Ecasound"
+      "Ecasound|"
 #endif
       "\n\n"
       SSR_AUTHORS
@@ -121,14 +119,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
   conf_struct conf;
 
-  // borrowed from ardour sources: cut path from program name
-  auto exec_name = strrchr(argv[0], '/');
-  if (exec_name == nullptr) exec_name = argv[0]; else exec_name++;
-  conf.exec_name = exec_name;
-
 #ifndef NDEBUG
   // Because of this warning, "make check" fails for debug builds (on purpose).
-  WARNING(conf.exec_name << " was compiled for debugging!");
+  WARNING(argv[0] << " was compiled for debugging!");
 #endif
 
   // hard coded default values:
@@ -192,64 +185,64 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   load_config_file(filename.c_str(),conf);
 
   const std::string usage_string =
-"\nUSAGE: " + conf.exec_name + " [OPTIONS] <scene-file>"
-#ifdef ENABLE_GUI
-//" [-- <GUI options>]"
-#endif
-"\n";
+"Usage: " + std::string(argv[0]) + " [OPTIONS] <scene-file>\n";
 
   const std::string help_string =
 "\nThe SoundScape Renderer (SSR) is a tool for real-time "
 "spatial audio reproduction\n"
 "providing a variety of rendering algorithms.\n"
 "\n"
-"OPTIONS:\n"
-"\n"
+"Options:\n\n"
 "Renderer-specific options:\n"
-"    --hrirs=FILE       Load the HRIRs for binaural renderer from FILE\n"
-"    --hrir-size=VALUE  Maximum IR length (binaural and BRS renderer)\n"
-"    --prefilter=FILE   Load WFS prefilter from FILE\n"
-"-o, --ambisonics-order=VALUE Ambisonics order to use (default: maximum)\n"
-"    --in-phase-rendering     Use in-phase rendering for Ambisonics\n"
+"      --hrirs=FILE    Load HRIRs for binaural renderer from FILE\n"
+"      --hrir-size=N   Truncate HRIRs to length N\n"
+"      --prefilter=FILE\n"
+"                      Load WFS prefilter from FILE\n"
+"  -o, --ambisonics-order=VALUE\n"
+"                      Ambisonics order to use for AAP (default: maximum)\n"
+"      --in-phase-rendering\n"
+"                      Use in-phase rendering for AAP renderer\n"
 "\n"
 "JACK options:\n"
-"-n, --name=NAME        Set JACK client name to NAME\n"
-"    --input-prefix=PREFIX    Input  port prefix "
-                                              "(default: \"system:capture_\")\n"
-"    --output-prefix=PREFIX   Output port prefix "
-                                             "(default: \"system:playback_\")\n"
-"-f, --freewheel        Use JACK in freewheeling mode\n"
+"  -n, --name=NAME     Set JACK client name to NAME\n"
+"      --input-prefix=PREFIX\n"
+"                      Input port prefix (default: \"system:capture_\")\n"
+"      --output-prefix=PREFIX\n"
+"                      Output port prefix (default: \"system:playback_\")\n"
+"  -f, --freewheel     Use JACK in freewheeling mode\n"
 "\n"
 "General options:\n"
-"-c, --config=FILE      Read configuration from FILE\n"
-"-s, --setup=FILE       Load reproduction setup from FILE\n"
-"    --threads=N        Number of audio threads (default N=auto)\n"
-"-r, --record=FILE      Record the audio output of the renderer to FILE\n"
+"  -c, --config=FILE   Read configuration from FILE\n"
+"  -s, --setup=FILE    Load reproduction setup from FILE\n"
+"      --threads=N     Number of audio threads (default: auto)\n"
+"  -r, --record=FILE   Record the audio output of the renderer to FILE\n"
 #ifndef ENABLE_ECASOUND
-"                       (disabled at compile time!)\n"
+"                      (disabled at compile time!)\n"
 #endif
 // TODO: --loop is a temporary option, should rather be done in scene file
-"    --loop             Loop all audio files\n"
-"    --master-volume-correction=VALUE\n"
-"                       Correction of the master volume in dB "
+"      --loop          Loop all audio files\n"
+"      --master-volume-correction=VALUE\n"
+"                      Correction of the master volume in dB "
                                                          "(default: 0 dB)\n"
 #ifdef ENABLE_IP_INTERFACE
-"-i, --ip-server[=PORT] Start IP server (default on)\n"
-"                       A port can be specified: --ip-server=5555\n"
-"-I, --no-ip-server     Don't start IP server\n"
+"  -i, --ip-server[=PORT]\n"
+"                      Start IP server (default on),\n"
+"                      a port number can be specified (default 4711)\n"
+"  -I, --no-ip-server  Don't start IP server\n"
 #else
-"-i, --ip-server        Start IP server (not enabled at compile time!)\n"
-"-I, --no-ip-server     Don't start IP server (default)\n"
+"  -i, --ip-server     Start IP server (not enabled at compile time!)\n"
+"  -I, --no-ip-server  Don't start IP server (default)\n"
 #endif
-#ifdef ENABLE_GUI       
-"-g, --gui              Start GUI (default)\n"
-"-G, --no-gui           Don't start GUI\n"
+#ifdef ENABLE_GUI      
+"  -g, --gui           Start GUI (default)\n"
+"  -G, --no-gui        Don't start GUI\n"
 #else
-"-g, --gui              Start GUI (not enabled at compile time!)\n"
-"-G, --no-gui           Don't start GUI (default)\n"
+"  -g, --gui           Start GUI (not enabled at compile time!)\n"
+"  -G, --no-gui        Don't start GUI (default)\n"
 #endif
 #if defined(ENABLE_INTERSENSE) || defined(ENABLE_POLHEMUS) || defined(ENABLE_VRPN) || defined(ENABLE_RAZOR)
-"-t, --tracker=TYPE     Start tracker, possible value(s):"
+"  -t, --tracker=TYPE  Select head tracker, possible value(s):\n"
+"                     "
 #if defined(ENABLE_POLHEMUS)
 " polhemus"
 #endif
@@ -263,18 +256,16 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 " razor"
 #endif
 "\n"
-"    --tracker-port=PORT\n"
-"                       A serial port can be specified, e.g. /dev/ttyS1\n"
+"      --tracker-port=PORT\n"
+"                      Port name/number of head tracker, e.g. /dev/ttyS1\n"
 #else
-"-t, --tracker          Start tracker (not enabled at compile time!)\n"
+"  -t, --tracker       Select tracker (not enabled at compile time!)\n"
 #endif
-"-T, --no-tracker       Don't start tracker (default)\n"
+"  -T, --no-tracker    Don't use a head tracker (default)\n"
 "\n"
-"-h, --help             Show this very help information. "
-                                                     "You just typed that!\n"
-"-v, --verbose          Increase verbosity level (up to -vvv)\n"
-"-V, --version          Show version information and exit\n"
-"\n"
+"  -h, --help          Show help and exit\n"
+"  -v, --verbose       Increase verbosity level (up to -vvv)\n"
+"  -V, --version       Show version information and exit\n"
 
 #ifdef ENABLE_GUI
 //"\n"
@@ -283,6 +274,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 //"\n"
 //" --               All arguments after \"--\" are ignored.\n"
 #endif
+"\n"
+"Report bugs to: <" PACKAGE_BUGREPORT ">\n"
+"SSR home page: <" PACKAGE_URL ">\n"
 ;
 
   // the special argument "--" forces the end of option scanning
@@ -476,7 +470,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         // here we deal with unknown/invalid options
         // getopt() already prints an error message for unknown options
         std::cout << usage_string;
-        std::cout << "Type '" << conf.exec_name << " --help' "
+        std::cout << "Type '" << argv[0] << " --help' "
           "for more information.\n\n";
         exit(EXIT_FAILURE);
         break;
