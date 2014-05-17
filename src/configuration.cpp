@@ -67,40 +67,44 @@ namespace // anonymous
       sleep(3);
       std::cout << "the ";
     }
-    std::cout << PACKAGE_STRING "\n" SSR_COPYRIGHT "\n"
-      "\nFollowing compile-time features are activated: |"
+    std::cout << PACKAGE_STRING "\n" SSR_COPYRIGHT << std::endl;
+#ifdef ENABLE_ISATTY
+    if (isatty(1))
+    {
+      std::cout << "\nFollowing compile-time features are activated: |"
 #ifndef NDEBUG
-      "debug mode|"
+        "debug mode|"
 #endif
 #ifdef ENABLE_GUI
-      "GUI|"
+        "GUI|"
 #endif
 #ifdef ENABLE_IP_INTERFACE
-      "IP interface|"
+        "IP interface|"
 #endif
 #ifdef ENABLE_INTERSENSE
-      "InterSense "
+        "InterSense "
 #ifdef HAVE_INTERSENSE_404
-      "(>= v4.04)|"
+        "(>= v4.04)|"
 #else
-      "(< v4.04)|"
+        "(< v4.04)|"
 #endif
 #endif // ENABLE_INTERSENSE
 #ifdef ENABLE_POLHEMUS
-      "Polhemus|"
+        "Polhemus|"
 #endif
 #ifdef ENABLE_VRPN
-      "VRPN|"
+        "VRPN|"
 #endif
 #ifdef ENABLE_RAZOR
-      "Razor AHRS|"
+        "Razor AHRS|"
 #endif
 #ifdef ENABLE_ECASOUND
-      "Ecasound|"
+        "Ecasound|"
 #endif
-      "\n\n"
-      SSR_AUTHORS
-      "\n\n";
+        "\n";
+    }
+#endif
+    std::cout << "\n" SSR_AUTHORS "\n\n";
   }
 }
 

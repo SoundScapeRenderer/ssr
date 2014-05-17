@@ -21,7 +21,7 @@ AC_INIT([SoundScape Renderer],
         [ssr],
         [http://spatialaudio.net/ssr/])
 
-SSR_COPYRIGHT="Copyright © 2014 Institut für Nachrichtentechnik, Universität Rostock\nCopyright © 2012 Quality & Usability Lab, Telekom Innovation Labs, TU Berlin\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
+SSR_COPYRIGHT="Copyright © 2014 Institut für Nachrichtentechnik, Universität Rostock\nCopyright © 2012 Quality & Usability Lab, Telekom Innovation Labs, TU Berlin\n\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
 
 AC_DEFINE_UNQUOTED([SSR_COPYRIGHT], ["$SSR_COPYRIGHT"], [SSR copyright notice])
 
