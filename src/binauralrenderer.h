@@ -282,7 +282,7 @@ void BinauralRenderer::Source::_process()
 
     if (this->model == ::Source::plane)
     {
-      // no distance attenuation for plane waves 
+      // no distance attenuation for plane waves
       // 1/r:
       weight *= 0.5f / _input.parent.state.amplitude_reference_distance;
 
@@ -292,7 +292,7 @@ void BinauralRenderer::Source::_process()
     }
     else
     {
-      float source_distance = (this->position - ref_pos).length();
+      float source_distance = (this->position + ref_pos).length();
 
       if (source_distance < 0.5f)
       {
@@ -315,7 +315,19 @@ void BinauralRenderer::Source::_process()
   float angles = _input.parent._angles;
 
   // calculate relative orientation of sound source
-  auto rel_ori = (this->position - ref_pos).orientation() - ref_ori;
+  auto rel_ori = -ref_ori;
+
+  if (this->model == ::Source::plane)
+  {
+    // plane wave orientation points into direction of propagation
+    // +180 degree has to be applied to select the hrtf correctly
+    rel_ori += this->orientation + Orientation(180);
+  }
+  else
+  {
+    rel_ori += (this->position - ref_pos).orientation();
+  }
+
   _hrtf_index = size_t(apf::math::wrap(
       rel_ori.azimuth * angles / 360.0f + 0.5f, angles));
 
