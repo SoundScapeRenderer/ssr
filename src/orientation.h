@@ -42,8 +42,12 @@ struct Orientation
 
   float azimuth; ///< (=yaw) azimuth (in degrees)
 
-  friend Orientation operator-(const Orientation& lhs, const Orientation& rhs);
+  /// plus (+) operator
   friend Orientation operator+(const Orientation& lhs, const Orientation& rhs);
+  /// minus (-) operator
+  friend Orientation operator-(const Orientation& lhs, const Orientation& rhs);
+  /// unary minus (-) operator
+  friend Orientation operator-(const Orientation& rhs);
 
   Orientation& operator+=(const Orientation& other);
   Orientation& operator-=(const Orientation& other);

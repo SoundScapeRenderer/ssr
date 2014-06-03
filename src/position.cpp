@@ -39,11 +39,6 @@ Position::Position(const float x, const float y) :
   y(y)
 {}
 
-Position Position::operator-()
-{
-  return Position(-this->x, -this->y);
-}
-
 Position& Position::operator+=(const Position& other)
 {
   x += other.x;
@@ -111,6 +106,11 @@ Position operator+(const Position& a, const Position& b)
 {
   Position temp(a);
   return temp += b;
+}
+
+Position operator-(const Position& a)
+{
+  return Position(-a.x, -a.y);
 }
 
 /** _.

@@ -53,6 +53,14 @@ Orientation operator+(const Orientation& lhs, const Orientation& rhs)
   return Orientation(lhs.azimuth + rhs.azimuth);
 }
 
+/** unary -operator.
+ * @return negative Orientation
+ **/
+Orientation operator-(const Orientation& rhs)
+{
+  return Orientation(-rhs.azimuth);
+}
+
 /** += operator.
  * @param other addend.
  * @return sum of Orientations

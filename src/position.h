@@ -60,7 +60,6 @@ struct Position
 
   Orientation orientation() const;
 
-  Position operator-();                        ///< unary minus operator
   Position& operator+=(const Position& other); ///< += operator
   Position& operator-=(const Position& other); ///< -= operator
   bool operator==(const Position& other) const;  ///< == operator
@@ -73,6 +72,8 @@ struct Position
   friend Position operator+(const Position& a, const Position& b);
   /// minus (-) operator
   friend Position operator-(const Position& a, const Position& b);
+  /// unary minus (-) operator
+  friend Position operator-(const Position& a);
   /// output stream operator (<<)
   friend std::ostream& operator<<(std::ostream& stream,
       const Position& position);
