@@ -31,7 +31,29 @@ dist_noinst_DATA = \
 	mex/ssr_vbap.cpp \
 	mex/ssr_wfs.cpp \
 	mex/ssr_helper.m \
-	mex/test_ssr.m
+	mex/test_ssr.m \
+	flext/Makefile \
+	flext/package.txt \
+	flext/ssr_flext.h \
+	flext/ssr_aap.cpp \
+	flext/ssr_binaural.cpp \
+	flext/ssr_nfc_hoa.cpp \
+	flext/ssr_vbap.cpp \
+	flext/ssr_wfs.cpp \
+	flext/ssr_messages.pd \
+	flext/ssr_aap~-help.pd \
+	flext/ssr_binaural~-help.pd \
+	flext/ssr_nfc_hoa~-help.pd \
+	flext/ssr_vbap~-help.pd \
+	flext/ssr_wfs~-help.pd \
+	flext/virtual_vbap.pd \
+	flext/virtual_wfs.pd \
+	flext/8channels.asd \
+	flext/circle.asd \
+	flext/hrirs_fabian.wav \
+	flext/wfs_prefilter_120_1500_44100.wav
+
+dist_noinst_SCRIPTS = flext/startpd.sh
 
 # these files are deleted on "make maintainer-clean":
 MAINTAINERCLEANFILES = aclocal.m4 stamp-h.in \
