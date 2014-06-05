@@ -18,7 +18,20 @@ SSR_MANUAL_DIST = doc/SoundScapeRenderer-@PACKAGE_VERSION@-manual.pdf
 dist_doc_DATA = AUTHORS COPYING $(SSR_MANUAL_DIST) NEWS
 
 # files which should be distributed but not installed
-dist_noinst_DATA = INSTALL README
+dist_noinst_DATA = \
+	INSTALL README \
+	mex/README.md \
+	mex/COPYING \
+	mex/DESCRIPTION \
+	mex/Makefile \
+	mex/ssr_mex.h \
+	mex/ssr_aap.cpp \
+	mex/ssr_binaural.cpp \
+	mex/ssr_nfc_hoa.cpp \
+	mex/ssr_vbap.cpp \
+	mex/ssr_wfs.cpp \
+	mex/ssr_helper.m \
+	mex/test_ssr.m
 
 # these files are deleted on "make maintainer-clean":
 MAINTAINERCLEANFILES = aclocal.m4 stamp-h.in \
