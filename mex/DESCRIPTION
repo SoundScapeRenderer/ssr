@@ -1,0 +1,16 @@
+Name: SoundScape Renderer
+Version:
+Date:
+Author:
+Maintainer:
+Title: SSR as MEX files
+Description:
+Categories:
+Problems:
+Url: http://spatialaudio.net/ssr/
+Autoload:
+Depends:
+License: GPLv3+
+SystemRequirements:
+BuildRequires:
+SVNRelease:
