@@ -292,7 +292,7 @@ void BinauralRenderer::Source::_process()
     }
     else
     {
-      float source_distance = (this->position + ref_pos).length();
+      float source_distance = (this->position - ref_pos).length();
 
       if (source_distance < 0.5f)
       {
