@@ -72,7 +72,6 @@ class RendererBase : public apf::MimoProcessor<Derived
     using typename _base::rtlist_t;
     using typename _base::ScopedLock;
     using typename _base::sample_type;
-    using Input = typename _base::DefaultInput;
 
     using _base::_fifo;
 
@@ -80,6 +79,37 @@ class RendererBase : public apf::MimoProcessor<Derived
     // TODO: try to remove this:
     using SourceBase = Source;
     class Output;
+
+#ifdef SSR_SHARED_IO_BUFFERS
+    // Copying the input buffers is only needed if the backend re-uses its input
+    // buffers as output buffers (e.g. Puredata externals) and if the renderer
+    // doesn't copy the buffers anyway at some point (as most renderers do).
+    class Input : public _base::Input
+    {
+      public:
+        using iterator = typename std::vector<sample_type>::const_iterator;
+        using typename _base::Input::Params;
+
+        explicit Input(const Params& p)
+          : _base::Input(p)
+          , _buffer(this->parent.block_size())
+        {}
+
+        APF_PROCESS(Input, _base::Input)
+        {
+          std::copy(this->buffer.begin(), this->buffer.end(), _buffer.begin());
+        }
+
+        iterator begin() const { return _buffer.begin(); }
+        iterator end() const { return _buffer.end(); }
+
+      private:
+        std::vector<sample_type> _buffer;
+    };
+#else
+    using Input = typename _base::DefaultInput;
+#endif
+
 
     struct State
     {

@@ -26,6 +26,9 @@
 
 // Vector Base Amplitude Panning renderer as Puredata/Max external.
 
+// Force copy of buffers because input buffers are re-used as output buffers:
+#define SSR_SHARED_IO_BUFFERS
+
 #include "ssr_flext.h"
 #include "vbaprenderer.h"
 
