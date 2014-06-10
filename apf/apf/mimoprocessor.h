@@ -545,7 +545,7 @@ class APF_MIMOPROCESSOR_BASE::DefaultInput : public Input
     using typename Input::Params;
     using typename Input::iterator;
 
-    DefaultInput(const Params& p) : Input(p) {}
+    explicit DefaultInput(const Params& p) : Input(p) {}
 
     iterator begin() const { return this->buffer.begin(); }
     iterator   end() const { return this->buffer.end(); }
