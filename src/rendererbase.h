@@ -380,25 +380,7 @@ class RendererBase<Derived>::Source
 
     APF_PROCESS(Source, SourceBase)
     {
-      this->_begin = _input.begin();
-      this->_end = _input.end();
-
-      if (!_input.parent.state.processing || this->mute)
-      {
-        this->weighting_factor = 0.0;
-      }
-      else
-      {
-        this->weighting_factor = this->gain;
-        // If the renderer does something nonlinear, the master volume should
-        // be applied to the output signal ... TODO: shall we care?
-        this->weighting_factor *= _input.parent.state.master_volume;
-        this->weighting_factor *= _input.parent.master_volume_correction;
-      }
-
-      _level_helper(_input.parent);
-
-      assert(this->weighting_factor.exactly_one_assignment());
+      this->_process();
     }
 
     sample_type get_level() const { return _level; }
@@ -422,9 +404,11 @@ class RendererBase<Derived>::Source
     const int id;
 
   protected:
-    const Input& _input;
+    const typename Derived::Input& _input;
 
   private:
+    void _process();
+
     void _level_helper(apf::enable_queries&)
     {
       _pre_fader_level = apf::math::max_amplitude(_input.begin(), _input.end());
@@ -436,6 +420,30 @@ class RendererBase<Derived>::Source
     sample_type _pre_fader_level;
     sample_type _level;
 };
+
+template<typename Derived>
+void RendererBase<Derived>::Source::_process()
+{
+  this->_begin = _input.begin();
+  this->_end = _input.end();
+
+  if (!_input.parent.state.processing || this->mute)
+  {
+    this->weighting_factor = 0.0;
+  }
+  else
+  {
+    this->weighting_factor = this->gain;
+    // If the renderer does something nonlinear, the master volume should
+    // be applied to the output signal ... TODO: shall we care?
+    this->weighting_factor *= _input.parent.state.master_volume;
+    this->weighting_factor *= _input.parent.master_volume_correction;
+  }
+
+  _level_helper(_input.parent);
+
+  assert(this->weighting_factor.exactly_one_assignment());
+}
 
 template<typename Derived>
 class RendererBase<Derived>::Output : public _base::Output
