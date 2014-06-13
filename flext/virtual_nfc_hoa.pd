@@ -1,0 +1,106 @@
+#N canvas 549 345 1034 474 10;
+#X obj 30 50 osc~ 440;
+#X obj 340 48 noise~;
+#X text 116 14 <-- open this!;
+#X obj 19 15 ssr_messages;
+#X obj 17 228 ssr_binaural~ 56 hrirs_fabian.wav;
+#X obj 16 259 dac~;
+#X obj 549 26 loadbang;
+#X text 442 26 set positions;
+#X text 442 42 of virtual;
+#X text 442 58 loudspeakers;
+#X text 442 74 on startup:;
+#X msg 549 48 src 1 pos 0 1 \, src 2 pos -0.111964 0.993712 \, src
+3 pos -0.222521 0.974928 \, src 4 pos -0.330279 0.943883 \, src 5 pos
+-0.433884 0.900969 \, src 6 pos -0.532032 0.846724 \, src 7 pos -0.62349
+0.781832 \, src 8 pos -0.707107 0.707107 \, src 9 pos -0.781832 0.62349
+\, src 10 pos -0.846724 0.532032 \, src 11 pos -0.900969 0.433884 \,
+src 12 pos -0.943883 0.330279 \, src 13 pos -0.974928 0.222521 \, src
+14 pos -0.993712 0.111964 \, src 15 pos -1 0 \, src 16 pos -0.993712
+-0.111964 \, src 17 pos -0.974928 -0.222521 \, src 18 pos -0.943883
+-0.330279 \, src 19 pos -0.900969 -0.433884 \, src 20 pos -0.846724
+-0.532032 \, src 21 pos -0.781832 -0.62349 \, src 22 pos -0.707107
+-0.707107 \, src 23 pos -0.62349 -0.781831 \, src 24 pos -0.532032
+-0.846724 \, src 25 pos -0.433884 -0.900969 \, src 26 pos -0.330279
+-0.943883 \, src 27 pos -0.222521 -0.974928 \, src 28 pos -0.111965
+-0.993712 \, src 29 pos 0 -1 \, src 30 pos 0.111964 -0.993712 \, src
+31 pos 0.222521 -0.974928 \, src 32 pos 0.330279 -0.943883 \, src 33
+pos 0.433883 -0.900969 \, src 34 pos 0.532032 -0.846724 \, src 35 pos
+0.62349 -0.781832 \, src 36 pos 0.707107 -0.707107 \, src 37 pos 0.781831
+-0.62349 \, src 38 pos 0.846724 -0.532032 \, src 39 pos 0.900969 -0.433884
+\, src 40 pos 0.943883 -0.330279 \, src 41 pos 0.974928 -0.222521 \,
+src 42 pos 0.993712 -0.111965 \, src 43 pos 1 0 \, src 44 pos 0.993712
+0.111964 \, src 45 pos 0.974928 0.222521 \, src 46 pos 0.943883 0.330279
+\, src 47 pos 0.900969 0.433884 \, src 48 pos 0.846724 0.532032 \,
+src 49 pos 0.781832 0.62349 \, src 50 pos 0.707107 0.707107 \, src
+51 pos 0.62349 0.781831 \, src 52 pos 0.532032 0.846724 \, src 53 pos
+0.433884 0.900969 \, src 54 pos 0.330279 0.943883 \, src 55 pos 0.222521
+0.974928 \, src 56 pos 0.111964 0.993712;
+#X obj 18 115 ssr_nfc_hoa~ 2 circle.asd;
+#X obj 30 71 *~ 0.002;
+#X obj 340 70 *~ 0.001;
+#X connect 0 0 13 0;
+#X connect 1 0 14 0;
+#X connect 3 0 12 0;
+#X connect 4 0 5 0;
+#X connect 4 1 5 1;
+#X connect 6 0 11 0;
+#X connect 11 0 4 0;
+#X connect 12 0 4 0;
+#X connect 12 1 4 1;
+#X connect 12 2 4 2;
+#X connect 12 3 4 3;
+#X connect 12 4 4 4;
+#X connect 12 5 4 5;
+#X connect 12 6 4 6;
+#X connect 12 7 4 7;
+#X connect 12 8 4 8;
+#X connect 12 9 4 9;
+#X connect 12 10 4 10;
+#X connect 12 11 4 11;
+#X connect 12 12 4 12;
+#X connect 12 13 4 13;
+#X connect 12 14 4 14;
+#X connect 12 15 4 15;
+#X connect 12 16 4 16;
+#X connect 12 17 4 17;
+#X connect 12 18 4 18;
+#X connect 12 19 4 19;
+#X connect 12 20 4 20;
+#X connect 12 21 4 21;
+#X connect 12 22 4 22;
+#X connect 12 23 4 23;
+#X connect 12 24 4 24;
+#X connect 12 25 4 25;
+#X connect 12 26 4 26;
+#X connect 12 27 4 27;
+#X connect 12 28 4 28;
+#X connect 12 29 4 29;
+#X connect 12 30 4 30;
+#X connect 12 31 4 31;
+#X connect 12 32 4 32;
+#X connect 12 33 4 33;
+#X connect 12 34 4 34;
+#X connect 12 35 4 35;
+#X connect 12 36 4 36;
+#X connect 12 37 4 37;
+#X connect 12 38 4 38;
+#X connect 12 39 4 39;
+#X connect 12 40 4 40;
+#X connect 12 41 4 41;
+#X connect 12 42 4 42;
+#X connect 12 43 4 43;
+#X connect 12 44 4 44;
+#X connect 12 45 4 45;
+#X connect 12 46 4 46;
+#X connect 12 47 4 47;
+#X connect 12 48 4 48;
+#X connect 12 49 4 49;
+#X connect 12 50 4 50;
+#X connect 12 51 4 51;
+#X connect 12 52 4 52;
+#X connect 12 53 4 53;
+#X connect 12 54 4 54;
+#X connect 12 55 4 55;
+#X connect 13 0 12 0;
+#X connect 14 0 12 1;
