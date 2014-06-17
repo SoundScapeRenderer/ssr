@@ -50,11 +50,11 @@ class BlockDelayLine
 
     BlockDelayLine(size_type block_size, size_type max_delay);
 
-    /// Return @b true if @p delay is valid.
-    /// Invalid delays will be truncated to max_delay defined by the constructor
-    /// BlockDelayLine::BlockDelayLine(). The correct(ed) delay is stored in
-    /// @p corrected.
-    /// @see BlockDelayLine::BlockDelayLine()
+    /// Check if a given delay is valid.
+    /// @param delay Desired delay
+    /// @param[out] corrected If valid, the same as @p delay, if not, the
+    ///   maximum possible delay.
+    /// @return @b true if @p delay is valid.
     bool delay_is_valid(size_type delay, size_type& corrected) const
     {
       bool valid = (delay <= _max_delay);
@@ -62,7 +62,7 @@ class BlockDelayLine
       return valid;
     }
 
-    /// Return @b true if @p delay is valid.
+    /// Return @b true if @p delay is valid. @see delay_is_valid()
     bool delay_is_valid(size_type delay) const
     {
       size_type dummy;  // dummy variable as default parameter
@@ -251,6 +251,11 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
     using _base::get_write_pointer;
 #endif
 
+    /// Check if a given delay is valid.
+    /// @param delay Desired delay
+    /// @param[out] corrected If valid, the same as @p delay, if too low/high,
+    ///   the minimum/maximum possible delay, respectively.
+    /// @return @b true if @p delay is valid.
     /// @see BlockDelayLine::delay_is_valid()
     bool delay_is_valid(difference_type delay, difference_type& corrected) const
     {
@@ -265,7 +270,7 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
       return valid;
     }
 
-    /// @see BlockDelayLine::delay_is_valid()
+    /// Return @b true if @p delay is valid. @see delay_is_valid()
     bool delay_is_valid(difference_type delay) const
     {
       difference_type dummy;  // dummy variable as default parameter
