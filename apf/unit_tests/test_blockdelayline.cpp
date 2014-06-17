@@ -96,6 +96,16 @@ SECTION("non-causal delay line", "")
   CHECK(d.delay_is_valid(5));
   CHECK_FALSE(d.delay_is_valid(6));
 
+  apf::NonCausalBlockDelayLine<int>::difference_type correct;
+  CHECK(d.delay_is_valid(-1, correct));
+  CHECK(correct == -1);
+  CHECK_FALSE(d.delay_is_valid(-2, correct));
+  CHECK(correct == -1);
+  CHECK(d.delay_is_valid(5, correct));
+  CHECK(correct == 5);
+  CHECK_FALSE(d.delay_is_valid(6, correct));
+  CHECK(correct == 5);
+
   CHECK(d.read_block(target, 3));
   int expected[3] = { 6, 0, 0 };
   CHECK_RANGE(target, expected, 3);
