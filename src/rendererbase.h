@@ -332,7 +332,7 @@ void RendererBase<Derived>::rem_source(int id)
   assert(source);
   source->derived().disconnect();
 
-  auto input = const_cast<Input*>(&source->_input);
+  auto input = const_cast<typename Derived::Input*>(&source->_input);
   _source_list.rem(source);
 
   // TODO: really remove the corresponding Input?
