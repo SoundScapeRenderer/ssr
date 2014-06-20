@@ -11,10 +11,6 @@ bin_PROGRAMS = $(SSR_executables)
 ## All possible optional programs must be listed here
 EXTRA_PROGRAMS = ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-nfc-hoa ssr-vbap ssr-aap
 
-dist_man_MANS = $(bin_PROGRAMS:=.1)
-
-MAINTAINERCLEANFILES = $(dist_man_MANS)
-
 ## CPPFLAGS: preprocessor flags, e.g. -I and -D
 ## -I., -I$(srcdir), and a -I pointing to the directory holding config.h
 ## are separately provided by Automake (disable with "nostdinc")
@@ -249,17 +245,6 @@ doc:
 		| doxygen - > /dev/null # discard stdout, only display errors
 
 .PHONY: doc
-
-RENDERER = $(@:ssr-%.1=%)
-RENDERER_TEXT = "manual page for the \
-		`test $(RENDERER) = binaural -o $(RENDERER) = generic \
-		&& echo $(RENDERER) \
-		|| echo $(RENDERER) | tr 'a-z' 'A-Z'` renderer"
-
-$(dist_man_MANS): configuration.cpp $(top_srcdir)/configure.ac
-	$(MAKE) $(AM_MAKEFLAGS) $(@:.1=$(EXEEXT))
-	$(HELP2MAN) --no-info --output=$@ ./$(@:.1=$(EXEEXT)) \
-		--name=$(RENDERER_TEXT)
 
 ## these links won't work on VPATH builds, but we don't care
 all-local:

@@ -5,7 +5,7 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
-SUBDIRS = src data
+SUBDIRS = src man data
 
 ## only entered for "make dist", "make distclean" and "make maintainer-clean":
 ##DIST_SUBDIRS = $(SUBDIRS) another_dir
