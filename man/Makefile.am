@@ -21,7 +21,7 @@ RENDERER_TEXT = "manual page for the \
 # "make" must be called before "make dist", there is no automatic dependency!
 
 $(dist_man_MANS): $(top_srcdir)/src/configuration.cpp $(top_srcdir)/configure.ac
-	$(HELP2MAN) --no-info --name=$(RENDERER_TEXT) --output=$@ \
+	$(HELP2MAN) --no-info --name=$(RENDERER_TEXT) --output=$@ --locale=en \
 		$(top_builddir)/src/$(@:.1=$(EXEEXT))
 
 ## Settings for Vim (http://www.vim.org/), please do not remove:
