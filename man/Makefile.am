@@ -17,6 +17,8 @@ RENDERER_TEXT = "manual page for the \
 
 # help2man must be called after the binaries are built in the src/ folder!
 # Note the order of SUBDIRS in the top-level Makefile.
+#
+# "make" must be called before "make dist", there is no automatic dependency!
 
 $(dist_man_MANS): $(top_srcdir)/src/configuration.cpp $(top_srcdir)/configure.ac
 	$(HELP2MAN) --no-info --name=$(RENDERER_TEXT) --output=$@ \
