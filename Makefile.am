@@ -82,7 +82,7 @@ ACLOCAL_AMFLAGS = -I autotools/m4
 # If the PDF file doesn't exist, an empty dummy file is created!
 $(SSR_MANUAL_DIST): $(SSR_MANUAL_ORIG)
 	@test -f "$<" && cp "$<" "$@" \
-		|| mkdir -p "$$(dirname "$@")" && touch "$@"
+		|| $(MKDIR_P) "$$(dirname "$@")" && touch "$@"
 
 # show warning message (if missing), the file must be created by the maintainer:
 $(SSR_MANUAL_ORIG):
