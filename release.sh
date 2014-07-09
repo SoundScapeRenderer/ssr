@@ -35,6 +35,10 @@ if test ! -z $CONCURRENCY_LEVEL; then
   MAKE_OPTIONS=-j$CONCURRENCY_LEVEL
 fi
 
+# this must be run first, because "make distcheck" needs the executables to
+# generate the man pages with help2man:
+run_command make $MAKE_OPTIONS
+
 # create tarball and run some basic tests
 run_command make distcheck $MAKE_OPTIONS
 

@@ -5,7 +5,7 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
-SUBDIRS = src data
+SUBDIRS = src man data
 
 ## only entered for "make dist", "make distclean" and "make maintainer-clean":
 ##DIST_SUBDIRS = $(SUBDIRS) another_dir
@@ -82,7 +82,7 @@ ACLOCAL_AMFLAGS = -I autotools/m4
 # If the PDF file doesn't exist, an empty dummy file is created!
 $(SSR_MANUAL_DIST): $(SSR_MANUAL_ORIG)
 	@test -f "$<" && cp "$<" "$@" \
-		|| mkdir -p "$$(dirname "$@")" && touch "$@"
+		|| $(MKDIR_P) "$$(dirname "$@")" && touch "$@"
 
 # show warning message (if missing), the file must be created by the maintainer:
 $(SSR_MANUAL_ORIG):

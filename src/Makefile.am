@@ -231,7 +231,7 @@ SSRMOCFILES = \
 SUFFIXES = _moc.cpp
 
 .h_moc.cpp:
-	@test -d gui || mkdir gui
+	@test -d gui || $(MKDIR_P) gui
 	@QTMOC@ @MOCFLAGS@ -I$(srcdir)/gui -o $@ $<
 endif
 
