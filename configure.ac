@@ -26,7 +26,7 @@ SSR_COPYRIGHT="Copyright © 2014 Institut für Nachrichtentechnik, Universität 
 AC_DEFINE_UNQUOTED([SSR_COPYRIGHT], ["$SSR_COPYRIGHT"], [SSR copyright notice])
 
 dnl read AUTHORS file and save (reformatted by sed) to SSR_AUTHORS(_QT)
-SSR_AUTHORS=esyscmd([cat AUTHORS | sed -e :a -e '$!N;s/\n\n/\n/;ta' -e '$!N;s/\n/\\n/;ta' -e 's/.*/"&"/'])
+SSR_AUTHORS=esyscmd([cat AUTHORS | sed -e :a -e '$!N;s/\n\n/\\n/;ta' -e '$!N;s/\n/\\n/;ta' -e 's/.*/"&"/'])
 SSR_AUTHORS_QT=esyscmd([cat AUTHORS | sed -e 's|^.*:|<EM>&</EM>|' -e 's/ /\&nbsp;/g' -e 's/é/\&eacute;/g' -e 's/ö/\&ouml;/g' | sed -e :a -e '$!N;s/\n/<BR>/;ta' -e 's/.*/"&"/'])
 
 dnl reformat AUTHORS and write to authors.tex for the user manual:
