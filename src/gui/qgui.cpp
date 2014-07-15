@@ -35,12 +35,12 @@ QString qt_style_sheet =
 #ifdef __APPLE__
   "QWidget {                                               \n"
   "   color: black;                                        \n"
-  "   font: normal 9pt;                                    \n"
+  "   font: normal 13pt;                                   \n"
   "   }                                                    \n"
 #else
   "QWidget {                                               \n"
   "   color: black;                                        \n"
-  "   font: normal 7pt \"Monospace\";                      \n"
+  "   font: normal 9pt \"Monospace\";                      \n"
   "   }                                                    \n"
 #endif
   "QLabel {                                                \n"
