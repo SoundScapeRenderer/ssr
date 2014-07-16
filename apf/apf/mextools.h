@@ -97,12 +97,14 @@ if (static_cast<mwSize>(mxGetN(prhs[0])) != (value)) { \
 
 namespace apf
 {
+/// Helper functions for creating MEX files
 namespace mex
 {
 
 // TODO: check if (and how) user-specified overloads of convert() work
 // TODO: use a traits class, if necessary
 
+/// Convert @c mxArray to @c std::string
 bool convert(const mxArray* in, std::string& out)
 {
   if (!mxIsChar(in)) return false;
@@ -114,6 +116,7 @@ bool convert(const mxArray* in, std::string& out)
   return true;
 }
 
+/// Convert @c mxArray to @c double
 bool convert(const mxArray* in, double& out)
 {
   if (!mxIsDouble(in) || mxIsComplex(in)) return false;
@@ -122,6 +125,7 @@ bool convert(const mxArray* in, double& out)
   return true;
 }
 
+/// Convert @c mxArray to @c int
 bool convert(const mxArray* in, int& out)
 {
   if (!mxIsDouble(in) || mxIsComplex(in)) return false;
@@ -132,6 +136,7 @@ bool convert(const mxArray* in, int& out)
   return true;
 }
 
+/// Convert @c mxArray to @c size_t
 bool convert(const mxArray* in, size_t& out)
 {
   if (!mxIsDouble(in) || mxIsComplex(in)) return false;
@@ -142,10 +147,11 @@ bool convert(const mxArray* in, size_t& out)
   return true;
 }
 
+/// Convert @c mxArray to a @c std::map of @c std::string%s.
+/// This expects a scalar structure!
+/// Values must be real scalar numbers or strings!
+/// @warning In case of a conversion error, the map may be partially filled!
 // TODO: allow wstring?
-// This expects a scalar structure!
-// Values must be real scalar numbers or strings!
-// WARNING: In case of a conversion error, the map may be partly filled!
 bool convert(const mxArray* in, std::map<std::string, std::string>& out)
 {
   if (!mxIsStruct(in)) return false;
@@ -192,24 +198,38 @@ bool next_arg_helper(int& n, const mxArray**& p, T& data)
 
 }  // namespace internal
 
+/// Get next argument, converted to @p T.
+/// @param n Number of arguments, typically @c nrhs
+/// @param p Pointer to arguments, typically @c prhs
+/// @return @b true if argument was available and if conversion was successful
+/// @post @p n is decremented, @p p is incremented
 template<typename T>
 bool next_arg(int& n, const mxArray**& p, T& data)
 {
   return internal::next_arg_helper<false>(n, p, data);
 }
 
+/// Get next optional argument, converted to @p T.
+/// @return @b true if no argument available or if conversion was successful
+/// @see next_arg()
 template<typename T>
 bool next_optarg(int& n, const mxArray**& p, T& data)
 {
   return internal::next_arg_helper<true>(n, p, data);
 }
 
+/// Get next argument, converted to @p T.
+/// @see next_arg()
+/// @param error Message to be displayed on error
 template<typename T>
 void next_arg(int& n, const mxArray**& p, T& data, const std::string& error)
 {
   if (!next_arg(n, p, data)) mexErrMsgTxt(error.c_str());
 }
 
+/// Get next optional argument, converted to @p T.
+/// @see next_optarg()
+/// @param error Message to be displayed on error
 template<typename T>
 void next_optarg(int& n, const mxArray**& p, T& data, const std::string& error)
 {

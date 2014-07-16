@@ -47,6 +47,8 @@ apf::JackClient
 
 - Some tools for using the FFTW library: fftwtools.h
 
+- Macros and helper functions for creating MEX files: mextools.h
+
 - Simple stopwatch: apf::StopWatch
 
 - Miscellaneous stuff: misc.h
