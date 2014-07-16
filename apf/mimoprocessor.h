@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -38,10 +38,6 @@
 
 #define APF_MIMOPROCESSOR_TEMPLATES template<typename Derived, typename interface_policy, typename thread_policy, typename query_policy>
 #define APF_MIMOPROCESSOR_BASE MimoProcessor<Derived, interface_policy, thread_policy, query_policy>
-
-#ifndef APF_MIMOPROCESSOR_DEFAULT_THREADS
-#define APF_MIMOPROCESSOR_DEFAULT_THREADS 1
-#endif
 
 /** Macro to create a @c Process struct and a corresponding member function.
  * @param name Name of the containing class
@@ -117,7 +113,7 @@ class MimoProcessor : public interface_policy
                     , NonCopyable
 {
   public:
-    using sample_type = typename interface_policy::sample_type;
+    using typename interface_policy::sample_type;
     using query_policy::_query_fifo;
 
     class Input;
@@ -403,7 +399,8 @@ APF_MIMOPROCESSOR_BASE::MimoProcessor(const parameter_map& params_)
   , params(params_)
   , _fifo(params.get("fifo_size", 1024))
   , _current_list(nullptr)
-  , _num_threads(params.get("threads", APF_MIMOPROCESSOR_DEFAULT_THREADS))
+  , _num_threads(params.get("threads"
+        , thread_policy::default_number_of_threads()))
   , _input_list(_fifo)
   , _output_list(_fifo)
 {
@@ -545,10 +542,10 @@ APF_MIMOPROCESSOR_TEMPLATES
 class APF_MIMOPROCESSOR_BASE::DefaultInput : public Input
 {
   public:
-    using Params = typename Input::Params;
-    using iterator = typename Input::iterator;
+    using typename Input::Params;
+    using typename Input::iterator;
 
-    DefaultInput(const Params& p) : Input(p) {}
+    explicit DefaultInput(const Params& p) : Input(p) {}
 
     iterator begin() const { return this->buffer.begin(); }
     iterator   end() const { return this->buffer.end(); }
@@ -587,8 +584,8 @@ APF_MIMOPROCESSOR_TEMPLATES
 class APF_MIMOPROCESSOR_BASE::DefaultOutput : public Output
 {
   public:
-    using Params = typename Output::Params;
-    using iterator = typename Output::iterator;
+    using typename Output::Params;
+    using typename Output::iterator;
 
     DefaultOutput(const Params& p) : Output(p) {}
 

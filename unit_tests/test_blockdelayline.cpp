@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -95,6 +95,16 @@ SECTION("non-causal delay line", "")
   CHECK_FALSE(d.delay_is_valid(-2));
   CHECK(d.delay_is_valid(5));
   CHECK_FALSE(d.delay_is_valid(6));
+
+  apf::NonCausalBlockDelayLine<int>::difference_type correct;
+  CHECK(d.delay_is_valid(-1, correct));
+  CHECK(correct == -1);
+  CHECK_FALSE(d.delay_is_valid(-2, correct));
+  CHECK(correct == -1);
+  CHECK(d.delay_is_valid(5, correct));
+  CHECK(correct == 5);
+  CHECK_FALSE(d.delay_is_valid(6, correct));
+  CHECK(correct == 5);
 
   CHECK(d.read_block(target, 3));
   int expected[3] = { 6, 0, 0 };

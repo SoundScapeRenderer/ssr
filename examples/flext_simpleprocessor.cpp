@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -35,7 +35,7 @@
 #define APF_MIMOPROCESSOR_SAMPLE_TYPE t_sample
 
 #include "apf/pointer_policy.h"
-#include "apf/posix_thread_policy.h"
+#include "apf/default_thread_policy.h"
 
 #include "simpleprocessor.h"
 

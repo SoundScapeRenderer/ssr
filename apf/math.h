@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -29,7 +29,8 @@
 
 #include <cmath>  // for std::pow(), ...
 #include <iterator> // for std::iterator_traits
-#include <numeric>  // for std::accumulate
+#include <numeric>  // for std::accumulate()
+#include <algorithm>  // for std::max()
 
 namespace apf
 {

@@ -47,12 +47,14 @@ apf::JackClient
 
 - Some tools for using the FFTW library: fftwtools.h
 
+- Macros and helper functions for creating MEX files: mextools.h
+
 - Simple stopwatch: apf::StopWatch
 
 - Miscellaneous stuff: misc.h
 
 
-Copyright (c) 2012-2013 Institut für Nachrichtentechnik, Universität Rostock
+Copyright (c) 2012-2014 Institut für Nachrichtentechnik, Universität Rostock
 
 Copyright (c) 2006-2012 Quality & Usability Lab,
                         Deutsche Telekom Laboratories, TU Berlin

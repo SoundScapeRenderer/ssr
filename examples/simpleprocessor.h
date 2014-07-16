@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -42,23 +42,14 @@ class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
 {
   public:
     class Input : public MimoProcessorBase::Input
-             , public apf::has_begin_and_end<MimoProcessorBase::Input::iterator>
     {
-      private:
-        using _begin_end_base
-          = apf::has_begin_and_end<MimoProcessorBase::Input::iterator>;
-
       public:
-        using iterator = _begin_end_base::iterator;
+        using iterator = std::vector<sample_type>::const_iterator;
 
         explicit Input(const Params& p)
           : MimoProcessorBase::Input(p)
           , _buffer(this->parent.block_size())
-        {
-          // initialize protected members from has_begin_and_end
-          _begin = this->buffer.begin();
-          _end = this->buffer.end();
-        }
+        {}
 
         APF_PROCESS(Input, MimoProcessorBase::Input)
         {
@@ -69,6 +60,9 @@ class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
 
           std::copy(this->buffer.begin(), this->buffer.end(), _buffer.begin());
         }
+
+        iterator begin() const { return _buffer.begin(); }
+        iterator end() const { return _buffer.end(); }
 
       private:
         std::vector<sample_type> _buffer;
@@ -84,7 +78,7 @@ class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
 class SimpleProcessor::Output : public MimoProcessorBase::DefaultOutput
 {
   public:
-    using Params = MimoProcessorBase::Output::Params;
+    using typename MimoProcessorBase::Output::Params;
 
     explicit Output(const Params& p)
       : MimoProcessorBase::DefaultOutput(p)

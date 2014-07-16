@@ -2,6 +2,7 @@ JACK_STUFF += jack_simpleprocessor jack_dynamic_inputs jack_dynamic_outputs
 JACK_STUFF += jack_minimal jack_matrix jack_query_thread
 JACK_STUFF += jack_convolver
 JACK_STUFF += jack_change_volume
+JACK_STUFF += jack_connections
 
 PORTAUDIO_STUFF += portaudio_simpleprocessor
 
@@ -74,14 +75,17 @@ $(FFTW_STUFF): LDLIBS += -lfftw3f
 
 # For Puredata stuff see also package.txt
 
-pd: $(FLEXTPATH) package.txt
+pd: check_flext_path package.txt
 	$(FLEXTPATH)/build.sh pd gcc
 
 .PHONY: pd
 
-$(FLEXTPATH):
-	@test -d $(FLEXTPATH) || \
+check_flext_path:
+	@test -n '$(FLEXTPATH)' || ( echo \"FLEXTPATH\" is empty! ; false )
+	@test -d '$(FLEXTPATH)' || \
 		( echo \"$(FLEXTPATH)\" not found! Set FLEXTPATH! ; false )
+
+.PHONY: check_flext_path
 
 mex: CPPFLAGS += -DNDEBUG
 mex: $(MEX_FILES)
@@ -98,7 +102,7 @@ mex-double: mex
 clean:
 	$(RM) $(EXECUTABLES) $(OBJECTS)
 	test -d $(FLEXTPATH) && $(FLEXTPATH)/build.sh pd gcc clean || true
-	rmdir pd-linux || true
+	@rmdir pd-linux 2> /dev/null || true
 	$(RM) $(MEX_FILES)
 
 .PHONY: clean

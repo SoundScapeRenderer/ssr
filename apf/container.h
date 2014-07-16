@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -76,14 +76,24 @@ namespace internal
  * - all other functions which (potentially) change size are disabled.
  **/
 template<typename T, typename Allocator = std::allocator<T>>
-class fixed_vector : public std::vector<T, Allocator>
+class fixed_vector : private std::vector<T, Allocator>
 {
   private:
     using _base = typename std::vector<T, Allocator>;
 
   public:
-    using value_type = typename _base::value_type;
-    using size_type = typename _base::size_type;
+    using typename _base::value_type;
+    using typename _base::allocator_type;
+    using typename _base::reference;
+    using typename _base::const_reference;
+    using typename _base::pointer;
+    using typename _base::const_pointer;
+    using typename _base::iterator;
+    using typename _base::const_iterator;
+    using typename _base::reverse_iterator;
+    using typename _base::const_reverse_iterator;
+    using typename _base::difference_type;
+    using typename _base::size_type;
 
     fixed_vector() = default;
     fixed_vector(fixed_vector&&) = default;
@@ -98,10 +108,16 @@ class fixed_vector : public std::vector<T, Allocator>
       : _base(std::forward<Args>(args)...)
     {}
 
+// TODO: constructor from size and allocator is missing in C++11 (but not C++14)
+#if 0
+    // TODO: re-activate with C++14:
     template<typename Size, typename = internal::if_integral<Size>>
     fixed_vector(Size n, const Allocator& a = Allocator())
       : _base(n, a)
     {}
+#else
+    explicit fixed_vector(size_type n) : _base(n) {}
+#endif
 
     template<typename Size, typename Arg
       , typename = internal::if_integral<Size>>
@@ -191,31 +207,50 @@ class fixed_vector : public std::vector<T, Allocator>
       }
     }
 
-  private:
-    // Hide all base class functions which would change size:
-    void resize();
-    void assign();
-    void push_back();
-    void pop_back();
-    void insert();
-    void erase();
-    void swap();
-    void clear();
-    void emplace();
+    using _base::front;
+    using _base::back;
+    using _base::begin;
+    using _base::end;
+    using _base::rbegin;
+    using _base::rend;
+    using _base::cbegin;
+    using _base::cend;
+    using _base::crbegin;
+    using _base::crend;
+    using _base::size;
+    using _base::max_size;
+    using _base::capacity;
+    using _base::empty;
+    using _base::operator[];
+    using _base::at;
+    using _base::data;
+    using _base::get_allocator;
+
+    // using _base::shrink_to_fit;  // This may reallocate!
 };
 
 /** Derived from std::list, but without re-sizing.
  * Items cannot be added/removed, but they can be re-ordered with move().
  **/
 template<typename T, typename Allocator = std::allocator<T>>
-class fixed_list : public std::list<T, Allocator>
+class fixed_list : private std::list<T, Allocator>
 {
   private:
     using _base = typename std::list<T, Allocator>;
 
   public:
-    using value_type = typename _base::value_type;
-    using iterator = typename _base::iterator;
+    using typename _base::value_type;
+    using typename _base::allocator_type;
+    using typename _base::reference;
+    using typename _base::const_reference;
+    using typename _base::pointer;
+    using typename _base::const_pointer;
+    using typename _base::iterator;
+    using typename _base::const_iterator;
+    using typename _base::reverse_iterator;
+    using typename _base::const_reverse_iterator;
+    using typename _base::difference_type;
+    using typename _base::size_type;
 
     fixed_list() = default;
     fixed_list(fixed_list&&) = default;
@@ -264,26 +299,22 @@ class fixed_list : public std::list<T, Allocator>
       _base::splice(target, *this, first, last);
     }
 
-  private:
-    // Hide all base class functions which would change size:
-    void assign();
-    void emplace_front();
-    void emplace_back();
-    void push_front();
-    void pop_front();
-    void push_back();
-    void pop_back();
-    void emplace();
-    void insert();
-    void erase();
-    void swap();
-    void resize();
-    void clear();
-    void splice();
-    void remove();
-    void remove_if();
-    void unique();
-    void merge();
+    using _base::begin;
+    using _base::end;
+    using _base::rbegin;
+    using _base::rend;
+    using _base::cbegin;
+    using _base::cend;
+    using _base::crbegin;
+    using _base::crend;
+    using _base::empty;
+    using _base::size;
+    using _base::max_size;
+    using _base::front;
+    using _base::back;
+    using _base::get_allocator;
+    using _base::reverse;
+    using _base::sort;
 };
 
 /** Two-dimensional data storage for row- and column-wise access.
@@ -310,8 +341,8 @@ class fixed_matrix : public fixed_vector<T, Allocator>
     using _base = fixed_vector<T, Allocator>;
 
   public:
-    using pointer = typename _base::pointer;
-    using size_type = typename _base::size_type;
+    using typename _base::pointer;
+    using typename _base::size_type;
 
     /// Proxy class for returning one channel of the fixed_matrix
     using Channel = has_begin_and_end<pointer>;

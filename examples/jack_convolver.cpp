@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -86,8 +86,6 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
 
     Input* _input;
     Output* _output;
-
-    size_t _partitions;
 
     apf::conv::Filter _filter;
     apf::conv::Convolver _convolver;

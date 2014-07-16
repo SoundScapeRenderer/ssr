@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -38,6 +38,7 @@ int y[] = { 0, 0 };
 SECTION("default ctor", "")
 {
   di one;
+  (void)one;  // avoid "unused variable" warning
   di();
 }
 

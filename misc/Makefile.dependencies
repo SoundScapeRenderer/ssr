@@ -14,10 +14,12 @@
 # To remove all temporary dependency files, run 'make clean'.
 # You can still define your own rule for the target 'clean', if needed.
 
-# Author: Matthias Geier, 2011
+# Author: Matthias Geier, 2011, 2014
 
 DEPENDENCY_EXT ?= dep
 DEPENDENCY_DIR ?= .dep
+
+BINARY_EXTENSIONS ?= "" .o
 
 # don't include dependencies for those targets:
 NO_INCLUDE_DEPENDENCIES += clean
@@ -29,14 +31,10 @@ DEPENDENCY_MESSAGE = @echo Dependency file \"$@\" updated
 $(DEPENDENCY_DIR):
 	mkdir -p $(DEPENDENCY_DIR)
 
-$(DEPENDENCY_DIR)/%.o.$(DEPENDENCY_EXT): %.cpp | $(DEPENDENCY_DIR)
-	@$(RM) $@; $(CXX) -MM -MF $@ -MT "$*.o $@" \
-		$(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $< > /dev/null
-	$(DEPENDENCY_MESSAGE)
-
-$(DEPENDENCY_DIR)/%.$(DEPENDENCY_EXT): %.cpp | $(DEPENDENCY_DIR)
-	@$(RM) $@; $(CXX) -MM -MF $@ -MT "$* $@" \
-		$(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $< > /dev/null
+$(subst "",,$(BINARY_EXTENSIONS:%=$(DEPENDENCY_DIR)/\%%.$(DEPENDENCY_EXT))): %.cpp | $(DEPENDENCY_DIR)
+	$(RM) $@; $(CXX) -MM -MF $@ \
+	    -MT "$(@:$(DEPENDENCY_DIR)/%.$(DEPENDENCY_EXT)=%) $@" \
+	    $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $< > /dev/null
 	$(DEPENDENCY_MESSAGE)
 
 # other file types (e.g. *.c) could be added like this:

@@ -21,78 +21,62 @@
  *                                 http://AudioProcessingFramework.github.com *
  ******************************************************************************/
 
-/// @file
-/// Some tools for the use with libsndfile.
+// Example showing how to connect JACK ports.
 
-#ifndef APF_SNDFILETOOLS_H
-#define APF_SNDFILETOOLS_H
+#include "apf/mimoprocessor.h"
+#include "apf/jack_policy.h"
+#include "apf/posix_thread_policy.h"
 
-#include <sndfile.hh>  // C++ bindings for libsndfile
-
-#include "apf/stringtools.h"
-
-namespace apf
+class MyProcessor : public apf::MimoProcessor<MyProcessor
+      , apf::jack_policy, apf::posix_thread_policy>
 {
+  public:
+    MyProcessor()
+    {
+      Input::Params in_params;
 
-/** Load sound file, throw exception if something's wrong
- * @param name file name
- * @param sample_rate expected sample rate
- * @param channels expected number of channels
- * @throw std::logic_error whenever something is wrong
- **/
-inline SndfileHandle load_sndfile(const std::string& name, size_t sample_rate
-    , size_t channels)
+      in_params.set("port_name", "no_initial_connection");
+      this->add(in_params);
+
+      in_params.set("port_name", "initial_connection");
+      in_params.set("connect_to", "system:capture_1");
+      this->add(in_params);
+
+      Output::Params out_params;
+
+      out_params.set("port_name", "connect_before_activate");
+      this->add(out_params);
+
+      out_params.set("port_name", "connect_after_activate");
+      this->add(out_params);
+
+      out_params.set("port_name", "port with spaces");
+      this->add(out_params);
+    }
+};
+
+int main()
 {
-  // TODO: argument for read/write?
+  MyProcessor processor;
 
-  if (name == "")
-  {
-    throw std::logic_error("apf::load_sndfile(): Empty file name!");
-  }
+  processor.connect_ports("MimoProcessor:connect_before_activate"
+      , "system:playback_1");
 
-  auto handle = SndfileHandle(name, SFM_READ);
+  sleep(5);
 
-#if 0
-  // rawHandle() is available since libsndfile version 1.0.24
-  if (!handle.rawHandle())
-#else
-  if (!handle.channels())
-#endif
-  {
-    throw std::logic_error(
-        "apf::load_sndfile(): \"" + name + "\" couldn't be loaded!");
-  }
+  processor.activate();
 
-  if (sample_rate)
-  {
-    const size_t true_sample_rate = handle.samplerate();
-    if (sample_rate != true_sample_rate)
-    {
-      throw std::logic_error("apf::load_sndfile(): \"" + name
-          + "\" has sample rate " + str::A2S(true_sample_rate) + " instead of "
-          + str::A2S(sample_rate) + "!");
-    }
-  }
+  sleep(2);
 
-  if (channels)
-  {
-    const size_t true_channels = handle.channels();
+  processor.connect_ports("MimoProcessor:connect_after_activate"
+      , "system:playback_1");
 
-    if (channels != true_channels)
-    {
-      throw std::logic_error("apf::load_sndfile(): \"" + name + "\" has "
-          + str::A2S(true_channels) + " channels instead of "
-          + str::A2S(channels) + "!");
-    }
-  }
+  processor.connect_ports("MimoProcessor:port with spaces"
+      , "system:playback_2");
 
-  return handle;
+  sleep(30);
+  processor.deactivate();
 }
-
-}  // namespace apf
-
-#endif
 
 // Settings for Vim (http://www.vim.org/), please do not remove:
 // vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent
-// vim:fdm=expr:foldexpr=getline(v\:lnum)=~'/\\*\\*'&&getline(v\:lnum)!~'\\*\\*/'?'a1'\:getline(v\:lnum)=~'\\*\\*/'&&getline(v\:lnum)!~'/\\*\\*'?'s1'\:'='

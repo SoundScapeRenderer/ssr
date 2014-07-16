@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -50,10 +50,23 @@ class BlockDelayLine
 
     BlockDelayLine(size_type block_size, size_type max_delay);
 
-    /// Return @b true if @p delay is valid
+    /// Check if a given delay is valid.
+    /// @param delay Desired delay
+    /// @param[out] corrected If valid, the same as @p delay, if not, the
+    ///   maximum possible delay.
+    /// @return @b true if @p delay is valid.
+    bool delay_is_valid(size_type delay, size_type& corrected) const
+    {
+      bool valid = (delay <= _max_delay);
+      corrected = valid ? delay : _max_delay;
+      return valid;
+    }
+
+    /// Return @b true if @p delay is valid. @see delay_is_valid()
     bool delay_is_valid(size_type delay) const
     {
-      return delay <= _max_delay;
+      size_type dummy;  // dummy variable as default parameter
+      return delay_is_valid(delay, dummy);
     }
 
     /// Advance the internal iterators/pointers to the next block.
@@ -208,9 +221,9 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
     using _base = BlockDelayLine<T, Container>;
 
   public:
-    using size_type = typename _base::size_type;
-    using circulator = typename _base::circulator;
-    using difference_type = typename circulator::difference_type;
+    using typename _base::size_type;
+    using typename _base::circulator;
+    using difference_type = typename _base::circulator::difference_type;
 
     /// Constructor. @param initial_delay initial delay
     /// @param block_size Block size
@@ -238,12 +251,30 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
     using _base::get_write_pointer;
 #endif
 
+    /// Check if a given delay is valid.
+    /// @param delay Desired delay
+    /// @param[out] corrected If valid, the same as @p delay, if too low/high,
+    ///   the minimum/maximum possible delay, respectively.
+    /// @return @b true if @p delay is valid.
     /// @see BlockDelayLine::delay_is_valid()
+    bool delay_is_valid(difference_type delay, difference_type& corrected) const
+    {
+      if (delay < -_initial_delay)
+      {
+        corrected = -_initial_delay;
+        return false;
+      }
+      size_type tmp;
+      bool valid = _base::delay_is_valid(delay + _initial_delay, tmp);
+      corrected = tmp - _initial_delay;
+      return valid;
+    }
+
+    /// Return @b true if @p delay is valid. @see delay_is_valid()
     bool delay_is_valid(difference_type delay) const
     {
-      if (delay < -_initial_delay) return false;
-      if (delay < 0) return true;
-      return _base::delay_is_valid(delay + _initial_delay);
+      difference_type dummy;  // dummy variable as default parameter
+      return delay_is_valid(delay, dummy);
     }
 
     /// @see BlockDelayLine::read_block()

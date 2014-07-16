@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -53,6 +53,8 @@ class dummy_thread_policy
     template<typename F> struct DetachedThread;
     class Lock;
     class Semaphore;
+
+    unsigned default_number_of_threads() { return 1; }
 
   protected:
      dummy_thread_policy() = default;  ///< Protected ctor.

@@ -22,74 +22,21 @@
  ******************************************************************************/
 
 /// @file
-/// Some tools for the use with libsndfile.
+/// This header includes the default policy depending on the OS.
 
-#ifndef APF_SNDFILETOOLS_H
-#define APF_SNDFILETOOLS_H
+#ifndef APF_DEFAULT_THREAD_POLICY_H
+#define APF_DEFAULT_THREAD_POLICY_H
 
-#include <sndfile.hh>  // C++ bindings for libsndfile
+// For all available preprocessor macros see:
+// https://sourceforge.net/p/predef/wiki/OperatingSystems/
 
-#include "apf/stringtools.h"
-
-namespace apf
-{
-
-/** Load sound file, throw exception if something's wrong
- * @param name file name
- * @param sample_rate expected sample rate
- * @param channels expected number of channels
- * @throw std::logic_error whenever something is wrong
- **/
-inline SndfileHandle load_sndfile(const std::string& name, size_t sample_rate
-    , size_t channels)
-{
-  // TODO: argument for read/write?
-
-  if (name == "")
-  {
-    throw std::logic_error("apf::load_sndfile(): Empty file name!");
-  }
-
-  auto handle = SndfileHandle(name, SFM_READ);
-
-#if 0
-  // rawHandle() is available since libsndfile version 1.0.24
-  if (!handle.rawHandle())
+#ifndef APF_MIMOPROCESSOR_THREAD_POLICY
+#ifdef _WIN32
+#include "apf/dummy_thread_policy.h"
 #else
-  if (!handle.channels())
+#include "apf/posix_thread_policy.h"
 #endif
-  {
-    throw std::logic_error(
-        "apf::load_sndfile(): \"" + name + "\" couldn't be loaded!");
-  }
-
-  if (sample_rate)
-  {
-    const size_t true_sample_rate = handle.samplerate();
-    if (sample_rate != true_sample_rate)
-    {
-      throw std::logic_error("apf::load_sndfile(): \"" + name
-          + "\" has sample rate " + str::A2S(true_sample_rate) + " instead of "
-          + str::A2S(sample_rate) + "!");
-    }
-  }
-
-  if (channels)
-  {
-    const size_t true_channels = handle.channels();
-
-    if (channels != true_channels)
-    {
-      throw std::logic_error("apf::load_sndfile(): \"" + name + "\" has "
-          + str::A2S(true_channels) + " channels instead of "
-          + str::A2S(channels) + "!");
-    }
-  }
-
-  return handle;
-}
-
-}  // namespace apf
+#endif
 
 #endif
 

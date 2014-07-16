@@ -21,78 +21,72 @@
  *                                 http://AudioProcessingFramework.github.com *
  ******************************************************************************/
 
-/// @file
-/// Some tools for the use with libsndfile.
+// Tests for parameter_map.h.
 
-#ifndef APF_SNDFILETOOLS_H
-#define APF_SNDFILETOOLS_H
+#include "apf/parameter_map.h"
 
-#include <sndfile.hh>  // C++ bindings for libsndfile
+#include "catch/catch.hpp"
 
-#include "apf/stringtools.h"
-
-namespace apf
+TEST_CASE("parameter_map", "")
 {
 
-/** Load sound file, throw exception if something's wrong
- * @param name file name
- * @param sample_rate expected sample rate
- * @param channels expected number of channels
- * @throw std::logic_error whenever something is wrong
- **/
-inline SndfileHandle load_sndfile(const std::string& name, size_t sample_rate
-    , size_t channels)
+SECTION("constructors", "")
 {
-  // TODO: argument for read/write?
+  apf::parameter_map pm1;  // default
+  apf::parameter_map pm2(pm1);  // copy
+  apf::parameter_map pm3(apf::parameter_map());  // move
 
-  if (name == "")
-  {
-    throw std::logic_error("apf::load_sndfile(): Empty file name!");
-  }
-
-  auto handle = SndfileHandle(name, SFM_READ);
-
-#if 0
-  // rawHandle() is available since libsndfile version 1.0.24
-  if (!handle.rawHandle())
-#else
-  if (!handle.channels())
-#endif
-  {
-    throw std::logic_error(
-        "apf::load_sndfile(): \"" + name + "\" couldn't be loaded!");
-  }
-
-  if (sample_rate)
-  {
-    const size_t true_sample_rate = handle.samplerate();
-    if (sample_rate != true_sample_rate)
-    {
-      throw std::logic_error("apf::load_sndfile(): \"" + name
-          + "\" has sample rate " + str::A2S(true_sample_rate) + " instead of "
-          + str::A2S(sample_rate) + "!");
-    }
-  }
-
-  if (channels)
-  {
-    const size_t true_channels = handle.channels();
-
-    if (channels != true_channels)
-    {
-      throw std::logic_error("apf::load_sndfile(): \"" + name + "\" has "
-          + str::A2S(true_channels) + " channels instead of "
-          + str::A2S(channels) + "!");
-    }
-  }
-
-  return handle;
+  std::map<std::string, std::string> m1;
+  apf::parameter_map pm4(m1);  // copy
+  apf::parameter_map pm5(std::map<std::string, std::string>());  // move
 }
 
-}  // namespace apf
+SECTION("stuff", "")
+{
+  apf::parameter_map params;
+  params.set("one", "first value");
+  CHECK(params["one"] == "first value");
+  params.set("two", 2);
+  CHECK(params["two"] == "2");
+  params.set("three", 3.1415);
+  CHECK(params["three"] == "3.1415");
+  std::string val1;
+  int val2, val3;
+  double val4;
+  val1 = params["one"];
+  CHECK(val1 == "first value");
+  val2 = params.get<int>("two");
+  CHECK(val2 == 2);
+  CHECK_THROWS_AS(params.get<int>("one"), std::invalid_argument);
+  val3 = params.get("one", 42); // default value 42 if conversion fails
+  CHECK(val3 == 42);
+  val4 = params.get("three", 3.0);
+  CHECK(val4 == 3.1415);
+  if (params.has_key("four"))
+  {
+    // this is not done because there is no key named "four":
+    CHECK(false);
+  }
+  CHECK_THROWS_AS(params.get<std::string>("four"), std::out_of_range);
+  CHECK_THROWS_AS(params["four"], std::out_of_range);
+}
 
-#endif
+SECTION("more stuff", "")
+{
+  apf::parameter_map params;
+  params.set("id", "item42");
+  std::string id1, id2, name1, name2;
+  id1   = params.get("id"  , "no_id_available");
+  CHECK(id1 == "item42");
+  id2   = params.get("id"  , "item42");
+  CHECK(id2 == "item42");
+  name1 = params.get("name", "Default Name");
+  CHECK(name1 == "Default Name");
+  name2 = params.get("name", "");
+  CHECK(name2 == "");
+}
+
+} // TEST_CASE
 
 // Settings for Vim (http://www.vim.org/), please do not remove:
 // vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent
-// vim:fdm=expr:foldexpr=getline(v\:lnum)=~'/\\*\\*'&&getline(v\:lnum)!~'\\*\\*/'?'a1'\:getline(v\:lnum)=~'\\*\\*/'&&getline(v\:lnum)!~'/\\*\\*'?'s1'\:'='

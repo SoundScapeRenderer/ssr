@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -28,7 +28,7 @@
 
 // First the policies ...
 #include "apf/pointer_policy.h"
-#include "apf/posix_thread_policy.h"
+#include "apf/default_thread_policy.h"
 // ... then the SimpleProcessor.
 #include "simpleprocessor.h"
 
@@ -48,7 +48,10 @@ int main(int argc, char *argv[])
   std::string outfilename = argv[2];
 
   apf::parameter_map e;
-  e.set("threads", (argc >= 5) ? argv[4] : "1");
+  if (argc >= 5)
+  {
+    e.set("threads", argv[4]);
+  }
 
   SndfileHandle in(infilename, SFM_READ);
   e.set("in_channels", in.channels());

@@ -1,5 +1,17 @@
 User-visible changes in the Audio Processing Framework. Recent changes on top.
 
+0.2.1 (16 July 2014)
+
+ - new: default_number_of_threads() in thread policies
+
+ - new: default_thread_policy.h for selecting thread policy based on OS
+
+ - new: some helper functions for implementing MEX files
+
+ - extend delay_is_valid() to provide "corrected" delay value
+
+ - several bug-fixes, more unit tests, improved examples
+
 0.2.0 (03 July 2013)
 
  - new: Convolver and BlockDelayLine

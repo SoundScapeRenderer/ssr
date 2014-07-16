@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -50,7 +50,7 @@
 
 // The single entry-point for Matlab is the function mexFunction(), see below!
 
-using sample_type = SimpleProcessor::sample_type;
+using typename SimpleProcessor::sample_type;
 
 // global variables holding the state
 std::unique_ptr<SimpleProcessor> engine;

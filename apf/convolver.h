@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2013 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
  * Copyright © 2006-2012 Quality & Usability Lab,                             *
  *                       Telekom Innovation Laboratories, TU Berlin           *
  *                                                                            *
@@ -28,6 +28,7 @@
 #define APF_CONVOLVER_H
 
 #include <algorithm>  // for std::transform()
+#include <functional>  // for std::bind()
 #include <cassert>
 
 #ifdef __SSE__
@@ -215,7 +216,8 @@ TransformBase::prepare_partition(In first, In last, fft_node& partition) const
 
   auto chunk = std::min(_block_size, size_t(std::distance(first, last)));
 
-  if (chunk == 0)
+  // This also works for the case chunk==0:
+  if (math::has_only_zeros(first, first + chunk))
   {
     partition.zero = true;
     // No FFT has to be done (FFT of zero is also zero)
@@ -546,7 +548,7 @@ OutputBase::_multiply_partition_simd(const float* signal, const float* filter)
 void
 OutputBase::_multiply_spectra()
 {
-  // Clear IFFT buffer
+  // Clear IFFT buffer (must be actually filled with zeros!)
   std::fill(_output_buffer.begin(), _output_buffer.end(), 0.0f);
   _output_buffer.zero = true;
 
@@ -554,19 +556,23 @@ OutputBase::_multiply_spectra()
 
   auto input = _input.spectra.begin();
 
-  for (const auto filter: _filter_ptrs)
+  for (const auto* filter: _filter_ptrs)
   {
     assert(filter != nullptr);
 
-    if (input->zero || filter->zero) continue;
-
+    if (input->zero || filter->zero)
+    {
+      // do nothing. There is no contribution if either is zero.
+    }
+    else
+    {
 #ifdef __SSE__
-    _multiply_partition_simd(input->data(), filter->data());
+      _multiply_partition_simd(input->data(), filter->data());
 #else
-    _multiply_partition_cpp(input->data(), filter->data());
+      _multiply_partition_cpp(input->data(), filter->data());
 #endif
-
-    _output_buffer.zero = false;
+      _output_buffer.zero = false;
+    }
     ++input;
   }
 }
