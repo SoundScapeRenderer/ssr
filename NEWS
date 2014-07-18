@@ -1,5 +1,21 @@
 User-visible changes in the SoundScape Renderer. Recent changes on top.
 
+0.4.2 (24 July 2014)
+
+ - the default number of threads is now obtained automatically (but can still be
+   overwritten)
+
+ - configure options to en-/disable certain renderers
+
+ - certain renderers are now available as Puredata externals (via flext), still
+   experimental (a.k.a. buggy)
+
+ - minor GUI changes (no more "pie slices" on sources, larger fonts)
+
+ - man pages (generated with help2man)
+
+ - several bugfixes, improvements to the MEX files
+
 0.4.1 (28 January 2014)
 
  - all renderers (except BRS and generic) are now available as MEX files
