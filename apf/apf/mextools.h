@@ -193,16 +193,25 @@ namespace internal
 template<bool optional, typename T>
 bool next_arg_helper(int& n, const mxArray**& p, T& data)
 {
-  return (n-- < 1) ? optional : convert(p++[0], data);
+  if (n < 1) return optional;
+  bool result = convert(p[0], data);
+  if (result)
+  {
+    --n; ++p;
+  }
+  return result;
 }
 
 }  // namespace internal
 
 /// Get next argument, converted to @p T.
-/// @param n Number of arguments, typically @c nrhs
-/// @param p Pointer to arguments, typically @c prhs
+/// @param[inout] n Number of arguments, typically @c nrhs
+/// @param[inout] p Pointer to arguments, typically @c prhs
+/// @param[out] data If conversion is successful, the result is stored here
 /// @return @b true if argument was available and if conversion was successful
-/// @post @p n is decremented, @p p is incremented
+/// @post If conversion was successful, @p n is decremented and @p p is
+///   incremented.
+///   If not, @p n and @p p are unchanged, @p data may be corrupted.
 template<typename T>
 bool next_arg(int& n, const mxArray**& p, T& data)
 {
@@ -210,7 +219,14 @@ bool next_arg(int& n, const mxArray**& p, T& data)
 }
 
 /// Get next optional argument, converted to @p T.
+/// @param[inout] data Default value. If there is an argument left and if the
+///   conversion is successful, the result is stored here.
 /// @return @b true if no argument available or if conversion was successful
+/// @post If an argument was available and its conversion was successful,
+///   the result is stored in @p data, @p n is decremented and @p p is
+///   incremented. If the conversion failed, @p n and @p p are unchanged,
+///   @p data may be corrupted.
+///   If there was no argument available, @p n, @p p and @p data are unchanged.
 /// @see next_arg()
 template<typename T>
 bool next_optarg(int& n, const mxArray**& p, T& data)
