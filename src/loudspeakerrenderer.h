@@ -67,7 +67,7 @@ class LoudspeakerRenderer : public RendererBase<Derived>
 
     void load_reproduction_setup();
 
-    void get_loudspeakers(std::vector<Loudspeaker>& l);
+    void get_loudspeakers(std::vector<Loudspeaker>& l) const;
 
   private:
     void _load_loudspeaker(const Node& node);
@@ -88,6 +88,7 @@ class LoudspeakerRenderer : public RendererBase<Derived>
 template<typename Derived>
 void
 LoudspeakerRenderer<Derived>::get_loudspeakers(std::vector<Loudspeaker>& l)
+  const
 {
   using out_list_t
     = typename _base::template rtlist_proxy<typename Derived::Output>;
