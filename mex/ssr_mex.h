@@ -152,8 +152,19 @@ class SsrMex
     {
       APF_MEX_ERROR_NO_OUTPUT_SUPPORTED("'init'");
 
-      apf::mex::next_arg(nrhs, prhs, _in_channels
-          , "First argument to 'init' must be the number of sources!");
+      // list for converting cell array
+      std::vector<std::string> filename_list;
+
+      // try to convert first argument to an integer
+      if (!apf::mex::next_arg(nrhs, prhs, _in_channels))
+      {
+        // if this fails, try to convert to cell array
+        apf::mex::next_arg(nrhs, prhs, filename_list
+          , "First argument to 'init' must be the number of sources "
+          "or a cell array of filenames!");
+        // number of sources
+        _in_channels = filename_list.size();
+      }
 
       std::map<std::string, std::string> options;
 
@@ -191,8 +202,14 @@ class SsrMex
 
       for (mwSize i = 0; i < _in_channels; ++i)
       {
+        apf::parameter_map source_params;
+
+        if (!filename_list.empty())
+        {
+          source_params.set("properties_file", filename_list[i]);
+        }
         // TODO: specify ID?
-        _engine->add_source();
+        _engine->add_source(source_params);
       }
 
       _inputs.resize(_in_channels);
