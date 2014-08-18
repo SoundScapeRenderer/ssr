@@ -42,6 +42,7 @@
 #include "apf/stringtools.h"
 #include "apf/pointer_policy.h"
 #include "apf/default_thread_policy.h"
+#include "loudspeakerrenderer.h"
 
 #include "../src/source.h"
 
@@ -86,6 +87,11 @@ class SsrMex
           APF_MEX_ERROR_NO_FURTHER_INPUTS("'out_channels'");
           APF_MEX_ERROR_ONE_OPTIONAL_OUTPUT("'out_channels'");
           plhs[0] = mxCreateDoubleScalar(_out_channels);
+        }
+        else if (command == "loudspeaker_position"
+            || command == "loudspeaker_orientation")
+        {
+          _loudspeaker_command(command, nlhs, plhs, nrhs, prhs);
         }
         // Only "clear" shall be documented, the others are hidden features
         else if (command == "free" || command == "delete" || command == "clear")
@@ -299,6 +305,61 @@ class SsrMex
 
       --nlhs; ++plhs;
       --nrhs; ++prhs;
+    }
+
+
+    void _loudspeaker_command(const std::string& command
+        ,int& nlhs, mxArray**& plhs, int& nrhs, const mxArray**& prhs)
+    {
+      _loudspeaker_helper(command, nlhs, plhs, nrhs, prhs
+          // Dummy argument to distinguish loudspeaker-based renderers:
+          , static_cast<Renderer*>(nullptr));
+    }
+
+
+    void _loudspeaker_helper(const std::string& command
+        , int&, mxArray**&, int&, const mxArray**&
+        , ssr::RendererBase<Renderer>*)
+    {
+        std::string msg(std::string(_engine->name())
+            + " does not support " + command);
+        mexErrMsgTxt(msg.c_str());
+    }
+
+    void _loudspeaker_helper(const std::string& command
+        , int& nlhs, mxArray**& plhs, int& nrhs, const mxArray**& prhs
+        , ssr::LoudspeakerRenderer<Renderer>*)
+    {
+      _error_init();
+      APF_MEX_ERROR_NO_FURTHER_INPUTS(command);
+      APF_MEX_ERROR_ONE_OPTIONAL_OUTPUT(command);
+
+      std::vector<Loudspeaker> ls_list;
+      _engine->get_loudspeakers(ls_list);
+
+      if (command == "loudspeaker_position")
+      {
+        plhs[0] = mxCreateDoubleMatrix(2, ls_list.size(), mxREAL);
+        double* output = mxGetPr(plhs[0]);
+
+        for (const auto& ls: ls_list)
+        {
+          output[0] = ls.position.x;
+          output[1] = ls.position.y;
+          output += 2;
+        }
+      }
+      else
+      {
+        plhs[0] = mxCreateDoubleMatrix(1, ls_list.size(), mxREAL);
+        double* output = mxGetPr(plhs[0]);
+
+        for (const auto& ls: ls_list)
+        {
+          output[0] = ls.orientation.azimuth;
+          output++;
+        }
+      }
     }
 
     void _source_position(int& nrhs, const mxArray**& prhs)
