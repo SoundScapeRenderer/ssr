@@ -31,6 +31,7 @@
 #include <string>
 #include <map>
 #include <cmath>  // for std::floor()
+#include <vector>
 
 #include "apf/stringtools.h"  // for A2S()
 
@@ -183,6 +184,29 @@ bool convert(const mxArray* in, std::map<std::string, std::string>& out)
       mexErrMsgTxt("Value must be a real scalar number or a string!");
     }
     out[fieldname] = stringvalue;
+  }
+  return true;
+}
+
+/// Convert @c mxArray to a @c std::vector of @c std::string%s.
+/// This expects a cell array of strings!
+/// @warning In case of a conversion error, the vector may be partly filled!
+bool convert(const mxArray* in, std::vector<std::string>& out)
+{
+  if (!mxIsCell(in)) return false;
+
+  for (size_t i = 0; i < mxGetNumberOfElements(in); ++i)
+  {
+    mxArray* cell = mxGetCell(in, i);
+
+    if (!mxIsChar(cell))
+    {
+      mexErrMsgTxt("Element of cell array must be a string!");
+    }
+
+    char* temp = mxArrayToString(cell);
+    out.push_back(temp);
+    mxFree(temp);
   }
   return true;
 }
