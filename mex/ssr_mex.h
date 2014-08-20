@@ -461,21 +461,27 @@ class SsrMex
 
     void _source_model(int& nrhs, const mxArray**& prhs)
     {
-      if (nrhs < _in_channels)
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_model'");
+      APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
+          , "as number of sources!");
+
+      if (mxGetM(prhs[0]) != 1)
       {
-        mexErrMsgTxt("Specify as many model strings as there are sources!");
+        mexErrMsgTxt("Argument after 'source_model' must be a row vector!");
       }
+
+      // list for converting cell array
+      std::vector<std::string> model_list;
+
+      apf::mex::next_arg(nrhs, prhs, model_list
+          , "Argument after 'source_model' must be a cell array of strings");
 
       for (int i = 0; i < _in_channels; ++i)
       {
-        std::string model_str;
-        apf::mex::next_arg(nrhs, prhs, model_str, "All further arguments to "
-            "'source_model' must be a valid source model strings!");
-
         Source::model_t model = Source::unknown;
-        if (!apf::str::S2A(model_str, model))
+        if (!apf::str::S2A(model_list[i], model))
         {
-          mexPrintf("Model string '%s':", model_str.c_str());
+          mexPrintf("Model string '%s':", model_list[i].c_str());
           mexErrMsgTxt("Couldn't convert source model string!");
         }
         _engine->get_source(i + 1)->model = model;

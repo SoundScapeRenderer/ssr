@@ -37,7 +37,7 @@ ssr('init', sources, params)
 ssr('source_position', positions)
 ssr('source_orientation', orientations)
 ssr('source_mute', mutes)
-ssr('source_model', models{:})
+ssr('source_model', models)
 ssr('reference_position', reference_position)
 ssr('reference_orientation', reference_orientation)
 
