@@ -6,6 +6,7 @@ outfilename = 'output.wav';
 positions = [0; 2];  % one column for each input channel
 orientations = -90;  % row vector of angles in degree
 mutes = false;  % row vector of logicals
+gains = 0.6;  % row vector of gain factors
 models = { 'plane' };  % cell array of model strings
 
 reference_position = [-1; 0]; % one column vector
@@ -38,6 +39,7 @@ ssr('source_position', positions)
 ssr('source_orientation', orientations)
 ssr('source_mute', mutes)
 ssr('source_model', models)
+ssr('source_gain', gains)
 ssr('reference_position', reference_position)
 ssr('reference_orientation', reference_orientation)
 

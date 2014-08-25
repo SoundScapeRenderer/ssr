@@ -238,6 +238,10 @@ class SsrMex
       {
         _source_mute(nrhs, prhs);
       }
+      else if (command == "source_gain")
+      {
+        _source_gain(nrhs, prhs);
+      }
       else if (command == "source_model")
       {
         _source_model(nrhs, prhs);
@@ -414,7 +418,7 @@ class SsrMex
       APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_orientation'");
       APF_MEX_ERROR_REAL_INPUT("Source orientations");
       APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
-          , "as number of sources!");
+          , "as number of sources");
 
       if (mxGetM(prhs[0]) != 1)
       {
@@ -433,11 +437,36 @@ class SsrMex
       }
     }
 
+    void _source_gain(int& nrhs, const mxArray**& prhs)
+    {
+      APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_gain'");
+      APF_MEX_ERROR_REAL_INPUT("Source gains");
+      APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
+          , "as number of sources");
+
+      if (mxGetM(prhs[0]) != 1)
+      {
+        mexErrMsgTxt("Argument after 'source_gain' must be a row vector of "
+          "gain factors!");
+      }
+
+      double* gains = mxGetPr(prhs[0]);
+
+      --nrhs; ++prhs;
+
+      for (mwSize i = 0; i < _in_channels; ++i)
+      {
+        auto* source = _engine->get_source(i + 1);
+
+        source->gain = gains[i];
+      }
+    }
+
     void _source_mute(int& nrhs, const mxArray**& prhs)
     {
       APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_mute'");
       APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
-          , "as number of sources!");
+          , "as number of sources");
 
       if (!mxIsLogical(prhs[0]))
       {
@@ -463,7 +492,7 @@ class SsrMex
     {
       APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_model'");
       APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
-          , "as number of sources!");
+          , "as number of sources");
 
       if (mxGetM(prhs[0]) != 1)
       {
@@ -474,7 +503,7 @@ class SsrMex
       std::vector<std::string> model_list;
 
       apf::mex::next_arg(nrhs, prhs, model_list
-          , "Argument after 'source_model' must be a cell array of strings");
+          , "Argument after 'source_model' must be a cell array of strings!");
 
       for (int i = 0; i < _in_channels; ++i)
       {
@@ -521,7 +550,7 @@ class SsrMex
 
       if (mxGetN(prhs[0]) != 1 || mxGetM(prhs[0]) != 1)
       {
-        mexErrMsgTxt("Last argument must be a scalar");
+        mexErrMsgTxt("Last argument must be a scalar!");
       }
 
       double* angle = mxGetPr(prhs[0]);
