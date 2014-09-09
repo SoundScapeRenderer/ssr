@@ -1,0 +1,207 @@
+-- Pure Data (Pd) external for remote-controlling the SoundScape Renderer (SSR)
+-- Matthias Geier, Sept. 2014
+
+-- XML parser from http://github.com/Phrogz/SLAXML
+local SLAXML = require 'slaxml'
+
+local SsrClient = pd.Class:new():register("ssrclient")
+
+function SsrClient:output_command()
+    self:outlet(1, self.command[1], {select(2, unpack(self.command))})
+    self.command = {}
+end
+
+function SsrClient:backup_command()
+    self.command_backup = {}
+    for k, v in ipairs(self.command) do
+        self.command_backup[k] = v
+    end
+end
+
+function SsrClient:restore_command()
+    self.command = {}
+    for k, v in ipairs(self.command_backup) do
+        self.command[k] = v
+    end
+end
+
+function SsrClient:initialize(name, atoms)
+    self.inlets = 2
+    self.outlets = 2
+    self.buffer = {}
+    self.command = {}
+
+    self.parser = SLAXML:parser{
+        startElement = function(name, nsURI, nsPrefix)
+            if name == "update" then
+                -- not checked
+            elseif name == "source" then
+                self.command = {"src"}
+            elseif name == "reference" then
+                self.command = {"ref"}
+                self:backup_command()
+            elseif name == "transport" then
+                self.command = {"transport"}
+            elseif name == "volume" then
+                table.insert(self.command, "vol")
+            elseif name == "file" then
+                self:restore_command()
+                table.insert(self.command, "file")
+            elseif name == "port" then
+                self:restore_command()
+                table.insert(self.command, "port")
+            elseif name == "position" then
+                self:restore_command()
+                table.insert(self.command, "pos")
+            elseif name == "orientation" then
+                self:restore_command()
+                table.insert(self.command, "azi")
+            elseif name == "state" or name == "scene" then
+                -- these strings don't become part of the message
+                self:backup_command()
+            else
+                pd.post("command")
+                pd.post(name)
+                self:error(name .. " is ignored")
+            end
+        end,
+        attribute = function(name, value, nsURI, nsPrefix)
+            if name == "id" then
+                table.insert(self.command, tonumber(value))
+                self:backup_command()
+            elseif name == "x" then
+                table.insert(self.command, tonumber(value))
+            elseif name == "y" then
+                table.insert(self.command, tonumber(value))
+                self:output_command()
+            elseif name == "azimuth" then
+                table.insert(self.command, tonumber(value))
+                self:output_command()
+            elseif name == "name" or name == "model" or name == "transport" then
+                self:restore_command()
+                table.insert(self.command, name)
+                table.insert(self.command, value)
+                self:output_command()
+            elseif name == "mute" or name == "fixed" then
+                self:restore_command()
+                table.insert(self.command, name)
+                if value == "true" then
+                    table.insert(self.command, 1)
+                else
+                    table.insert(self.command, 0)
+                end
+                self:output_command()
+            elseif name == "length" or name == "file_length" or
+                   name == "level" then
+                self:restore_command()
+                table.insert(self.command, name)
+                table.insert(self.command, tonumber(value))
+                self:output_command()
+            elseif name == "volume" then
+                self:restore_command()
+                table.insert(self.command, "vol")
+                table.insert(self.command, tonumber(value))
+                self:output_command()
+            elseif name == "channel" then
+                self:restore_command()
+                table.insert(self.command, "file_channel")
+                table.insert(self.command, tonumber(value))
+                self:output_command()
+                self:restore_command()
+                table.insert(self.command, "file")
+            else
+                pd.post("attribute")
+                pd.post(name)
+                pd.post(value)
+                self.error("attribute: " .. name .. " value: " .. value)
+            end
+        end,
+        closeElement = function(name, nsURI)
+            -- nothing
+        end,
+        text = function(text)
+            if self.command[1] == "vol" then
+                table.insert(self.command, tonumber(text))
+            else
+                table.insert(self.command, text)
+            end
+            self:output_command()
+        end,
+        comment = function(content)
+            self:error("No comment allowed in XML string")
+        end,
+        pi = function(target, content)
+            self:error("No processing instructions allowed in XML string")
+        end,
+    }
+    return true
+end
+
+function SsrClient:in_1(sel, atoms)
+    local str = '<request>'
+    if sel == "src" then
+        str = str .. '<source id="' .. atoms[1] .. '"'
+        local subcommand = atoms[2]
+        if subcommand == "pos" then
+            str = str .. '><position x="' .. atoms[3] ..
+                                  '" y="' .. atoms[4] .. '"/></source>'
+        elseif subcommand == "azi" then
+            str = str .. '><orientation azimuth="' .. atoms[3] .. '"/></source>'
+        elseif subcommand == "model" then
+            str = str .. ' model="' .. atoms[3] .. '"/>'
+        elseif subcommand == "mute" then
+            local mute_str
+            if atoms[3] == 0 then
+                mute_str = "false"
+            else
+                mute_str = "true"
+            end
+            str = str .. ' mute="' .. mute_str .. '"/>'
+        elseif subcommand == "gain" then
+            self:error('"gain" not supported, use "vol"')
+            return
+        else
+            self:error(subcommand .. " not supported")
+            return
+        end
+    elseif sel == "ref" then
+        str = str .. '<reference'
+        local subcommand = atoms[1]
+        if subcommand == "pos" then
+            str = str .. '><position x="' .. atoms[2] ..
+                                  '" y="' .. atoms[3] .. '"/></reference>'
+        elseif subcommand == "azi" then
+            str = str .. '><orientation azimuth="' .. atoms[2] ..
+                  '"/></reference>'
+        else
+            self:error(subcommand .. " not supported")
+            return
+        end
+    else
+        self:error(sel .. " not (yet?) supported")
+        return
+    end
+    str = str .. '</request>'
+    for i = 1, #str do
+        -- yield ASCII character numbers
+        self:outlet(2, "float", {str:byte(i)})
+    end
+    -- and terminate with a binary zero
+    self:outlet(2, "float", {0})
+end
+
+function SsrClient:in_2_float(f)
+    if f == 0 then
+        local str = string.char(unpack(self.buffer))
+        self.parser:parse(str, {stripWhitespace=true})
+        self.buffer = {}
+    else
+        table.insert(self.buffer, f)
+    end
+end
+
+function SsrClient:in_2_list(atoms)
+    for _, f in ipairs(atoms) do self:in_2_float(f) end
+end
+
+-- vim:filetype=lua:shiftwidth=4:softtabstop=-1:expandtab:textwidth=80
