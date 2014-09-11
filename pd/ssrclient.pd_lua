@@ -4,6 +4,7 @@
 local SsrClient = pd.Class:new():register("ssrclient")
 
 function SsrClient:output_command()
+    -- first part of command becomes the selector, the rest atoms
     self:outlet(1, self.command[1], {select(2, unpack(self.command))})
     self.command = {}
 end
@@ -22,6 +23,7 @@ function SsrClient:restore_command()
     end
 end
 
+-- init stuff and set up callbacks for XML parser
 function SsrClient:initialize(name, atoms)
     self.inlets = 2
     self.outlets = 2
@@ -137,6 +139,7 @@ function SsrClient:initialize(name, atoms)
     return true
 end
 
+-- create XML string and send it out as list of ASCII numbers
 function SsrClient:in_1(sel, atoms)
     local str = '<request>'
     if sel == "src" then
@@ -185,8 +188,10 @@ function SsrClient:in_1(sel, atoms)
     self:outlet(2, "list", {str:byte(1, #str)})  -- convert to ASCII numbers
 end
 
+-- collect numbers in self.buffer. If a zero comes in, parse the whole string.
 function SsrClient:in_2_float(f)
     if f == 0 then
+        -- convert ASCII numbers to string
         local str = string.char(unpack(self.buffer))
         self.parser:parse(str, {stripWhitespace=true})
         self.buffer = {}
@@ -195,6 +200,7 @@ function SsrClient:in_2_float(f)
     end
 end
 
+-- convert list to individual floats
 function SsrClient:in_2_list(atoms)
     for _, f in ipairs(atoms) do self:in_2_float(f) end
 end
