@@ -1,4 +1,4 @@
-#N canvas 437 226 572 592 10;
+#N canvas 438 226 572 592 10;
 #X obj 98 174 ssrclient;
 #X obj 183 174 iemnet/tcpclient;
 #X msg 183 71 connect localhost 4711;
@@ -34,6 +34,7 @@
 #X text 15 13 Help patch for ssrclient;
 #X text 14 30 Remote-control the SoundScape Renderer via network interface
 ;
+#X text 288 173 alternatively \, [mrpeach/tcpclient] can be used;
 #X connect 0 0 25 0;
 #X connect 0 1 1 0;
 #X connect 1 0 0 1;

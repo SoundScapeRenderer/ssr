@@ -181,13 +181,8 @@ function SsrClient:in_1(sel, atoms)
         self:error(sel .. " not (yet?) supported")
         return
     end
-    str = str .. '</request>'
-    for i = 1, #str do
-        -- yield ASCII character numbers
-        self:outlet(2, "float", {str:byte(i)})
-    end
-    -- and terminate with a binary zero
-    self:outlet(2, "float", {0})
+    str = str .. '</request>\0'  -- terminated with a binary zero
+    self:outlet(2, "list", {str:byte(1, #str)})  -- convert to ASCII numbers
 end
 
 function SsrClient:in_2_float(f)
