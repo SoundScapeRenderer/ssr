@@ -60,8 +60,6 @@ function SsrClient:initialize(name, atoms)
                 -- these strings don't become part of the message
                 self:backup_command()
             else
-                pd.post("command")
-                pd.post(name)
                 self:error(name .. " is ignored")
             end
         end,
@@ -112,10 +110,7 @@ function SsrClient:initialize(name, atoms)
                 self:restore_command()
                 table.insert(self.command, "file")
             else
-                pd.post("attribute")
-                pd.post(name)
-                pd.post(value)
-                self.error("attribute: " .. name .. " value: " .. value)
+                self.error("ignored attribute: " .. name .. " value: " .. value)
             end
         end,
         closeElement = function(name, nsURI)
