@@ -85,10 +85,12 @@ function SsrClient:initialize(name, atoms)
             elseif name == "mute" or name == "fixed" then
                 self:restore_command()
                 table.insert(self.command, name)
-                if value == "true" then
+                if value == "true" or value == "1" then
                     table.insert(self.command, 1)
-                else
+                elseif value == "false" or value == "0" then
                     table.insert(self.command, 0)
+                else
+                    self:error("invalid value for mute: " .. value)
                 end
                 self:output_command()
             elseif name == "length" or name == "file_length" or
