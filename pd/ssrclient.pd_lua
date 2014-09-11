@@ -40,6 +40,9 @@ function SsrClient:initialize(name, atoms)
             elseif name == "reference" then
                 self.command = {"ref"}
                 self:backup_command()
+            elseif name == "loudspeaker" then
+                self.command = {"ls"}
+                self:backup_command()
             elseif name == "transport" then
                 self.command = {"transport"}
             elseif name == "volume" then
@@ -109,8 +112,15 @@ function SsrClient:initialize(name, atoms)
                 self:output_command()
                 self:restore_command()
                 table.insert(self.command, "file")
+            elseif name == "output_level" then
+                self:restore_command()
+                table.insert(self.command, "weights")
+                for weight in value:gmatch("%S+") do
+                    table.insert(self.command, tonumber(weight))
+                end
+                self:output_command()
             else
-                self.error("ignored attribute: " .. name .. " value: " .. value)
+                self:error("ignored attribute: " .. name .. " value: " .. value)
             end
         end,
         closeElement = function(name, nsURI)
