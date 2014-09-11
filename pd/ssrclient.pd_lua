@@ -1,9 +1,6 @@
 -- Pure Data (Pd) external for remote-controlling the SoundScape Renderer (SSR)
 -- Matthias Geier, Sept. 2014
 
--- XML parser from http://github.com/Phrogz/SLAXML
-local SLAXML = require 'slaxml'
-
 local SsrClient = pd.Class:new():register("ssrclient")
 
 function SsrClient:output_command()
@@ -31,7 +28,8 @@ function SsrClient:initialize(name, atoms)
     self.buffer = {}
     self.command = {}
 
-    self.parser = SLAXML:parser{
+    -- XML parser from http://github.com/Phrogz/SLAXML
+    self.parser = require("slaxml"):parser{
         startElement = function(name, nsURI, nsPrefix)
             if name == "update" then
                 -- not checked
