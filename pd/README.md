@@ -4,12 +4,14 @@ Controlling the SSR with Pure Data
 Pure Data (Pd) is a visual programming environment for audio and more.
 If you don't know it, check it out: http://puredata.info/.
 
-In this directory, there is a Pd external named `ssrclient` (written in Lua)
+In this directory, there is a Pd external named `ssrclient` (written in [Lua][])
 that can be used to remote-control a running SSR instance from within Pd using
 the network interface.
 
 **Note**: The individual renderers of the SSR can also be directly used within
-Pd as externals.  See the directory `../flext/` for details.
+Pd as externals.  See the directory [`../flext/`](../flext/) for details.
+
+[Lua]: http://www.lua.org/
 
 Requirements
 ------------
