@@ -3,6 +3,9 @@
 
 local SsrClient = pd.Class:new():register("ssrclient")
 
+-- XML parser from http://github.com/Phrogz/SLAXML
+local SLAXML = require("slaxml")
+
 function SsrClient:output_command()
     -- first part of command becomes the selector, the rest atoms
     self:outlet(1, self.command[1], {select(2, unpack(self.command))})
@@ -30,8 +33,7 @@ function SsrClient:initialize(name, atoms)
     self.buffer = {}
     self.command = {}
 
-    -- XML parser from http://github.com/Phrogz/SLAXML
-    self.parser = require("slaxml"):parser{
+    self.parser = SLAXML:parser{
         startElement = function(name, nsURI, nsPrefix)
             if name == "update" then
                 -- not checked
