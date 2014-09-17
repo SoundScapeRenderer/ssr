@@ -67,6 +67,7 @@ class NetworkSubscriber : public Subscriber
     virtual bool set_source_orientation(id_t id, const Orientation& orientation);
     virtual bool set_source_gain(id_t id, const float& gain);
     virtual bool set_source_mute(id_t id, const bool& mute);
+    virtual bool set_source_selected(id_t id, const bool& mute);
     virtual bool set_source_name(id_t id, const std::string& name);
     virtual bool set_source_properties_file(id_t id, const std::string& name);
     virtual bool set_source_model(id_t id, const Source::model_t& model);

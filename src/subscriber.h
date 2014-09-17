@@ -94,6 +94,8 @@ struct Subscriber
   /// _publish() function in the Controller class.
   virtual bool set_source_mute(id_t id, const bool& mute)  = 0; 
 
+  virtual bool set_source_selected(id_t id, const bool& mute)  = 0; 
+
   /// Set source name.
   /// @param id ID of the source
   /// @param name new name

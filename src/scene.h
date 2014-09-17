@@ -69,6 +69,7 @@ class Scene : public Subscriber
     virtual bool set_source_signal_level(id_t id, const float& level);
 
     virtual bool set_source_mute(id_t id, const bool& mute);
+    virtual bool set_source_selected(id_t id, const bool& mute);
     virtual bool set_source_name(id_t id, const std::string& name);
     virtual bool set_source_properties_file(id_t id, const std::string& name);
     virtual bool set_source_model(id_t id, const Source::model_t& model);

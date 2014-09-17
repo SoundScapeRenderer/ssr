@@ -100,6 +100,11 @@ class RenderSubscriber : public Subscriber
       return true;
     }
 
+    virtual bool set_source_selected(id_t, const bool&)
+    {
+      return true;
+    }
+
     virtual bool set_source_name(id_t id, const std::string& name)
     {
       (void) id;

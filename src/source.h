@@ -64,6 +64,7 @@ struct Source : DirectionalPoint
     file_length(0),
     model(Source::point),
     mute(0),
+    selected(0),
     gain(1.0),
     signal_level(0.0),
     output_levels(outputs),
@@ -82,6 +83,7 @@ struct Source : DirectionalPoint
     file_length(0),
     model(Source::point),
     mute(0),
+    selected(0),
     gain(1.0),
     signal_level(0.0),
     has_mirror_sources(false),
@@ -97,6 +99,7 @@ struct Source : DirectionalPoint
   long int file_length;           ///< length of audio file, 0 if no file exists
   model_t model;                  ///< source model (=type)
   bool mute;                      ///< mute/unmute
+  bool selected;
   float gain;                     ///< source gain (volume)
   float signal_level;             ///< instantaneous level of audio stream (linear scale, between 0 and 1)
   std::vector<float> output_levels;

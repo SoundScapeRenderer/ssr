@@ -1033,6 +1033,8 @@ void ssr::QOpenGLPlotter::_select_source(int source, bool add_to_selection)
 
     // make its id directly available
     _id_of_last_clicked_source = i->id;
+
+    _controller.set_source_selected(i->id, true);
   }
   else if (!_alt_pressed)
   {
@@ -1064,6 +1066,8 @@ void ssr::QOpenGLPlotter::_select_all_sources()
     // make valid id available
     _id_of_last_clicked_source = i->id;
 
+    _controller.set_source_selected(i->id, true);
+
     n++;
   }
 }
@@ -1074,6 +1078,8 @@ void ssr::QOpenGLPlotter::_deselect_source(int source)
   // and that id_of_last_clicked_source has a valid value
   if (_selected_sources_map.size() > 1)
   {
+    _controller.set_source_selected(_selected_sources_map[source], false);
+
     _selected_sources_map.erase(source);
     _id_of_last_clicked_source = _selected_sources_map.begin()->second;
   }
@@ -1081,6 +1087,10 @@ void ssr::QOpenGLPlotter::_deselect_source(int source)
 
 void ssr::QOpenGLPlotter::_deselect_all_sources()
 {
+  for (const auto& src: _selected_sources_map)
+  {
+    _controller.set_source_selected(src.second, false);
+  }
   _selected_sources_map.clear();
   _id_of_last_clicked_source = 0;
 }

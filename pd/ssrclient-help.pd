@@ -1,4 +1,4 @@
-#N canvas 1034 376 572 592 10;
+#N canvas 1153 446 572 592 10;
 #X obj 98 174 ssrclient;
 #X obj 183 174 iemnet/tcpclient;
 #X msg 183 71 connect localhost 4711;
@@ -34,7 +34,8 @@
 #X text 14 30 Remote-control the SoundScape Renderer via network interface
 ;
 #X text 288 173 alternatively \, [mrpeach/tcpclient] can be used;
-#X obj 98 375 route pos azi model vol mute level weights;
+#X obj 98 375 route pos azi model vol mute level weights selected;
+#X floatatom 441 496 5 0 0 0 selected - -;
 #X connect 0 0 24 0;
 #X connect 0 1 1 0;
 #X connect 1 0 0 1;
@@ -60,4 +61,5 @@
 #X connect 33 3 15 0;
 #X connect 33 4 14 0;
 #X connect 33 5 23 0;
-#X connect 33 7 11 0;
+#X connect 33 7 34 0;
+#X connect 33 8 11 0;

@@ -153,6 +153,7 @@ class Controller : public Publisher
     virtual void set_source_signal_level(const id_t id
         , const float level);
     virtual void set_source_mute(id_t id, bool mute);
+    virtual void set_source_selected(id_t id, bool selected);
     virtual void set_source_name(id_t id, const std::string& name);
     virtual void set_source_properties_file(id_t id, const std::string& name);
     virtual void set_source_model(id_t id, Source::model_t model);
@@ -1474,6 +1475,13 @@ Controller<Renderer>::set_source_mute(const id_t id, const bool mute)
 
 template<typename Renderer>
 void
+Controller<Renderer>::set_source_selected(const id_t id, const bool selected)
+{
+  _publish(&Subscriber::set_source_selected, id, selected);
+}
+
+template<typename Renderer>
+void
 Controller<Renderer>::set_source_name(const id_t id, const std::string& name)
 {
   _publish(&Subscriber::set_source_name, id, name);
@@ -1803,6 +1811,8 @@ Controller<Renderer>::_add_sources(Node& node
     // save volume in dB!
     source_node.new_attribute("volume", apf::str::A2S(apf::math::linear2dB(source.gain)));
     // TODO: information about mirror sources
+
+    source_node.new_attribute("selected", apf::str::A2S(source.selected));
 
     if (source.properties_file != "")
     {

@@ -121,6 +121,11 @@ bool ssr::Scene::set_source_mute(id_t id, const bool& mute)
   return _set_source_member(id, &Source::mute, mute);
 }
 
+bool ssr::Scene::set_source_selected(id_t id, const bool& selected)
+{
+  return _set_source_member(id, &Source::selected, selected);
+}
+
 bool ssr::Scene::set_source_name(id_t id, const std::string& name)
 {
   return _set_source_member(id, &Source::name, name);

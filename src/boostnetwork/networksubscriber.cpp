@@ -145,6 +145,15 @@ ssr::NetworkSubscriber::set_source_mute(id_t id, const bool& mute)
 }
 
 bool
+ssr::NetworkSubscriber::set_source_selected(id_t id, const bool& mute)
+{
+  std::string ms = "<update><source id='" + A2S(id) + "' selected='" + A2S(mute)
+    + "'/></update>";
+  update_all_clients(ms);
+  return true;
+}
+
+bool
 ssr::NetworkSubscriber::set_source_name(id_t id, const std::string& name)
 {
   (void) id;

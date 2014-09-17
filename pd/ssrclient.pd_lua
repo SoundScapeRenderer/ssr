@@ -85,7 +85,7 @@ function SsrClient:initialize(name, atoms)
                 table.insert(self.command, name)
                 table.insert(self.command, value)
                 self:output_command()
-            elseif name == "mute" or name == "fixed" then
+            elseif name == "mute" or name == "fixed" or name == "selected" then
                 self:restore_command()
                 table.insert(self.command, name)
                 if value == "true" or value == "1" then

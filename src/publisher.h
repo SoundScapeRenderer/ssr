@@ -100,6 +100,7 @@ struct Publisher
   virtual void set_source_gain(id_t id, float gain) = 0;
   /// mute/unmute source
   virtual void set_source_mute(id_t id, bool mute) = 0;
+  virtual void set_source_selected(id_t id, bool mute) = 0;
   /// instantaneous level of audio stream
   virtual void set_source_signal_level(const id_t id,
       const float level) = 0;
