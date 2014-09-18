@@ -98,8 +98,8 @@ class BlockParameter
     /// Constructor. Any arguments are forwarded to both old and current value.
     template<typename... Args>
     explicit BlockParameter(Args&&... args)
-      : _current{args...}
-      , _old{std::forward<Args>(args)...}
+      : _current(args...)
+      , _old(std::forward<Args>(args)...)
     {}
 
     /// Assignment operator.
