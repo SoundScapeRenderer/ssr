@@ -281,9 +281,15 @@ class SsrMex
 
       APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'process'");
 
-      APF_MEX_ERROR_SAME_NUMBER_OF_ROWS(_block_size, "as block size");
       APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
           , "as number of sources");
+
+      mwSize signal_length = static_cast<mwSize>(mxGetM(prhs[0]));
+      if (signal_length % _block_size != 0 || signal_length == 0)
+      {
+        mexErrMsgTxt("Number of rows must be a non-zero, integer multiple of "
+            "the block size!");
+      }
 
       APF_MEX_ERROR_REAL_INPUT("Argument to 'process'");
 
@@ -292,38 +298,38 @@ class SsrMex
       {
         mexErrMsgTxt("This function only works with double precision data!");
       }
-      plhs[0] = mxCreateDoubleMatrix(_block_size, _out_channels, mxREAL);
-      sample_type* output = mxGetPr(plhs[0]);
-      sample_type*  input = mxGetPr(prhs[0]);
+      plhs[0] = mxCreateDoubleMatrix(signal_length, _out_channels, mxREAL);
+      sample_type* const output = mxGetPr(plhs[0]);
+      sample_type* const input = mxGetPr(prhs[0]);
 #else
       if (mxGetClassID(prhs[0]) != mxSINGLE_CLASS)
       {
         mexErrMsgTxt("This function only works with single precision data!");
       }
-      plhs[0] = mxCreateNumericMatrix(_block_size, _out_channels
+      plhs[0] = mxCreateNumericMatrix(signal_length, _out_channels
           , mxSINGLE_CLASS, mxREAL);
-      sample_type* output = static_cast<sample_type*>(mxGetData(plhs[0]));
-      sample_type*  input = static_cast<sample_type*>(mxGetData(prhs[0]));
+      sample_type* const output = static_cast<sample_type*>(mxGetData(plhs[0]));
+      sample_type* const input = static_cast<sample_type*>(mxGetData(prhs[0]));
 #endif
 
-      for (int i = 0; i < _in_channels; ++i)
+      for (mwSize offset = 0; offset < signal_length; offset+=_block_size)
       {
-        _inputs[i] = input;
-        input += _block_size;
-      }
+        for (int i = 0; i < _in_channels; ++i)
+        {
+          _inputs[i] = input + offset + i*signal_length;
+        }
 
-      for (int i = 0; i < _out_channels; ++i)
-      {
-        _outputs[i] = output;
-        output += _block_size;
-      }
+        for (int i = 0; i < _out_channels; ++i)
+        {
+          _outputs[i] = output + offset + i*signal_length;
+        }
 
-      _engine->audio_callback(_block_size, _inputs.data(), _outputs.data());
+        _engine->audio_callback(_block_size, _inputs.data(), _outputs.data());
+      }
 
       --nlhs; ++plhs;
       --nrhs; ++prhs;
     }
-
 
     void _loudspeaker_command(const std::string& command
         ,int& nlhs, mxArray**& plhs, int& nrhs, const mxArray**& prhs)
@@ -332,7 +338,6 @@ class SsrMex
           // Dummy argument to distinguish loudspeaker-based renderers:
           , static_cast<Renderer*>(nullptr));
     }
-
 
     void _loudspeaker_helper(const std::string& command
         , int&, mxArray**&, int&, const mxArray**&
