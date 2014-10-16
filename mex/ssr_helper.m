@@ -4,7 +4,6 @@ function out = ssr_helper(in, func)
 % 'func' must be initialized already
 
 block_size = func('block_size');
-out_channels = func('out_channels');
 in_channels = size(in, 2);
 
 % calculate (and discard) one block with empty input
@@ -12,19 +11,11 @@ garbage = func('process', single(zeros(block_size, in_channels)));
 clear garbage
 % now all parameters are up-to-date
 
-signallength = size(in, 1);
+% processing does only work if the signal length is an integer of the block size
+signallength = ceil(size(in, 1)/block_size)*block_size;
 
-blocks = ceil(signallength/block_size);
+in((end+1):signallength,:) = 0;  % append zeros, if necessary
 
-out = zeros(signallength, out_channels);
-
-for idx = 1:blocks-1
-    block_start = (idx-1) * block_size + 1;
-    block_end = block_start + block_size - 1;
-    inputblock = in(block_start:block_end, :);
-    out(block_start:block_end, :) = func('process', inputblock);
-end
-
-% TODO: handle last block!
+out = func('process', in);
 
 end
