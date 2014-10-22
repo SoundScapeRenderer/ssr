@@ -109,7 +109,7 @@ namespace mex
 bool convert(const mxArray* in, std::string& out)
 {
   if (!mxIsChar(in)) return false;
-  if (mxGetM(in) != 1) return false;
+  if (mxGetM(in) != 1 && mxGetN(in) > 0) return false;
 
   char* temp = mxArrayToString(in);
   out = temp;
@@ -198,15 +198,17 @@ bool convert(const mxArray* in, std::vector<std::string>& out)
   for (size_t i = 0; i < mxGetNumberOfElements(in); ++i)
   {
     mxArray* cell = mxGetCell(in, i);
+    std::string stringvalue;
 
-    if (!mxIsChar(cell))
+    if (convert(cell, stringvalue))
+    {
+      out.push_back(stringvalue);
+    }
+    else
     {
       mexErrMsgTxt("Element of cell array must be a string!");
     }
 
-    char* temp = mxArrayToString(cell);
-    out.push_back(temp);
-    mxFree(temp);
   }
   return true;
 }
