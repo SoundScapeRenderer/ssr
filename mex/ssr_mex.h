@@ -462,19 +462,18 @@ class SsrMex
     void _source_model(int& nrhs, const mxArray**& prhs)
     {
       APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_model'");
-      APF_MEX_ERROR_SAME_NUMBER_OF_COLUMNS(_in_channels
-          , "as number of sources!");
-
-      if (mxGetM(prhs[0]) != 1)
-      {
-        mexErrMsgTxt("Argument after 'source_model' must be a row vector!");
-      }
 
       // list for converting cell array
       std::vector<std::string> model_list;
 
       apf::mex::next_arg(nrhs, prhs, model_list
           , "Argument after 'source_model' must be a cell array of strings");
+
+      if (model_list.size() != _in_channels)
+      {
+        mexErrMsgTxt("Number of elements in cell array after 'source_model' "
+          "must be the same as number of sources!");
+      }
 
       for (int i = 0; i < _in_channels; ++i)
       {
