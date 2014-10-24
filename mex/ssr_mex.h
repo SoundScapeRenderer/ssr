@@ -287,8 +287,8 @@ class SsrMex
       mwSize signal_length = static_cast<mwSize>(mxGetM(prhs[0]));
       if (signal_length % _block_size != 0 || signal_length == 0)
       {
-        mexErrMsgTxt("Number of rows must be a non-zero integer of the block "
-            "size!");
+        mexErrMsgTxt("Number of rows must be a non-zero, integer multiple of "
+            "the block size!");
       }
 
       APF_MEX_ERROR_REAL_INPUT("Argument to 'process'");
