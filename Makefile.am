@@ -10,8 +10,8 @@ SUBDIRS = src man data
 ## only entered for "make dist", "make distclean" and "make maintainer-clean":
 ##DIST_SUBDIRS = $(SUBDIRS) another_dir
 
-# user manual from SVN (not distributed)
-SSR_MANUAL_ORIG = $(srcdir)/doc/manual/SoundScapeRenderer.pdf
+# user manual in Sphinx build directory (not distributed)
+SSR_MANUAL_ORIG = $(srcdir)/doc/manual/_build/latex/SoundScapeRenderer.pdf
 # distributed version of the user manual
 SSR_MANUAL_DIST = doc/SoundScapeRenderer-@PACKAGE_VERSION@-manual.pdf
 
@@ -20,6 +20,21 @@ dist_doc_DATA = AUTHORS COPYING $(SSR_MANUAL_DIST) NEWS
 # files which should be distributed but not installed
 dist_noinst_DATA = \
 	INSTALL README \
+	doc/manual/Makefile \
+	doc/manual/conf.py \
+	doc/manual/gui.rst \
+	doc/manual/general.rst \
+	doc/manual/renderers.rst \
+	doc/manual/index.rst \
+	doc/manual/network.rst \
+	doc/manual/operation.rst \
+	doc/manual/images/signal_processing.png \
+	doc/manual/images/coordinate_system.png \
+	doc/manual/images/anti_aliasing.png \
+	doc/manual/images/screenshot_vlc.png \
+	doc/manual/images/ssr_logo_mac_30px.png \
+	doc/manual/images/screenshot_spd.png \
+	doc/manual/images/screenshot.png \
 	mex/README.md \
 	mex/COPYING \
 	mex/DESCRIPTION \

@@ -25,7 +25,7 @@ run_command ./cleanse.sh
 run_command ./autogen.sh
 
 # create the user manual
-(cd doc/manual && run_command latexmk) || exit
+(cd doc/manual && run_command make latexpdf) || exit
 
 # prepare Makefiles
 run_command ./configure

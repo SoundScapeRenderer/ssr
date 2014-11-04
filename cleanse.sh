@@ -24,7 +24,6 @@ echo $0: Removing miscellaneous files ...
 rm -rf autotools/
 rm -f src/config.h.in configure Makefile.in src/Makefile.in data/Makefile.in
 rm -f data/MacOSX/Makefile.in man/Makefile.in
-rm -f doc/manual/authors.tex
 
 SSR_TARBALL=ssr-*.*.*.tar.gz
 SSR_USERMANUAL=doc/SoundScapeRenderer-*.*.*-manual.pdf
@@ -44,9 +43,8 @@ then
   rm -r doc/doxygen
 fi
 
-# we do this last, because maybe latexmk is not installed:
 echo $0: Cleansing user manual ...
-(cd doc/manual && latexmk -C)
+(cd doc/manual && make clean)
 
 # this is only shown if everything went smoothly
 echo $0: Done!
