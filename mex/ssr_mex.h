@@ -467,9 +467,9 @@ class SsrMex
       std::vector<std::string> model_list;
 
       apf::mex::next_arg(nrhs, prhs, model_list
-          , "Argument after 'source_model' must be a cell array of strings");
+          , "Argument after 'source_model' must be a cell array of strings!");
 
-      if (model_list.size() != _in_channels)
+      if (static_cast<mwSize>(model_list.size()) != _in_channels)
       {
         mexErrMsgTxt("Number of elements in cell array after 'source_model' "
           "must be the same as number of sources!");
