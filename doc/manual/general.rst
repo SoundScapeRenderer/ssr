@@ -1,3 +1,29 @@
+.. ****************************************************************************
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2006-2014 Quality & Usability Lab,                             *
+ *                       Telekom Innovation Laboratories, TU Berlin           *
+ *                                                                            *
+ * This file is part of the SoundScape Renderer (SSR).                        *
+ *                                                                            *
+ * The SSR is free software:  you can redistribute it and/or modify it  under *
+ * the terms of the  GNU  General  Public  License  as published by the  Free *
+ * Software Foundation, either version 3 of the License,  or (at your option) *
+ * any later version.                                                         *
+ *                                                                            *
+ * The SSR is distributed in the hope that it will be useful, but WITHOUT ANY *
+ * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
+ * FOR A PARTICULAR PURPOSE.                                                  *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should  have received a copy  of the GNU General Public License  along *
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
+ *                                                                            *
+ * The SSR is a tool  for  real-time  spatial audio reproduction  providing a *
+ * variety of rendering algorithms.                                           *
+ *                                                                            *
+ * http://spatialaudio.net/ssr                           ssr@spatialaudio.net *
+ ******************************************************************************
+
 General stuff
 =============
 
@@ -18,7 +44,8 @@ The SSR is intended as versatile framework for the state-of-the-art
 implementation of various spatial audio reproduction techniques. You may
 use it for your own academic research, teaching or demonstration
 activities or whatever else you like. However, it would be nice if you
-would mention the use of the SSR by e.g. referencing  or .
+would mention the use of the SSR by e.g. referencing [Geier2008a]_ or [Geier
+2012]_.
 
 Note that so far, the SSR only supports two-dimensional reproduction for
 any type of renderer. For WFS principally any convex loudspeaker setup
@@ -26,6 +53,15 @@ any type of renderer. For WFS principally any convex loudspeaker setup
 densely spaced. For VBAP circular setups are highly recommended. APA
 does require circular setups. The binaural renderer can handle only one
 listener at a time.
+
+.. [Geier2008a] Matthias Geier, Jens Ahrens, and Sascha Spors. The SoundScape
+    Renderer: A unified spatial audio reproduction framework for arbitrary
+    rendering methods. In 124th AES Convention, Amsterdam, The Netherlands,
+    May 2008 Audio Engineering Society (AES).
+
+.. [Geier2012] Matthias Geier and Sascha Spors. Spatial audio reproduction
+    with the SoundScape Renderer. In 27th Tonmeistertagung – VDT
+    International Convention, 2012.
 
 .. _quick_start:
 
@@ -114,7 +150,8 @@ Coordinate System
 .. figure:: images/coordinate_system.png
     :align: center
 
-Figure 1: The coordinate system used in the SSR. In ASDF :math:`\alpha` and :math:`\alpha'` are
+Figure 1: The coordinate system used in the SSR. In ASDF :math:`\alpha` and
+:math:`\alpha'` are
 referred to as azimuth (refer to section :ref:`ASDF <asdf>`).
 
 Fig. :ref:`1a <coordinate_system>` depicts the
@@ -160,17 +197,22 @@ Audio Scene Description Format (ASDF)
 -------------------------------------
 
 Besides pure audio files, SSR can also read the current development
-version of the *Audio Scene Description Format (ASDF)*. Note however
-that so far, we have only implemented descriptions of static features.
+version of the *Audio Scene Description Format (ASDF)* [Geier2008b]_. Note,
+however,
+that so far we have only implemented descriptions of static features.
 That means in the current state it is not possible to describe
 e.g. movements of a virtual sound source. As you can see in the example
 audio scene below, an audio file can be assigned to each virtual sound
 source. The replay of all involved audio files is synchronized to the
 replay of the entire scene. That means all audio files start at the
 beginning of the sound scene. If you fast forward or rewind the scene,
-all audio files fast forward or rewind. **Note that it is sigificantly
+all audio files fast forward or rewind. **Note that it is significantly
 more efficient to read data from an interleaved multichannel file
 compared to reading all channels from individual files**.
+
+.. [Geier2008b] Matthias Geier, Jens Ahrens, and Sascha Spors. ASDF: Ein XML
+    Format zur Beschreibung von virtuellen 3D-Audioszenen. In 34rd German
+    Annual Conference on Acoustics (DAGA), Dresden, Germany, March 2008.
 
 Syntax
 ~~~~~~
@@ -214,7 +256,8 @@ in ``data/scenes/live_input.asd``. If you load this file into the SSR it
 will create 4 sound sources which will be connected to the first four
 channels of your sound card. If your sound card happens to have less
 than four outputs, less sources will be created accordingly. More
-examples for audio scenes can be downloaded from the SSR website .
+examples for audio scenes can be downloaded from the SSR website http://
+spatialaudio.net/ssr/.
 
 .. _ip_interface:
 
@@ -232,7 +275,8 @@ section :ref:`Network <network>`.
 Bug Reports, Feature Requests and Comments
 ------------------------------------------
 
-Please report any bugs, feature requests and comments to ``ssr@spatialaudio.net``. We will keep
+Please report any bugs, feature requests and comments to
+``ssr@spatialaudio.net``. We will keep
 track of them and will try to fix them in a reasonable time. The more
 bugs you report the more we can fix. Of course, you are welcome to
 provide bug fixes. 

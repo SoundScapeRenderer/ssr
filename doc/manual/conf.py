@@ -84,6 +84,8 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Syntax highlighting in literal blocks
+highlight_language = 'sh'
 
 # -- Options for HTML output ---------------------------------------------------
 

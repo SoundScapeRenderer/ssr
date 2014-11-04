@@ -1,3 +1,29 @@
+.. ****************************************************************************
+ * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
+ * Copyright © 2006-2014 Quality & Usability Lab,                             *
+ *                       Telekom Innovation Laboratories, TU Berlin           *
+ *                                                                            *
+ * This file is part of the SoundScape Renderer (SSR).                        *
+ *                                                                            *
+ * The SSR is free software:  you can redistribute it and/or modify it  under *
+ * the terms of the  GNU  General  Public  License  as published by the  Free *
+ * Software Foundation, either version 3 of the License,  or (at your option) *
+ * any later version.                                                         *
+ *                                                                            *
+ * The SSR is distributed in the hope that it will be useful, but WITHOUT ANY *
+ * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
+ * FOR A PARTICULAR PURPOSE.                                                  *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should  have received a copy  of the GNU General Public License  along *
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
+ *                                                                            *
+ * The SSR is a tool  for  real-time  spatial audio reproduction  providing a *
+ * variety of rendering algorithms.                                           *
+ *                                                                            *
+ * http://spatialaudio.net/ssr                           ssr@spatialaudio.net *
+ ******************************************************************************
+
 .. _renderers:
 
 The Renderers
@@ -144,14 +170,24 @@ frames purely of size *nframes* and no crossfade.
 .. figure:: images/signal_processing.png
     :align: center
 
-FIgure 2: Illustration of the frame-wise signal processing as implemented in the SSR renderers (see text).
+Figure 2: Illustration of the frame-wise signal processing as implemented in
+the SSR renderers (see text).
 
 The implementation approach described above is one version of the
 standard way of implementing time-varying audio processing. Note however
 that this means that with *all* renderers, moving sources are not
 physically correctly reproduced. The physically correct reproduction of
-moving virtual sources as in requires a different implementation
+moving virtual sources as in [Ahrens2008a]_ and [Ahrens2008b]_ requires a
+different implementation
 approach which is computationally significantly more costly.
+
+.. [Ahrens2008a] Jens Ahrens and Sascha Spors. Reproduction of moving virtual
+    sound sources with special attention to the doppler effect. In 124th
+    Convention of the AES, Amsterdam, The Netherlands, May 17–20, 2008.
+
+.. [Ahrens2008b] Jens Ahrens and Sascha Spors. Reproduction of virtual sound
+    sources moving at supersonic speeds in Wave Field Synthesis. In 125th
+    Convention of the AES, San Francisco, CA, Oct. 2–5, 2008.
 
 .. _binaural_renderer:
 
@@ -222,10 +258,16 @@ the HRIRs. By choosing shorter frames and thus using partitioned
 convolution the system latency is reduced but computational load is
 increased.
 
-The HRIRs ``impulse_responses/hrirs/hrirs_fabian.wav`` we have included
-in the SSR are HRIRs of 512 taps of the FABIAN mannequin  in an anechoic
-environment. See the file ``hrirs_fabian_documentation.pdf`` for details
+The HRIRs ``data/impulse_responses/hrirs/hrirs_fabian.wav`` we have included
+in the SSR are HRIRs of 512 taps of the FABIAN mannequin [Lindau2007]_ in an
+anechoic
+environment. See the file ``data/impulse_responses/hrirs/hrirs_fabian_
+documentation.pdf`` for details
 of the measurement.
+
+.. [Lindau2007] Alexander Lindau and Stefan Weinzierl. FABIAN - Schnelle
+    Erfassung binauraler Raumimpulsantworten in mehreren Freiheitsgraden. In
+    Fortschritte der Akustik, DAGA Stuttgart, 2007.
 
 Preparing HRIR sets
 ~~~~~~~~~~~~~~~~~~~
@@ -233,8 +275,11 @@ Preparing HRIR sets
 You can easily prepare your own HRIR sets for use with the SSR by
 adopting the MATLAB script ``data/matlab_scripts/prepare_hrirs_kemar.m``
 to your needs. This script converts the HRIRs of the KEMAR mannequin
-included in the CIPIC database to the format which the SSR expects. See
-the script for further information and how to obtain the raw HRIRs.
+included in the CIPIC database [AlgaziCIPIC]_ to the format that the SSR
+expects. See the script for further information and how to obtain the raw HRIRs.
+
+.. [AlgaziCIPIC] V. Ralph Algazi. The CIPIC HRTF database.
+    http://interface.cipic.ucdavis.edu/CIL_html/CIL_HRTF_database.htm.
 
 .. _brs:
 
@@ -242,7 +287,8 @@ Binaural Room Synthesis Renderer
 --------------------------------
 
 The Binaural Room Synthesis (BRS) renderer is a binaural renderer (refer
-to Section :ref:`Binaural Renderer <binaural_renderer>`) which uses one dedicated
+to Section :ref:`Binaural Renderer <binaural_renderer>`) which uses one
+dedicated
 HRIR set of each individual sound source. The motivation is to have more
 realistic reproduction than in simple binaural rendering. In this
 context HRIRs are typically referred to as binaural room impulse
@@ -299,8 +345,8 @@ Vector Base Amplitude Panning Renderer
 --------------------------------------
 
 The Vector Base Amplitude Panning (VBAP) renderer uses the algorithm
-described in . It tries to find a loudspeaker pair between which the
-phantom source is located (in VBAP you speak of a phantom source rather
+described in [Pulkki1997]_. It tries to find a loudspeaker pair between which
+the phantom source is located (in VBAP you speak of a phantom source rather
 than a virtual one). If it does find a loudspeaker pair whose angle is
 smaller than :math:`180^\circ` then it calculates the weights
 :math:`g_l` and :math:`g_r` for the left and right loudspeaker as
@@ -360,12 +406,17 @@ non-adjacent loudspeaker pairs if desired.
 The VBAP renderer is rather meant to be used with non-standardized
 setups.
 
+.. [Pulkki1997] Ville Pulkki. Virtual sound source positioning using Vector
+    Base Amplitude Panning. In Journal of the Audio Engineering Society (JAES),
+    Vol.45(6), June 1997.
+
 Wave Field Synthesis Renderer
 -----------------------------
 
 The Wave Field Synthesis (WFS) renderer is the only renderer so far
-which discriminates between virtual point sources and plane waves. It
-implements the simple driving function given in . Note that we have only
+that discriminates between virtual point sources and plane waves. It
+implements the simple (far-field) driving function given in [Spors2008]_. Note
+that we have only
 implemented a temporary solution to reduce artifacts when virtual sound
 sources are moved. This topic is subject to ongoing research. We will
 work on that in the future. In the SSR configuration file
@@ -373,6 +424,10 @@ work on that in the future. In the SSR configuration file
 specify an overall predelay (this is necessary to render focused
 sources) and the overall length of the involved delay lines. Both values
 are given in samples.
+
+.. [Spors2008] Sascha Spors, Rudolf Rabenstein, and Jens Ahrens. The theory of
+    Wave Field Synthesis revisited. In 124th Convention of the AES, Amsterdam,
+    The Netherlands, May 17–20, 2008.
 
 Prefiltering
 ~~~~~~~~~~~~
@@ -417,11 +472,12 @@ are part of an array of loudspeakers need to be corrected. The lower
 limit is typically around 100 Hz. The upper limit is given by the
 spatial aliasing frequency. The spatial aliasing is dependent on the
 mutual distance of the loudspeakers, the distance of the considered
-listening position to the loudspeakers, and the array geometry. See for
+listening position to the loudspeakers, and the array geometry. See [Spors2006]
+_ for
 detailed information on how to determine the spatial aliasing frequency
 of a given loudspeaker setup. The spatial aliasing frequency is
 typically between 1000 Hz and 2000 Hz. For a theoretical treatment of
-WFS in general and also the prefiltering, see .
+WFS in general and also the prefiltering, see [Spors2008]_.
 
 The script ``make_wfs_prefilter.m`` will save the impulse response of
 the designed filter in a file like ``wfs_prefilter_120_1500_44100.wav``.
@@ -429,6 +485,11 @@ From the file name you can extract that the spectral correction starts
 at 120 Hz and goes up to 1500 Hz at a sampling frequency of 44100 Hz.
 Check the folder ``data/impules_responses/wfs_prefilters`` for a small
 selection of prefilters.
+
+.. [Spors2006] Sascha Spors and Rudolf Rabenstein. Spatial aliasing artifacts
+    produced by linear and circular loudspeaker arrays used for Wave
+    Field Synthesis. In 120th Convention of the AES, Paris, France, 
+    May 20–23, 2006.
 
 Tapering
 ~~~~~~~~
@@ -492,7 +553,7 @@ Conventional driving function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default we use the standard Ambisonics panning function outlined
-e.g. in reading
+e.g. in [Neukom2007]_ reading
 
 .. math::
 
@@ -519,9 +580,11 @@ algebraic sign.
 
 These problems can be worked around when only positive weights are
 applied on the input signal (*in-phase* rendering). This can be
-accomplished via the in-phase driving function given e.g. in reading
+accomplished via the in-phase driving function given e.g. in [Neukom2007]_ 
+reading
 
-.. math:: d(\alpha_0) = \cos^{2M} \left (\frac{\alpha_0 - \alpha_\textrm{s}}{2} \right ) \ . \nonumber
+.. math:: d(\alpha_0) = \cos^{2M} \left (\frac{\alpha_0 - \alpha_\textrm{s}}{2}
+ \right ) \ . \nonumber
 
 Note that in-phase rendering leads to a less precise localization of the
 virtual source and other unwanted perceptions. You can enable in-phase
@@ -529,6 +592,9 @@ rendering via the according command-line option or you can set the
 ``IN_PHASE_RENDERING`` property in the SSR configuration file (see
 section :ref:`Configuration File <ssr_configuration_file>`) to be
 ``TRUE`` or ``true``.
+
+.. [Neukom2007] Martin Neukom. Ambisonic panning. In 123th Convention of the
+    AES, New York, NY, USA, Oct. 5–8, 2007.
 
 Generic Renderer
 ----------------
@@ -550,7 +616,8 @@ test advanced methods before implementing them in real-time or to
 compare two different rendering methods by having one sound source in
 one method and another sound source in the other method.
 
-Download the ASDF examples from  and check out the file
+Download the ASDF examples from http://spatialaudio.net/ssr/ and check out the
+file
 ``generic_renderer_example.asd`` which comes with all required data.
 
 .. _loudspeaker_properties:
@@ -587,7 +654,8 @@ Table 2: Virtual source's properties considered by the different renderers.
 Summary
 -------
 
-Tables :ref:`1 <loudspeaker_properties>` and :ref:`2 <source_props>` summarize the functionality of the
+Tables :ref:`1 <loudspeaker_properties>` and :ref:`2 <source_props>` summarize
+the functionality of the
 SSR renderers.
 
 .. [1]
