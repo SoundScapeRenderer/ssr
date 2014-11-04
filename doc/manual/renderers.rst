@@ -170,8 +170,8 @@ frames purely of size *nframes* and no crossfade.
 .. figure:: images/signal_processing.png
     :align: center
 
-Figure 2: Illustration of the frame-wise signal processing as implemented in
-the SSR renderers (see text).
+    Figure 2: Illustration of the frame-wise signal processing
+    as implemented in the SSR renderers (see text).
 
 The implementation approach described above is one version of the
 standard way of implementing time-varying audio processing. Note however

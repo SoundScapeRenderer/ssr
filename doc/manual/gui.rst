@@ -47,14 +47,14 @@ Of course it won't look as nice then.
 .. figure:: images/anti_aliasing.png
     :align: center
 
-Figure 3: No anti-aliasing on the left image.
+    Figure 3: No anti-aliasing on the left image.
 
 .. _screenshot:
 
 .. figure:: images/screenshot.png
    :align: center
 
-Figure 4: Screen shot of the SSR GUI.
+   Figure 4: Screen shot of the SSR GUI.
 
 
 General Layout
@@ -224,7 +224,7 @@ Source Properties Dialog
 .. figure:: images/screenshot_spd.png
     :align: center
 
-Figure 5: source properties dialog
+    Figure 5: source properties dialog
 
 The source properties dialog can be accessed via a right click on a
 source and shows information about the actual state of the selected
