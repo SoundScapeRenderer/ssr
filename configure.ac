@@ -29,13 +29,6 @@ dnl read AUTHORS file and save (reformatted by sed) to SSR_AUTHORS(_QT)
 SSR_AUTHORS=esyscmd([cat AUTHORS | sed -e :a -e '$!N;s/\n\n/\\n/;ta' -e '$!N;s/\n/\\n/;ta' -e 's/.*/"&"/'])
 SSR_AUTHORS_QT=esyscmd([cat AUTHORS | sed -e 's|^.*:|<EM>&</EM>|' -e 's/ /\&nbsp;/g' -e 's/é/\&eacute;/g' -e 's/ö/\&ouml;/g' | sed -e :a -e '$!N;s/\n/<BR>/;ta' -e 's/.*/"&"/'])
 
-dnl reformat AUTHORS and write to authors.tex for the user manual:
-esyscmd([cat AUTHORS | sed -e 's|^.*:|\\item\[&\]\\hfill\\\\|' -e "s/é/\\\'e/g" -e 's/ö/\\"o/g' -e '1s/^.*/\% This file was created automatically (see configure.ac).  Please do not edit!\
-\\begin{description}\
-&/' -e '$s/.*$/&\
-\\end{description}/' > doc/manual/authors.tex])
-dnl the literal newlines are needed because \n doesn't work on MacOSX!
-
 AC_DEFINE_UNQUOTED([SSR_AUTHORS], ["$SSR_AUTHORS"], [List of SSR authors])
 AC_DEFINE_UNQUOTED([SSR_AUTHORS_QT], ["$SSR_AUTHORS_QT"],
                    [List of SSR authors (with Qt markup)])

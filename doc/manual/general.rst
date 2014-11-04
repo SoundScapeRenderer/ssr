@@ -284,8 +284,7 @@ provide bug fixes. 
 Contributors
 ------------
 
-For a list of contributors, please see the file
-``AUTHORS``.
+.. include:: ../../AUTHORS
 
 Your Own Contributions
 ----------------------
