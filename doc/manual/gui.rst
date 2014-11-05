@@ -47,14 +47,14 @@ Of course it won't look as nice then.
 .. figure:: images/anti_aliasing.png
     :align: center
 
-    Figure 3: No anti-aliasing on the left image.
+    No anti-aliasing on the left image.
 
 .. _screenshot:
 
 .. figure:: images/screenshot.png
    :align: center
 
-   Figure 4: Screen shot of the SSR GUI.
+   Screen shot of the SSR GUI.
 
 
 General Layout
@@ -224,13 +224,13 @@ Source Properties Dialog
 .. figure:: images/screenshot_spd.png
     :align: center
 
-    Figure 5: source properties dialog
+    Source properties dialog
 
 The source properties dialog can be accessed via a right click on a
 source and shows information about the actual state of the selected
 source. Its main purpose is to provide the possibility of an exact
 positioning of sources. The properties ``fixed position``, ``muted`` and
-``model`` can be changed. Please refer to figure
+``model`` can be changed. Please refer to Figure
 :ref:`5 <source_picture>` to see the complete list of properties
 this dialog shows.
 

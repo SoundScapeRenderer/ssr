@@ -44,8 +44,8 @@ The SSR is intended as versatile framework for the state-of-the-art
 implementation of various spatial audio reproduction techniques. You may
 use it for your own academic research, teaching or demonstration
 activities or whatever else you like. However, it would be nice if you
-would mention the use of the SSR by e.g. referencing [Geier2008a]_ or [Geier
-2012]_.
+would mention the use of the SSR by e.g. referencing [Geier2008a]_ or
+[Geier2012]_.
 
 Note that so far, the SSR only supports two-dimensional reproduction for
 any type of renderer. For WFS principally any convex loudspeaker setup
@@ -150,7 +150,7 @@ Coordinate System
 .. figure:: images/coordinate_system.png
     :align: center
 
-    Figure 1: The coordinate system used in the SSR.
+    The coordinate system used in the SSR.
     In ASDF :math:`\alpha` and :math:`\alpha'` are referred to as azimuth
     (refer to section :ref:`ASDF <asdf>`).
 
