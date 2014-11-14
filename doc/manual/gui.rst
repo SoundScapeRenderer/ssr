@@ -37,7 +37,7 @@ window is the less is the processing cost.
 
 The SSR GUI tries to enable samplebuffer support to enable anti-aliasing
 of the screen output. It will tell you if it didn't work out. Check
-Fig. :ref:`3 <antialiasing>` to get an idea of the influence of
+Fig. :ref:`4.1 <antialiasing>` to get an idea of the influence of
 anti-aliasing. One day we will also implement a variable frequency for
 the screen update so that you can slow it down if CPU load is too high.
 Of course it won't look as nice then.
@@ -63,7 +63,7 @@ General Layout
 The graphical user interface (GUI) consists mainly of an illustration of
 the scene that you are hearing and some interaction tools. The renderer
 type is indicated in the window title. See a screen shot in
-Fig. :ref:`4 <screenshot>`.
+Fig. :ref:`4.2 <screenshot>`.
 
 On the top left you will find the file menu where you can open files,
 save scenes, and quit the application. So far only the *save scene as…*
@@ -147,7 +147,7 @@ an example in folder ``data/``.
 
 The main part of the screen is occupied by the graphical illustration of
 the scene that you are hearing. The orientation of the coordinate system
-is exactly like depicted in Fig. :ref:`1 <coordinate_system>`.
+is exactly like depicted in Fig. :ref:`1.1 <coordinate_system>`.
 I.e., the :math:`x`-axis points to the right of the screen, the
 :math:`y`-axis points to the top of the screen. The origin of the
 coordinate system is marked by a cross, the reference is marked by a
@@ -156,7 +156,7 @@ vertically upwards on the screen, especially for binaural techniques. We
 do so as well. Note that in this case "straight in front" means
 :math:`\alpha = 90^\circ` and NOT :math:`\alpha=0^\circ`\ .
 
-In Fig. :ref:`4 <screenshot>` you see a number of sound sources with their
+In Fig. :ref:`4.2 <screenshot>` you see a number of sound sources with their
 individual audio level meters (combined with their individual volume
 sliders) underneath. The left hand boundary of the level meter is at
 -50 dB; the right hand boundary is at 0 dB. Spherical sources don't have
@@ -200,7 +200,7 @@ reference point. To change their direction of incidence move the plane
 wave's origin point to the appropriate position. Right clicking on a
 sound source opens a window which lists the properties of the source
 such as position, volume, etc. Refer to
-Fig. :ref:`5 <source_picture>` and
+Fig. :ref:`4.3 <source_picture>` and
 Sec. :ref:`Source Properties Dialog <source_property_dialog>`.
 
 A right mouse click on the scene background lets you select multiple
@@ -230,8 +230,8 @@ The source properties dialog can be accessed via a right click on a
 source and shows information about the actual state of the selected
 source. Its main purpose is to provide the possibility of an exact
 positioning of sources. The properties ``fixed position``, ``muted`` and
-``model`` can be changed. Please refer to Figure
-:ref:`5 <source_picture>` to see the complete list of properties
+``model`` can be changed. Refer to Fig.
+:ref:`4.3 <source_picture>` to see the complete list of properties
 this dialog shows.
 
 .. _keyboard_actions:

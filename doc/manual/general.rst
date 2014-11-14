@@ -154,13 +154,13 @@ Coordinate System
     In ASDF :math:`\alpha` and :math:`\alpha'` are referred to as azimuth
     (refer to section :ref:`ASDF <asdf>`).
 
-Fig. :ref:`1a <coordinate_system>` depicts the
+Fig. :ref:`1.1 (a) <coordinate_system>` depicts the
 global coordinate system used in the SSR. Virtual sound sources as well
 as the reference are positioned and orientated with respect to this
 coordinate system. For loudspeakers, positioning is a bit more tricky
 since it is done with respect to a local coordinate system determined by
 the reference. Refer to
-Fig. :ref:`1b <coordinate_system>`. The loudspeakers
+Fig. :ref:`1.1 (b) <coordinate_system>`. The loudspeakers
 are positioned with respect to the primed coordinates (:math:`x'`\ ,
 :math:`y'`\ , etc.).
 

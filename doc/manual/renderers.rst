@@ -152,7 +152,7 @@ Signal Processing
 
 All rendering algorithms are implemented on a frame-wise basis with an
 internal precision of 32 bit floating point. The signal processing is
-illustrated in Fig. :ref:`2 <signal_processing>`.
+illustrated in Fig. :ref:`3.1 <signal_processing>`.
 
 The input signal is divided into individual frames of size *nframes*,
 whereby *nframes* is the frame size with which JACK is running. Then

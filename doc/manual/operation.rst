@@ -1115,7 +1115,14 @@ qjackctl or with the command line option ``-n``::
 
 If ``make dmg`` doesn't copy the Qt ``.dylib`` files into the application
 bundle (to ``Contents/Libraries``), you might try the following commands (or
-similar, depending on the exact Qt installation)::
+similar, depending on the exact Qt installation).
+
+.. raw:: latex
+
+    Go to the \href{http://ssr.readthedocs.org/en/manual/operation.html#dylibbundler-doesn-t-grok-qt-frameworks}
+    {online manual} to copy and paste them.
+
+::
 
   install_name_tool -id /opt/local/lib/libQtCore.dylib /opt/local/Library/Frameworks/QtCore.framework/QtCore
   install_name_tool -id /opt/local/lib/libQtGui.dylib /opt/local/Library/Frameworks/QtGui.framework/QtGui
