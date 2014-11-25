@@ -836,8 +836,9 @@ specify the full path, i.e. ::
     open /Applications/SoundScapeRenderer-0.4.0/SoundScapeRenderer.app
 
 The SSR starts with a prompt for renderer selection, with the default renderer
-set on the Binaural renderer. As mentioned above in Section :ref:`
-Configuration files<ssr_configuration_file>`, more options at the start up can
+set on the Binaural renderer. As mentioned above in Section
+:ref:`ssr_configuration_file`,
+more options at the start up can
 be specified using the configuration file.
 
 To start the SSR using a different renderer module and skip the prompt for the
@@ -1119,7 +1120,7 @@ similar, depending on the exact Qt installation).
 
 .. raw:: latex
 
-    Go to the \href{http://ssr.readthedocs.org/en/manual/operation.html#dylibbundler-doesn-t-grok-qt-frameworks}
+    Go to the \href{http://ssr.rtfd.org/en/latest/operation.html#dylibbundler-doesn-t-grok-qt-frameworks}
     {online manual} to copy and paste them.
 
 ::
