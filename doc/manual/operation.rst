@@ -1078,11 +1078,9 @@ You may have seen this message::
   ***********************************************************************
 
 You can totally ignore this, but if it bothers you, you can disable it easily
-by specifying the following line in ``/etc/environment``::
-
-  ECASOUND=ecasound
-
-or, if you prefer, you can put this in your ``$HOME/.bashrc``::
+by specifying the following line in ``/etc/bash.bashrc`` (system-wide setting)
+or, if you prefer, you can put it into your ``$HOME/.bashrc``
+(just for your user account)::
 
   export ECASOUND=ecasound
 
