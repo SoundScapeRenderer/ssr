@@ -53,17 +53,32 @@ code and compile each program yourself.
 The Debian Package
 ------------------
 
-Thanks to IOhannes m zmoelnig, the SSR is now available as a Debian package!
+Thanks to IOhannes m zmoelnig, the SSR is available as a Debian package!
 
-https://packages.debian.org/soundscaperenderer
+http://packages.debian.org/soundscaperenderer
 
-You can install it using your favorite package manager. It's located in the "
-still in development (sid)" section, so you may
-have to add that one to your package sources. Once SSR is installed, move on
-to Section :ref:`Running the SSR <running_ssr>`.
+The Debian distribution comes in several flavors, such as stable_, testing_
+and sid_ (meaning "still in development").
+At the time of writing, the *soundscaperenderer* package is part of "testing",
+so if you have Debian "stable" installed, you will have to add the package
+sources for "testing" (you can try the `Debian Sources List Generator`_).
+If it still doesn't work, you should consider upgrading your whole system to
+"testing" or, if that's not feasible, you can still compile and install the SSR
+from its source (see below for instructions).
 
-It may or may not work on other Debian-based distributions like Ubuntu. Feel
-free to try it and report back to us. 
+.. _stable:  http://www.debian.org/releases/stable/
+.. _testing: http://www.debian.org/releases/testing/
+.. _sid:     http://www.debian.org/releases/sid/
+.. _Debian Sources List Generator: http://debgen.simplylinux.ch/
+
+You can install the *soundscaperenderer* package using your favorite package
+manager (*apt-get*, *aptitude*, *synaptic*, ...), all dependencies should be
+installed automatically.
+
+The package may or may not work on other Debian-based distributions like Ubuntu.
+Feel free to try it and report back to us.
+
+Once the SSR is installed, move on to the section :ref:`running_ssr`.
 
 Getting the Source
 ------------------
