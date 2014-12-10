@@ -28,25 +28,23 @@ Compiling and Running the SSR
 =============================
 
 The following sections describe how to build and/or install the SSR on your
-computer. The default assumption is that you are using a GNU/Linux system.
-Refer to Section :ref:`Mac OS X <mac_os_x>` for guidelines on using SSR on Mac
-OS X. There is no MS Windows version of SSR.
+computer. The SSR can be used on GNU/Linux  and Mac OS X.
+There is no MS Windows version of the SSR (yet?). If you feel inclined to port
+the SSR to Windows, let us know!
 
 Choosing the Operating System
 -----------------------------
 
-Well, first you'll need a proper operating system. We recommend Debian (http://
-www.debian.org/) or something Debian-based like Ubuntu (http://www.ubuntu.com/)
-. But the SSR should work on most modern Linux-distributions. You can also try
-Arch Linux (http://www.archlinux.org/), if you want. If you are reluctant to
-install a new operating system on your computer, you can also install any of
-the above-mentioned operating systems virtually, for example using http://
-www.virtualbox.org/.
+Well, first you'll need a proper operating system.
+We recommend Debian GNU/Linux (http://www.debian.org/) or something Debian-based
+like Ubuntu (http://www.ubuntu.com/).
+The SSR should work on most modern Linux-distributions, though.
+You can also try Arch Linux (http://www.archlinux.org/), if you want.
+If you are reluctant to install a new operating system on your computer, you can
+also install any of the above-mentioned operating systems virtually, for example
+using http://www.virtualbox.org/.
 
-The following list assumes you are using the package manager of your (Debian-
-based) Linux distribution. It's much easier to install programs with that.
-However, if you prefer, you can of course also download everything as source
-code and compile each program yourself.
+If you happen to have Mac OS X installed on your computer, that's OK, too.
 
 .. _debian_package:
 
@@ -57,19 +55,21 @@ Thanks to IOhannes m zmoelnig, the SSR is available as a Debian package!
 
 http://packages.debian.org/soundscaperenderer
 
-The Debian distribution comes in several flavors, such as stable_, testing_
-and sid_ (meaning "still in development").
-At the time of writing, the *soundscaperenderer* package is part of "testing",
-so if you have Debian "stable" installed, you will have to add the package
-sources for "testing" (you can try the `Debian Sources List Generator`_).
-If it still doesn't work, you should consider upgrading your whole system to
-"testing" or, if that's not feasible, you can still compile and install the SSR
-from its source (see below for instructions).
+.. note::
 
-.. _stable:  http://www.debian.org/releases/stable/
-.. _testing: http://www.debian.org/releases/testing/
-.. _sid:     http://www.debian.org/releases/sid/
-.. _Debian Sources List Generator: http://debgen.simplylinux.ch/
+  The Debian distribution comes in several flavors, such as stable_, testing_
+  and sid_ (meaning "still in development").
+  At the time of writing, the *soundscaperenderer* package is part of "testing",
+  so if you have Debian "stable" installed, you will have to add the package
+  sources for "testing" (you can try the `Debian Sources List Generator`_).
+  If it still doesn't work, you should consider upgrading your whole system to
+  "testing" or, if that's not feasible, you can still compile and install the
+  SSR from its source (see below for instructions).
+  
+  .. _stable:  http://www.debian.org/releases/stable/
+  .. _testing: http://www.debian.org/releases/testing/
+  .. _sid:     http://www.debian.org/releases/sid/
+  .. _Debian Sources List Generator: http://debgen.simplylinux.ch/
 
 You can install the *soundscaperenderer* package using your favorite package
 manager (*apt-get*, *aptitude*, *synaptic*, ...), all dependencies should be
@@ -149,13 +149,15 @@ Dependencies
 ~~~~~~~~~~~~
 
 The following list is a list of packages which you should install with the
-package manager of your choice (``apt-get``, ``aptitude``, ``synaptic``, ...):
+package manager of your choice (``apt-get``, ``aptitude``, ``synaptic``, ...).
+However, if you prefer, you can of course also download everything as source
+code and compile each program yourself.
 
 - **make**
 - **g++** (at least version 4.7.3) or **clang**
 - **libboost-systemx.xx-dev** / **libboost-system-dev** and
   **libboost-threadx.xx-dev** / **libboost-thread-dev** (at least version 1.35)
-- **libqt4-dev** and l**ibqt4-opengl-dev** (at least version 4.2.2)
+- **libqt4-dev** and **libqt4-opengl-dev** (at least version 4.2.2)
 - **libecasoundc2.2-dev** or **libecasoundc-dev**
 - **ecasound**
 - **libxml2-dev**
@@ -171,7 +173,7 @@ Extra dependencies for installing from the Git repository:
 - **automake**
 
 Note that there are additional dependencies for some of the tracking systems
-that SSR supports. Refer to Section :ref:`Head Tracking <head_tracking>` for
+that SSR supports. Refer to Section :ref:`head_tracking` for
 further information.
 
 To use a different compiler, you can specify it with ``CXX``::
