@@ -583,8 +583,8 @@ folder. Done.
 The application bundle can be placed anywhere, but spaces in path names might
 cause trouble, so it's better to avoid them. Another thing is that Mac OS X
 sort of adds applications placed in the ``/Applications`` folder to the
-environment, so lets assume you put the SSR there (This also works for ``$HOME/
-Applications``).
+environment, so lets assume you put the SSR there (This also works for
+``$HOME/Applications``).
 
 You'll also need the JACK Audio Connection Kit (JACK), be sure to get the 64-
 bit version from http://jackosx.com/.
@@ -593,21 +593,10 @@ Building from Source
 ~~~~~~~~~~~~~~~~~~~~
 
 The following is an overview of instructions on how and what to set up in
-building the SSR for Mac OS X. Currently, building is supported on Mac OS X
-Snow Leopard (10.6.x) and it's tested with 10.6.6 and 10.6.7.
+building the SSR for Mac OS X.
 
 What to install first?
 ::::::::::::::::::::::
-
-XCode
-*****
-
-Tested with version 3.2.6.
-
-Can be downloaded from http://developer.apple.com/, but you have to register
-as a developer first. It might be easier to install an older XCode from Mac OS
-X install DVD (there is something called "Optional Installs") and run an
-update afterwards.
 
 MacPorts
 ********
@@ -640,6 +629,7 @@ MacPorts ports
 
 These ports have to be installed (dependencies are installed automatically)
 
+- gcc49 (or some other version of GCC, but at least gcc47)
 - pkgconfig
 - libsndfile
 - libsamplerate
@@ -647,22 +637,39 @@ These ports have to be installed (dependencies are installed automatically)
 - qt4-mac
 - boost
 - libxml2
+
+If you want, you can also use clang instead of GCC to compile the SSR.
+
+If you want to install the newest SSR development version directly from the Git repository, you'll need those as well:
+
 - autoconf
 - automake
+- help2man
 
 Ports are installed using ::
 
   sudo port install <portname>
 
-Because ports are compiled locally, it may take several hours to install all
+Because ports are compiled locally, it may take a long time to install all
 ports. Issuing one command to install all ports might be more convenient::
 
-  sudo sh -c "port install pkgconfig && port install libsndfile && port
-  install libsamplerate && port install fftw-3-single && port install qt4-mac &&
-  port install boost && port install libxml2"
+  sudo sh -c "port install gcc49 && port install pkgconfig && port install libsndfile && port install libsamplerate && port install fftw-3-single && port install qt4-mac && port install boost && port install libxml2"
 
-As an alternative to MacPorts, it may also work with Homebrew but we didn't
+As an alternative to MacPorts, it may also work with Homebrew_ but we didn't
 try. If you did, tell us!
+
+.. _Homebrew: http://brew.sh/
+
+JackOSX
+*******
+
+Tested with version 0.87 (64 bit) which includes:
+
+- Jackdmp 1.9.6
+- JackRouter 0.9.3
+- JackPilot 1.7.0
+
+Download at http://www.jackosx.com/ and be sure to get the 64 bit version.
 
 Ecasound
 ********
@@ -671,15 +678,19 @@ Tested with version 2.7.2
 
 Download from http://www.eca.cx/ecasound/
 
-It didn't work with 2.9.0 for us, older versions can be found there: http://
-ecasound.seul.org/download/.
+It didn't work with 2.9.0 for us, older versions can be found there:
+http://ecasound.seul.org/download/.
 
 In Terminal go into the unpacked ecasound folder and do::
 
   ./configure CPPFLAGS=-I/opt/local/include LIBS=-L/opt/local/lib
 
-When the configure script is finished, check if libsndfile and libsamplerate
-are enabled. It should look something like that::
+If JACK cannot be found, you can also try this::
+
+  ./configure CPPFLAGS="-I/opt/local/include -I/usr/local/include" LIBS=-L/opt/local/lib
+
+When the configure script is finished, check if libsndfile, libsamplerate and
+JACK are enabled. It should look something like that::
 
   ...
   -----------------------------------------------------------------
@@ -693,14 +704,14 @@ are enabled. It should look something like that::
   -----------------------------------------------------------------
   ...
 
-If not, check that all MacPort packages mentioned above are installed. If
-everything looks OK, continue with::
+If not, check that JACK all MacPort packages mentioned above are installed.
+If everything looks OK, continue with::
 
   make
   make install
 
-For the last step you need write access to /usr/local. If it doesn't work, use
-this instead::
+For the last step you need write access to ``/usr/local``.
+If it doesn't work, use this instead::
 
   sudo make install
 
@@ -709,24 +720,14 @@ Ecasound -- git version
 
 Note: if you successfully installed Ecasound 2.7.2, you *don't* need this!
 
-If you want to use the newest Ecasound version from their git repository (http:
-//ecasound.seul.org/ecasound.git) with OS X 10.9 (Mavericks), you can try this::
+If you want to use the newest Ecasound version from their git repository
+(http://ecasound.seul.org/ecasound.git) with OS X 10.9 (Mavericks),
+you can try this::
 
   ./configure CXX="clang++ -stdlib=libc++" CPPFLAGS=-D_DARWIN_C_SOURCE
 
 Note, however, that you will have to use the same -stdlib options when
 configuring the SSR.
-
-JackOSX
-*******
-
-Tested with version 0.87 (64 bit) which includes:
-
-- Jackdmp 1.9.6
-- JackRouter 0.9.3
-- JackPilot 1.7.0
-
-Download at http://www.jackosx.com/ and be sure to get the 64 bit version.
 
 Standard build
 **************
@@ -751,7 +752,7 @@ You now have two options:
 You can also name the ``.dmg``::
 
   ./configure
-  --enable-app-bundle="SoundScapeRenderer-0.3.1-MacOSX-10.6-64bit.dmg"
+  --enable-app-bundle="MyVeryOwnSoundScapeRenderer.dmg"
   make
   make dmg
 
@@ -806,8 +807,8 @@ intersense`` to the configure parameters::
 
 For some strange reason the full path of ``libisense.dylib`` is not written to
 the header of the binary. So if you configure with ``--enable-app-bundle`` and
-then do ``make dmg`` to build an application bundle, a tool called ``
-dylibbundler`` will ask you to enter its path (``/usr/local/lib``) several
+then do ``make dmg`` to build an application bundle, a tool called
+``dylibbundler`` will ask you to enter its path (``/usr/local/lib``) several
 times.
 
 Using the GUI
@@ -828,7 +829,7 @@ generated.
 
 More options can be specified by using the config file. The details of using
 the config file is described on the Section
-:ref:`Configuration Files <ssr_configuration_file>`.
+:ref:`ssr_configuration_file`.
 
 Running via the Command Line (Terminal)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -873,13 +874,13 @@ To load a scene do::
 
     open -a SoundScapeRenderer --args "--binaural /absolute/path/to/scene.asd"
 
-*Note that the arguments have to be enclosed in quotation marks ("")!*
+.. note:: The arguments have to be enclosed in quotation marks (``""``)!
 
 To load a scene that has spaces in its path name do::
 
     open -a SoundScapeRenderer --args "/path/to/file\ with\ spaces.asd"
 
-*Spaces have to be escaped using backslashes!*
+.. note:: Spaces have to be escaped using backslashes!
 
 In addition to the config files in standard locations mentioned above, you can
 also specify a config file on the command line::
