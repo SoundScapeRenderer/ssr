@@ -173,24 +173,32 @@ class SsrMex
 
       // Note: Fields are not checked, the SSR is supposed to do that.
 
+      // optional input for verbosity
+      bool verbose = true;
+      apf::mex::next_optarg(nrhs, prhs, verbose
+          , "Third argument to 'init' must be a logical!");
+
       APF_MEX_ERROR_NO_FURTHER_INPUTS("'init'");
 
-      auto info = std::string("Starting the SSR with following settings:\n");
-
-      info += " * number of sources: ";
-      info += apf::str::A2S(_in_channels);
-      info += "\n";
-
-      for (auto it: options)
+      if (verbose)
       {
-        info += " * ";
-        info += it.first;
-        info += ": ";
-        info += it.second;
-        info += "\n";
-      }
+        auto info = std::string("Starting the SSR with following settings:\n");
 
-      mexPrintf(info.c_str());
+        info += " * number of sources: ";
+        info += apf::str::A2S(_in_channels);
+        info += "\n";
+
+        for (auto it: options)
+        {
+          info += " * ";
+          info += it.first;
+          info += ": ";
+          info += it.second;
+          info += "\n";
+        }
+
+        mexPrintf(info.c_str());
+      }
 
       _engine.reset(new Renderer(apf::parameter_map(std::move(options))));
 
@@ -217,8 +225,11 @@ class SsrMex
 
       _engine->activate();  // start parallel processing (if threads > 1)
 
-      mexPrintf("Initialization of %s completed, %d outputs available.\n"
-          , _engine->name(), _out_channels);
+      if (verbose)
+      {
+        mexPrintf("Initialization of %s completed, %d outputs available.\n"
+            , _engine->name(), _out_channels);
+      }
     }
 
     void _chained_commands(const std::string& command

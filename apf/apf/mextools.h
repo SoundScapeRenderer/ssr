@@ -137,6 +137,15 @@ bool convert(const mxArray* in, int& out)
   return true;
 }
 
+/// Convert @c mxArray to @c bool
+bool convert(const mxArray* in, bool& out)
+{
+  if (!mxIsLogical(in)) return false;
+  if (mxGetNumberOfElements(in) != 1) return false;
+  out = mxGetScalar(in);
+  return true;
+}
+
 /// Convert @c mxArray to @c size_t
 bool convert(const mxArray* in, size_t& out)
 {
