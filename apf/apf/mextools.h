@@ -140,9 +140,21 @@ bool convert(const mxArray* in, int& out)
 /// Convert @c mxArray to @c bool
 bool convert(const mxArray* in, bool& out)
 {
-  if (!mxIsLogical(in)) return false;
   if (mxGetNumberOfElements(in) != 1) return false;
-  out = mxGetScalar(in);
+  if (mxIsLogical(in))
+  {
+    out = mxIsLogicalScalarTrue(in);
+  }
+  else if (mxIsDouble(in) && !mxIsComplex(in))
+  {
+    double temp = mxGetScalar(in);
+    if (temp != 0.0 && temp != 1.0) return false;
+    out = temp;
+  }
+  else
+  {
+    return false;
+  }
   return true;
 }
 
