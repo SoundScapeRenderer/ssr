@@ -108,7 +108,7 @@ Source
    ``<request><source id="42" model="point"/></request>``
 
 -  Set Source Port Name (any JACK port):
-   ``<request><source id="42" port_name="system:capture_3"/></request>``
+   ``<request><source id="42" port="system:capture_3"/></request>``
 
 -  New Source (some of the parameters are optional):
 
