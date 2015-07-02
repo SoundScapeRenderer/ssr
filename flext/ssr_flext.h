@@ -193,6 +193,10 @@ class SsrFlext : public flext_dsp
       params.set("block_size", Blocksize());
       params.set("sample_rate", Samplerate());
 
+      // TODO: let the user choose those values:
+      params.set("delayline_size", 100000);  // in samples
+      params.set("initial_delay", 1000);  // in samples
+
       std::string info;
       for (auto it: params)
       {
