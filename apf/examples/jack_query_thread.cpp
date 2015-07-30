@@ -4,12 +4,12 @@
 
 #include "apf/mimoprocessor.h"
 #include "apf/jack_policy.h"
-#include "apf/posix_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 #include "apf/shareddata.h"
 
 class MyProcessor : public apf::MimoProcessor<MyProcessor
                     , apf::jack_policy
-                    , apf::posix_thread_policy
+                    , apf::cxx_thread_policy
                     , apf::enable_queries>
 {
   public:

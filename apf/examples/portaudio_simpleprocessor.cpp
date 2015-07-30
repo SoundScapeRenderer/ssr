@@ -6,7 +6,7 @@
 
 // First the policies ...
 #include "apf/portaudio_policy.h"
-#include "apf/posix_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 // ... then the SimpleProcessor.
 #include "simpleprocessor.h"
 

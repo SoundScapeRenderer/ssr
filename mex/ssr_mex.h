@@ -41,7 +41,7 @@
 #include "apf/mextools.h"
 #include "apf/stringtools.h"
 #include "apf/pointer_policy.h"
-#include "apf/default_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 #include "loudspeakerrenderer.h"
 
 #include "../src/source.h"

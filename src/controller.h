@@ -36,7 +36,7 @@
 
 // TODO: move these includes to a more suitable location?
 #include "apf/jack_policy.h"
-#include "apf/posix_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 
 #define SSR_QUERY_POLICY apf::enable_queries
 

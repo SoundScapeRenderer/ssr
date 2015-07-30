@@ -3,10 +3,10 @@
 #include "apf/mimoprocessor.h"
 #include "apf/combine_channels.h"  // for apf::CombineChannelsCopy
 #include "apf/jack_policy.h"
-#include "apf/posix_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 
 class MyProcessor : public apf::MimoProcessor<MyProcessor
-      , apf::jack_policy, apf::posix_thread_policy>
+      , apf::jack_policy, apf::cxx_thread_policy>
 {
   public:
     using Input = MimoProcessorBase::DefaultInput;

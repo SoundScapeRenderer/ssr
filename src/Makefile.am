@@ -96,6 +96,7 @@ SSRSOURCES = \
 	../apf/apf/parameter_map.h \
 	../apf/apf/stringtools.h \
 	../apf/apf/posix_thread_policy.h \
+	../apf/apf/cxx_thread_policy.h \
 	../apf/apf/jack_policy.h \
 	../apf/apf/pointer_policy.h \
 	../apf/apf/iterator.h \

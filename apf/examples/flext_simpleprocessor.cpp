@@ -12,7 +12,7 @@
 #define APF_MIMOPROCESSOR_SAMPLE_TYPE t_sample
 
 #include "apf/pointer_policy.h"
-#include "apf/default_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 
 #include "simpleprocessor.h"
 

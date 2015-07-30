@@ -48,7 +48,7 @@ class ssr_ ## name : public SsrFlext<renderer> { \
 FLEXT_NEW_DSP_V("ssr_" #name "~", ssr_ ## name)
 
 #include "apf/pointer_policy.h"
-#include "apf/default_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 
 #include "../src/source.h"
 

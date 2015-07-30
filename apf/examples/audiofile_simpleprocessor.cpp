@@ -5,7 +5,7 @@
 
 // First the policies ...
 #include "apf/pointer_policy.h"
-#include "apf/default_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 // ... then the SimpleProcessor.
 #include "simpleprocessor.h"
 

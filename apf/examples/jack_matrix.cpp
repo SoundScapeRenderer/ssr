@@ -6,12 +6,12 @@
 
 #include "apf/mimoprocessor.h"
 #include "apf/jack_policy.h"
-#include "apf/posix_thread_policy.h"
+#include "apf/cxx_thread_policy.h"
 #include "apf/container.h"  // for fixed_matrix
 
 class MatrixProcessor : public apf::MimoProcessor<MatrixProcessor
                         , apf::jack_policy
-                        , apf::posix_thread_policy>
+                        , apf::cxx_thread_policy>
 {
   public:
     using matrix_t = apf::fixed_matrix<sample_type>;
