@@ -21,9 +21,7 @@ OPT ?= -O3
 CXXFLAGS += $(OPT)
 CXXFLAGS += -g
 
-CXXFLAGS += -std=c++11
-
-LDLIBS += -lpthread
+CXXFLAGS += -std=c++11 -pthread
 
 # show all warnings
 CXXFLAGS += -Wall -Wextra
@@ -43,7 +41,7 @@ CXXFLAGS += -Wconversion
 #CXXFLAGS += -Winline
 #CXXFLAGS += -Weffc++
 
-CPPFLAGS += -I.. -D_REENTRANT
+CPPFLAGS += -I..
 
 #### no more setting below here ####
 

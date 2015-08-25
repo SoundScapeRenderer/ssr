@@ -40,10 +40,6 @@
 
 using apf::str::A2S;
 
-#ifndef _REENTRANT
-#error You need to compile with _REENTRANT defined since this uses threads!
-#endif
-
 ssr::TrackerPolhemus::TrackerPolhemus(Publisher& controller
     , const std::string& ports)
   : Tracker()

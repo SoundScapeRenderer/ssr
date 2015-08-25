@@ -245,8 +245,9 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
   AC_MSG_ERROR([core/1123 not implemented! Please upgrade.])
 ])
 
-# on some systems this is needed, on the others it doesn't hurt:
-AC_SEARCH_LIBS([pthread_join], [pthread], , [have_ip_interface=no])
+dnl NOTE: -pthread works on GCC, other compilers may need differnt flags!
+AS_IF([test x$GCC = xyes -a x$usercxxflags = xno],
+      [CXXFLAGS="$CXXFLAGS -pthread"])
 
 ENABLE_AUTO([optimization], [code optimization],
 [

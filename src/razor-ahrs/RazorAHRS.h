@@ -26,10 +26,6 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#ifndef _REENTRANT
-#error You need to compile with _REENTRANT defined since this uses threads!
-#endif
-
 // Razor AHRS tracker
 class RazorAHRS
 {

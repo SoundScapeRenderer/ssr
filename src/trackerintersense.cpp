@@ -39,10 +39,6 @@
 #include "ssr_global.h"
 #include "posixpathtools.h"
 
-#ifndef _REENTRANT
-#error You need to compile with _REENTRANT defined since this uses threads!
-#endif
-
 ssr::TrackerInterSense::TrackerInterSense(Publisher& controller
     , const std::string& ports, const unsigned int read_interval)
   : Tracker()

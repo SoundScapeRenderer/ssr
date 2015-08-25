@@ -29,9 +29,6 @@ else
 AM_CPPFLAGS += -DSSR_DATA_DIR=\"$(pkgdatadir)\"
 endif
 
-## this is needed for multi-threaded programs
-AM_CPPFLAGS += -D_REENTRANT
-
 ## this is somehow needed for Solaris (or not?)
 AM_CPPFLAGS += -D_POSIX_PTHREAD_SEMANTICS
 

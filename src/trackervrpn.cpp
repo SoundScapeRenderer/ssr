@@ -27,10 +27,6 @@
 /// @file
 /// VRPN tracker (implementation).
 
-#ifndef _REENTRANT
-#error You need to compile with _REENTRANT defined since this uses threads!
-#endif
-
 #include "trackervrpn.h"
 
 #include <stdexcept>  // for runtime_error
