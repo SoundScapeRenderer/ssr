@@ -187,6 +187,8 @@ function SsrClient:in_1(sel, atoms)
             self:error(subcommand .. " not supported")
             return
         end
+    elseif sel == "state" then
+        str = str .. '<state ' .. atoms[1] .. '="' .. atoms[2] .. '"/>'
     else
         self:error(sel .. " not (yet?) supported")
         return
