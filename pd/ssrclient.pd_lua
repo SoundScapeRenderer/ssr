@@ -200,12 +200,11 @@ end
 -- collect numbers in self.buffer. If a zero comes in, parse the whole string.
 function SsrClient:in_2_float(f)
     if f == 0 then
-        -- convert ASCII numbers to string
-        local str = string.char(unpack(self.buffer))
-        self.parser:parse(str, {stripWhitespace=true})
+        self.parser:parse(table.concat(self.buffer), {stripWhitespace=true})
         self.buffer = {}
     else
-        table.insert(self.buffer, f)
+        -- convert ASCII numbers to strings and append to self.buffer
+        table.insert(self.buffer, string.char(f))
     end
 end
 
