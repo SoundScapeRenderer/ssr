@@ -176,7 +176,7 @@ class SsrMex
       // optional input for verbosity
       bool verbose = true;
       apf::mex::next_optarg(nrhs, prhs, verbose
-          , "Third argument to 'init' must be a logical!");
+          , "Third argument to 'init' must be a logical or a real number!");
 
       APF_MEX_ERROR_NO_FURTHER_INPUTS("'init'");
 

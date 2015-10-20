@@ -140,9 +140,9 @@ bool convert(const mxArray* in, int& out)
 /// Convert @c mxArray to @c bool
 bool convert(const mxArray* in, bool& out)
 {
-  if (!mxIsLogical(in)) return false;
+  if (mxIsComplex(in) || (!mxIsLogical(in) && !mxIsNumeric(in))) return false;
   if (mxGetNumberOfElements(in) != 1) return false;
-  out = mxGetScalar(in);
+  out = mxGetScalar(in);  // returns only the real part of complex numbers
   return true;
 }
 
