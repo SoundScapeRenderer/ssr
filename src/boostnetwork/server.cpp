@@ -30,12 +30,14 @@
 #include "server.h"
 #include <boost/bind.hpp>
 
-ssr::Server::Server(Publisher& controller, int port)
+ssr::Server::Server(Publisher& controller, int port
+    , char end_of_message_character)
   : _controller(controller)
   , _io_service()
   , _acceptor(_io_service
       , boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
   , _network_thread(0)
+  , _end_of_message_character(end_of_message_character)
 {}
 
 ssr::Server::~Server()
@@ -47,7 +49,7 @@ void
 ssr::Server::start_accept()
 {
   Connection::pointer new_connection = Connection::create(_io_service
-      , _controller);
+      , _controller, _end_of_message_character);
 
   _acceptor.async_accept(new_connection->socket()
       , boost::bind(&Server::handle_accept, this, new_connection

@@ -30,8 +30,20 @@ Network Interface
 =================
 
 This is just a short overview about the XML messages which can be sent
-to the SSR via TCP/IP. The messages have to be terminated with a binary
-zero (``\0``).
+to the SSR via TCP/IP. By default, messages have to be terminated with a binary
+zero (``\0``). This can be changed to, for example, a newline / line feed 
+(``\n``) or to a carriage return (``\r``) using one of the following ways:
+
+-  Command line: 
+   Use the command line option ``--end-of-message-character=VALUE``
+   VALUE is the ASCII code for the desired character (binary zero: 0; line 
+   feed: 10; carriage return: 13).
+
+-  Configuration file:
+   Here, there is the option END_OF_MESSAGE_CHARACTER. See the example 
+   ``data/ssr.conf.example``. Use ASCII codes here as well.
+
+The choice of delimiter applies to, of course, both sent and received messages.
 
 **WARNING:** We did not evaluate the network interface in terms of
 security. So please be sure that you are in a safe network when using

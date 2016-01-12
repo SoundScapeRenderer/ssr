@@ -34,13 +34,14 @@
 
 /// ctor
 ssr::Connection::Connection(boost::asio::io_service &io_service
-    , Publisher &controller)
+    , Publisher &controller, char end_of_message_character)
   : _socket(io_service)
   , _timer(io_service)
   , _controller(controller)
   , _subscriber(*this)
   , _commandparser(controller)
   , _is_subscribed(false)
+  , _end_of_message_character(end_of_message_character)
 {}
 
 /// dtor
@@ -57,9 +58,10 @@ ssr::Connection::~Connection()
  **/
 ssr::Connection::pointer
 ssr::Connection::create(boost::asio::io_service &io_service
-    , Publisher& controller)
+    , Publisher& controller, char end_of_message_character)
 {
-  return pointer(new Connection(io_service, controller));
+  return pointer(new Connection(io_service, controller
+      , end_of_message_character));
 }
 
 /** Start the connection.
@@ -113,7 +115,7 @@ ssr::Connection::timeout_handler(const boost::system::error_code &e)
 void
 ssr::Connection::start_read()
 {
-  async_read_until(_socket, _streambuf, '\0'
+  async_read_until(_socket, _streambuf, _end_of_message_character
       , boost::bind(&Connection::read_handler, shared_from_this()
         , boost::asio::placeholders::error
         , boost::asio::placeholders::bytes_transferred));
@@ -128,7 +130,7 @@ ssr::Connection::read_handler(const boost::system::error_code &error
   {
     std::istream input_stream(&_streambuf);
     std::string  packet_string;
-    getline(input_stream, packet_string, '\0');
+    getline(input_stream, packet_string, _end_of_message_character);
     (void) size;
     //cout << "size= " << size << endl;
     //cout << "line: " << packet_string << endl;
@@ -154,7 +156,8 @@ ssr::Connection::write(std::string &writestring)
   // handler. This is sufficient to make it
   // be destroyed on exit.
 
-  boost::shared_ptr<std::string> str_ptr(new std::string(writestring + '\0'));
+  boost::shared_ptr<std::string> str_ptr(new std::string(writestring 
+      + _end_of_message_character));
 
   boost::asio::async_write(_socket, boost::asio::buffer(*str_ptr)
       , boost::bind(&Connection::write_handler, shared_from_this(), str_ptr

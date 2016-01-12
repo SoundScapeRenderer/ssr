@@ -50,7 +50,7 @@ struct Publisher;
 class Server
 {
   public:
-    Server(Publisher& controller, int port);
+    Server(Publisher& controller, int port, char end_of_message_character);
     ~Server();
     void start();
     void stop();
@@ -65,6 +65,8 @@ class Server
     boost::asio::io_service _io_service;
     boost::asio::ip::tcp::acceptor _acceptor;
     boost::thread *_network_thread;
+
+    char _end_of_message_character;
 };
 
 }  // namespace ssr

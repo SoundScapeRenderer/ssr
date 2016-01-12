@@ -309,6 +309,9 @@ an overview of the command line options and various renderers::
     -i, --ip-server[=PORT] Start IP server (default on)
                            A port can be specified: --ip-server=5555
     -I, --no-ip-server     Don't start IP server
+        --end-of-message-character=VALUE
+                           ASCII code for character to end messages with
+                           (default 0 = binary zero)
     -g, --gui              Start GUI (default)
     -G, --no-gui           Don't start GUI
     -t, --tracker=TYPE     Start tracker, possible value(s): polhemus vrpn razor

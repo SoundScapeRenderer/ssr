@@ -152,7 +152,10 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   conf.output_port_prefix = "system:playback_";
   conf.path_to_gui_images = SSR_DATA_DIR"/images";
   conf.path_to_scene_menu = "./scene_menu.conf";
+  conf.end_of_message_character = 0; // default: binary zero
 
+  conf.renderer_params.set("decay_exponent", 1);  // 1 / r^1
+  
   conf.renderer_params.set("amplitude_reference_distance", 3);  // meters
 
   // for WFS renderer
@@ -220,6 +223,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "  -s, --setup=FILE    Load reproduction setup from FILE\n"
 "      --threads=N     Number of audio threads (default: auto)\n"
 "  -r, --record=FILE   Record the audio output of the renderer to FILE\n"
+"      --decay-exponent=VALUE\n"
+"                      Exponent that determines the amplitude decay "
+                                                                "(default: 1)\n"
 #ifndef ENABLE_ECASOUND
 "                      (disabled at compile time!)\n"
 #endif
@@ -233,6 +239,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "                      Start IP server (default on),\n"
 "                      a port number can be specified (default 4711)\n"
 "  -I, --no-ip-server  Don't start IP server\n"
+"      --end-of-message-character=VALUE\n"
+"                      ASCII code for character to end messages with\n"
+"                      (default 0 = binary zero)\n"
 #else
 "  -i, --ip-server     Start IP server (not enabled at compile time!)\n"
 "  -I, --no-ip-server  Don't start IP server (default)\n"
@@ -302,10 +311,12 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     {"setup",        required_argument, nullptr, 's'},
     {"threads",      required_argument, nullptr,  0 },
     {"record",       required_argument, nullptr, 'r'},
+    {"decay-exponent", required_argument, nullptr,  0 },
     {"loop",         no_argument,       nullptr,  0 },
     {"master-volume-correction", required_argument, nullptr, 0},
     {"ip-server",    optional_argument, nullptr, 'i'},
     {"no-ip-server", no_argument,       nullptr, 'I'},
+    {"end-of-message-character", required_argument, nullptr, 0},
     {"gui",          no_argument,       nullptr, 'g'},
     {"no-gui",       no_argument,       nullptr, 'G'},
     {"tracker",      required_argument, nullptr, 't'},
@@ -365,6 +376,10 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         {
           conf.renderer_params.set("threads", optarg);
         }
+        else if (strcmp("decay-exponent", longopts[longindex].name) == 0)
+        {
+          conf.renderer_params.set("decay_exponent", optarg);
+        }
         else if (strcmp("loop", longopts[longindex].name) == 0)
         {
           conf.loop = true;
@@ -372,6 +387,13 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         else if (strcmp("master-volume-correction",longopts[longindex].name)==0)
         {
           conf.renderer_params.set("master_volume_correction", optarg);
+        }
+        else if (strcmp("end-of-message-character",longopts[longindex].name)==0)
+        {
+          if (!S2A(optarg, conf.end_of_message_character))
+          {
+            ERROR("Invalid end-of-message character specified!");
+          }
         }
         else if (strcmp("tracker-port", longopts[longindex].name) == 0)
         {
@@ -650,6 +672,10 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       conf.renderer_params.set("master_volume_correction", value);
     }
+    else if (!strcmp(key, "DECAY_EXPONENT"))
+    {
+      conf.renderer_params.set("decay_exponent", value);
+    }
     else if (!strcmp(key, "STANDARD_AMPLITUDE_REFERENCE_DISTANCE"))
     {
       conf.renderer_params.set("amplitude_reference_distance", value);
@@ -753,6 +779,15 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       #ifdef ENABLE_IP_INTERFACE
       conf.server_port = atoi(value);
+      #endif
+    }
+    else if (!strcmp(key, "END_OF_MESSAGE_CHARACTER"))
+    {
+      #ifdef ENABLE_IP_INTERFACE     
+      if (!S2A(value, conf.end_of_message_character))
+      {
+        ERROR("Invalid end-of-message character specified!");
+      }
       #endif
     }
     else if (!strcmp(key, "VERBOSE"))

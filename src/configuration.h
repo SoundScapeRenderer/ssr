@@ -57,6 +57,7 @@ struct conf_struct
   std::string output_port_prefix;       ///< e.g. "alsa_pcm:playback"
   std::string path_to_gui_images;       ///< dto.
   std::string path_to_scene_menu;       ///< path to scene_menu.conf
+  int end_of_message_character;         ///< ASCII
 
   int server_port;                      ///< listening port
   /// size of delay line (in samples)
@@ -67,7 +68,7 @@ struct conf_struct
   //int hrir_size;
   //std::string hrir_file_name;
   int ambisonics_order;
-  bool         in_phase_rendering;
+  bool in_phase_rendering;
 
   bool loop; ///< temporary solution for looping sound files
 };

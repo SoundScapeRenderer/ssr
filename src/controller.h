@@ -384,8 +384,13 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 #ifdef ENABLE_IP_INTERFACE
   if (_conf.ip_server)
   {
-    VERBOSE("Starting IP Server with port " << _conf.server_port);
-    _network_interface.reset(new Server(*this, _conf.server_port));
+
+    VERBOSE("Starting IP Server with port " << _conf.server_port
+        << " and with end-of-message character with ASCII code " << 
+        _conf.end_of_message_character << ".");
+
+    _network_interface.reset(new Server(*this, _conf.server_port
+        , static_cast<char>(_conf.end_of_message_character)));
     _network_interface->start();
   }
 #endif // ENABLE_IP_INTERFACE
@@ -1570,7 +1575,7 @@ Controller<Renderer>::set_amplitude_reference_distance(const float dist)
   }
   else
   {
-    ERROR("Amplitude reference distance can not be smaller than 1.");
+    ERROR("Amplitude reference distance cannot be smaller than 1.");
   }
 }
 

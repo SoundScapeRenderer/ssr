@@ -55,7 +55,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
     typedef boost::asio::ip::tcp::socket socket_t;
 
     static pointer create(boost::asio::io_service &io_service
-        , Publisher &controller);
+        , Publisher &controller, char end_of_message_character);
 
     void start();
     void write(std::string &writestring);
@@ -66,7 +66,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
     ~Connection();
 
   private:
-    Connection(boost::asio::io_service &io_service, Publisher &controller);
+    Connection(boost::asio::io_service &io_service, Publisher &controller
+        , char end_of_message_character);
 
     void start_read();
     void read_handler(const boost::system::error_code &error, size_t size);
@@ -90,6 +91,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
     CommandParser _commandparser;
 
     bool _is_subscribed;
+
+    char _end_of_message_character;
 };
 
 }  // namespace ssr
