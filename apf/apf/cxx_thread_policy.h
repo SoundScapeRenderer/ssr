@@ -185,7 +185,7 @@ class cxx_thread_policy::Semaphore : NonCopyable
   // implementation stolen from http://stackoverflow.com/a/19659736/500098
 
   public:
-    Semaphore(int count = 0) : _count(count) {}
+    Semaphore(int count = 0) : _count{count} {}
 
     Semaphore(Semaphore&&)
     {
@@ -196,15 +196,15 @@ class cxx_thread_policy::Semaphore : NonCopyable
 
     inline void post()
     {
-      std::unique_lock<std::mutex> lock(_mtx);
+      std::lock_guard<std::mutex> guard{_mtx};
       _count++;
       _cv.notify_one();
     }
 
     inline void wait()
     {
-      std::unique_lock<std::mutex> lock(_mtx);
-      while(_count == 0) { _cv.wait(lock); }
+      std::unique_lock<std::mutex> lock{_mtx};
+      _cv.wait(lock, [this]() { return _count > 0; });
       _count--;
     }
 
