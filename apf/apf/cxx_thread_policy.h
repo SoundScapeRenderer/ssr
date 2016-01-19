@@ -216,8 +216,6 @@ class cxx_thread_policy::Semaphore : NonCopyable
 
 }  // namespace apf
 
-#undef APF_DUMMY_THREAD_POLICY_ERROR
-
 #endif
 
 // Settings for Vim (http://www.vim.org/), please do not remove:
