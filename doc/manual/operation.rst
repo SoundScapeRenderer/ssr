@@ -267,7 +267,9 @@ SSR is by passing a sound-file directly::
 
 By default, the SSR starts with the binaural renderer; please use
 headphones for listening with this renderer. Type ``ssr --help`` to get
-an overview of the command line options and various renderers::
+an overview of the command line options and various renderers:
+
+.. code-block:: none
 
     USAGE: ssr [OPTIONS] <scene-file>
 
