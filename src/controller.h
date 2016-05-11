@@ -1159,10 +1159,11 @@ Controller<Renderer>::_start_tracker(const std::string& type, const std::string&
     return;
 #endif
   }
-  else if (type == "polhemus")
+  // "polhemus" is allowed for backwards compatibility:
+  else if (type == "fastrak" || type == "patriot" || type == "polhemus")
   {
 #if defined(ENABLE_POLHEMUS)
-    _tracker = TrackerPolhemus::create(*this, ports);
+    _tracker = TrackerPolhemus::create(*this, type, ports);
 #else
     ERROR("The SSR was compiled without Polhemus tracker support!");
     (void)ports;  // avoid "unused parameter" warning

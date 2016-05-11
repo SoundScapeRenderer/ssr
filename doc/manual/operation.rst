@@ -316,7 +316,8 @@ an overview of the command line options and various renderers::
                            (default 0 = binary zero)
     -g, --gui              Start GUI (default)
     -G, --no-gui           Don't start GUI
-    -t, --tracker=TYPE     Start tracker, possible value(s): polhemus vrpn razor
+    -t, --tracker=TYPE     Start tracker, possible value(s):
+                           fastrak patriot vrpn razor
         --tracker-port=PORT
                            A serial port can be specified, e.g. /dev/ttyS1
     -T, --no-tracker       Don't start tracker
@@ -375,7 +376,9 @@ to use, and most other command line arguments) can be specified in a
 configuration file (e.g.
 ``ssr.conf``). By specifying your settings in such a file, you avoid
 having to give explicit command line options every time you start the
-SSR. We have added the example ``data/ssr.conf.example``, which mentions
+SSR. We have added the example
+:download:`data/ssr.conf.example <../../data/ssr.conf.example>`,
+which mentions
 all possible parameters. Take a look inside, it is rather
 self-explanatory. There are three possibilities to specify a
 configuration file:
@@ -407,8 +410,8 @@ there's also a command line alternative (``--master-volume-correction``).
 Head Tracking
 -------------
 
-We provide integration of the *InterSense InertiaCube3* tracking sensor
-and the *Polhemus Fastrak*. They are used to update the orientation of
+We provide integration of the *InterSense InertiaCube3* tracking sensor,
+the *Polhemus Fastrak* and the *Polhemus Patriot*. They are used to update the orientation of
 the reference (in binaural reproduction this is the listener) in
 real-time. Please read Sections :ref:`Preparing Intersense <prep_isense>` and
 :ref:`Preparing Polhemus <prp_pol>` if you want to compile the SSR with the
@@ -466,10 +469,10 @@ the highest number.
 
 .. _prp_pol:
 
-Preparing Polhemus Fastrack
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Preparing Polhemus Fastrak/Patriot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For incorporation of the *Polhemus Fastrack*
+For incorporation of the *Polhemus Fastrak/Patriot*
 with serial connection, no additional libraries are required. Make sure that
 you have the required access rights to the tracker before starting SSR by
 typing something like :: 
@@ -1193,7 +1196,7 @@ Polhemus tracker does not work with SSR
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This issue was resolved in version 0.3.3, where we changed the tracker
-selection. Use ``--tracker=polhemus`` and ``--tracker=intersense``,
+selection. Use ``--tracker=fastrak``, ``--tracker=patriot`` and ``--tracker=intersense``,
 respectively. The serial port can be specified with ``--tracker-port=/dev/
 ttyUSB0`` (or similar).
 

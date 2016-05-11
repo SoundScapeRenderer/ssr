@@ -90,7 +90,7 @@ namespace // anonymous
 #endif
 #endif // ENABLE_INTERSENSE
 #ifdef ENABLE_POLHEMUS
-        "Polhemus|"
+        "Polhemus Fastrak/Patriot|"
 #endif
 #ifdef ENABLE_VRPN
         "VRPN|"
@@ -264,7 +264,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "  -t, --tracker=TYPE  Select head tracker, possible value(s):\n"
 "                     "
 #if defined(ENABLE_POLHEMUS)
-" polhemus"
+" fastrak patriot"
 #endif
 #if defined(ENABLE_VRPN)
 " vrpn"

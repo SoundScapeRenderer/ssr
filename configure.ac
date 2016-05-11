@@ -623,16 +623,16 @@ AS_IF([test x$have_ecasound != xno],
   AC_CHECK_PROG([have_ecasound_program], [ecasound], [yes], [no])
 ])
 
-dnl Checking for Polhemus Fastrak support
-ENABLE_AUTO([polhemus], [Polhemus Fastrak tracker support],
+dnl Checking for Polhemus Fastrak/Patriot support
+ENABLE_AUTO([polhemus], [Polhemus Fastrak/Patriot tracker support],
 [
-  AC_MSG_CHECKING([various header files for Polhemus Fastrak tracker support])
+  AC_MSG_CHECKING([various header files for Polhemus Fastrak/Patriot tracker support])
   AC_MSG_RESULT([see below])
   AC_CHECK_HEADER([termios.h], , [have_polhemus=no])
   AC_CHECK_HEADER([unistd.h],  , [have_polhemus=no])
   AC_CHECK_HEADER([fcntl.h],   , [have_polhemus=no])
   AC_CHECK_HEADER([poll.h],    , [have_polhemus=no])
-  AC_MSG_CHECKING([Polhemus Fastrak support])
+  AC_MSG_CHECKING([Polhemus Fastrak/Patriot support])
   AC_MSG_RESULT([$have_polhemus])
 ])
 
@@ -831,7 +831,7 @@ AS_IF([test x$have_gui = xyes],
 echo "|"
 echo "| Build with tracker support:"
 echo "|    InterSense .......................... : $intersense_version"
-echo "|    Polhemus Fastrak .................... : $have_polhemus"
+echo "|    Polhemus Fastrak/Patriot ............ : $have_polhemus"
 echo "|    Razor AHRS .......................... : $have_razor"
 echo "|    VRPN ................................ : $have_vrpn"
 echo "|"

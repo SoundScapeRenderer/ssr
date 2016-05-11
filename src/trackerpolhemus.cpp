@@ -32,6 +32,7 @@
 #include <fcntl.h>   // for open(), ...
 #include <sstream>   // for std::stringstream
 #include <poll.h>    // for poll(), pollfd, ...
+#include <cassert>   // for assert()
 
 #include "trackerpolhemus.h"
 #include "publisher.h"
@@ -41,7 +42,7 @@
 using apf::str::A2S;
 
 ssr::TrackerPolhemus::TrackerPolhemus(Publisher& controller
-    , const std::string& ports)
+    , const std::string& type, const std::string& ports)
   : Tracker()
   , _controller(controller)
   , _stopped(false)
@@ -52,7 +53,7 @@ ssr::TrackerPolhemus::TrackerPolhemus(Publisher& controller
   {
     throw std::runtime_error("No serial port(s) specified!");
   }
-  VERBOSE("Opening serial port for Polhemus Fastrak ...");
+  VERBOSE("Opening serial port for Polhemus Fastrak/Patriot ...");
 
   std::istringstream iss(ports);
   std::string port;
@@ -115,8 +116,22 @@ ssr::TrackerPolhemus::TrackerPolhemus(Publisher& controller
         + ": Could not set new serial port attributes.");
   }
 
-  // this is necessary to activate the serial port
-  write(_tracker_port, "C", 1);
+  // "polhemus" is allowed for backwards compatibility
+  if (type == "fastrak" || type == "polhemus")
+  {
+    // switch to "continuous" mode
+    write(_tracker_port, "C", 1);
+    _line_size = 47;
+  }
+  else if (type == "patriot")
+  {
+    write(_tracker_port, "C\r", 2);
+    _line_size = 60;
+  }
+  else
+  {
+    assert(false);
+  }
 
   fsync(_tracker_port);
 
@@ -136,12 +151,13 @@ ssr::TrackerPolhemus::~TrackerPolhemus()
 }
 
 ssr::TrackerPolhemus::ptr_t
-ssr::TrackerPolhemus::create(Publisher& controller, const std::string& ports)
+ssr::TrackerPolhemus::create(Publisher& controller, const std::string& type
+    , const std::string& ports)
 {
   ptr_t temp; // temp = NULL
   try
   {
-    temp.reset(new TrackerPolhemus(controller, ports));
+    temp.reset(new TrackerPolhemus(controller, type, ports));
   }
   catch(std::runtime_error& e)
   {
@@ -239,7 +255,7 @@ ssr::TrackerPolhemus::thread(void *arg)
       }
     }
 
-    if (line.size() != 47)
+    if (line.size() != _line_size)
     {
       _current_data.azimuth = 0.0f;
       continue;
@@ -267,6 +283,10 @@ ssr::TrackerPolhemus::thread(void *arg)
 // The 7-byte-groups contain optional spaces for padding, an optional sign and a
 // decimal number with 2 digits after the comma.
 // The last two bytes are the abovementioned <CR> and <LF>.
+//
+// The data coming from the Polhemus Patriot is similar, except that only two
+// sockets are available and each of the 6 degrees of freedom are represented by
+// 9 bytes, leading to a total of 60 ASCII bytes.  
 
     // extract data
     lineparse >> _current_data.header

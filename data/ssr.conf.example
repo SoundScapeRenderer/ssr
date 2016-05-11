@@ -75,7 +75,8 @@
 ############################# head tracker settings ############################
 
 # select head tracker
-#TRACKER = polhemus
+#TRACKER = fastrak
+#TRACKER = patriot
 #TRACKER = intersense
 #TRACKER = razor
 
