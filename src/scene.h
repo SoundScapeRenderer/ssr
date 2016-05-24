@@ -86,6 +86,8 @@ class Scene : public Subscriber
 
     virtual void set_master_volume(float volume);
 
+    virtual void set_decay_exponent(float exponent);
+
     virtual void set_amplitude_reference_distance(float dist);
 
     virtual void set_master_signal_level(float level);
@@ -101,6 +103,8 @@ class Scene : public Subscriber
     virtual void set_transport_state(
         const std::pair<bool, jack_nframes_t>& state);
 
+    virtual void set_auto_rotation(bool auto_rotate_sources);
+
     loudspeakers_t::size_type get_number_of_loudspeakers() const;
 
     //    std::pair<bool, jack_nframes_t> get_transport_state() const;
@@ -110,6 +114,9 @@ class Scene : public Subscriber
 
     /// get master volume with amplitude correction considered
     float get_corrected_master_volume() const;
+
+    /// get amplitude decay exponent
+    float get_decay_exponent() const;
 
     /// get amplitude reference distance
     float get_amplitude_reference_distance() const;
@@ -146,6 +153,8 @@ class Scene : public Subscriber
     bool get_processing_state() const;
     bool is_playing() const;
     jack_nframes_t get_transport_position() const;
+
+    bool get_auto_rotation() const;
 
     // temporarily with inline implementation
     // should return 0 in case of doubt.
@@ -249,6 +258,7 @@ class Scene : public Subscriber
     DirectionalPoint _reference_offset;
     float _master_volume;         ///< master volume (linear)
     float _master_volume_correction; ///< dito (linear scale)
+    float _decay_exponent; ///< dito
     float _amplitude_reference_distance; ///< distance where plane sources are
                                          ///< as loud as the other source types
     float _master_signal_level; ///< instantaneous overall signal level (linear)
@@ -259,6 +269,7 @@ class Scene : public Subscriber
     bool _processing_state;  ///< is renderer processing?
     bool           _transport_playing;
     jack_nframes_t _transport_position; ///< current position in the audio file in samples
+    bool _auto_rotate_sources;
 
     template<typename T, typename PointerToMember> bool _set_source_member(
         id_t id, PointerToMember member, const T& arg)

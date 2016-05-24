@@ -14,8 +14,14 @@
 # Correction of master volume in dB
 #MASTER_VOLUME_CORRECTION = 6
 
+# Exponent exp that determines the amplitude decay in virtual space ( 1/r^exp )
+#DECAY_EXPONENT = 0
+
 # Distance in m of equal level for plane waves and point sources
 #STANDARD_AMPLITUDE_REFERENCE_DISTANCE = 3
+
+# Switch off auto-rotation of sound sources toward the reference
+#AUTO_ROTATION = off
 
 # Default Scene file name 
 #SCENE_FILE_NAME = my_scene.asd

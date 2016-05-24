@@ -975,13 +975,8 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
     // move all selected sources
     for (selected_sources_map_t::iterator i = _selected_sources_map.begin(); i != _selected_sources_map.end(); i++)
     {
-      // if source is plane then make sure that it faces the reference
-      if (_scene.get_source_model(i->second) == Source::plane)
-      {
-	_controller.set_source_orientation(i->second,(_scene.get_reference().position -
-			   *_scene.get_source_position(i->second)).orientation());
-      }
-      else if (_scene.get_source_model(i->second) == Source::directional ||
+      // rotate complex sources by the appropriate angle 
+      if (_scene.get_source_model(i->second) == Source::directional ||
                _scene.get_source_model(i->second) == Source::extended)
       {
         // position delta expressed as angle
@@ -994,6 +989,7 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
       } // if
 
       // finally set the source's position
+      // plane waves and point sources will automatically face the reference
       _controller.set_source_position(i->second,
                 *_scene.get_source_position(i->second) + d_position);
 
@@ -1250,6 +1246,7 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
   case Qt::Key_F: _toggle_fixation_state_of_selected_sources(); break;
   case Qt::Key_M: _toggle_mute_state_of_selected_sources(); break;
   case Qt::Key_P: _toggle_source_models(); break;  
+  case Qt::Key_R: _controller.set_auto_rotation(!_scene.get_auto_rotation()); break;
 
   case Qt::Key_S: if ( event->modifiers() == Qt::ControlModifier ) 
                   {
@@ -1420,10 +1417,8 @@ void ssr::QUserInterface::_toggle_mute_state_of_selected_sources()
   }
 }
 
-
 void ssr::QUserInterface::_toggle_source_models()
 {
-
   // toggle all source types between "plane" and "point"
   for (selected_sources_map_t::iterator i = _selected_sources_map.begin(); i != _selected_sources_map.end(); i++)
   {

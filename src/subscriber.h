@@ -144,6 +144,10 @@ struct Subscriber
   /// @param volume volume
   virtual void set_master_volume(float volume)  = 0;
 
+  /// Set amplitude decay exponent.
+  /// @param exponent amplitude decay exponent
+  virtual void set_decay_exponent(float exponent)  = 0;
+
   /// Set amplitude reference distance.
   /// @param distance amplitude reference distance
   virtual void set_amplitude_reference_distance(float distance)  = 0;
@@ -166,6 +170,8 @@ struct Subscriber
   virtual void set_processing_state(bool state)  = 0;
 
   virtual void set_transport_state(const std::pair<bool, jack_nframes_t>& state)  = 0;
+
+  virtual void set_auto_rotation(bool auto_rotate_sources) = 0;
 };
 
 }  // namespace ssr

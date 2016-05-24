@@ -67,15 +67,16 @@
         position and orientation.
     </xs:documentation></xs:annotation>
     <xs:complexType>
-      <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
         <!-- the order doesn't really matter, but the "all" element
         doesn't allow a maxOccurs of more than 1 -->
         <!-- volume in dB! -->
         <xs:element name="volume" type="xs:float" minOccurs="0"/>
+        <xs:element name="decay_exponent" type="xs:decimal" minOccurs="0"/>
         <xs:element name="amplitude_reference_distance" type="xs:decimal" minOccurs="0"/>
         <xs:element ref="reference" minOccurs="0"/>
         <xs:element ref="source" minOccurs="0" maxOccurs="unbounded"/>
-      </xs:sequence>
+      </xs:choice>
     </xs:complexType>
   </xs:element>
 

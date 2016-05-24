@@ -85,8 +85,7 @@ We provide the following setups in the directory
    describes all supported options, open it with your favorite text
    editor and have a look inside.
 
-Note that outputs specified as subwoofers receive a signal having full
-bandwidth. There is some limited freedom in assigning channels to
+There is some limited freedom in assigning channels to
 loudspeakers: If you insert the element ``<skip number="5"/>``, the
 specified number of output channels are skipped and the following
 loudspeakers get higher channel numbers accordingly.
@@ -101,18 +100,18 @@ A Note on the Timing of the Audio Signals
 The WFS renderer is the only renderer in which the timing of the audio
 signals is somewhat peculiar. None of the other renderers imposes any
 algorithmic delay on individual source signals. Of course, if you use a
-renderer which is convolution based such as the BRS renderer, the
+renderer that is convolution based such as the BRS renderer, the
 employed HRIRs do alter the timing of the signals due to their inherent
 properties.
 
 This is different with the WFS renderer. Here, also the propagation
 duration of sound from the position of the virtual source to the
-loudspeaker array is considered. That means that the farther a virtual
+loudspeaker array is taken into account. This means that the farther a virtual
 source is located, the longer is the delay imposed on its input signal.
 This also holds true for plane waves: Theoretically, plane waves do
 originate from infinity. Though, the SSR does consider the origin point
-of the plane wave which is specified in ASDF. This origin point also
-specifies the location of the symbol which represents the respective
+of the plane wave that is specified in ASDF. This origin point also
+specifies the location of the symbol that represents the respective
 plane wave in the GUI.
 
 We are aware that this procedure can cause confusion and reduces the
@@ -122,17 +121,62 @@ option that will allow you specifying for each individual source whether
 the propagation duration of sound shall be considered by a renderer or
 not.
 
+Subwoofers
+~~~~~~~~~~
+
+All loudspeaker-based renderers support the use of subwoofers. Outputs of the 
+SSR that are assigned to subwoofers receive a signal having full bandwidth. So,
+you will have to make sure yourself that your system lowpasses these signals
+appropriately before they are emitted by the subwoofers.
+
+You might need to adjust the level of your subwoofer(s) depending on the 
+renderers that you are using as the overall radiated power of the normal 
+speakers cannot be predicted easily so that we cannot adjust for it 
+automatically. For example, no matter of how many loudspeakers your setup is 
+composed of the VBAP renderer will only use two loudspeakers at a time to 
+present a given virtual sound source. The WFS renderer on the other hand might 
+use 10 or 20 loudspeakers, which can clearly lead to a different sound pressure
+level at a given receiver location.
+
+For convenience, ASDF allows for specifying permantent weight for loudspeakers 
+and subwoofers using the ``weight`` attribute:
+
+::
+
+    <loudspeaker model="subwoofer" weight="0.5">
+      <position x="0" y="0"/>
+      <orientation azimuth="0"/>
+    </loudspeaker>
+
+``weight`` is a linear factor that is always applied to the signal of this 
+speaker. Above example will obviously attenuate the signal by approx. 6 dB. You 
+can use two ASDF description for the same reproduction setup that 
+differ only with respect to the subwoofer weights if you're using different 
+renderers on the same loudspeaker system.
+
 Distance Attenuation
 ~~~~~~~~~~~~~~~~~~~~
 
-Note that in all renderers -- except the BRS renderer -- distance
-attenuation is handled as :math:`\frac{1}{r}` with respect to the
-distance :math:`r` of the respective virtual source to the reference
-position. Sources closer than 0.5 mtrs to the reference position do not
-experience any increase of amplitude. Virtual plane waves do not
-experience any algorithmic distance attenuation in any renderer. In
-future versions of the SSR more freedom in specifying the distance
-attenuation will be provided.
+Note that in all renderers -- except for the BRS and generic renderers --, the 
+distance attenuation in the virtual space is :math:`\frac{1}{r}` with respect 
+to the distance :math:`r` of the respective virtual point source to the
+reference position. Point sources closer than 0.5 m to the reference position
+do not experience any increase of amplitude. Virtual plane waves do not
+experience any algorithmic distance attenuation in any renderer. 
+
+You can specify your own preferred distance attenuation exponent :math:`exp`
+(in :math:`\frac{1}{r^{exp}}`) either via the command line argument 
+``--decay-exponent=VALUE`` or the configuration option ``DECAY_EXPONENT`` (see
+the file ``data/ssr.conf.example``). The higher the exponent, the faster is the
+amplitude decay over distance. The default exponent is 
+:math:`exp = 1` [1]_. Fig. :ref:`3.1 <distance_attenuation>` illustrates the effect 
+of different choices of the exponent. In simple words, the smaller the exponent
+the slower is the amplitude decay over distance. Note that the default decay of
+:math:`\frac{1}{r}` is theoretically correct only for infinitessimally small 
+sound sources. Spatially extended sources, like most real world sources, exhibit 
+a slower decay. So you might want to choose the exponent to be somewhere between 
+0.5 and 1. You can completely suppress any sort of distance attenuation by
+setting the decay exponent to 0.
 
 The amplitude reference distance, i.e. the distance from the reference
 at which plane waves are as loud as the other source types (like point
@@ -140,6 +184,34 @@ sources), can be set in the SSR configuration file
 (Section :ref:`Configuration File <ssr_configuration_file>`). The desired
 amplitude reference distance for a given sound scene can be specified in
 the scene description (Section :ref:`ASDF <asdf>`). The default value is 3 m.
+
+The overall amplitude normalization is such that plane waves always exhibit the
+same amplitude independent of what amplitude reference distance and what decay
+exponent have been chosen. Consequently, also virtual point source always
+exhibit the same amplitude at amplitude reference distance, whatever it has
+been set to.
+
+.. _distance_attenuation:
+
+.. figure:: images/distance_attenuation.png
+    :align: center
+
+    Illustration of the amplitude of virtual point sources as a function of
+    source distance from the reference point for different exponents
+    :math:`exp`. The exponents range from 0 to 2 (black color to gray color).
+    The amplitude reference distance is set to 3 m. Recall that sources 
+    closer than 0.5 m to the reference position do not experience any further 
+    increase of amplitude.
+
+.. [1]
+   A note regarding previous versions of the WFS renderer: In the present SSR
+   version, the amplitude decay is handled centrally and equally for all
+   renderers that take distance attenuation into account (see Table 
+   :ref:`2 <source_props>`). Previously, the WFS renderer relied on the distance
+   attenuation that was inherent to the WFS driving function. This amplitude
+   decay is very similar to an exponent of 0.5 (instead of the current default
+   exponent of 1.0). So you  might want to set the decay exponent to 0.5 in WFS
+   to make your scenes sound like they used to do previously.
 
 Doppler Effect
 ~~~~~~~~~~~~~~
@@ -152,7 +224,7 @@ Signal Processing
 
 All rendering algorithms are implemented on a frame-wise basis with an
 internal precision of 32 bit floating point. The signal processing is
-illustrated in Fig. :ref:`3.1 <signal_processing>`.
+illustrated in Fig. :ref:`3.2 <signal_processing>`.
 
 The input signal is divided into individual frames of size *nframes*,
 whereby *nframes* is the frame size with which JACK is running. Then
@@ -259,7 +331,7 @@ convolution the system latency is reduced but computational load is
 increased.
 
 The HRIRs ``data/impulse_responses/hrirs/hrirs_fabian.wav`` we have included
-in the SSR are HRIRs of 512 taps of the FABIAN mannequin [Lindau2007]_ in an
+in the SSR are HRIRs of 512 taps of the FABIAN manikin [Lindau2007]_ in an
 anechoic
 environment. See the file ``data/impulse_responses/hrirs/hrirs_fabian_
 documentation.pdf`` for details
@@ -274,7 +346,7 @@ Preparing HRIR sets
 
 You can easily prepare your own HRIR sets for use with the SSR by
 adopting the MATLAB script ``data/matlab_scripts/prepare_hrirs_kemar.m``
-to your needs. This script converts the HRIRs of the KEMAR mannequin
+to your needs. This script converts the HRIRs of the KEMAR manikin
 included in the CIPIC database [AlgaziCIPIC]_ to the format that the SSR
 expects. See the script for further information and how to obtain the raw HRIRs.
 
@@ -336,10 +408,13 @@ virtual source's position does not affect the audio processing. If you
 do not specify a BRIR set for each virtual source, then the renderer
 will complain and refuse processing the respective source.
 
-We have measured the binaural room impulse responses of the FABIAN
-mannequin  in one of our mid-size meeting rooms called Sputnik with 8
+We have measured the BRIRs of the FABIAN
+manikin in one of our mid-size meeting rooms called Sputnik with 8
 different source positions. Due to the file size, we have not included
-them in the release. Please contact  to obtain the data.
+them in the release. You can obtain the data from [BRIRs]_.
+
+.. [BRIRs] The Sputnik BRIRs can be obtained from here: https://dev.qu.tu-berlin.de/projects/measurements/wiki/Impulse_Response_Measurements.
+    More BRIR repositories are compiled here: http://www.soundfieldsynthesis.org/other-resources/#impulse-responses. 
 
 Vector Base Amplitude Panning Renderer
 --------------------------------------
@@ -513,12 +588,12 @@ Ambisonics Amplitude Panning Renderer
 
 The Ambisonics Amplitude Panning (AAP) renderer does very simple
 Ambisonics rendering. It does amplitude panning by simultaneously using
-all loudspeakers which are not subwoofers to reproduce a virtual source
+all loudspeakers that are not subwoofers to reproduce a virtual source
 (contrary to the VBAP renderer which uses only two loudspeakers at a
 time). Note that the loudspeakers should ideally be arranged on a circle
 and the reference should be the center of the circle. The renderer
 checks for that and applies delays and amplitude corrections to all
-loudspeakers which are closer to the reference than the farthest. This
+loudspeakers that are closer to the reference than the farthest. This
 also includes subwoofers. If you do not want close loudspeakers to be
 delayed, then simply specify their location in the same direction like
 its actual position but at a larger distance from the reference. Then
@@ -535,7 +610,7 @@ appear at the distance of the loudspeakers.
 
 If you do not explicitly specify an Ambisonics order, then the maximum
 order which makes sense on the given loudspeaker setup will be used. The
-automatically chosen order will be one of :math:`(L-1)2` for an odd number
+automatically chosen order will be one of :math:`(L-1)/2` for an odd number
 :math:`L` of loudspeakers and accordingly for even numbers.
 
 You can manually set the order via a command line option
@@ -552,8 +627,8 @@ sound field of a virtual source at any time.
 Conventional driving function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By default we use the standard Ambisonics panning function outlined
-e.g. in [Neukom2007]_ reading
+By default we use the standard Ambisonics panning function presented,
+for example, in [Neukom2007]_. It reads
 
 .. math::
 
@@ -561,10 +636,10 @@ e.g. in [Neukom2007]_ reading
    \alpha_\textrm{s})\right )} {(2M+1) \ \sin \left ( \frac{\alpha_0 -
    \alpha_\textrm{s}}{2} \right ) },
 
-whereby :math:`\alpha_0` is the polar angle of the position of the
-considered secondary source, :math:`\alpha_\textrm{s}` is the polar
-angle of the position of the virtual source, and :math:`M` is the
-Ambisonics order.
+whereby :math:`\alpha_0` is the azimuth angle of the position of the
+considered secondary source, :math:`\alpha_\textrm{s}` is the azimuth
+angle of the position of the virtual source, both in radians, and :math:`M` is 
+the Ambisonics order.
 
 In-phase driving function
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -637,16 +712,16 @@ Table 1: Loudspeaker properties considered by the different renderers.
 
 .. _source_props:
 
-=================   ======   =====  ========  ================  ==========
-       ..           gain     mute   position  orientation [1]_  model
------------------   ------   -----  --------  ----------------  ----------
-binaural renderer    *+*     *+*     *+*         *-*            only ampl.
-BRS renderer         *+*     *+*     *-*         *-*              *-*
-VBAP renderer        *+*     *+*     *+*         *-*            only ampl.
-WFS renderer         *+*     *+*     *+*         *+*              *+*
-AAP renderer         *+*     *+*     *+*         *-*            only ampl.
-generic renderer     *+*     *+*     *-*         *-*              *-*
-=================   ======   =====  ========  ================  ==========
+=================   ======   =====  ========  ================  ====================  =================
+       ..           gain     mute   position  orientation [2]_  distance attenuation  model
+-----------------   ------   -----  --------  ----------------  --------------------  -----------------
+binaural renderer    *+*     *+*     *+*         *+*                   *+*            only w.r.t. ampl.
+BRS renderer         *+*     *+*     *-*         *-*                   *-*              *-*
+VBAP renderer        *+*     *+*     *+*         *+*                   *+*            only w.r.t. ampl.
+WFS renderer         *+*     *+*     *+*         *+*                   *+*              *+*
+AAP renderer         *+*     *+*     *+*         *-*                   *+*            only w.r.t. ampl.
+generic renderer     *+*     *+*     *-*         *-*                   *-*              *-*
+=================   ======   =====  ========  ================  ====================  =================
 
 Table 2: Virtual source's properties considered by the different renderers.
 
@@ -657,5 +732,10 @@ Tables :ref:`1 <loudspeaker_properties>` and :ref:`2 <source_props>` summarize
 the functionality of the
 SSR renderers.
 
-.. [1]
-   So far, only plane waves have a defined orientation.
+.. [2]
+   So far, only planar sources have a defined orientation. By default, their
+   orientation is always pointing from their nominal position to the reference
+   point no matter where you move them. Any other information or updates on the 
+   orientation are ignored. You can changes this behavior by using either the 
+   command line option ``--no-auto-rotation``, using the ``AUTO_ROTATION`` 
+   configuration parameter, or hitting ``r`` in the GUI.

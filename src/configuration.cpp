@@ -155,8 +155,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   conf.end_of_message_character = 0; // default: binary zero
 
   conf.renderer_params.set("decay_exponent", 1);  // 1 / r^1
-  
   conf.renderer_params.set("amplitude_reference_distance", 3);  // meters
+
+  conf.auto_rotate_sources = true;
 
   // for WFS renderer
   conf.renderer_params.set("prefilter_file"
@@ -180,7 +181,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
   // load system-wide config file (Mac)
   load_config_file("/Library/SoundScapeRenderer/ssr.conf",conf);
-  // load system-wide config file (Linux et al)
+  // load system-wide config file (Linux et al.)
   load_config_file("/etc/ssr.conf",conf);
   // load user config file (Mac)
   std::string filename = getenv("HOME");
@@ -234,6 +235,12 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "      --master-volume-correction=VALUE\n"
 "                      Correction of the master volume in dB "
                                                          "(default: 0 dB)\n"
+"      --auto-rotation Auto-rotate sound sources' orientation toward "
+                                                               "the reference\n"
+"      --no-auto-rotation\n"
+"                      Don't auto-rotate sound sources' orientation toward "
+                                                               "the reference\n"
+
 #ifdef ENABLE_IP_INTERFACE
 "  -i, --ip-server[=PORT]\n"
 "                      Start IP server (default on),\n"
@@ -314,6 +321,8 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     {"decay-exponent", required_argument, nullptr,  0 },
     {"loop",         no_argument,       nullptr,  0 },
     {"master-volume-correction", required_argument, nullptr, 0},
+    {"auto-rotation", no_argument,      nullptr,  0 },
+    {"no-auto-rotation", no_argument,   nullptr,  0 },
     {"ip-server",    optional_argument, nullptr, 'i'},
     {"no-ip-server", no_argument,       nullptr, 'I'},
     {"end-of-message-character", required_argument, nullptr, 0},
@@ -387,6 +396,14 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         else if (strcmp("master-volume-correction",longopts[longindex].name)==0)
         {
           conf.renderer_params.set("master_volume_correction", optarg);
+        }
+        else if (strcmp("auto-rotation", longopts[longindex].name) == 0)
+        {
+          conf.auto_rotate_sources = true;
+        }
+        else if (strcmp("no-auto-rotation", longopts[longindex].name) == 0)
+        {
+          conf.auto_rotate_sources = false;
         }
         else if (strcmp("end-of-message-character",longopts[longindex].name)==0)
         {
@@ -680,6 +697,11 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       conf.renderer_params.set("amplitude_reference_distance", value);
     }
+    else if (!strcmp(key, "AUTO_ROTATION"))
+    {
+      if (!strcasecmp(value, "on")) conf.auto_rotate_sources = true;
+      else conf.auto_rotate_sources = false;
+    }
     else if (!strcmp(key, "SCENE_FILE_NAME"))
     {
       conf.scene_file_name = make_path_relative_to_current_dir(value, filename);
@@ -766,7 +788,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     else if (!strcmp(key, "GUI"))
     {
       if (!strcasecmp(value, "on")) conf.gui = true;
-      else conf.gui= false;
+      else conf.gui = false;
     }
     else if (!strcmp(key, "NETWORK_INTERFACE"))
     {

@@ -121,13 +121,7 @@ class NfcHoaRenderer::Source : public _base::Source
           this->source_model = coeff_t::point_source;
           source_orientation = (this->position
               - this->parent.state.reference_position).orientation();
-          // TODO: proper calculation of attenuation factor, this is temporary!
-          {
-            float distance_limit = 0.25f;
-            this->weighting_factor
-              *= std::sqrt(distance_limit
-                  / std::max(this->distance.get(), distance_limit));
-          }
+          // TODO: Undo inherent amplitude decay
           break;
         case ::Source::plane:
           this->source_model = coeff_t::plane_wave;

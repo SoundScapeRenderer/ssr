@@ -414,6 +414,7 @@ void ssr::QOpenGLPlotter::_draw_reference()
       glVertex3f(-0.05f * scale, -0.05f * scale, 0.0f);
     glEnd();
 
+    // gray
     glColor3f(0.4f, 0.4f, 0.4f);
 
     // draw rhomb
@@ -638,7 +639,9 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
 
   if (source->fixed_position)
   {
-    // draw cross
+    // draw cross in gray
+    glColor3f(0.4f, 0.4f, 0.4f);
+
     glBegin(GL_TRIANGLES);
       glVertex3f( -0.02f * scale,  0.005f * scale, 0.0f);
       glVertex3f( -0.02f * scale, -0.005f * scale, 0.0f);

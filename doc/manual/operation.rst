@@ -306,6 +306,8 @@ an overview of the command line options and various renderers::
         --loop             Loop all audio files
         --master-volume-correction=VALUE
                            Correction of the master volume in dB (default: 0 dB)
+        --auto-rotation    Auto-rotate sound sources' orientation toward the reference
+        --no-auto-rotation Don't auto-rotate sound sources' orientation toward the reference
     -i, --ip-server[=PORT] Start IP server (default on)
                            A port can be specified: --ip-server=5555
     -I, --no-ip-server     Don't start IP server

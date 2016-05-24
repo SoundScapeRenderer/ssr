@@ -86,6 +86,8 @@ class NetworkSubscriber : public Subscriber
     virtual void set_transport_state(
         const std::pair<bool, jack_nframes_t>& state);
 
+    virtual void set_auto_rotation(bool auto_rotate_sources);
+    virtual void set_decay_exponent(float exponent);
     virtual void set_amplitude_reference_distance(float distance);
     virtual void set_master_signal_level(float level);
     virtual void set_cpu_load(float load);

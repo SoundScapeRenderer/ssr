@@ -258,27 +258,6 @@ AapRenderer::RenderFunction::select(SourceChannel& in)
     weighting_factor = 1;
   }
 
-  // TODO: centralize distance attenuation
-
-  // no distance attenuation for plane waves 
-  if (in.source.model == ::Source::plane)
-  {
-    auto ampl_ref = _out.parent.state.amplitude_reference_distance;
-    weighting_factor *= 0.5f / ampl_ref;  // 1/r
-    //weighting_factor *= 0.25f / sqrt(ampl_ref);  // 1/sqrt(r)
-  }
-  else
-  {
-    auto source_distance
-      = (in.source.position - _out.parent.state.reference_position).length();
-
-    // no volume increase for sources closer than 0.5m to reference position
-    source_distance = std::max(source_distance, 0.5f);
-
-    weighting_factor *= 0.5f / source_distance;  // 1/r
-    //weighting_factor *= 0.25f / sqrt(source_distance);  // 1/sqrt(r)
-  }
-
   // Apply source volume, mute, ...
   weighting_factor *= in.source.weighting_factor;
 

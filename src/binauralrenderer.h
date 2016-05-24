@@ -267,7 +267,6 @@ class BinauralRenderer::Source : public apf::conv::Input, public _base::Source
 void BinauralRenderer::Source::_process()
 {
   float interp_factor = 0.0f;
-  float weight = 0.0f;
 
   this->add_block(_input.begin());
 
@@ -276,41 +275,16 @@ void BinauralRenderer::Source::_process()
   auto ref_ori = _input.parent.state.reference_orientation
     + _input.parent.state.reference_offset_orientation;
 
-  if (this->weighting_factor != 0)
+  float source_distance = (this->position - ref_pos).length();
+
+  if (this->weighting_factor != 0 && source_distance < 0.5f 
+        && this->model != ::Source::plane)
   {
-    weight = 1;
-
-    if (this->model == ::Source::plane)
-    {
-      // no distance attenuation for plane waves
-      // 1/r:
-      weight *= 0.5f / _input.parent.state.amplitude_reference_distance;
-
-      // 1/sqrt(r):
-      //weight *= 0.25f / sqrt(
-      //    _input.parent.state.amplitude_reference_distance);
-    }
-    else
-    {
-      float source_distance = (this->position - ref_pos).length();
-
-      if (source_distance < 0.5f)
-      {
-        interp_factor = 1.0f - 2 * source_distance;
-      }
-
-      // no volume increase for sources closer than 0.5m
-      source_distance = std::max(source_distance, 0.5f);
-
-      weight *= 0.5f / source_distance; // 1/r
-      // weight *= 0.25f / sqrt(source_distance); // 1/sqrt(r)
-    }
-
-    weight *= this->weighting_factor;
+    interp_factor = 1.0f - 2 * source_distance;
   }
 
   _interp_factor = interp_factor;  // Assign (once!) to BlockParameter
-  _weight = weight;  // ... same here
+  _weight = this->weighting_factor;  // ... same here
 
   float angles = _input.parent._angles;
 

@@ -37,10 +37,12 @@ ssr::Scene::Scene() :
   _reference(Position(0, 0), Orientation(90)),
   _reference_offset(Position(0, 0), Orientation(0)),
   _master_volume(1.0f),
+  _decay_exponent(1.0f),
   _amplitude_reference_distance(3.0f),
   _master_signal_level(0.0f),
   _cpu_load(0.0f), _sample_rate(0u),
-  _processing_state(true)
+  _processing_state(true),
+  _auto_rotate_sources(true)
 {}
 
 ssr::Scene::~Scene()
@@ -187,6 +189,10 @@ void ssr::Scene::set_master_volume(float volume)
   _master_volume = volume;
 }
 
+void ssr::Scene::set_decay_exponent(float exponent)
+{
+  _decay_exponent = exponent;
+}
 void ssr::Scene::set_amplitude_reference_distance(float dist)
 {
   _amplitude_reference_distance = dist;
@@ -241,6 +247,12 @@ float ssr::Scene::get_master_volume() const
   return _master_volume;
 }
 
+/// _. @return amplitude decay exponent
+float ssr::Scene::get_decay_exponent() const
+{
+  return _decay_exponent;
+}
+
 /// _. @return amplitude reference distance
 float ssr::Scene::get_amplitude_reference_distance() const
 {
@@ -274,6 +286,11 @@ void ssr::Scene::set_transport_state(const std::pair<bool, jack_nframes_t>& stat
   _transport_position = state.second;
 }
 
+void ssr::Scene::set_auto_rotation(bool auto_rotate_sources)
+{
+  _auto_rotate_sources = auto_rotate_sources;
+}
+
 bool ssr::Scene::is_playing() const
 {
   //return _transport_state.playing;
@@ -284,6 +301,11 @@ ssr::jack_nframes_t ssr::Scene::get_transport_position() const
 {
   //return _transport_state.position;
   return _transport_position;
+}
+
+bool ssr::Scene::get_auto_rotation() const
+{
+  return _auto_rotate_sources;
 }
 
 Source ssr::Scene::get_source(id_t id) const

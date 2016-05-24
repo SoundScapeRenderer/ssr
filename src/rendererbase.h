@@ -120,6 +120,7 @@ class RendererBase : public apf::MimoProcessor<Derived
         , reference_offset_orientation(fifo)
         , master_volume(fifo, 1)
         , processing(fifo, true)
+        , decay_exponent(fifo, params.get("decay_exponent", 3))
         , amplitude_reference_distance(fifo
             , params.get("amplitude_reference_distance", 3))
       {}
@@ -130,6 +131,7 @@ class RendererBase : public apf::MimoProcessor<Derived
       apf::SharedData<Orientation> reference_offset_orientation;
       apf::SharedData<sample_type> master_volume;
       apf::SharedData<bool> processing;
+      apf::SharedData<sample_type> decay_exponent;
       apf::SharedData<sample_type> amplitude_reference_distance;
     } state;
 
@@ -149,7 +151,7 @@ class RendererBase : public apf::MimoProcessor<Derived
           apf::distribute_list(_input, _output, _member);
         }
 
-        // Empty function, because no cleanup is necessary. 
+        // Empty function, because no cleanup is necessary.
         virtual void cleanup() {}
 
       private:
@@ -415,7 +417,7 @@ class RendererBase<Derived>::Source
 
     sample_type get_level() const { return _level; }
 
-    // In the default case, the output level are ignored
+    // In the default case, the output levels are ignored
     bool get_output_levels(sample_type*, sample_type*) const { return false; }
 
     void connect() {}
@@ -468,7 +470,33 @@ void RendererBase<Derived>::Source::_process()
     // be applied to the output signal ... TODO: shall we care?
     this->weighting_factor *= _input.parent.state.master_volume;
     this->weighting_factor *= _input.parent.master_volume_correction;
-  }
+
+    // apply distance attenuation
+    if (std::strcmp(this->parent.name(), "BrsRenderer") != 0
+         && std::strcmp(this->parent.name(), "GenericRenderer") != 0)
+    {    
+      if (this->model != ::Source::plane)
+      {
+        float source_distance = (this->position
+          - (_input.parent.state.reference_position
+            + _input.parent.state.reference_offset_position)).length();
+      
+        // no volume increase for sources closer than 0.5 m
+        source_distance = std::max(source_distance, 0.5f);
+
+       // standard 1/r: weight *= 1.0f / source_distance;
+       this->weighting_factor *= 1.0f 
+         / pow(source_distance, _input.parent.state.decay_exponent); // 1/r^e
+
+       // plane wave always have the same amplitude independent of the amplitude
+       // reference distance and the decay exponent; normalize all other sources
+       // accordingly 
+       this->weighting_factor *= 
+         pow(_input.parent.state.amplitude_reference_distance,
+           _input.parent.state.decay_exponent);
+      } // if model::plane
+    } // if != BRS or Generic
+  } // if muted or not
 
   _level_helper(_input.parent);
 

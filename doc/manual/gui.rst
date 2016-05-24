@@ -277,6 +277,9 @@ Sec. :ref:`Running SSR <running_ssr>`).
 -  ``p``: toggles the source model between *plane wave* and *point
    source*
 
+-  ``r``: toggles whether or not all sources are always automatically oriented 
+   toward the reference.
+
 -  ``s``: if no source selected: unsolos all potentially soloed sources,
    otherwise: solos selected sound sources.
 

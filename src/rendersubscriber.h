@@ -195,6 +195,17 @@ class RenderSubscriber : public Subscriber
       (void) state;
     }
 
+    virtual void set_auto_rotation(bool auto_rotate_sources)
+    {
+      (void) auto_rotate_sources;
+    }
+
+    virtual void set_decay_exponent(float exponent)
+    {
+      auto guard = _renderer.get_scoped_lock();
+      _renderer.state.decay_exponent = exponent;
+    }
+
     virtual void set_amplitude_reference_distance(float distance)
     {
       auto guard = _renderer.get_scoped_lock();

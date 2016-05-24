@@ -125,6 +125,10 @@ struct Publisher
   /// set master volume of the whole scene
   virtual void set_master_volume(float volume) = 0;
 
+  /// set amplitude decay exponent
+  virtual void
+  set_decay_exponent(float exponent) = 0;
+
   /// set amplitude reference distance
   virtual void
   set_amplitude_reference_distance(float distance) = 0;
@@ -153,6 +157,8 @@ struct Publisher
   virtual void calibrate_client() = 0;
 
   virtual void set_processing_state(bool state) = 0;
+
+  virtual void set_auto_rotation(bool auto_rotate_sources) = 0;
 
   virtual void subscribe(Subscriber* subscriber) = 0;
   virtual void unsubscribe(Subscriber* subscriber) = 0;

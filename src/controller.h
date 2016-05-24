@@ -149,6 +149,8 @@ class Controller : public Publisher
     virtual void set_source_position(id_t id, const Position& position);
     virtual void set_source_orientation(id_t id
         , const Orientation& orientation);
+    void orient_source_toward_reference(const id_t id);
+    void orient_all_sources_toward_reference();
     virtual void set_source_gain(id_t id, float gain);
     virtual void set_source_signal_level(const id_t id
         , const float level);
@@ -168,6 +170,8 @@ class Controller : public Publisher
     virtual void set_reference_offset_orientation(const Orientation& orientation);
 
     virtual void set_master_volume(float volume);
+
+    virtual void set_decay_exponent(const float exponent);
 
     virtual void set_amplitude_reference_distance(const float dist);
 
@@ -191,6 +195,8 @@ class Controller : public Publisher
     void set_transport_state(const std::pair<bool, jack_nframes_t>& state);
     /// send processing state of the renderer to all subscribers.
     virtual void set_processing_state(bool state);
+
+    virtual void set_auto_rotation(bool auto_rotate_sources);
 
     virtual std::string get_scene_as_XML() const;
 
@@ -290,7 +296,7 @@ class Controller : public Publisher
         , int channel) const;
     bool _create_spontaneous_scene(const std::string& audio_file_name);
 
-    bool _loop; ///< part of a quick-hack. should be removed some time.
+    bool _loop; ///< part of a quick-hack. should be removed some time.  
 
     std::unique_ptr<typename Renderer::template ScopedThread<
       typename Renderer::QueryThread>> _query_thread;
@@ -367,6 +373,9 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 #ifdef ENABLE_ECASOUND
   _load_audio_recorder(_conf.audio_recorder_file_name);
 #endif
+
+  // TODO: allow specification in scene file
+  this->set_auto_rotation(_conf.auto_rotate_sources);
 
   if (!this->load_scene(_conf.scene_file_name))
   {
@@ -831,6 +840,22 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
     VERBOSE("Setting master volume to " << master_volume << " dB.");
     this->set_master_volume(apf::math::dB2linear(master_volume));
 
+    // GET DECAY EXPONENT
+    auto exponent = _conf.renderer_params.get<float>("decay_exponent");
+
+    xpath_result = scene_file->eval_xpath("//scene_setup/decay_exponent");
+    if (xpath_result)
+    {
+      if (!apf::str::S2A(get_content(xpath_result->node()), exponent))
+      {
+        WARNING("Invalid amplitude decay exponent!");
+      }
+    }
+
+    // always use default value when nothing is specified
+    VERBOSE("Setting amplitude decay exponent to " << exponent << ".");
+    this->set_decay_exponent(exponent);
+
     // GET AMPLITUDE REFERENCE DISTANCE
 
     auto ref_dist = _conf.renderer_params.get<float>(
@@ -880,7 +905,7 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
     this->set_reference_orientation(*dir_ptr);
     this->set_reference_offset_position(Position());
     this->set_reference_offset_orientation(Orientation());
-
+   
     // LOAD SOURCES
 
     xpath_result = scene_file->eval_xpath("//scene_setup/source");
@@ -920,7 +945,7 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
           dir_ptr.reset(new Orientation);
         }
 
-        if (!pos_ptr || !dir_ptr)
+        if (!pos_ptr || (!dir_ptr && !_scene.get_auto_rotation()))
         {
           ERROR("Both position and orientation have to be specified for source"
               << id_str << name_str << "! Not loaded");
@@ -940,6 +965,7 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
 
         float gain_dB = internal::get_attribute_of_node(node, "volume", 0.0f);
         bool muted = internal::get_attribute_of_node(node, "mute", false);
+        pos_ptr->fixed = internal::get_attribute_of_node(node, "fixed", false);
         // bool doppler = internal::get_attribute_of_node(node, "doppler_effect", false);
 
         this->new_source(name, model, file_name_or_port_number, channel
@@ -1002,6 +1028,7 @@ Controller<Renderer>::_create_spontaneous_scene(const std::string& audio_file_na
 
   // set master volume
   this->set_master_volume(apf::math::dB2linear(-6.0f));
+  this->set_decay_exponent(_conf.renderer_params.get<float>("decay_exponent"));
   this->set_amplitude_reference_distance(_conf.renderer_params.get<float>(
         "amplitude_reference_distance"));  // throws on error!
   // set reference
@@ -1281,6 +1308,22 @@ Controller<Renderer>::set_processing_state(bool state)
   _publish(&Subscriber::set_processing_state, state);
 }
 
+template<typename Renderer>
+void
+Controller<Renderer>::set_auto_rotation(bool auto_rotate_sources)
+{
+  _publish(&Subscriber::set_auto_rotation, auto_rotate_sources);
+
+  if (auto_rotate_sources) 
+  {
+    orient_all_sources_toward_reference();
+
+    VERBOSE("Auto-rotation of sound sources is enabled.");
+  }
+  else VERBOSE("Auto-rotation of sound sources is disabled.");
+
+}
+
 // non-const because audioplayer could be started
 template<typename Renderer>
 void
@@ -1386,9 +1429,15 @@ Controller<Renderer>::new_source(const std::string& name
   // mute while transmitting data
   _publish(&Subscriber::set_source_mute, id, true);
   _publish(&Subscriber::set_source_gain, id, gain);
-  _publish(&Subscriber::set_source_position, id, position);
+ 
+  // make sure that source orientation is handled correctly
+  this->set_source_position(id, position);
+
   _publish(&Subscriber::set_source_position_fixed, id, pos_fixed);
-  _publish(&Subscriber::set_source_orientation, id, orientation);
+  
+  // make sure that source orientation is handled correctly
+  this->set_source_orientation(id, orientation);
+    
   // _publish(&Subscriber::set_source_orientation_fix, id, or_fix);
   _publish(&Subscriber::set_source_name, id, name);
   _publish(&Subscriber::set_source_model, id, model);
@@ -1438,11 +1487,17 @@ Controller<Renderer>::set_source_position(const id_t id, const Position& positio
   if (!_scene.get_source_position_fixed(id))
   {
     _publish(&Subscriber::set_source_position, id, position);
+
+    // make source face the reference
+    if (_scene.get_auto_rotation())
+    { 
+      // new orientation will be published automatically
+      orient_source_toward_reference(id);
+    }
   }
   else
   {
-    WARNING("Source \'" << _scene.get_source_name(id)
-        << "\' can not be moved.");
+    WARNING("Source \'" << _scene.get_source_name(id) << "\' cannot be moved.");
   }
 }
 
@@ -1453,7 +1508,54 @@ Controller<Renderer>::set_source_orientation(const id_t id
 {
   // TODO: validate orientation?
 
-  _publish(&Subscriber::set_source_orientation, id, orientation);
+  // check if source may be rotated
+  if (!_scene.get_source_position_fixed(id))
+  {
+    if (_scene.get_auto_rotation()) 
+    {
+      VERBOSE2("Ignoring update of source orientation."
+        << " Auto-rotation is enabled.");
+    }
+    else 
+    {
+      _publish(&Subscriber::set_source_orientation, id, orientation);
+    }
+  }
+  else
+  {
+    WARNING("Source \'" << _scene.get_source_name(id) 
+      << "\' cannot be rotated.");
+  }
+}
+
+template<typename Renderer>
+void 
+Controller<Renderer>::orient_source_toward_reference(const id_t id)
+{
+  // take reference offset into account?
+  
+  _publish(&Subscriber::set_source_orientation, id
+    , (_scene.get_reference().position - 
+        *_scene.get_source_position(id)).orientation());
+}
+
+template<typename Renderer>
+void 
+Controller<Renderer>::orient_all_sources_toward_reference()
+{
+  typename SourceCopy::container_t sources;
+
+  _scene.get_sources(sources);
+
+  for (const auto& source: sources)
+  {
+    // check if sources may be rotated
+    if (!_scene.get_source_position_fixed(source.id))
+    {
+      // new orientation will be published automatically
+      orient_source_toward_reference(source.id);
+    }
+  }
 }
 
 template<typename Renderer>
@@ -1532,7 +1634,8 @@ Controller<Renderer>::set_reference_position(const Position& position)
 {
   _publish(&Subscriber::set_reference_position, position);
 
-  // TODO: update orientations of plane waves
+  // make sources face the reference
+  if (_scene.get_auto_rotation()) orient_all_sources_toward_reference();
 }
 
 template<typename Renderer>
@@ -1547,6 +1650,9 @@ void
 Controller<Renderer>::set_reference_offset_position(const Position& position)
 {
   _publish(&Subscriber::set_reference_offset_position, position);
+  
+  // make sources face the reference // has no effect currently
+  //if (_scene.get_auto_rotation()) orient_all_sources_toward_reference();
 }
 
 template<typename Renderer>
@@ -1563,6 +1669,14 @@ Controller<Renderer>::set_master_volume(const float volume)
 {
   // TODO: validate volume?
   _publish(&Subscriber::set_master_volume, volume);
+}
+
+template<typename Renderer>
+void
+Controller<Renderer>::set_decay_exponent(const float exponent)
+{
+  // TODO: validate exponent?
+  _publish(&Subscriber::set_decay_exponent, exponent);
 }
 
 template<typename Renderer>

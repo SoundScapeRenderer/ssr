@@ -244,7 +244,7 @@ class WfsRenderer::Source : public _base::Source
 
     const apf::NonCausalBlockDelayLine<sample_type>& delayline;
 
-  //private:
+    //private:
     bool _focused;
 };
 
@@ -342,18 +342,14 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
         float_delay = (src_pos - ref_off.position).length()
           - reference_distance;
 
-        if (std::abs(float_delay) < safety_radius)
-        {
-          weighting_factor = 1.0f / std::sqrt(safety_radius);
-        }
-        else
-        {
-          weighting_factor = 1.0f / std::sqrt(std::abs(float_delay));
-        }
+        // setting the subwoofer amplitude to 1 is the unwritten standard 
+        // (cf. AAP renderer)
+        weighting_factor = 1.0f;
+
         break; // step out of switch
       }
 
-      float_delay = (ls.position - src_pos).length();
+      float_delay = source_ls_distance;
       assert(float_delay >= 0);
 
       float denominator;
@@ -476,32 +472,23 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
       break;
   } // switch source model
 
-  // no distance attenuation for plane waves 
-  if (in.source.model == ::Source::plane)
-  {
-    float ampl_ref = _out.parent.state.amplitude_reference_distance;
-    assert(ampl_ref > 0);
-
-    // 1/r:
-    weighting_factor *= 0.5f / ampl_ref;
-    // 1/sqrt(r)
-    //weighting_factor *= 0.25f / std::sqrt(ampl_ref);
-  }
-  else
-  {
 #if defined(WEIGHTING_OLD)
-    // consider distance attenuation
-    float source_distance = (src_pos - ref_off.position).length();
-
-    // no volume increase for sources closer than 0.5m to reference position
-    source_distance = std::max(source_distance, 0.5f);
-
-    weighting_factor *= 0.5f / source_distance; // 1/r
-    // weighting_factor *= 0.25f / std::sqrt(source_distance); // 1/sqrt(r)
-#elif defined(WEIGHTING_DELFT)
-#endif
+  if (in.source.model == ::Source::point)
+  {
+    // compensate for inherent distance decay (approx. 1/sqrt(r))
+    // no compensation closer to 0.5 m to the reference
+    // this is the same operation for focused and non-focused sources
+    // exclude subwoofers as there is no inherent amplitude decay
+    if (ls.model != Loudspeaker::subwoofer)
+    {
+      weighting_factor *= 
+        std::sqrt(std::max((src_pos - ref_off.position).length(), 0.5f)); 
+    }
   }
-
+#elif defined(WEIGHTING_DELFT)
+// TODO: Undo default distance attenuation
+#endif
+  
   // apply the gain factor of the current source
   weighting_factor *= in.source.weighting_factor;
 

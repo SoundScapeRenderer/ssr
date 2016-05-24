@@ -171,6 +171,14 @@ ssr::NetworkSubscriber::set_source_properties_file(id_t id, const std::string& n
 }
 
 void
+ssr::NetworkSubscriber::set_decay_exponent(float exponent)
+{
+  (void) exponent;
+  //not_implemented("NetworkSubscriber::set_decay_exponent()");
+  return;
+}
+
+void
 ssr::NetworkSubscriber::set_amplitude_reference_distance(float distance)
 {
   (void) distance;
@@ -305,6 +313,12 @@ ssr::NetworkSubscriber::set_transport_state(
     update_all_clients(ms);
     previous_state = state.first;
   }
+}
+
+void 
+ssr::NetworkSubscriber::set_auto_rotation(bool auto_rotate_sources)
+{
+  (void) auto_rotate_sources;
 }
 
 void
