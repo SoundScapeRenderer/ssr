@@ -5,7 +5,7 @@
 # Prepare your working copy for pushing the documentation to Github:
 #
 #   cd doc
-#   git clone https://user@github.com/AudioProcessingFramework/apf-doc.git html
+#   git clone git@github.com:AudioProcessingFramework/audioprocessingframework.github.io.git html
 
 set -e
 
@@ -19,7 +19,7 @@ then
   cd html
   if [ -d .git -a "$BRANCH" = master ]
   then
-    git rm -rf .
+    git rm -rf --ignore-unmatch .
   fi
   cd ..
 fi

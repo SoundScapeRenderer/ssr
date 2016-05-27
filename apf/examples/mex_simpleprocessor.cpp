@@ -1,26 +1,3 @@
-/******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
-
 // Example for the MimoProcessor running as a Matlab (or GNU octave) MEX file.
 //
 // Compile for GNU Octave: mkoctfile --mex mex_simpleengine.cpp
@@ -54,7 +31,7 @@ using sample_type = SimpleProcessor::sample_type;
 
 // global variables holding the state
 std::unique_ptr<SimpleProcessor> engine;
-mwSize in_channels, out_channels, threads=1, block_size=64, sample_rate=44100;
+size_t in_channels, out_channels, threads=1, block_size=64, sample_rate=44100;
 std::vector<sample_type*> inputs, outputs;
 
 void engine_init(int nrhs, const mxArray* prhs[])
@@ -65,27 +42,27 @@ void engine_init(int nrhs, const mxArray* prhs[])
   }
   if (nrhs > 0)
   {
-    in_channels = static_cast<mwSize>(*mxGetPr(prhs[0]));
+    in_channels = static_cast<size_t>(*mxGetPr(prhs[0]));
     --nrhs; ++prhs;
   }
   if (nrhs > 0)
   {
-    out_channels = static_cast<mwSize>(*mxGetPr(prhs[0]));
+    out_channels = static_cast<size_t>(*mxGetPr(prhs[0]));
     --nrhs; ++prhs;
   }
   if (nrhs > 0)
   {
-    threads = static_cast<mwSize>(*mxGetPr(prhs[0]));
+    threads = static_cast<size_t>(*mxGetPr(prhs[0]));
     --nrhs; ++prhs;
   }
   if (nrhs > 0)
   {
-    block_size = static_cast<mwSize>(*mxGetPr(prhs[0]));
+    block_size = static_cast<size_t>(*mxGetPr(prhs[0]));
     --nrhs; ++prhs;
   }
   if (nrhs > 0)
   {
-    sample_rate = static_cast<mwSize>(*mxGetPr(prhs[0]));
+    sample_rate = static_cast<size_t>(*mxGetPr(prhs[0]));
     --nrhs; ++prhs;
   }
   if (nrhs > 0)
@@ -128,11 +105,11 @@ void engine_process(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
   {
     mexErrMsgTxt("Exactly one input and one output is needed!");
   }
-  if (static_cast<mwSize>(mxGetM(prhs[0])) != block_size)
+  if (static_cast<size_t>(mxGetM(prhs[0])) != block_size)
   {
     mexErrMsgTxt("Number of rows must be the same as block size!");
   }
-  if (static_cast<mwSize>(mxGetN(prhs[0])) != in_channels)
+  if (static_cast<size_t>(mxGetN(prhs[0])) != in_channels)
   {
     mexErrMsgTxt("Number of columns must be the same as number of inputs!");
   }
@@ -150,7 +127,8 @@ void engine_process(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
   {
     mexErrMsgTxt("This function only works with double precision data!");
   }
-  plhs[0] = mxCreateDoubleMatrix(block_size, out_channels, mxREAL);
+  plhs[0] = mxCreateDoubleMatrix(static_cast<mwSize>(block_size)
+      , static_cast<mwSize>(out_channels), mxREAL);
   sample_type* output = mxGetPr(plhs[0]);
   sample_type*  input = mxGetPr(prhs[0]);
 #else
@@ -158,19 +136,19 @@ void engine_process(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
   {
     mexErrMsgTxt("This function only works with single precision data!");
   }
-  plhs[0] = mxCreateNumericMatrix(block_size, out_channels
-      , mxSINGLE_CLASS, mxREAL);
+  plhs[0] = mxCreateNumericMatrix(static_cast<mwSize>(block_size)
+      , static_cast<mwSize>(out_channels), mxSINGLE_CLASS, mxREAL);
   sample_type* output = static_cast<sample_type*>(mxGetData(plhs[0]));
   sample_type*  input = static_cast<sample_type*>(mxGetData(prhs[0]));
 #endif
 
-  for (int i = 0; i <= in_channels; ++i)
+  for (size_t i = 0; i <= in_channels; ++i)
   {
     inputs[i] = input;
     input += block_size;
   }
 
-  for (int i = 0; i <= out_channels; ++i)
+  for (size_t i = 0; i <= out_channels; ++i)
   {
     outputs[i] = output;
     output += block_size;

@@ -1,26 +1,3 @@
-/******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
-
 // A small (static) example of the MimoProcessor with the fixed_matrix class.
 // This is a stand-alone program.
 
@@ -69,14 +46,14 @@ class MatrixProcessor : public apf::MimoProcessor<MatrixProcessor
 
   private:
     /// make sure blocksize is divisible by parts.
-    static int _get_parts(int x, int blocksize)
+    static nframes_t _get_parts(nframes_t x, nframes_t blocksize)
     {
-      int parts = x;
+      nframes_t parts = x;
       while (blocksize % parts != 0) parts /= 2;
       return parts;
     }
 
-    const int _channels, _blocksize, _parts, _part_length, _part_channels;
+    const nframes_t _channels, _blocksize, _parts, _part_length, _part_channels;
     matrix_t _m1, _m2, _m3;
     rtlist_t _m1_list, _m2_list, _m3_list;
 };
@@ -89,13 +66,14 @@ class MatrixProcessor::m1_channel : public ProcessItem<m1_channel>
       Params() : input(nullptr), part(0), part_size(0) {}
       Channel channel;
       const Input* input;
-      int part, part_size;
+      nframes_t part, part_size;
     };
 
     class Setup
     {
       public:
-        Setup(int parts, int part_length, const rtlist_proxy<Input>& input_list)
+        Setup(nframes_t parts, nframes_t part_length
+            , const rtlist_proxy<Input>& input_list)
           : _part(0)
           , _parts(parts)
           , _part_length(part_length)
@@ -120,8 +98,8 @@ class MatrixProcessor::m1_channel : public ProcessItem<m1_channel>
         }
 
       private:
-        int _part;
-        const int _parts, _part_length;
+        nframes_t _part;
+        const nframes_t _parts, _part_length;
         rtlist_proxy<Input>::iterator _input;
     };
 
@@ -142,7 +120,7 @@ class MatrixProcessor::m1_channel : public ProcessItem<m1_channel>
 
     Channel _channel;
     const Input* const _input;
-    const int _part, _part_size;
+    const nframes_t _part, _part_size;
 };
 
 class MatrixProcessor::m2_channel : public ProcessItem<m2_channel>
@@ -225,7 +203,7 @@ class MatrixProcessor::Output : public MimoProcessorBase::DefaultOutput
 
 MatrixProcessor::MatrixProcessor(const apf::parameter_map& p)
   : MimoProcessorBase(p)
-  , _channels(p.get<int>("channels"))  // if no channels -> exception!
+  , _channels(p.get<nframes_t>("channels"))  // if no channels -> exception!
   , _blocksize(this->block_size())
   , _parts(_get_parts(16, _blocksize))
   , _part_length(_blocksize / _parts)
@@ -246,7 +224,7 @@ MatrixProcessor::MatrixProcessor(const apf::parameter_map& p)
 
   // first, set parameters for all inputs ...
   Input::Params ip;
-  for (int i = 1; i <= _channels; ++i)
+  for (nframes_t i = 1; i <= _channels; ++i)
   {
     ip.set("id", i);
     this->add(ip);
@@ -279,11 +257,11 @@ MatrixProcessor::MatrixProcessor(const apf::parameter_map& p)
   Output::Params op;
   op.parent = this;
   auto next_channel = _m3.channels.begin();
-  for (int i = 1; i <= _channels; ++i)
+  for (nframes_t i = 1; i <= _channels; ++i)
   {
     op.set("id", i);
     op.channel_list.clear();
-    for (int j = 0; j < _parts; ++j)
+    for (nframes_t j = 0; j < _parts; ++j)
     {
       op.channel_list.push_back(*next_channel++);
     }

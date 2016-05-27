@@ -1,5 +1,11 @@
 User-visible changes in the Audio Processing Framework. Recent changes on top.
 
+0.3.0 (11 May 2016)
+
+ - the license was changed from the GPL to the less restrictive MIT license
+
+ - some improvements in the MEX tools
+
 0.2.1 (16 July 2014)
 
  - new: default_number_of_threads() in thread policies

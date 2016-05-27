@@ -1,25 +1,28 @@
 /******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
+ Copyright (c) 2012-2016 Institut für Nachrichtentechnik, Universität Rostock
+ Copyright (c) 2006-2012 Quality & Usability Lab
+                         Deutsche Telekom Laboratories, TU Berlin
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*******************************************************************************/
+
+// https://AudioProcessingFramework.github.io/
 
 /// @file
 /// Block-based delay line.
@@ -45,6 +48,7 @@ class BlockDelayLine
 {
   public:
     using size_type = typename Container::size_type;
+    using difference_type = typename Container::difference_type;
     using pointer = typename Container::pointer;
     using circulator = apf::circular_iterator<typename Container::iterator>;
 
@@ -73,7 +77,7 @@ class BlockDelayLine
     void advance()
     {
       ++_block_circulator;
-      _data_circulator += _block_size;
+      _data_circulator += static_cast<difference_type>(_block_size);
     }
 
     template<typename Iterator>
@@ -126,7 +130,8 @@ BlockDelayLine<T, Container>::BlockDelayLine(size_type block_size
       std::max(size_type(2), (_max_delay + 2 * _block_size - 1) / _block_size))
   , _data(_number_of_blocks * _block_size)  // initialized with default ctor T()
   , _data_circulator(_data.begin(), _data.end())
-  , _block_circulator(_data_circulator, _block_size)
+  , _block_circulator(
+      _data_circulator, static_cast<difference_type>(_block_size))
 {
   assert(_block_size >= 1);
 }
@@ -166,7 +171,8 @@ BlockDelayLine<T, Container>::read_block(Iterator destination, size_type delay)
   // access iterator (e.g. when using a std::list)
   if (!this->delay_is_valid(delay)) return false;
   circulator source = this->get_read_circulator(delay);
-  std::copy(source, source + _block_size, destination);
+  std::copy(source, source + static_cast<difference_type>(_block_size)
+      , destination);
   return true;
 }
 
@@ -179,8 +185,8 @@ BlockDelayLine<T, Container>::read_block(Iterator destination
 {
   if (!this->delay_is_valid(delay)) return false;
   circulator source = this->get_read_circulator(delay);
-  std::transform(source, source + _block_size, destination
-      , [weight] (T in) { return in * weight; });
+  std::transform(source, source + static_cast<difference_type>(_block_size)
+      , destination, [weight] (T in) { return in * weight; });
   return true;
 }
 
@@ -206,7 +212,7 @@ template<typename T, typename Container>
 typename BlockDelayLine<T, Container>::circulator
 BlockDelayLine<T, Container>::get_read_circulator(size_type delay) const
 {
-  return _get_data_circulator() - delay;
+  return _get_data_circulator() - static_cast<difference_type>(delay);
 }
 
 /** A block-based delay line where negative delay is possible.
@@ -233,7 +239,7 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
     NonCausalBlockDelayLine(size_type block_size, size_type max_delay
         , size_type initial_delay)
       : _base(block_size, max_delay + initial_delay)
-      , _initial_delay(initial_delay)
+      , _initial_delay(static_cast<difference_type>(initial_delay))
     {}
 
 #ifdef APF_DOXYGEN_HACK
@@ -265,8 +271,9 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
         return false;
       }
       size_type tmp;
-      bool valid = _base::delay_is_valid(delay + _initial_delay, tmp);
-      corrected = tmp - _initial_delay;
+      bool valid = _base::delay_is_valid(
+          static_cast<size_type>(delay + _initial_delay), tmp);
+      corrected = static_cast<difference_type>(tmp) - _initial_delay;
       return valid;
     }
 
@@ -282,7 +289,8 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
     bool read_block(Iterator destination, difference_type delay) const
     {
       if (delay < -_initial_delay) return false;
-      return _base::read_block(destination, delay + _initial_delay);
+      return _base::read_block(destination
+          , static_cast<size_type>(delay + _initial_delay));
     }
 
     /// @see BlockDelayLine::read_block()
@@ -290,7 +298,8 @@ class NonCausalBlockDelayLine : private BlockDelayLine<T, Container>
     bool read_block(Iterator destination, difference_type delay, T weight) const
     {
       if (delay < -_initial_delay) return false;
-      return _base::read_block(destination, delay + _initial_delay, weight);
+      return _base::read_block(destination
+          , static_cast<size_type>(delay + _initial_delay), weight);
     }
 
     /// @see BlockDelayLine::get_read_circulator()
