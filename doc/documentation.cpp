@@ -11,20 +11,18 @@ The Audio Processing Framework (APF) is a collection of C++ code which was
 written in the context of multichannel audio applications. However, many modules
 have a more generic scope.
 
-Website: http://AudioProcessingFramework.github.com
+This documentation: https://AudioProcessingFramework.github.io/
 
-This documentation: http://AudioProcessingFramework.github.com/apf-doc
+Development pages: https://github.com/AudioProcessingFramework/apf/
 
-Development pages: http://github.com/AudioProcessingFramework/apf
-
-Blog: http://spatialaudio.net
+Blog: http://spatialaudio.net/
 
 Components:
 
 - Multithreaded Multichannel Audio Processing Framework: @subpage MimoProcessor
 
 - C++ wrapper for the JACK Audio Connection Kit (http://jackaudio.org/):
-apf::JackClient
+  apf::JackClient
 
 - Convolution engine using (uniformly) partitioned convolution: apf::conv
 
@@ -54,10 +52,11 @@ apf::JackClient
 - Miscellaneous stuff: misc.h
 
 
-Copyright (c) 2012-2014 Institut für Nachrichtentechnik, Universität Rostock
-
-Copyright (c) 2006-2012 Quality & Usability Lab,
-                        Deutsche Telekom Laboratories, TU Berlin
+@copyright Copyright (c) 2012-2016 Institut für Nachrichtentechnik,
+                                   Universität Rostock
+@copyright Copyright (c) 2006-2012 Quality & Usability Lab,
+                                   Deutsche Telekom Laboratories, TU Berlin
+@copyright All code and documentation is available under the MIT license.
 **/
 
 // GROUPS/MODULES

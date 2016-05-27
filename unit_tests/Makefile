@@ -37,7 +37,7 @@ CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -pedantic
 # warnings are errors
 CXXFLAGS += -pedantic-errors
-#CXXFLAGS += -Werror
+CXXFLAGS += -Werror
 # even more warnings:
 CXXFLAGS += -Wpointer-arith
 CXXFLAGS += -Wcast-align

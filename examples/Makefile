@@ -21,9 +21,7 @@ OPT ?= -O3
 CXXFLAGS += $(OPT)
 CXXFLAGS += -g
 
-CXXFLAGS += -std=c++11
-
-LDLIBS += -lpthread
+CXXFLAGS += -std=c++11 -pthread
 
 # show all warnings
 CXXFLAGS += -Wall -Wextra
@@ -43,7 +41,7 @@ CXXFLAGS += -Wconversion
 #CXXFLAGS += -Winline
 #CXXFLAGS += -Weffc++
 
-CPPFLAGS += -I.. -D_REENTRANT
+CPPFLAGS += -I..
 
 #### no more setting below here ####
 
@@ -88,6 +86,8 @@ check_flext_path:
 .PHONY: check_flext_path
 
 mex: CPPFLAGS += -DNDEBUG
+# Compile unconditionally to allow switching between float and double:
+mex: clean-mex
 mex: $(MEX_FILES)
 
 mex-double: CPPFLAGS += -DMEX_USE_DOUBLE
@@ -99,13 +99,15 @@ mex-double: mex
 	CXXFLAGS="$(CXXFLAGS)" mkoctfile --mex $< $(CPPFLAGS)
 	$(RM) $*.o
 
-clean:
+clean: clean-mex
 	$(RM) $(EXECUTABLES) $(OBJECTS)
 	test -d $(FLEXTPATH) && $(FLEXTPATH)/build.sh pd gcc clean || true
 	@rmdir pd-linux 2> /dev/null || true
+
+clean-mex:
 	$(RM) $(MEX_FILES)
 
-.PHONY: clean
+.PHONY: clean clean-mex
 
 # rebuild everything when Makefile changes
 $(OBJECTS) $(EXECUTABLES) $(PD_EXTERNALS) $(MEX_FILES): Makefile

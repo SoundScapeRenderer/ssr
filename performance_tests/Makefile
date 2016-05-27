@@ -14,9 +14,7 @@ OPT += -march=native
 CXXFLAGS += $(OPT)
 CXXFLAGS += -g
 
-CXXFLAGS += -std=c++11
-
-LDLIBS += -lpthread
+CXXFLAGS += -std=c++11 -pthread
 
 # show all warnings
 CXXFLAGS += -Wall -Wextra
@@ -38,7 +36,6 @@ CXXFLAGS += -Wconversion
 #CXXFLAGS += -Weffc++
 
 CPPFLAGS += -I..
-CPPFLAGS += -D_REENTRANT
 CPPFLAGS += -DNDEBUG
 
 #### no more setting below here ####

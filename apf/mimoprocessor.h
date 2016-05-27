@@ -1,25 +1,28 @@
 /******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
+ Copyright (c) 2012-2016 Institut für Nachrichtentechnik, Universität Rostock
+ Copyright (c) 2006-2012 Quality & Usability Lab
+                         Deutsche Telekom Laboratories, TU Berlin
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*******************************************************************************/
+
+// https://AudioProcessingFramework.github.io/
 
 /// @file
 /// Multi-threaded MIMO (multiple input, multiple output) processor.
@@ -317,7 +320,7 @@ class MimoProcessor : public interface_policy
           WorkerThreadFunction>;
 
       public:
-        WorkerThread(int thread_number, MimoProcessor& parent)
+        WorkerThread(unsigned thread_number, MimoProcessor& parent)
           : cont_semaphore(0)
           , wait_semaphore(0)
           , _thread(WorkerThreadFunction(thread_number, parent, *this))
@@ -338,7 +341,7 @@ class MimoProcessor : public interface_policy
     class WorkerThreadFunction
     {
       public:
-        WorkerThreadFunction(int thread_number, MimoProcessor& parent
+        WorkerThreadFunction(unsigned thread_number, MimoProcessor& parent
             , WorkerThread& thread)
           : _thread_number(thread_number)
           , _parent(parent)
@@ -357,7 +360,7 @@ class MimoProcessor : public interface_policy
         }
 
       private:
-        int _thread_number;
+        unsigned _thread_number;
         MimoProcessor& _parent;
         WorkerThread& _thread;
     };
@@ -375,7 +378,7 @@ class MimoProcessor : public interface_policy
     }
 
     void _process_current_list_in_main_thread();
-    void _process_selected_items_in_current_list(int thread_number);
+    void _process_selected_items_in_current_list(unsigned thread_number);
 
     Input* _add_helper(Input* in) { return _input_list.add(in); }
     Output* _add_helper(Output* out) { return _output_list.add(out); }
@@ -384,7 +387,7 @@ class MimoProcessor : public interface_policy
     rtlist_t* _current_list;
 
     /// Number of threads (main thread plus worker threads)
-    const int _num_threads;
+    const unsigned _num_threads;
 
     fixed_vector<WorkerThread> _thread_data;
 
@@ -395,9 +398,9 @@ class MimoProcessor : public interface_policy
 APF_MIMOPROCESSOR_TEMPLATES
 APF_MIMOPROCESSOR_BASE::MimoProcessor(const parameter_map& params_)
   : interface_policy(params_)
-  , query_policy(params_.get("fifo_size", 1024))
+  , query_policy(params_.get("fifo_size", size_t(1024)))
   , params(params_)
-  , _fifo(params.get("fifo_size", 1024))
+  , _fifo(params.get("fifo_size", size_t(1024)))
   , _current_list(nullptr)
   , _num_threads(params.get("threads"
         , thread_policy::default_number_of_threads()))
@@ -411,7 +414,7 @@ APF_MIMOPROCESSOR_BASE::MimoProcessor(const parameter_map& params_)
 
   // Create N-1 worker threads.  NOTE: Number 0 is reserved for the main thread.
   _thread_data.reserve(_num_threads - 1);
-  for (int i = 1; i < _num_threads; ++i)
+  for (unsigned i = 1; i < _num_threads; ++i)
   {
     _thread_data.emplace_back(i, *this);
   }
@@ -448,11 +451,12 @@ APF_MIMOPROCESSOR_BASE::_process_list(rtlist_t& l1, rtlist_t& l2)
 
 APF_MIMOPROCESSOR_TEMPLATES
 void
-APF_MIMOPROCESSOR_BASE::_process_selected_items_in_current_list(int thread_number)
+APF_MIMOPROCESSOR_BASE::_process_selected_items_in_current_list(
+    unsigned thread_number)
 {
   assert(_current_list);
 
-  int n = 0;
+  unsigned n = 0;
   for (auto& i: *_current_list)
   {
     if (thread_number == n++ % _num_threads)

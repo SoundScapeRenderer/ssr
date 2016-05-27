@@ -1,25 +1,28 @@
 /******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
+ Copyright (c) 2012-2016 Institut für Nachrichtentechnik, Universität Rostock
+ Copyright (c) 2006-2012 Quality & Usability Lab
+                         Deutsche Telekom Laboratories, TU Berlin
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*******************************************************************************/
+
+// https://AudioProcessingFramework.github.io/
 
 /// @file
 /// Some containers.
@@ -122,7 +125,7 @@ class fixed_vector : private std::vector<T, Allocator>
     template<typename Size, typename Arg
       , typename = internal::if_integral<Size>>
     fixed_vector(Size n, Arg&& arg, const Allocator& a)
-      : _base(n, std::forward<Arg>(arg), a)
+      : _base(static_cast<size_type>(n), std::forward<Arg>(arg), a)
     {}
 
     /// Constructor from size and initialization arguments.
@@ -454,7 +457,7 @@ class fixed_matrix<T, Allocator>::channels_iterator
 
     /// Constructor.
     channels_iterator(channel_iterator base_iterator, size_type step)
-      : _base_iterator(base_iterator, step)
+      : _base_iterator(base_iterator, static_cast<difference_type>(step))
       , _size(step)
     {}
 
@@ -537,8 +540,9 @@ class fixed_matrix<T, Allocator>::slices_iterator
     reference operator*() const
     {
       assert(apf::no_nullptr(_base_iterator));
-      slice_iterator temp(_base_iterator, _max_slices);
-      return Slice(temp, temp + _max_channels);
+      slice_iterator temp{_base_iterator
+        , static_cast<difference_type>(_max_slices)};
+      return Slice(temp, temp + static_cast<difference_type>(_max_channels));
     }
 
     /// Arrow operator.

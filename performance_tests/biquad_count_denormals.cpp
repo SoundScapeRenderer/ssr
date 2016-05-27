@@ -1,26 +1,3 @@
-/******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
-
 // Count denormals to check if denormal prevention works
 
 // TODO: include into unit tests?
@@ -63,9 +40,9 @@ struct Name : Prevention<T> { \
   COUNT_DENORMALS_IN_CASCADE(coeffs_dbl, cascade_dbl, name, prevention) \
   std::cout << std::endl; }
 
-int block_size = 1024;
+size_t block_size = 1024;
 int number_of_blocks_count = 200;
-int number_of_sections_count = 10;
+size_t number_of_sections_count = 10;
 
 // denormal counter map
 std::map<std::string, std::pair<int, int>> denormal_counter;

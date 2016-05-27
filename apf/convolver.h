@@ -1,25 +1,28 @@
 /******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
+ Copyright (c) 2012-2016 Institut für Nachrichtentechnik, Universität Rostock
+ Copyright (c) 2006-2012 Quality & Usability Lab
+                         Deutsche Telekom Laboratories, TU Berlin
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*******************************************************************************/
+
+// https://AudioProcessingFramework.github.io/
 
 /// @file
 /// Convolution engine.
@@ -59,6 +62,8 @@ namespace conv
 /// Calculate necessary number of partitions for a given filter length
 static size_t min_partitions(size_t block_size, size_t filter_size)
 {
+  assert(block_size > 0);
+  assert(filter_size > 0);
   return (filter_size + block_size - 1) / block_size;
 }
 
@@ -211,10 +216,12 @@ template<typename In>
 In
 TransformBase::prepare_partition(In first, In last, fft_node& partition) const
 {
-  assert(size_t(std::distance(partition.begin(), partition.end()))
-      == _partition_size);
+  assert(std::distance(partition.begin(), partition.end())
+      == static_cast<fft_node::difference_type>(_partition_size));
 
-  auto chunk = std::min(_block_size, size_t(std::distance(first, last)));
+  using difference_type = typename std::iterator_traits<In>::difference_type;
+  auto chunk = std::min(
+      static_cast<difference_type>(_block_size), std::distance(first, last));
 
   // This also works for the case chunk==0:
   if (math::has_only_zeros(first, first + chunk))
@@ -284,9 +291,10 @@ struct Transform : TransformBase
 template<typename In>
 Filter::Filter(size_t block_size_, In first, In last, size_t partitions_)
   : fixed_vector<fft_node>(partitions_ ? partitions_
-      : min_partitions(block_size_, std::distance(first, last))
+      : min_partitions(block_size_, size_t(std::distance(first, last)))
       , block_size_ * 2)
 {
+  assert(std::distance(first, last) > 0);
   assert(this->partitions() > 0);
 
   Transform(block_size_).prepare_filter(first, last, *this);
@@ -336,6 +344,8 @@ Input::add_block(In first)
   auto& current = this->spectra.front();
   auto& next = this->spectra.back();
 
+  auto offset = static_cast<fft_node::difference_type>(this->block_size());
+
   if (math::has_only_zeros(first, last))
   {
     next.zero = true;
@@ -347,7 +357,7 @@ Input::add_block(In first)
     else
     {
       // If first half is not zero, second half must be filled with zeros
-      std::fill(current.begin() + this->block_size(), current.end(), 0.0f);
+      std::fill(current.begin() + offset, current.end(), 0.0f);
     }
   }
   else
@@ -355,11 +365,11 @@ Input::add_block(In first)
     if (current.zero)
     {
       // First half must be actually filled with zeros
-      std::fill(current.begin(), current.begin() + this->block_size(), 0.0f);
+      std::fill(current.begin(), current.begin() + offset, 0.0f);
     }
 
     // Copy data to second half of the current partition
-    std::copy(first, last, current.begin() + this->block_size());
+    std::copy(first, last, current.begin() + offset);
     current.zero = false;
     // Copy data to first half of the upcoming partition
     std::copy(first, last, next.begin());
@@ -439,13 +449,13 @@ OutputBase::convolve(float weight)
 {
   _multiply_spectra();
 
+  auto offset = static_cast<fft_node::difference_type>(_input.block_size());
+
   // The first half will be discarded
   auto second_half = make_begin_and_end(
-      _output_buffer.begin() + _input.block_size(), _output_buffer.end());
+      _output_buffer.begin() + offset, _output_buffer.end());
 
-  assert(static_cast<size_t>(
-        std::distance(second_half.begin(), second_half.end()))
-      == _input.block_size());
+  assert(std::distance(second_half.begin(), second_half.end()) == offset);
 
   if (_output_buffer.zero)
   {
@@ -764,9 +774,11 @@ struct StaticConvolver : Input, StaticOutput
   template<typename In>
   StaticConvolver(size_t block_size_, In first, In last, size_t partitions_ = 0)
     : Input(block_size_, partitions_ ? partitions_
-        : min_partitions(block_size_, std::distance(first, last)))
+        : min_partitions(block_size_, size_t(std::distance(first, last))))
     , StaticOutput(*this, first, last)
-  {}
+  {
+    assert(std::distance(first, last) > 0);
+  }
 
   StaticConvolver(const Filter& filter, size_t partitions_ = 0)
     : Input(filter.block_size()

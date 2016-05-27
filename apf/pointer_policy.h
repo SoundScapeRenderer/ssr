@@ -1,25 +1,28 @@
 /******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
+ Copyright (c) 2012-2016 Institut für Nachrichtentechnik, Universität Rostock
+ Copyright (c) 2006-2012 Quality & Usability Lab
+                         Deutsche Telekom Laboratories, TU Berlin
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*******************************************************************************/
+
+// https://AudioProcessingFramework.github.io/
 
 /// @file
 /// C policy (= pointer based) for MimoProcessor's audio_interface.
@@ -55,22 +58,22 @@ class pointer_policy<T*>
     class Input;
     class Output;
 
-    void audio_callback(int n, T* const* in, T* const* out);
+    void audio_callback(size_t n, T* const* in, T* const* out);
 
     // for now, do nothing:
     bool activate() const { return true; }
     bool deactivate() const { return true; }
 
-    int block_size() const { return _block_size; }
-    int sample_rate() const { return _sample_rate; }
+    size_t block_size() const { return _block_size; }
+    size_t sample_rate() const { return _sample_rate; }
 
     int in_channels() const { return _next_input_id; }
     int out_channels() const { return _next_output_id; }
 
   protected:
     explicit pointer_policy(const parameter_map& params = parameter_map())
-      : _sample_rate(params.get<int>("sample_rate"))
-      , _block_size(params.get<int>("block_size"))
+      : _sample_rate(params.get<size_t>("sample_rate"))
+      , _block_size(params.get<size_t>("block_size"))
       , _next_input_id(0)
       , _next_output_id(0)
       , _in(0)
@@ -89,8 +92,8 @@ class pointer_policy<T*>
     /// @see get_next_input_id()
     int get_next_output_id() { return _next_output_id++; }
 
-    const int _sample_rate;
-    const int _block_size;
+    const size_t _sample_rate;
+    const size_t _block_size;
 
     int _next_input_id;
     int _next_output_id;
@@ -111,7 +114,7 @@ class pointer_policy<T*>
  **/
 template<typename T>
 void
-pointer_policy<T*>::audio_callback(int n, T* const* in, T* const* out)
+pointer_policy<T*>::audio_callback(size_t n, T* const* in, T* const* out)
 {
   assert(n == this->block_size());
   (void)n;  // avoid "unused parameter" warning

@@ -1,25 +1,28 @@
 /******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
- *                                                                            *
- * This file is part of the Audio Processing Framework (APF).                 *
- *                                                                            *
- * The APF is free software:  you can redistribute it and/or modify it  under *
- * the terms of the  GNU  General  Public  License  as published by the  Free *
- * Software Foundation, either version 3 of the License,  or (at your option) *
- * any later version.                                                         *
- *                                                                            *
- * The APF is distributed in the hope that it will be useful, but WITHOUT ANY *
- * WARRANTY;  without even the implied warranty of MERCHANTABILITY or FITNESS *
- * FOR A PARTICULAR PURPOSE.                                                  *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should  have received a copy  of the GNU General Public License  along *
- * with this program.  If not, see <http://www.gnu.org/licenses/>.            *
- *                                                                            *
- *                                 http://AudioProcessingFramework.github.com *
- ******************************************************************************/
+ Copyright (c) 2012-2016 Institut für Nachrichtentechnik, Universität Rostock
+ Copyright (c) 2006-2012 Quality & Usability Lab
+                         Deutsche Telekom Laboratories, TU Berlin
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*******************************************************************************/
+
+// https://AudioProcessingFramework.github.io/
 
 /// @file
 /// Some tools for working with the MEX API for Matlab/Octave.
@@ -31,6 +34,7 @@
 #include <string>
 #include <map>
 #include <cmath>  // for std::floor()
+#include <vector>
 
 #include "apf/stringtools.h"  // for A2S()
 
@@ -108,7 +112,7 @@ namespace mex
 bool convert(const mxArray* in, std::string& out)
 {
   if (!mxIsChar(in)) return false;
-  if (mxGetM(in) != 1) return false;
+  if (mxGetM(in) != 1 && mxGetN(in) > 0) return false;
 
   char* temp = mxArrayToString(in);
   out = temp;
@@ -133,6 +137,15 @@ bool convert(const mxArray* in, int& out)
   double temp = mxGetScalar(in);
   if (temp != std::floor(temp)) return false;
   out = temp;
+  return true;
+}
+
+/// Convert @c mxArray to @c bool
+bool convert(const mxArray* in, bool& out)
+{
+  if (mxIsComplex(in) || (!mxIsLogical(in) && !mxIsNumeric(in))) return false;
+  if (mxGetNumberOfElements(in) != 1) return false;
+  out = mxGetScalar(in);  // returns only the real part of complex numbers
   return true;
 }
 
@@ -187,22 +200,56 @@ bool convert(const mxArray* in, std::map<std::string, std::string>& out)
   return true;
 }
 
+/// Convert @c mxArray to a @c std::vector of @c std::string%s.
+/// This expects a cell array of strings!
+/// @warning In case of a conversion error, the vector may be partly filled!
+bool convert(const mxArray* in, std::vector<std::string>& out)
+{
+  if (!mxIsCell(in)) return false;
+
+  for (size_t i = 0; i < mxGetNumberOfElements(in); ++i)
+  {
+    mxArray* cell = mxGetCell(in, i);
+    std::string stringvalue;
+
+    if (convert(cell, stringvalue))
+    {
+      out.push_back(stringvalue);
+    }
+    else
+    {
+      mexErrMsgTxt("Element of cell array must be a string!");
+    }
+
+  }
+  return true;
+}
+
 namespace internal
 {
 
 template<bool optional, typename T>
 bool next_arg_helper(int& n, const mxArray**& p, T& data)
 {
-  return (n-- < 1) ? optional : convert(p++[0], data);
+  if (n < 1) return optional;
+  bool result = convert(p[0], data);
+  if (result)
+  {
+    --n; ++p;
+  }
+  return result;
 }
 
 }  // namespace internal
 
 /// Get next argument, converted to @p T.
-/// @param n Number of arguments, typically @c nrhs
-/// @param p Pointer to arguments, typically @c prhs
+/// @param[inout] n Number of arguments, typically @c nrhs
+/// @param[inout] p Pointer to arguments, typically @c prhs
+/// @param[out] data If conversion is successful, the result is stored here
 /// @return @b true if argument was available and if conversion was successful
-/// @post @p n is decremented, @p p is incremented
+/// @post If conversion was successful, @p n is decremented and @p p is
+///   incremented.
+///   If not, @p n and @p p are unchanged, @p data may be corrupted.
 template<typename T>
 bool next_arg(int& n, const mxArray**& p, T& data)
 {
@@ -210,7 +257,14 @@ bool next_arg(int& n, const mxArray**& p, T& data)
 }
 
 /// Get next optional argument, converted to @p T.
+/// @param[inout] data Default value. If there is an argument left and if the
+///   conversion is successful, the result is stored here.
 /// @return @b true if no argument available or if conversion was successful
+/// @post If an argument was available and its conversion was successful,
+///   the result is stored in @p data, @p n is decremented and @p p is
+///   incremented. If the conversion failed, @p n and @p p are unchanged,
+///   @p data may be corrupted.
+///   If there was no argument available, @p n, @p p and @p data are unchanged.
 /// @see next_arg()
 template<typename T>
 bool next_optarg(int& n, const mxArray**& p, T& data)
