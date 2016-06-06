@@ -129,6 +129,9 @@ dnl of variable with value.
 
 AC_CHECK_PROG([have_help2man], [help2man], [yes], [no])
 AM_CONDITIONAL([HAVE_HELP2MAN], [test x$have_help2man = xyes])
+AS_IF([test x$have_help2man != xyes],
+ AC_MSG_WARN([Disabling manpage generation due to missing help2man])
+)
 
 ENABLE_AUTO([all],
             [all renderers (use --enable-xyz to re-enable certain renderers)],
@@ -854,6 +857,12 @@ AS_IF([test x$have_ecasound = xyes -a x$have_ecasound_program != xyes],
   echo "|"
   echo "|>  WARNING: Ecasound (the program, not the library) was not found!"
   echo "|>  It is needed for playing (and recording) sound files with the SSR."
+])
+AS_IF([test x$have_help2man != xyes],
+[
+  echo "|"
+  echo "|>  WARNING: help2man was not found!"
+  echo "|>  Disabling building of manpages"
 ])
 
 echo "|"
