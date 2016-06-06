@@ -127,7 +127,8 @@ dnl AC_DEFINE writes values in config.h
 dnl AC_DEFINE_UNQUOTED performs additional shell expansions, e.g. substitution
 dnl of variable with value.
 
-AM_MISSING_PROG(HELP2MAN, help2man)
+AC_CHECK_PROG([have_help2man], [help2man], [yes], [no])
+AM_CONDITIONAL([HAVE_HELP2MAN], [test x$have_help2man = xyes])
 
 ENABLE_AUTO([all],
             [all renderers (use --enable-xyz to re-enable certain renderers)],

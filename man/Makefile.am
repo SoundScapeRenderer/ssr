@@ -5,7 +5,9 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
+if HAVE_HELP2MAN
 dist_man_MANS = $(SSR_executables:=.1)
+endif
 
 MAINTAINERCLEANFILES = $(dist_man_MANS)
 
@@ -21,7 +23,7 @@ RENDERER_TEXT = "manual page for the \
 # "make" must be called before "make dist", there is no automatic dependency!
 
 $(dist_man_MANS): $(top_srcdir)/src/configuration.cpp $(top_srcdir)/configure.ac
-	$(HELP2MAN) --no-info --name=$(RENDERER_TEXT) --output=$@ --locale=en \
+	help2man --no-info --name=$(RENDERER_TEXT) --output=$@ --locale=en \
 		$(top_builddir)/src/$(@:.1=$(EXEEXT))
 
 ## Settings for Vim (http://www.vim.org/), please do not remove:
