@@ -580,24 +580,25 @@ Mac OS X
 Application Bundle
 ~~~~~~~~~~~~~~~~~~
 
-This assumes you are using the precompiled SSR application bundle for Mac OS
-X. If you want to build the SSR yourself, have a look at
-`Building from Source`_.
+This assumes that you are using the precompiled SSR application bundle for Mac OS
+X. If you want to build the SSR yourself, have a look at `Building from Source`_.
 
-You can download the application bundle from http://spatialaudio.net/ssr.
+You can download the application bundle from http://spatialaudio.net/ssr. You will need 
+JACK as prerequisite. Refer to `JACK on Mac OS X`_ for instructions how to obtain and
+install it. 
 
-The installation should be straightforward. Just double-click on the ``.dmg``
-file and drag the ``SoundScapeRenderer-x.x.x`` folder to your ``Applications``
-folder. Done.
+The installation should be straightforward. Just double-click on the ``.dmg`` file and
+drag the ``SoundScapeRenderer-x.x.x`` folder to your ``Applications`` folder. Done. When
+double-clicking the SSR application bundle, it will indicate to you that you should
+download and install JACK (that's what this JACK.webloc thingy wants). If JACK is
+installed on your computer, then simply ignore this step and drag the SSR folder to your
+``Applications`` folder.
 
 The application bundle can be placed anywhere, but spaces in path names might
 cause trouble, so it's better to avoid them. Another thing is that Mac OS X
 sort of adds applications placed in the ``/Applications`` folder to the
 environment, so lets assume you put the SSR there (This also works for
 ``$HOME/Applications``).
-
-You'll also need the JACK Audio Connection Kit (JACK), be sure to get the 64-
-bit version from http://jackosx.com/.
 
 Building from Source
 ~~~~~~~~~~~~~~~~~~~~
@@ -665,13 +666,12 @@ ports. Issuing one command to install all ports might be more convenient::
 
   sudo sh -c "port install gcc49 && port install pkgconfig && port install libsndfile && port install libsamplerate && port install fftw-3-single && port install qt4-mac && port install boost && port install libxml2"
 
-As an alternative to MacPorts, it may also work with Homebrew_ but we didn't
-try. If you did, tell us!
+As an alternative to MacPorts is Homebrew_, which we have found to work very well, too.
 
 .. _Homebrew: http://brew.sh/
 
-JackOSX
-*******
+JACK on Mac OS X
+****************
 
 Tested with version 0.87 (64 bit) which includes:
 
@@ -679,14 +679,29 @@ Tested with version 0.87 (64 bit) which includes:
 - JackRouter 0.9.3
 - JackPilot 1.7.0
 
-Download at http://www.jackosx.com/ and be sure to get the 64 bit version.
+Note that the site http://www.jackosx.com/ is outdated. The latest version of JACK is 
+available from http://jackaudio.org/downloads/. 
+
+Or, you can install JACK using Homebrew_.
+
+OS X El Capitan is a little trickier as there is no official JACK version for it. When
+scrolling down `this thread`_ you'll find a link to a beta version of JACK that works on 
+El Capitan. Here's the direct link to this beta version of JACK: 
+https://dl.dropboxusercontent.com/u/28869550/JackOSX.0.92_b3.zip
+
+.. _`this thread`:
+  https://github.com/jackaudio/jack2/issues/144
+
+.. _ecasound:
 
 Ecasound
 ********
 
 Tested with version 2.7.2
 
-Download from http://www.eca.cx/ecasound/
+If you don't want to get Ecasound from Homebrew_, then download the source code from 
+http://www.eca.cx/ecasound/. (If you choose to use Homebrew and you're experiencing
+problems, then you might want to take a look at :ref:`ecasound_cannot_open_a_jack_port`).
 
 It didn't work with 2.9.0 for us, older versions can be found there:
 http://ecasound.seul.org/download/.
@@ -714,7 +729,7 @@ JACK are enabled. It should look something like that::
   -----------------------------------------------------------------
   ...
 
-If not, check that JACK all MacPort packages mentioned above are installed.
+If not, check that JACK and all MacPort packages mentioned above are installed.
 If everything looks OK, continue with::
 
   make
@@ -1111,6 +1126,47 @@ or, if you prefer, you can put it into your ``$HOME/.bashrc``
 (just for your user account)::
 
   export ECASOUND=ecasound
+  
+.. _ecasound_cannot_open_a_jack_port:
+
+Ecasound cannot open a JACK port
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes, when ecasound is installed via Homebrew_, it can have trouble finding JACK. As
+a result SSR displays the sound source symbols in the GUI, but they don't play audio, and
+an according error message is posted in the SSR terminal.
+
+Type ``ecasound -c`` in a terminal to start ecasound in interactive mode. 
+Then type ``aio-register`` to list all available outputs that ecasound has recognized. If
+JACK is not listed, then download the ecasound source code from
+http://nosignal.fi/ecasound/download.php, and ::
+
+  ./configure --enable-jack
+  make 
+  make install
+  
+The last line might have to be ::
+
+  sudo make install 
+  
+Refer also to :ref:`ecasound` for instructions on how to compile of Ecasound.
+
+Using SSR on Mac OS X El Capitan
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SSR works well on El Capitan. JACK is what can cause headache. See `JACK on Mac OS X`_ .
+  
+Long paths to audio files on Mac OS X
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It can happen that SSR displays this error message when loading audio files directily::
+
+  Error: AudioPlayer::Soundfile: ERROR:  Connecting chainsetup failed: "Enabling chainsetup: AUDIOIO-JACK: Unable to open JACK-client" (audioplayer.cpp:310)
+  Warning: AudioPlayer: Initialization of soundfile '/Users/YOUR_USERNAME/Documents/audio/YOUR_AUDIO_FILE.wav' failed! (audioplayer.cpp:87)
+
+Opening such a file would result in a JACK port name that is too long. You can resolve
+this limitation by moving the audio file to a location that produces a shorter (full) path
+name or by wrapping the audio file in an asd-file. 
 
 Segmentation Fault when Opening a Scene
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1168,11 +1224,6 @@ To get some information about a library, you can try something like those::
   otool -L /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
   otool -l /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
   otool -D /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
-
-Resolved Known Issues (Linux & Mac OS X)
-----------------------------------------
-
-Following issues are no issues anymore in the current SSR version.
 
 SSR for Mac OS X: qt_menu.nib not found
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1263,3 +1314,15 @@ This issue was resolved in version 0.3.2.
 
 Please do not use audio files with spaces for scenes. Neither the filename nor
 the directory referenced in the scene (asd-file) should contain spaces.
+
+Error ``ValueError: unknown locale: UTF-8`` when building the manual
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This can happen on non-US Macs. Go to your home folder ``/Users/YOUR_USER_NAME``, open (or
+create) the file ``.bash_profile`` and add the following to this file::
+
+  export LC_ALL=en_US.UFT-8
+  export LANG=en_US.UTF-8
+  export LANGUAGE=en_US.UTF-8
+  
+You might have to re-open the terminal or log out and in again to see the effect.

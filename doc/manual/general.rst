@@ -24,8 +24,8 @@
  * http://spatialaudio.net/ssr                           ssr@spatialaudio.net *
  ******************************************************************************
 
-General stuff
-=============
+General
+=======
 
 Introduction
 ------------
