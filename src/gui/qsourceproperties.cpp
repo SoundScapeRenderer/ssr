@@ -27,8 +27,8 @@
 /// @file
 /// TODO: add description
 
-#include <QPalette> 
-#include <QSizePolicy>
+#include <QtGui/QPalette> 
+#include <QtWidgets/QSizePolicy>
 
 #include "qsourceproperties.h"
 

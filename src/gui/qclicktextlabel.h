@@ -30,8 +30,8 @@
 #ifndef SSR_QCLICKTEXTLABEL_H
 #define SSR_QCLICKTEXTLABEL_H
 
-#include <QLabel>
-#include <QMouseEvent>
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QLabel>
 
 /// QClickTextLabel
 class QClickTextLabel : public QLabel

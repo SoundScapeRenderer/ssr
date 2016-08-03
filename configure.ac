@@ -464,7 +464,7 @@ dnl enable/disable GUI, default: enabled
 ENABLE_FORCED([gui], [graphical user interface (using Qt)],
 [
   # Checking for Qt
-  PKG_CHECK_MODULES([QT], [QtCore >= 4.2.2 QtGui >= 4.2.2 QtOpenGL >= 4.2.2]
+  PKG_CHECK_MODULES([QT], [Qt5Core >= 5.0.0 Qt5Gui >= 5.0.0 Qt5OpenGL >= 5.0.0]
     ,
     , [have_gui=no])
 
@@ -494,16 +494,16 @@ AS_IF([test x$have_gui = xyes],
     QTMOC="moc"
   ],
   [
-    QTMOC=`$PKG_CONFIG --variable=moc_location QtCore`
+    QTMOC=`$PKG_CONFIG --variable=moc_location Qt5Core`
   ])
-  QTLIBDIR=`$PKG_CONFIG --variable=libdir QtGui`
+  QTLIBDIR=`$PKG_CONFIG --variable=libdir Qt5Gui`
 
   AC_SUBST(QTMOC)
   AC_SUBST(QTLIBDIR)
   AC_SUBST(MOCFLAGS)
 
   # check if floating control panel has to be forced
-  PKG_CHECK_MODULES([QtGui_4_7_or_higher], [QtGui >= 4.7.0],
+  PKG_CHECK_MODULES([QtGui_5_0_or_higher], [Qt5Gui >= 5.0.0],
   [
     AS_IF([test x$enable_floating_control_panel = xno],
     [
