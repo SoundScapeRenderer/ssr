@@ -30,8 +30,8 @@
 #ifndef SSR_QSCENEBUTTON_H
 #define SSR_QSCENEBUTTON_H
 
-#include <QPushButton>
-#include <QMouseEvent>
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QPushButton>
 
 /// QSceneButton
 class QSceneButton : public QPushButton

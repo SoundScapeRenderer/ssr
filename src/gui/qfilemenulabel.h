@@ -30,8 +30,9 @@
 #ifndef SSR_QFILEMENULABEL_H
 #define SSR_QFILEMENULABEL_H
 
+#include <QtGui/QMouseEvent>
+
 #include "qclicktextlabel.h"
-#include <QMouseEvent>
 
 /// QFileMenuLabel
 class QFileMenuLabel : public QClickTextLabel

@@ -27,10 +27,11 @@
 /// @file
 /// TODO: add description
 
-#include <QPainter>
-#include <QTimer>
 #include <algorithm>
 #include <cmath>
+
+#include <QtCore/QTimer>
+#include <QtGui/QPainter>
 
 #include "qssrtimeline.h"
 #include "ssr_global.h"

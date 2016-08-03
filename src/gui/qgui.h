@@ -30,9 +30,9 @@
 #ifndef SSR_QGUI_H
 #define SSR_QGUI_H
 
-#include <QObject>
-#include <QApplication>
-#include <QGLFormat>
+#include <QtCore/QObject>
+#include <QtOpenGL/QGLFormat>
+#include <QtWidgets/QApplication>
 
 #include "quserinterface.h"
 #include "publisher.h"

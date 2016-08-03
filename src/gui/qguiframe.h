@@ -30,10 +30,10 @@
 #ifndef SSR_QGUIFRAME_H
 #define SSR_QGUIFRAME_H
 
-#include <QWidget>
-#include <QTimer>
-#include <QLabel>
-#include <QMouseEvent>
+#include <QtCore/QTimer>
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QWidget>
 
 //#include "qclicktextlabel.h"
 

@@ -29,19 +29,20 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <QAction>
-#include <QDialog>
-#include <QLineEdit>
-#include <QSlider>
-#include <QSize>
-#include <QPushButton>
-#include <QRect>
-#include <QImage>
-#include <QMouseEvent>
-#include <QCloseEvent>
-#include <QPoint>
-#include <QMenu>
 #include <cmath>
+
+#include <QtCore/QPoint>
+#include <QtCore/QRect>
+#include <QtCore/QSize>
+#include <QtGui/QCloseEvent>
+#include <QtGui/QImage>
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 
 #include "qopenglplotter.h"
 #include "qclicktextlabel.h"
@@ -142,7 +143,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 
   if (!image_buffer.isNull()) _ssr_logo_texture = bindTexture(image_buffer);
   else 
-    ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+    ERROR("Texture \"" << path_to_image.toLatin1().data() << "\" not loaded.");
 
   image_buffer = QImage(); 
 
@@ -157,7 +158,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
     _source_shadow_texture = bindTexture(image_buffer);
   }
   else 
-    ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+    ERROR("Texture \"" << path_to_image.toLatin1().data() << "\" not loaded.");
 
   if (_controller.show_head())
   {
@@ -173,7 +174,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 
     if (!image_buffer.isNull()) _listener_texture = bindTexture(image_buffer);
     else 
-     ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+     ERROR("Texture \"" << path_to_image.toLatin1().data() << "\" not loaded.");
 
     // load listener shadow texture
     image_buffer = QImage();
@@ -188,7 +189,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
       _listener_shadow_texture = bindTexture(image_buffer);
     }
     else 
-     ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+     ERROR("Texture \"" << path_to_image.toLatin1().data() << "\" not loaded.");
 
     // load listener background texture
     image_buffer = QImage();
@@ -203,7 +204,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
       _listener_background_texture = bindTexture(image_buffer);
     }
     else 
-     ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+     ERROR("Texture \"" << path_to_image.toLatin1().data() << "\" not loaded.");
 
   }
 

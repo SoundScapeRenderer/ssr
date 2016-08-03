@@ -26,20 +26,20 @@
 
 /// @file
 /// TODO: add description
-
-#include <QResizeEvent>
-#include <QMouseEvent>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QMenu>
-#include <QTimer>
-#include <QApplication>
-#include <QDesktopWidget>
 #include <string>
 #include <fstream>
 #include <cmath>
+
+#include <QtCore/QTimer>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QResizeEvent>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QDesktopWidget>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QVBoxLayout>
 
 #include "quserinterface.h"
 #include "apf/math.h"
@@ -647,7 +647,7 @@ void ssr::QUserInterface::_load_scene(const QString& path_to_scene)
     }
   }
 
-  _controller.load_scene(std::string(path_to_scene.toAscii()));
+  _controller.load_scene(std::string(path_to_scene.toLatin1()));
 
   // clear mouse cursor
   setCursor(Qt::ArrowCursor);

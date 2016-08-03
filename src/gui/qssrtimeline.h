@@ -30,11 +30,11 @@
 #ifndef SSR_QTIMELINE_H
 #define SSR_QTIMELINE_H
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QPoint>
-#include <QMouseEvent>
-#include <QPaintEvent>
+#include <QtCore/QPoint>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QPaintEvent>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 
 #include "qtimeedit.h"
 

@@ -26,10 +26,10 @@
 
 /// @file
 /// TODO: add description
-
-#include <QPainter>
-#include <QTimer>
 #include <algorithm>
+
+#include <QtCore/QTimer>
+#include <QtGui/QPainter>
 
 #include "qcpulabel.h"
 

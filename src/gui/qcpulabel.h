@@ -30,8 +30,8 @@
 #ifndef SSR_QCPULABEL_H
 #define SSR_QCPULABEL_H
 
-#include <QLabel>
-#include <QPaintEvent>
+#include <QtGui/QPaintEvent>
+#include <QtWidgets/QLabel>
 
 /// QCPULabel
 class QCPULabel : public QLabel
