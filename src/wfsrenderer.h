@@ -375,6 +375,14 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
           auto lhs = ls.position - src_pos;
           auto rhs = ref_off.position - src_pos;
 
+          // rhs will be zero if src_pos is exactly at the reference position
+          // This would would lead to the inner product being zero.
+          // lhs can't be zero (checked before to avoid infinite gain)
+          if (rhs.x == 0.0f && rhs.y == 0.0f)
+          {
+            rhs.y = -0.001;
+          }
+
           // TODO: write inner product function in Position class
           if ((lhs.x * rhs.x + lhs.y * rhs.y) < 0.0f)
           {
