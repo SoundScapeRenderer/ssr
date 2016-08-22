@@ -189,7 +189,7 @@ order that you can numerically specify the time instant to jump to
 
 You can change the zoom either by clicking into the zoom label and
 dragging up or down for zooming in or out. Alternatively, you can use
-the mouse wheel. Clicking and dragging on the background of the screen
+the mouse wheel [1]_. Clicking and dragging on the background of the screen
 lets you move inside the scene. A double-click brings you back to the
 default position and also defaults the zoom.
 
@@ -197,13 +197,13 @@ Clicking and dragging on a sound source lets you select and move it.
 Note that you cannot directly manipulate the propagation direction of
 plane waves. It's rather such that plane sources always face the
 reference point. To change their direction of incidence move the plane
-wave's origin point to the appropriate position. Right clicking on a
-sound source opens a window which lists the properties of the source
+wave's origin point to the appropriate position. Right clicking [2]_ on a
+sound source opens a window that lists the properties of the source
 such as position, volume, etc. Refer to
 Fig. :ref:`4.3 <source_picture>` and
 Sec. :ref:`Source Properties Dialog <source_property_dialog>`.
 
-A right mouse click on the scene background lets you select multiple
+A right mouse click on the scene background [3]_ lets you select multiple
 sound sources via a rubber band.
 
 If you hold the ``Ctrl`` key pressed during any mouse action then you
@@ -212,7 +212,18 @@ etc. them).
 
 Click on the SSR logo and you'll see the *About the SSR* information.
 
+.. [1]
+   On a touchpad on Mac OS, swipe up and down with two finger to zoom in and out (don't
+   click!).
+   
+.. [2]
+   On a touchpad on Mac OS, click with two fingers simultaneously.
 
+.. [3]
+   On a touchpad on Mac OS, click with two fingers simultaneously, hold the click and move
+   one finger, or both fingers simultaneously, or use a third finger to operate the rubber
+   band.
+   
 .. _source_property_dialog:
 
 Source Properties Dialog
