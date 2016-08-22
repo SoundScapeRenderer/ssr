@@ -887,30 +887,34 @@ be specified using the configuration file.
 To start the SSR using a different renderer module and skip the prompt for the
 selection do::
 
-    open -a SoundScapeRenderer --args "--binaural"
+    open -a SoundScapeRenderer --args --binaural
 
 Of course, instead of ``--binaural``, you can also use any of the other
 available renderers (e.g. ``--wfs`` for Wave Field Synthesis). To see all
-available command line arguments::
+available command line arguments (specifying a renderer skips the prompt for renderer
+selection)::
 
-    open -a SoundScapeRenderer --args "--help"
+    open -a SoundScapeRenderer --args --binaural "--help"
 
+.. note:: The arguments other than the renderer selection have to be enclosed in
+        quotation marks (``""``)!
+        
 To load a scene do::
 
-    open -a SoundScapeRenderer --args "--binaural /absolute/path/to/scene.asd"
+    open -a SoundScapeRenderer --args --binaural "/absolute/path/to/scene.asd"
 
-.. note:: The arguments have to be enclosed in quotation marks (``""``)!
+.. note:: Paths have to be absolute!
 
 To load a scene that has spaces in its path name do::
 
-    open -a SoundScapeRenderer --args "/path/to/file\ with\ spaces.asd"
+    open -a SoundScapeRenderer --args --binaural "/path/to/file\ with\ spaces.asd"
 
 .. note:: Spaces have to be escaped using backslashes!
 
 In addition to the config files in standard locations mentioned above, you can
 also specify a config file on the command line::
 
-    open -a SoundScapeRenderer --args "--config=my_config_file.conf"
+    open -a SoundScapeRenderer --args --binaural "--config=my_config_file.conf"
 
 When you want to record the output of the SSR and play it back again, you
 should always provide the .wav extension of the file name, along with the
@@ -918,11 +922,16 @@ absolute path of your desired destination location for the file. As an
 example, if you want to run the SSR and record the output to a file name
 output.wav, you would need the command given below::
 
-    open -a SoundScapeRenderer --args "--record=/tmp/output.wav"
+    open -a SoundScapeRenderer --args --binaural "--record=/tmp/output.wav"
 
 But if you use a relative path instead of the absolute path, the file that
 contains the output of the SSR will be saved inside the directory of the
 SoundScape Renderer in the Applications folder.
+
+If you want to start more than one instance of SSR, then add the ``-n`` option to the call
+of ``open`` for all instances other than the first one::
+
+    open -n -a SoundScapeRenderer --binaural
 
 Using a Head-Tracker
 ~~~~~~~~~~~~~~~~~~~~
@@ -952,7 +961,7 @@ options:
 
 Using the command line (only one port can be specified)::
 
-    open -a SoundScapeRenderer --args "--tracker=intersense
+    open -a SoundScapeRenderer --args --binaural "--tracker=intersense
     --tracker-port=/dev/tty.usbserial-XXXXXXXX"
 
 ... or using config files:
@@ -987,7 +996,7 @@ To make the SSR use this Razor AHRS tracker, you have two options:
 
 Using the command line::
 
-    open -a SoundScapeRenderer --args "--tracker=razor
+    open -a SoundScapeRenderer --args --binaural "--tracker=razor
     --tracker-port=/dev/tty.usbserial-XXXXXXXX" 
 
 ... or using config files:
@@ -1295,6 +1304,13 @@ glSelectBuffer".
 For now, this is the solution (see also the issue below)::
 
     ./configure LIBS=-lGL
+
+Second instance of SSR crashes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This happens when two or more instances of the SSR are started with the IP server enabled.
+Start all (or at least all instances higher than 1) with the ``-I`` flag to disable the
+IP interface. 
 
 IP interface isn't selected although boost libraries are installed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
