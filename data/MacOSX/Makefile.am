@@ -48,8 +48,21 @@ install-exec-hook:
 		$(srcdir)/run-ssr.applescript
 
 install-data-hook:
-	cp -r $(QTLIBDIR)/Resources/qt_menu.nib $(DESTDIR)$(pkgdatadir)/
+	cp -r $(QTLIBDIR)/QtGui.framework/Resources/qt_menu.nib $(DESTDIR)$(pkgdatadir)/
 	-cd $(DESTDIR)$(dmgrootdir) && $(LN_S) /Applications
+	for qtc in QtGui QtCore QtOpenGL; do \
+		mkdir -p $(prefix)/Frameworks/$$qtc.framework/Versions/4 \
+		; cp $(QTLIBDIR)/$$qtc.framework/Versions/4/$$qtc $(prefix)/Frameworks/$$qtc.framework/Versions/4/ \
+		; install_name_tool -id @executable_path/../Frameworks/Versions/4/$$qtc.framework/$$qtc $(prefix)/Frameworks/$$qtc.framework/Versions/4/$$qtc \
+	; done
+	for exec in $(SSR_executables); do \
+		install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $(prefix)/MacOS/$$exec \
+		; install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $(prefix)/MacOS/$$exec \
+		; install_name_tool -change /usr/local/opt/qt/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $(prefix)/MacOS/$$exec \
+	; done
+	install_name_tool -change $(QTLIBDIR)/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $(prefix)/Frameworks/QtGui.framework/Versions/4/QtGui
+	install_name_tool -change $(QTLIBDIR)/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $(prefix)/Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL
+	install_name_tool -change $(QTLIBDIR)/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $(prefix)/Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL
 
 # create a DMG image
 dmg:

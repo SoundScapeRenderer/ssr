@@ -119,8 +119,8 @@ Dependency::Dependency(std::string path)
         }
     }
     
-    //If the location is still unknown, ask the user for search path
-    if( prefix.empty() || !fileExists( prefix+filename ) )
+    //If the location is still unknown, ask the user for search path, ignore @loader_paths
+    if( ( prefix.empty() || !fileExists( prefix+filename ) ) && prefix.find("@loader_path")==std::string::npos )
     {
         std::cerr << "\n/!\\ WARNING : Library " << filename << " has an incomplete name (location unknown)" << std::endl;
         missing_prefixes = true;
