@@ -53,6 +53,7 @@ install-data-hook:
 	for qtc in QtGui QtCore QtOpenGL; do \
 		mkdir -p $(prefix)/Frameworks/$$qtc.framework/Versions/4 \
 		; cp $(QTLIBDIR)/$$qtc.framework/Versions/4/$$qtc $(prefix)/Frameworks/$$qtc.framework/Versions/4/ \
+		; chmod +w $(prefix)/Frameworks/$$qtc.framework/Versions/4/$$qtc \
 		; install_name_tool -id @executable_path/../Frameworks/Versions/4/$$qtc.framework/$$qtc $(prefix)/Frameworks/$$qtc.framework/Versions/4/$$qtc \
 	; done
 	for exec in $(SSR_executables); do \
