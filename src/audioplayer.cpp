@@ -239,7 +239,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
   // TODO this is a workaround, and might not work on every system or with every version of jack.
   // on OS X jack_client_name_size() returns 64, but 52 seems to be the max supported size.
   //_client_name = "a123456789a123456789a123456789a123456789a123456789a"; // length = 51 + \0 = 52
-  max_size = 52;
+  max_size = 31;
 #endif
   max_size--; // max_size includes the terminating \0 character!
   max_size -= 3; // to allow ecasound to append a number up to "_99"
