@@ -50,6 +50,9 @@ nobase_dist_extras_DATA = \
 	reproduction_setups/loudspeaker_setup_with_nearly_all_features.asd \
 	reproduction_setups/asdf2html.xsl \
 	impulse_responses/hrirs/hrirs_fabian.wav \
+	impulse_responses/hrirs/hrirs_fabian_min_phase_eq.wav \
+	impulse_responses/hrirs/hrirs_kemar.wav \
+	impulse_responses/hrirs/hrirs_kemar_min_phase_eq.wav \
 	impulse_responses/hrirs/hrirs_fabian_documentation.pdf \
 	impulse_responses/wfs_prefilters/wfs_prefilter_120_1500_44100.wav \
 	impulse_responses/wfs_prefilters/wfs_prefilter_100_1300_44100.wav \
@@ -100,7 +103,7 @@ REL_LINK_DIR = $(shell \
 install-data-hook:
 	-cd $(DESTDIR)$(pkgdatadir) \
 	  && test '!' -L default_hrirs.wav || $(RM) default_hrirs.wav \
-	  && $(LN_S) $(REL_LINK_DIR)/impulse_responses/hrirs/hrirs_fabian.wav default_hrirs.wav
+	  && $(LN_S) $(REL_LINK_DIR)/impulse_responses/hrirs/hrirs_fabian_min_phase_eq.wav default_hrirs.wav
 	-cd $(DESTDIR)$(pkgdatadir) \
 	  && test '!' -L default_setup.asd || $(RM) default_setup.asd \
 	  && $(LN_S) $(REL_LINK_DIR)/reproduction_setups/rounded_rectangle.asd default_setup.asd

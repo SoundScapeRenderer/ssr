@@ -3,7 +3,7 @@
 #X obj 340 48 noise~;
 #X text 116 14 <-- open this!;
 #X obj 19 15 ssr_messages;
-#X obj 17 228 ssr_binaural~ 56 hrirs_fabian.wav;
+#X obj 17 228 ssr_binaural~ 56 hrirs_fabian_min_phase_eq.wav;
 #X obj 16 259 dac~;
 #X obj 549 26 loadbang;
 #X text 442 26 set positions;

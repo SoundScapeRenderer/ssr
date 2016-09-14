@@ -4,7 +4,7 @@
 #X obj 47 101 *~ 0.2;
 #X obj 219 100 *~ 0.1;
 #X obj 220 76 noise~;
-#X obj 30 135 ssr_binaural~ 2 hrirs_fabian.wav;
+#X obj 30 135 ssr_binaural~ 2 hrirs_fabian_min_phase_eq.wav;
 #X text 115 21 <-- open this!;
 #X obj 30 22 ssr_messages;
 #X connect 1 0 2 0;

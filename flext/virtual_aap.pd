@@ -6,7 +6,7 @@
 #X text 115 21 <-- open this!;
 #X obj 30 22 ssr_messages;
 #X obj 30 196 dac~;
-#X obj 29 162 ssr_binaural~ 8 hrirs_fabian.wav;
+#X obj 29 162 ssr_binaural~ 8 hrirs_fabian_min_phase_eq.wav;
 #X msg 427 106 src 1 pos 0 1.5 \, src 2 pos -1.06 1.06 \, src 3 pos
 -1.5 0 \, src 4 pos -1.06 -1.06 \, src 5 pos 0 -1.5 \, src 6 pos 1.06
 -1.06 \, src 7 pos 1.5 0 \, src 8 pos 1.06 1.06;

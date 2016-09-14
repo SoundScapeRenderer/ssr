@@ -20,7 +20,7 @@ verbose = true;  % additional information about initialization over stdout
 params.reproduction_setup = '../data/reproduction_setups/circle.asd';
 
 % only for binaural renderer:
-params.hrir_file = '../data/impulse_responses/hrirs/hrirs_fabian.wav';
+params.hrir_file = '../data/impulse_responses/hrirs/hrirs_fabian_min_phase_eq.wav';
 
 % only for WFS renderer:
 params.prefilter_file = ...

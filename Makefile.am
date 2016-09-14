@@ -66,6 +66,9 @@ dist_noinst_DATA = \
 	flext/8channels.asd \
 	flext/circle.asd \
 	flext/hrirs_fabian.wav \
+	flext/hrirs_fabian_min_phase_eq.wav \
+	flext/hrirs_kemar.wav \
+	flext/hrirs_kemar_min_phase_eq.wav \
 	flext/wfs_prefilter_120_1500_44100.wav
 
 dist_noinst_SCRIPTS = flext/startpd.sh

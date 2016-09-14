@@ -8,7 +8,7 @@
 PATH_TO_GUI_IMAGES = images
 
 # head related impulse responses
-HRIR_FILE_NAME = impulse_responses/hrirs/hrirs_fabian.wav
+HRIR_FILE_NAME = impulse_responses/hrirs/hrirs_fabian_min_phase_eq.wav
 
 # default reproduction setup
 PLAYBACK_SETUP_FILE_NAME = reproduction_setups/rounded_rectangle.asd

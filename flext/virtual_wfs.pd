@@ -5,7 +5,7 @@
 #X obj 19 15 ssr_messages;
 #X obj 30 71 *~ 0.2;
 #X obj 340 70 *~ 0.1;
-#X obj 17 228 ssr_binaural~ 56 hrirs_fabian.wav;
+#X obj 17 228 ssr_binaural~ 56 hrirs_fabian_min_phase_eq.wav;
 #X obj 16 259 dac~;
 #X obj 18 115 ssr_wfs~ 2 circle.asd wfs_prefilter_120_1500_44100.wav
 ;
