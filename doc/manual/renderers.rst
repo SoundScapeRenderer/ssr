@@ -243,7 +243,7 @@ frames purely of size *nframes* and no crossfade.
     :align: center
 
     Illustration of the frame-wise signal processing
-    as implemented in the SSR renderers (see text).
+    as implemented in the SSR renderers (see text)
 
 The implementation approach described above is one version of the
 standard way of implementing time-varying audio processing. Note however
@@ -266,23 +266,21 @@ approach which is computationally significantly more costly.
 Binaural Renderer
 -----------------
 
-Binaural rendering is a technique where the acoustical influence of the
+Binaural rendering is an approach where the acoustical influence of the
 human head is electronically simulated to position virtual sound sources
-in space. **Be sure that you use headphones to listen.** Note that the
-current binaural renderer reproduces all virtual sources exclusively as
-point sources.
+in space. **Be sure that you are using headphones to listen.**
 
 The acoustical influence of the human head is coded in so-called
-head-related impulse responses (HRIRs). The HRIRs are loaded from the
-file ``/usr/local/share/ssr/default_hrirs.wav``. If you want to use
-different HRIRs then use the ``--hrirs=FILE`` command line option or the
+head-related impulse responses (HRIRs) or equivalently by head-related transfer functions.
+The HRIRs are loaded from the file ``/usr/local/share/ssr/default_hrirs.wav``. If you want
+to use different HRIRs then use the ``--hrirs=FILE`` command line option or the
 SSR configuration file
 (Section :ref:`Configuration File <ssr_configuration_file>`) to specify
 your custom location. The SSR connects its outputs automatically to
 outputs 1 and 2 of your sound card.
 
-For virtual sound sources which are closer to the reference position (=
-the listener position) than 0.5 mtrs, the HRTFs are interpolated with a
+For virtual sound sources that are closer to the reference position (=
+the listener position) than 0.5 m, the HRTFs are interpolated with a
 Dirac impulse. This ensures a smooth transition of virtual sources from
 the outside of the listener's head to the inside.
 
@@ -330,16 +328,52 @@ the HRIRs. By choosing shorter frames and thus using partitioned
 convolution the system latency is reduced but computational load is
 increased.
 
-The HRIRs ``data/impulse_responses/hrirs/hrirs_fabian.wav`` we have included
-in the SSR are HRIRs of 512 taps of the FABIAN manikin [Lindau2007]_ in an
-anechoic
-environment. See the file ``data/impulse_responses/hrirs/hrirs_fabian_
-documentation.pdf`` for details
-of the measurement.
+The HRIR sets shipped with SSR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SSR comes with two different HRIR sets: FABIAN and KEMAR (QU). The differ with respect to
+the manikin that was used in the measurement (FABIAN vs. KEMAR). The reference for the 
+FABIAN measurement is [Lindau2007]_, and the reference for the KEMAR (QU) is 
+[Wierstorf2011]_. You will find all sets in the folder ``data/impulse_responses/hrirs/``. 
+The suffix ``_eq`` in the file name indicates the equalized data. The unequalized data is
+of course also there. See the file 
+``data/impulse_responses/hrirs/hrirs_fabian_documentation.pdf`` for a few more details on
+the FABIAN measurement.
+
+Starting with SSR release 0.5.0, the default HRIR set that is loaded is headphone
+compensated, i.e., we equalized the HRIRs a bit in order to compensate for the alterations 
+that a typical pair of headphones would apply to the ear signals. Note that by design, 
+headphones do not have a flat transfer function. However, when performing binaural
+rendering, we need the headphones to be transparent. Our equalization may not be 
+perfect for all headphones or earbuds as these can exhibit very different properties 
+between different models. 
+
+We chose a frequency sampling-based minimum-phase filter design. The transfer functions 
+and impulse responses of the two compensation filters are depicted in Fig. :ref:`3.3 
+<hrir_comp_filters>`. The impulse responses are 513 taps long so that the unequalized
+HRIRs are 512 taps long, the equalized ones are 1024 taps long.
+
+.. _hrir_comp_filters:
+
+.. figure:: images/hrir_comp_filters.png
+    :align: center
+
+    Magnitude transfer functions and impulse responses of the headphone compensation / 
+    equalization filters
+    
+Recall that there are several ways of defining which HRIR set is loaded, for example the
+``HRIR_FILE_NAME`` in the :ref:`SSR configuration files<ssr_configuration_file>` property, the 
+command line option ``--hrirs=FILE``, or, after installing SSR, you can edit the symbolic 
+link ``data/default_hrirs.wav``.
 
 .. [Lindau2007] Alexander Lindau and Stefan Weinzierl. FABIAN - Schnelle
     Erfassung binauraler Raumimpulsantworten in mehreren Freiheitsgraden. In
     Fortschritte der Akustik, DAGA Stuttgart, 2007.
+    
+.. [Wierstorf2011] Hagen Wierstorf, Matthias Geier, Alexander Raake, and Sascha Spors. A 
+    Free Database of Head-Related Impulse Response Measurements in the Horizontal Plane 
+    with Multiple Distances. In 130th Convention of the Audio Engineering Society (AES), 
+    May 2011.
 
 Preparing HRIR sets
 ~~~~~~~~~~~~~~~~~~~
@@ -348,7 +382,8 @@ You can easily prepare your own HRIR sets for use with the SSR by
 adopting the MATLAB script ``data/matlab_scripts/prepare_hrirs_kemar.m``
 to your needs. This script converts the HRIRs of the KEMAR manikin
 included in the CIPIC database [AlgaziCIPIC]_ to the format that the SSR
-expects. See the script for further information and how to obtain the raw HRIRs.
+expects. See the script for further information and how to obtain the raw HRIRs. Note that
+the KEMAR (CIPIC) HRIRs are not identical to the KEMAR (QU) ones.
 
 .. [AlgaziCIPIC] V. Ralph Algazi. The CIPIC HRTF database.
     http://interface.cipic.ucdavis.edu/CIL_html/CIL_HRTF_database.htm.
