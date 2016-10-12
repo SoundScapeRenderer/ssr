@@ -334,7 +334,10 @@ The HRIR sets shipped with SSR
 SSR comes with two different HRIR sets: FABIAN and KEMAR (QU). The differ with respect to
 the manikin that was used in the measurement (FABIAN vs. KEMAR). The reference for the 
 FABIAN measurement is [Lindau2007]_, and the reference for the KEMAR (QU) is 
-[Wierstorf2011]_. You will find all sets in the folder ``data/impulse_responses/hrirs/``. 
+[Wierstorf2011]_. The low-frequency extension from [SpatialAudio]_ has been applied to the
+KEMAR (QU) HRTFs.
+
+You will find all sets in the folder ``data/impulse_responses/hrirs/``. 
 The suffix ``_eq`` in the file name indicates the equalized data. The unequalized data is
 of course also there. See the file 
 ``data/impulse_responses/hrirs/hrirs_fabian_documentation.pdf`` for a few more details on
@@ -350,7 +353,8 @@ between different models.
 
 We chose a frequency sampling-based minimum-phase filter design. The transfer functions 
 and impulse responses of the two compensation filters are depicted in Fig. :ref:`3.3 
-<hrir_comp_filters>`. The impulse responses are 513 taps long so that the unequalized
+<hrir_comp_filters>`. The impulse responses themselves can be found in the same folder 
+like the HRIRs (see above). The length is 513 taps so that the unequalized
 HRIRs are 512 taps long, the equalized ones are 1024 taps long.
 
 .. _hrir_comp_filters:
@@ -362,9 +366,8 @@ HRIRs are 512 taps long, the equalized ones are 1024 taps long.
     equalization filters
     
 Recall that there are several ways of defining which HRIR set is loaded, for example the
-``HRIR_FILE_NAME`` in the :ref:`SSR configuration files<ssr_configuration_file>` property, the 
-command line option ``--hrirs=FILE``, or, after installing SSR, you can edit the symbolic 
-link ``data/default_hrirs.wav``.
+``HRIR_FILE_NAME`` in the :ref:`SSR configuration files<ssr_configuration_file>` property,
+or the command line option ``--hrirs=FILE``.
 
 .. [Lindau2007] Alexander Lindau and Stefan Weinzierl. FABIAN - Schnelle
     Erfassung binauraler Raumimpulsantworten in mehreren Freiheitsgraden. In
@@ -374,6 +377,8 @@ link ``data/default_hrirs.wav``.
     Free Database of Head-Related Impulse Response Measurements in the Horizontal Plane 
     with Multiple Distances. In 130th Convention of the Audio Engineering Society (AES), 
     May 2011.
+    
+.. [SpatialAudio] https://github.com/spatialaudio/lf-corrected-kemar-hrtfs (commit 5b5ec8)
 
 Preparing HRIR sets
 ~~~~~~~~~~~~~~~~~~~

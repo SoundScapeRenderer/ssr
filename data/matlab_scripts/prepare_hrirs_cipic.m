@@ -46,6 +46,6 @@ end
 hrirs = hrirs./max(abs(hrirs(:))) .* .99;
 
 % write data to file
-wavwrite(hrirs, 44100, 16, 'hrirs_kemar_large_pinna.wav');
+wavwrite(hrirs, 44100, 16, 'hrirs_cipic_large_pinna.wav');
 
 disp('Done.');
