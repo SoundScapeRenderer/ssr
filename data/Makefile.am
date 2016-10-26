@@ -51,15 +51,17 @@ nobase_dist_extras_DATA = \
 	reproduction_setups/asdf2html.xsl \
 	impulse_responses/hrirs/hrirs_fabian.wav \
 	impulse_responses/hrirs/hrirs_fabian_min_phase_eq.wav \
+	impulse_responses/hrirs/eq_filter_fabian_min_phase.wav \
 	impulse_responses/hrirs/hrirs_kemar.wav \
 	impulse_responses/hrirs/hrirs_kemar_min_phase_eq.wav \
+	impulse_responses/hrirs/eq_filter_kemar_min_phase.wav \
 	impulse_responses/hrirs/hrirs_fabian_documentation.pdf \
 	impulse_responses/wfs_prefilters/wfs_prefilter_120_1500_44100.wav \
 	impulse_responses/wfs_prefilters/wfs_prefilter_100_1300_44100.wav \
 	impulse_responses/wfs_prefilters/wfs_prefilter_100_1300_48000.wav \
 	impulse_responses/wfs_prefilters/wfs_prefilter_100_1800_44100.wav \
 	impulse_responses/wfs_prefilters/wfs_prefilter_100_1800_48000.wav \
-	matlab_scripts/prepare_hrirs_kemar.m \
+	matlab_scripts/prepare_hrirs_cipic.m \
 	matlab_scripts/make_wfs_prefilter.m
 
 # these will be removed on "make uninstall":

@@ -1027,7 +1027,7 @@ Controller<Renderer>::_create_spontaneous_scene(const std::string& audio_file_na
     = audio_file_name.substr(audio_file_name.rfind('/') + 1);
 
   // set master volume
-  this->set_master_volume(apf::math::dB2linear(-6.0f));
+  this->set_master_volume(apf::math::dB2linear(0.0f));
   this->set_decay_exponent(_conf.renderer_params.get<float>("decay_exponent"));
   this->set_amplitude_reference_distance(_conf.renderer_params.get<float>(
         "amplitude_reference_distance"));  // throws on error!

@@ -120,7 +120,7 @@ class RendererBase : public apf::MimoProcessor<Derived
         , reference_offset_orientation(fifo)
         , master_volume(fifo, 1)
         , processing(fifo, true)
-        , decay_exponent(fifo, params.get("decay_exponent", 3))
+        , decay_exponent(fifo, params.get("decay_exponent", 1))
         , amplitude_reference_distance(fifo
             , params.get("amplitude_reference_distance", 3))
       {}
