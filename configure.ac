@@ -16,7 +16,7 @@ dnl initialize autoconf, this should be the first thing in configure.ac
 dnl arguments: full package name, version, email address for bug reports,
 dnl tarball name, homepage
 AC_INIT([SSR (SoundScape Renderer)],
-        [m4_esyscmd_s([git describe || date +$USER%Y%m%d%H%M])],
+        [m4_esyscmd_s([git describe 2> /dev/null || date +$USER%Y%m%d%H%M])],
         [ssr@spatialaudio.net],
         [ssr],
         [http://spatialaudio.net/ssr/])
