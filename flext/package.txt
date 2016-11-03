@@ -10,10 +10,15 @@ INCPATH = -I../apf -I../src
 
 PKG_CONFIG ?= pkg-config
 
-INCPATH += `$(PKG_CONFIG) --cflags libxml-2.0`
+#INCPATH += `$(PKG_CONFIG) --cflags libxml-2.0`
+INCPATH += -I$(HOME)/.local/include
+INCPATH += -I$(HOME)/.local/include/libxml2
 
 CXXFLAGS = -std=c++11
+# for XCode clang (not compatible with OSX 10.6):
+CXXFLAGS += -stdlib=libc++ -mmacosx-version-min=10.7
 
 LIBS = -lfftw3f -lsndfile -lxml2
+LIBS += -L$(HOME)/.local/lib
 
 # vim:filetype=make
