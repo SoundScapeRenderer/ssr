@@ -21,10 +21,14 @@ RENDERER_TEXT = "manual page for the \
 # Note the order of SUBDIRS in the top-level Makefile.
 #
 # "make" must be called before "make dist", there is no automatic dependency!
+HELP2MAN_LOCALE ?= $(shell locale -a | egrep "C.UTF-8" || echo "C")
 
-$(dist_man_MANS): $(top_srcdir)/src/configuration.cpp $(top_srcdir)/configure.ac
-	help2man --no-info --name=$(RENDERER_TEXT) --output=$@ --locale=en \
-		$(top_builddir)/src/$(@:.1=$(EXEEXT))
+$(dist_man_MANS): $(top_srcdir)/src/configuration.cpp $(top_srcdir)/configure.ac 
+	help2man \
+		--no-info \
+                --name=$(RENDERER_TEXT) \
+                --output=$@ \
+                --locale=$(HELP2MAN_LOCALE) $(top_builddir)/src/$(@:.1=$(EXEEXT))
 
 ## Settings for Vim (http://www.vim.org/), please do not remove:
 ## vim:textwidth=80:comments+=bO\:##
