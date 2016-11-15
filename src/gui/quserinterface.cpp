@@ -647,7 +647,7 @@ void ssr::QUserInterface::_load_scene(const QString& path_to_scene)
     }
   }
 
-  _controller.load_scene(std::string(path_to_scene.toLatin1()));
+  _controller.load_scene(std::string(path_to_scene.toUtf8()));
 
   // clear mouse cursor
   setCursor(Qt::ArrowCursor);
