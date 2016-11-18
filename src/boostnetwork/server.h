@@ -34,7 +34,9 @@
 #include <config.h> // for ENABLE_*
 #endif
 
+#if !defined(ASIO_STANDALONE)
 #define ASIO_STANDALONE
+#endif
 #include <asio.hpp>
 
 #include <thread>
