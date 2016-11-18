@@ -1311,16 +1311,21 @@ For now, this is the solution (see also the issue below)::
 
     ./configure LIBS=-lGL
 
+IP interface isn't selected although boost libraries are installed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This issue was resolved with dropping boost/asio for asio. For older builds,
+consider running the following:
+
+  ./configure LIBS=-lpthread
+
 Second instance of SSR crashes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 This happens when two or more instances of the SSR are started with the IP server enabled.
 Start all (or at least all instances higher than 1) with the ``-I`` flag to disable the
-IP interface. 
+IP interface.
 
 Audio files with spaces
 ~~~~~~~~~~~~~~~~~~~~~~~
-
 This issue was resolved in version 0.3.2.
 
 Please do not use audio files with spaces for scenes. Neither the filename nor
