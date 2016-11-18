@@ -34,9 +34,11 @@
 #include <config.h> // for ENABLE_*
 #endif
 
-#include <boost/asio.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#define ASIO_STANDALONE
+#include <asio.hpp>
+
 #include <iostream>
+#include <memory>
 
 #include "networksubscriber.h"
 #include "commandparser.h"
@@ -47,14 +49,14 @@ namespace ssr
 struct Publisher;
 
 /// Connection class.
-class Connection : public boost::enable_shared_from_this<Connection>
+class Connection : public std::enable_shared_from_this<Connection>
 {
   public:
     /// Ptr to Connection
-    typedef boost::shared_ptr<Connection> pointer;
-    typedef boost::asio::ip::tcp::socket socket_t;
+    typedef std::shared_ptr<Connection> pointer;
+    typedef asio::ip::tcp::socket socket_t;
 
-    static pointer create(boost::asio::io_service &io_service
+    static pointer create(asio::io_service &io_service
         , Publisher &controller, char end_of_message_character);
 
     void start();
@@ -66,22 +68,22 @@ class Connection : public boost::enable_shared_from_this<Connection>
     ~Connection();
 
   private:
-    Connection(boost::asio::io_service &io_service, Publisher &controller
+    Connection(asio::io_service &io_service, Publisher &controller
         , char end_of_message_character);
 
     void start_read();
-    void read_handler(const boost::system::error_code &error, size_t size);
-    void write_handler(boost::shared_ptr<std::string> str_ptr
-        , const boost::system::error_code &error, size_t bytes_transferred);
+    void read_handler(const asio::error_code &error, size_t size);
+    void write_handler(std::shared_ptr<std::string> str_ptr
+        , const asio::error_code &error, size_t bytes_transferred);
 
-    void timeout_handler(const boost::system::error_code &e);
+    void timeout_handler(const asio::error_code &e);
 
     /// TCP/IP socket
     socket_t _socket;
     /// Buffer for incoming messages.  
-    boost::asio::streambuf _streambuf;
+    asio::streambuf _streambuf;
     /// @see Connection::timeout_handler
-    boost::asio::deadline_timer _timer;
+    asio::steady_timer _timer;
 
     /// Reference to Controller
     Publisher &_controller;

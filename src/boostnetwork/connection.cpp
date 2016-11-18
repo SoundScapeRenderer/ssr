@@ -27,13 +27,12 @@
 /// @file
 /// Connection class (implementation). 
 
-#include <boost/bind.hpp>
-
+#include <memory>
 #include "connection.h"
 #include "publisher.h"
 
 /// ctor
-ssr::Connection::Connection(boost::asio::io_service &io_service
+ssr::Connection::Connection(asio::io_service &io_service
     , Publisher &controller, char end_of_message_character)
   : _socket(io_service)
   , _timer(io_service)
@@ -57,7 +56,7 @@ ssr::Connection::~Connection()
  * @return ptr to Connection
  **/
 ssr::Connection::pointer
-ssr::Connection::create(boost::asio::io_service &io_service
+ssr::Connection::create(asio::io_service &io_service
     , Publisher& controller, char end_of_message_character)
 {
   return pointer(new Connection(io_service, controller
@@ -87,9 +86,9 @@ ssr::Connection::start()
   start_read();
 
   // intialize the timer
-  _timer.expires_from_now(boost::posix_time::milliseconds(100));
-  _timer.async_wait(boost::bind(&Connection::timeout_handler, shared_from_this()
-        , boost::asio::placeholders::error));
+  _timer.expires_from_now(std::chrono::milliseconds(100));
+  _timer.async_wait(std::bind(&Connection::timeout_handler, shared_from_this()
+        , std::placeholders::_1));
 }
 
 /** Send levels on timeout.
@@ -99,16 +98,16 @@ ssr::Connection::start()
  * @param e self explanatory
  **/
 void
-ssr::Connection::timeout_handler(const boost::system::error_code &e)
+ssr::Connection::timeout_handler(const asio::error_code &e)
 {
   if (e) return;
 
   _subscriber.send_levels();
 
   // Set timer again.
-  _timer.expires_from_now(boost::posix_time::milliseconds(100));
-  _timer.async_wait(boost::bind(&Connection::timeout_handler, shared_from_this()
-        , boost::asio::placeholders::error));
+  _timer.expires_from_now(std::chrono::milliseconds(100));
+  _timer.async_wait(std::bind(&Connection::timeout_handler, shared_from_this()
+        , std::placeholders::_1));
 }
 
 /// Start reading from socket. 
@@ -116,14 +115,14 @@ void
 ssr::Connection::start_read()
 {
   async_read_until(_socket, _streambuf, _end_of_message_character
-      , boost::bind(&Connection::read_handler, shared_from_this()
-        , boost::asio::placeholders::error
-        , boost::asio::placeholders::bytes_transferred));
+      , std::bind(&Connection::read_handler, shared_from_this()
+        , std::placeholders::_1
+        , std::placeholders::_2));
 }
 
 /// Forward string from socket to CommandParser.
 void
-ssr::Connection::read_handler(const boost::system::error_code &error
+ssr::Connection::read_handler(const asio::error_code &error
     , size_t size)
 {
   if (!error)
@@ -156,13 +155,13 @@ ssr::Connection::write(std::string &writestring)
   // handler. This is sufficient to make it
   // be destroyed on exit.
 
-  boost::shared_ptr<std::string> str_ptr(new std::string(writestring 
+  std::shared_ptr<std::string> str_ptr(new std::string(writestring 
       + _end_of_message_character));
 
-  boost::asio::async_write(_socket, boost::asio::buffer(*str_ptr)
-      , boost::bind(&Connection::write_handler, shared_from_this(), str_ptr
-        , boost::asio::placeholders::error
-        , boost::asio::placeholders::bytes_transferred));
+  asio::async_write(_socket, asio::buffer(*str_ptr)
+      , std::bind(&Connection::write_handler, shared_from_this(), str_ptr
+        , std::placeholders::_1
+        , std::placeholders::_2));
 }
 
 /** Empty callback handler.  
@@ -174,8 +173,8 @@ ssr::Connection::write(std::string &writestring)
  * @todo Check if we can delete this function.
  **/
 void
-ssr::Connection::write_handler(boost::shared_ptr<std::string> str_ptr
-    , const boost::system::error_code &error, size_t bytes_transferred)
+ssr::Connection::write_handler(std::shared_ptr<std::string> str_ptr
+    , const asio::error_code &error, size_t bytes_transferred)
 {
   (void) str_ptr;
   (void) error;

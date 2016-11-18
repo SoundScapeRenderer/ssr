@@ -34,9 +34,10 @@
 #include <config.h> // for ENABLE_*
 #endif
 
-#include <boost/asio.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/thread.hpp>
+#define ASIO_STANDALONE
+#include <asio.hpp>
+
+#include <thread>
 #include <iostream>
 
 #include "connection.h"
@@ -59,12 +60,12 @@ class Server
     void run();
     void start_accept();
     void handle_accept(Connection::pointer new_connection
-        , const boost::system::error_code &error);
+        , const asio::error_code &error);
 
     Publisher& _controller;
-    boost::asio::io_service _io_service;
-    boost::asio::ip::tcp::acceptor _acceptor;
-    boost::thread *_network_thread;
+    asio::io_service _io_service;
+    asio::ip::tcp::acceptor _acceptor;
+    std::thread *_network_thread;
 
     char _end_of_message_character;
 };
