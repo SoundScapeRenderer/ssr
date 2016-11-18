@@ -164,17 +164,17 @@ SSRSOURCES += \
 endif
 
 if ENABLE_IP_INTERFACE
-AM_CPPFLAGS += -I$(srcdir)/boostnetwork
+AM_CPPFLAGS += -I$(srcdir)/network
 
 SSRSOURCES += \
-	boostnetwork/commandparser.cpp \
-	boostnetwork/commandparser.h \
-	boostnetwork/connection.cpp \
-	boostnetwork/connection.h \
-	boostnetwork/networksubscriber.cpp \
-	boostnetwork/networksubscriber.h \
-	boostnetwork/server.cpp \
-	boostnetwork/server.h
+	network/commandparser.cpp \
+	network/commandparser.h \
+	network/connection.cpp \
+	network/connection.h \
+	network/networksubscriber.cpp \
+	network/networksubscriber.h \
+	network/server.cpp \
+	network/server.h
 endif
 
 if ENABLE_GUI
