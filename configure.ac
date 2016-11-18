@@ -522,81 +522,10 @@ ENABLE_EXPLICIT([floating-control-panel], [separate control window],
   AS_IF([test x$have_gui = xno], [have_floating_control_panel=no])
 ])
 
-AC_DEFUN([BOOST_LIBS_CHECK],
-[
-  # try to find the given Boost library
-  AC_MSG_CHECKING([for boost_$1 library])
-  for dir in $BOOST_LIB_DIR /{usr,opt}/{local/,}lib{,64}{,/x86_64-linux-gnu}; do
-    for ext in so a dylib; do
-      # check for "-mt" version first
-      for lib in $dir/libboost_$1*-mt*.$ext $dir/libboost_$1*.$ext; do
-        AS_IF([test -f $lib],
-        [
-          BOOST_TEMP=$(echo $lib | sed -e "s|.*/lib\(.*\)\.$ext|-l\1|")
-
-          # the first match is taken
-          break 3
-        ])
-      done
-    done
-  done
-  AS_IF([test x$BOOST_TEMP != x],
-  [
-    AC_MSG_RESULT([$BOOST_TEMP])
-    $2="$BOOST_TEMP"
-    $3
-  ],
-  [
-    AC_MSG_RESULT([not found! (Use BOOST_LIB_DIR to specify a directory.)])
-    have_ip_interface=no
-    $4
-  ])
-  AS_UNSET([BOOST_TEMP])
-])
-
-dnl enable/disable IP interface, default: enabled
 ENABLE_FORCED([ip-interface], [network (TCP/IP) interface],
 [
-  AC_MSG_CHECKING([Searching for non-default Boost include directory])
-  # the order matters, last one wins!
-  for incdir in /opt/{,local/}include /{usr,opt}/{,local/}include/boost-*; do
-    AS_IF([test -d $incdir], [BOOST_INCLUDE="$incdir"])
-  done
-  AS_IF([test x$BOOST_INCLUDE = x], [AC_MSG_RESULT([none found.])],
-  [
-    AC_MSG_RESULT([$BOOST_INCLUDE])
-    CPPFLAGS="$CPPFLAGS -I$BOOST_INCLUDE"
-  ])
-
-  # now check with possibly redefined CPPFLAGS
-  AC_CHECK_HEADER([boost/asio.hpp], , [have_ip_interface=no])
-
-  AS_IF([test -n "${BOOST_LIB_DIR+x}"], [LDFLAGS="$LDFLAGS -L$BOOST_LIB_DIR"])
-
-  # try to find the Boost.System library
-  BOOST_LIBS_CHECK([system], [BOOST_SYSTEM_LIBS], , [have_ip_interface=no])
-  BOOST_LIBS_CHECK([thread], [BOOST_THREAD_LIBS], , [have_ip_interface=no])
-
-  AS_IF([test x$have_ip_interface != xno],
-  [
-    LIBS="$LIBS $BOOST_SYSTEM_LIBS $BOOST_THREAD_LIBS"
-
-    dnl to be really thorough, we now try to link to the boost libraries
-    AC_MSG_CHECKING([if we can link to boost_system])
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <boost/asio.hpp>],
-      [boost::system::get_system_category()])], [AC_MSG_RESULT([yes])],
-    [
-      AC_MSG_RESULT([no])
-      have_ip_interface=no
-    ])
-    AC_MSG_CHECKING([if we can link to boost_thread])
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <boost/thread.hpp>],
-      [boost::thread dummy])], [AC_MSG_RESULT([yes])],
-    [
-      AC_MSG_RESULT([no])
-      have_ip_interface=no
-    ])
-  ])
+  CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
+  AC_CHECK_HEADER([asio.hpp], , [have_ip_interface=no])
 ])
 
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
