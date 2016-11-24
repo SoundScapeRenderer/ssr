@@ -1313,8 +1313,9 @@ For now, this is the solution (see also the issue below)::
 
 IP interface isn't selected although boost libraries are installed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This issue was resolved with dropping boost/asio for asio. For older builds,
-consider running the following:
+This issue was resolved with dropping boost::asio for asio in version 0.5.0.
+
+For older builds, you might need to add the ``-lpthread`` flag::
 
   ./configure LIBS=-lpthread
 
