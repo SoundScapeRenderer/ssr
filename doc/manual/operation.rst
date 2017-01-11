@@ -1082,6 +1082,24 @@ example, sox (Debian package sox) with the wavpcm option::
 
   sox old.wav new.wavpcm
   mv new.wavpcm new.wav
+  
+SSR crashes with a segmentation fault on Max OS X 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If this happens whenever you are opening an audio file or loading a scene that involves opening an audio file, then this might be due to Ecasound. We've seen this with the app bundle. Try the following:
+
+Download the Ecasound source code from http://nosignal.fi/ecasound/download.php. ``Cd`` into the folder and compile Ecasound with::
+
+  ./configure
+  make
+
+Refer also to :ref:`ecasound` for instructions on how to compile Ecasound. The executable ``ecasound/ecasound`` will be created.
+
+Finally, replace the Ecasound executable in the SSR bundle with something like this::
+
+  sudo cp ecasound/ecasound /Applications/SoundScapeRenderer-0.4.2-74-gb99f8b2/SoundScapeRenderer.app/Contents/MacOS/
+  
+You might have to modify the name of the SSR folder in the above command as you're likely to use a different version.
 
 A file that can't be loaded results in a connection to a live input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1141,13 +1159,13 @@ or, if you prefer, you can put it into your ``$HOME/.bashrc``
 Ecasound cannot open a JACK port
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sometimes, when ecasound is installed via Homebrew_, it can have trouble finding JACK. As
+Sometimes, when Ecasound is installed via Homebrew_, it can have trouble finding JACK. As
 a result SSR displays the sound source symbols in the GUI, but they don't play audio, and
 an according error message is posted in the SSR terminal.
 
-Type ``ecasound -c`` in a terminal to start ecasound in interactive mode. 
-Then type ``aio-register`` to list all available outputs that ecasound has recognized. If
-JACK is not listed, then download the ecasound source code from
+Type ``ecasound -c`` in a terminal to start Ecasound in interactive mode. 
+Then type ``aio-register`` to list all available outputs that Ecasound has recognized. If
+JACK is not listed, then download the Ecasound source code from
 http://nosignal.fi/ecasound/download.php, and ::
 
   ./configure --enable-jack
@@ -1158,7 +1176,7 @@ The last line might have to be ::
 
   sudo make install 
   
-Refer also to :ref:`ecasound` for instructions on how to compile of Ecasound.
+Refer also to :ref:`ecasound` for instructions on how to compile Ecasound.
 
 Using SSR on Mac OS X El Capitan
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

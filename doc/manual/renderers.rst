@@ -384,7 +384,7 @@ Preparing HRIR sets
 ~~~~~~~~~~~~~~~~~~~
 
 You can easily prepare your own HRIR sets for use with the SSR by
-adopting the MATLAB script ``data/matlab_scripts/prepare_hrirs_kemar.m``
+adopting the MATLAB script ``data/matlab_scripts/prepare_hrirs_cipic.m``
 to your needs. This script converts the HRIRs of the KEMAR manikin
 included in the CIPIC database [AlgaziCIPIC]_ to the format that the SSR
 expects. See the script for further information and how to obtain the raw HRIRs. Note that
