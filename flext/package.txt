@@ -19,6 +19,7 @@ CXXFLAGS = -std=c++11
 #CXXFLAGS += -stdlib=libc++ -mmacosx-version-min=10.7
 
 #LIBS = -lfftw3f -lsndfile -lxml2
+LIBS += `$(PKG_CONFIG) --libs libxml-2.0`
 #LIBS += -L$(HOME)/.local/lib
 
 # vim:filetype=make

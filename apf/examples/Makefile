@@ -71,12 +71,17 @@ $(PORTAUDIO_STUFF): LDLIBS += -lportaudio
 
 $(FFTW_STUFF): LDLIBS += -lfftw3f
 
-# For Puredata stuff see also package.txt
+# For Puredata/Max stuff see also package.txt
 
 pd: check_flext_path package.txt
 	$(FLEXTPATH)/build.sh pd gcc
 
 .PHONY: pd
+
+max: check_flext_path package.txt
+	$(FLEXTPATH)/build.sh max gcc
+
+.PHONY: max
 
 check_flext_path:
 	@test -n '$(FLEXTPATH)' || ( echo \"FLEXTPATH\" is empty! ; false )

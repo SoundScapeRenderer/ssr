@@ -4,7 +4,9 @@ Compilation:
 
 make
 
-make pd
+make pd FLEXTPATH=/path/to/flext
+
+make max FLEXTPATH=/path/to/flext
 
 make mex
 
