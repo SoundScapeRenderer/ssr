@@ -502,19 +502,8 @@ AS_IF([test x$have_gui = xyes],
   AC_SUBST(QTLIBDIR)
   AC_SUBST(MOCFLAGS)
 
-  # check if floating control panel has to be forced
-  PKG_CHECK_MODULES([QtGui_5_0_or_higher], [Qt5Gui >= 5.0.0],
-  [
-    AS_IF([test x$enable_floating_control_panel = xno],
-    [
-      AC_MSG_ERROR([With Qt >= 4.7 the floating control panel is obligatory!])
-    ],
-    [test x$enable_floating_control_panel = x],
-    [
-      AC_MSG_WARN([Found Qt >= 4.7, forcing --enable-floating-control-panel!])
-      enable_floating_control_panel=yes
-    ])
-  ], [true])
+  # enable floating control panel, as it is the only option on qt5
+  enable_floating_control_panel=yes
 ])
 
 ENABLE_EXPLICIT([floating-control-panel], [separate control window],
