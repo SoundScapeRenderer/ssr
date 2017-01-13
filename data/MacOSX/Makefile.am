@@ -37,6 +37,7 @@ dist_noinst_DATA = dylibbundler/index.html dylibbundler/makefile \
 # this is done after installing the executable
 install-exec-hook:
 	cp -f `which ecasound` $(DESTDIR)$(bindir)
+	chmod +w $(DESTDIR)$(bindir)/ecasound
 	for exec in $(SSR_executables) ecasound; do \
 		$(builddir)/dylibbundler/dylibbundler \
 		--create-dir --overwrite-files --bundle-deps \
