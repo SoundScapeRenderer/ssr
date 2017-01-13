@@ -36,7 +36,7 @@ dist_noinst_DATA = dylibbundler/index.html dylibbundler/makefile \
 
 # this is done after installing the executable
 install-exec-hook:
-	cp `which ecasound` $(DESTDIR)$(bindir)
+	cp -f `which ecasound` $(DESTDIR)$(bindir)
 	for exec in $(SSR_executables) ecasound; do \
 		$(builddir)/dylibbundler/dylibbundler \
 		--create-dir --overwrite-files --bundle-deps \
@@ -48,11 +48,12 @@ install-exec-hook:
 		$(srcdir)/run-ssr.applescript
 
 install-data-hook:
-	cp -r $(QTLIBDIR)/QtGui.framework/Resources/qt_menu.nib $(DESTDIR)$(pkgdatadir)/
+	cp -rf $(QTLIBDIR)/QtGui.framework/Resources/qt_menu.nib $(DESTDIR)$(pkgdatadir)/
 	-cd $(DESTDIR)$(dmgrootdir) && $(LN_S) /Applications
 	for qtc in QtGui QtCore QtOpenGL; do \
 		mkdir -p $(prefix)/Frameworks/$$qtc.framework/Versions/4 \
 		; cp $(QTLIBDIR)/$$qtc.framework/Versions/4/$$qtc $(prefix)/Frameworks/$$qtc.framework/Versions/4/ \
+		; chmod +w $(prefix)/Frameworks/$$qtc.framework/Versions/4/$$qtc \
 		; install_name_tool -id @executable_path/../Frameworks/Versions/4/$$qtc.framework/$$qtc $(prefix)/Frameworks/$$qtc.framework/Versions/4/$$qtc \
 	; done
 	for exec in $(SSR_executables); do \
