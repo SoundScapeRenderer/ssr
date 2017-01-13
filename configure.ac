@@ -487,7 +487,19 @@ AS_IF([test x$have_gui = xyes],
 [
   # settings for Qt
   LIBS="$LIBS $QT_LIBS"
-  PKG_FLAGS="$PKG_FLAGS $QT_CFLAGS"
+  # add -fPIC flag to satisfy qt on linux
+  AC_MSG_CHECKING([Checking whether we have to add -fPIC flag to make Qt happy - ])
+  CPPFLAGS_backup="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $QT_CFLAGS"
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+  [
+    #include <QtCore/QObject>
+  ], [])], AC_MSG_RESULT([no]),
+  [
+    AC_MSG_RESULT([yes])
+    PKG_FLAGS="$PKG_FLAGS -fPIC"
+  ])
+  CPPFLAGS="$CPPFLAGS_backup"
   MOCFLAGS="$QT_CFLAGS"
   AS_IF([which moc 2>&1 >/dev/null],
   [
