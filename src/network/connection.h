@@ -25,46 +25,76 @@
  ******************************************************************************/
 
 /// @file
-/// Server class (definition). 
+/// Connection class (definition).
 
-#ifndef SSR_SERVER_H
-#define SSR_SERVER_H
+#ifndef SSR_CONNECTION_H
+#define SSR_CONNECTION_H
 
 #ifdef HAVE_CONFIG_H
 #include <config.h> // for ENABLE_*
 #endif
 
-#include <boost/asio.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/thread.hpp>
-#include <iostream>
+#if !defined(ASIO_STANDALONE)
+#define ASIO_STANDALONE
+#endif
+#include <asio.hpp>
 
-#include "connection.h"
+#include <iostream>
+#include <memory>
+
+#include "networksubscriber.h"
+#include "commandparser.h"
 
 namespace ssr
 {
 
 struct Publisher;
 
-/// Server class. 
-class Server
+/// Connection class.
+class Connection : public std::enable_shared_from_this<Connection>
 {
   public:
-    Server(Publisher& controller, int port, char end_of_message_character);
-    ~Server();
+    /// Ptr to Connection
+    typedef std::shared_ptr<Connection> pointer;
+    typedef asio::ip::tcp::socket socket_t;
+
+    static pointer create(asio::io_service &io_service
+        , Publisher &controller, char end_of_message_character);
+
     void start();
-    void stop();
+    void write(std::string &writestring);
+
+    /// @return Reference to socket
+    socket_t& socket() { return _socket; }
+
+    ~Connection();
 
   private:
-    void run();
-    void start_accept();
-    void handle_accept(Connection::pointer new_connection
-        , const boost::system::error_code &error);
+    Connection(asio::io_service &io_service, Publisher &controller
+        , char end_of_message_character);
 
-    Publisher& _controller;
-    boost::asio::io_service _io_service;
-    boost::asio::ip::tcp::acceptor _acceptor;
-    boost::thread *_network_thread;
+    void start_read();
+    void read_handler(const asio::error_code &error, size_t size);
+    void write_handler(std::shared_ptr<std::string> str_ptr
+        , const asio::error_code &error, size_t bytes_transferred);
+
+    void timeout_handler(const asio::error_code &e);
+
+    /// TCP/IP socket
+    socket_t _socket;
+    /// Buffer for incoming messages.  
+    asio::streambuf _streambuf;
+    /// @see Connection::timeout_handler
+    asio::steady_timer _timer;
+
+    /// Reference to Controller
+    Publisher &_controller;
+    /// Subscriber obj
+    NetworkSubscriber _subscriber;
+    /// Commandparser obj 
+    CommandParser _commandparser;
+
+    bool _is_subscribed;
 
     char _end_of_message_character;
 };

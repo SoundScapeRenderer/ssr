@@ -28,14 +28,13 @@
 /// Server class (implementation).
 
 #include "server.h"
-#include <boost/bind.hpp>
 
 ssr::Server::Server(Publisher& controller, int port
     , char end_of_message_character)
   : _controller(controller)
   , _io_service()
   , _acceptor(_io_service
-      , boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+      , asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))
   , _network_thread(0)
   , _end_of_message_character(end_of_message_character)
 {}
@@ -52,13 +51,13 @@ ssr::Server::start_accept()
       , _controller, _end_of_message_character);
 
   _acceptor.async_accept(new_connection->socket()
-      , boost::bind(&Server::handle_accept, this, new_connection
-      , boost::asio::placeholders::error));
+      , std::bind(&Server::handle_accept, this, new_connection
+      , std::placeholders::_1));
 }
 
 void
 ssr::Server::handle_accept(Connection::pointer new_connection
-    , const boost::system::error_code &error)
+    , const asio::error_code &error)
 {
   if (!error)
   {
@@ -70,7 +69,7 @@ ssr::Server::handle_accept(Connection::pointer new_connection
 void
 ssr::Server::start()
 {
-  _network_thread = new boost::thread(boost::bind(&Server::run, this));
+  _network_thread = new std::thread(std::bind(&Server::run, this));
 }
 
 void

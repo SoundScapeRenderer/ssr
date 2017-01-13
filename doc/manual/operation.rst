@@ -128,11 +128,6 @@ Examples are ::
 
 See Section :ref:`Hints on Configuration <hints_conf>` for details.
 
-On some Ubuntu systems, you might have to specify the directory for the Boost
-libraries::
-
-    export BOOST_LIB_DIR=/usr/lib/x86_64-linux-gnu
-    ./configure
 
 If everything went smoothly, you can continue with the next step::
 
@@ -155,8 +150,7 @@ code and compile each program yourself.
 
 - **make**
 - **g++** (at least version 4.7.3) or **clang**
-- **libboost-systemx.xx-dev** / **libboost-system-dev** and
-  **libboost-threadx.xx-dev** / **libboost-thread-dev** (at least version 1.35)
+- **libasio-dev**
 - **libqt4-dev** and **libqt4-opengl-dev** (at least version 4.2.2)
 - **libecasoundc2.2-dev** or **libecasoundc-dev**
 - **ecasound**
@@ -603,11 +597,25 @@ environment, so lets assume you put the SSR there (This also works for
 Building from Source
 ~~~~~~~~~~~~~~~~~~~~
 
-The following is an overview of instructions on how and what to set up in
-building the SSR for Mac OS X.
+The following is an overview on how to set up the build environment for SSR on Mac OS X.
 
 What to install first?
 ::::::::::::::::::::::
+
+You can make your life much easier with a decent package manager, name Homebrew (http://brew.sh/) or MacPorts (http://www.macports.org/). Both greatly simplify the process of installing and managing dependencies.
+
+
+Homebrew (recommended)
+**********************
+
+After installing homebrew, you can simply run the following line to update homebrew's
+internal repository, upgrade itself and install all necessary dependencies::
+
+brew update && brew upgrade && brew install autoconf fftw libsndfile jack ecasound qt asio --c++11
+
+To build the manual and documentation, you can also install help2man and doxygen::
+
+brew install help2man doxygen
 
 MacPorts
 ********
@@ -646,7 +654,6 @@ These ports have to be installed (dependencies are installed automatically)
 - libsamplerate
 - fftw-3-single
 - qt4-mac
-- boost
 - libxml2
 
 If you want, you can also use clang instead of GCC to compile the SSR.
@@ -664,11 +671,10 @@ Ports are installed using ::
 Because ports are compiled locally, it may take a long time to install all
 ports. Issuing one command to install all ports might be more convenient::
 
-  sudo sh -c "port install gcc49 && port install pkgconfig && port install libsndfile && port install libsamplerate && port install fftw-3-single && port install qt4-mac && port install boost && port install libxml2"
+  sudo sh -c "port install gcc49 && port install pkgconfig && port install libsndfile && port install libsamplerate && port install fftw-3-single && port install qt4-mac && port install libxml2"
 
-As an alternative to MacPorts is Homebrew_, which we have found to work very well, too.
-
-.. _Homebrew: http://brew.sh/
+Lastly, you need to install the asio library if you want to compile with the network
+interface. You can download it from: http://think-async.com
 
 JACK on Mac OS X
 ****************
@@ -1323,27 +1329,22 @@ For now, this is the solution (see also the issue below)::
 
     ./configure LIBS=-lGL
 
-Second instance of SSR crashes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This happens when two or more instances of the SSR are started with the IP server enabled.
-Start all (or at least all instances higher than 1) with the ``-I`` flag to disable the
-IP interface. 
-
 IP interface isn't selected although boost libraries are installed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This issue was resolved with dropping boost::asio for asio in version 0.5.0.
 
-This is similar to the previous issue, this should be the solution::
+For older builds, you might need to add the ``-lpthread`` flag::
 
-    ./configure LIBS=-lpthread
+  ./configure LIBS=-lpthread
 
-To avoid both errors, you can use the combination::
-
-    ./configure LIBS="-lGL -lpthread"
+Second instance of SSR crashes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This happens when two or more instances of the SSR are started with the IP server enabled.
+Start all (or at least all instances higher than 1) with the ``-I`` flag to disable the
+IP interface.
 
 Audio files with spaces
 ~~~~~~~~~~~~~~~~~~~~~~~
-
 This issue was resolved in version 0.3.2.
 
 Please do not use audio files with spaces for scenes. Neither the filename nor
