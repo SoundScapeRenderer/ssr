@@ -63,7 +63,6 @@ install-data-hook:
 		; install_name_tool -change $(QTLIBDIR)/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore $(prefix)/Frameworks/$$qtc.framework/Versions/5/$$qtc \
 		; install_name_tool -change $(QTLIBDIR)/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui $(prefix)/Frameworks/$$qtc.framework/Versions/5/$$qtc \
 		; install_name_tool -change $(QTLIBDIR)/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets $(prefix)/Frameworks/$$qtc.framework/Versions/5/$$qtc \
-
 	; done
 
 	for exec in $(SSR_executables); do \
