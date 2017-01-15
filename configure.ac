@@ -531,8 +531,8 @@ ENABLE_FORCED([ip-interface], [network (TCP/IP) interface],
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
 [
   dnl Checking for libecasoundc. It does not provide pkg-config and installs
-  dnl on some systems to non standard path /usr/include/libecasoundc. 
-  AC_MSG_CHECKING([Searching for non-default libecasoundc include directory])
+  dnl on some systems to non-standard path /usr/include/libecasoundc. 
+  AC_MSG_CHECKING([for non-default libecasoundc include directory])
   for incdir in /{usr,opt}/{,local/}include/libecasoundc; do
     AS_IF([test -d $incdir], [ECASOUND_INCLUDE="$incdir"])
   done
