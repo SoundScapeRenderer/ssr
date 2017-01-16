@@ -43,11 +43,7 @@ using namespace apf::math;
 //#define ROWHEIGHT 40
 
 QSourceProperties::QSourceProperties(QWidget* parent)
-#ifdef __APPLE__
 : QFrame(parent, Qt::Window | Qt::CustomizeWindowHint),
-#else
-    : QFrame(parent),
-#endif
     _create_new_source(false)
 {
   this->setAutoFillBackground(true);
