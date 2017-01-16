@@ -488,7 +488,7 @@ AS_IF([test x$have_gui = xyes],
   # settings for Qt
   LIBS="$LIBS $QT_LIBS"
   PKG_FLAGS="$PKG_FLAGS $QT_CFLAGS"
-  AC_MSG_CHECKING([Do we have to add -fPIC flag to make Qt happy])
+  AC_MSG_CHECKING([if we have to add -fPIC to make Qt happy])
   CPPFLAGS_backup="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $QT_CFLAGS"
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
