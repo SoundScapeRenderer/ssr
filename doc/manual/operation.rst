@@ -604,6 +604,7 @@ What to install first?
 
 You can make your life much easier with a decent package manager, name Homebrew (http://brew.sh/) or MacPorts (http://www.macports.org/). Both greatly simplify the process of installing and managing dependencies.
 
+.. _Homebrew:
 
 Homebrew (recommended)
 **********************
@@ -611,11 +612,11 @@ Homebrew (recommended)
 After installing homebrew, you can simply run the following line to update homebrew's
 internal repository, upgrade itself and install all necessary dependencies::
 
-brew update && brew upgrade && brew install autoconf fftw libsndfile jack ecasound qt asio --c++11
+  brew update && brew upgrade && brew install autoconf fftw libsndfile jack ecasound qt asio --c++11
 
 To build the manual and documentation, you can also install help2man and doxygen::
 
-brew install help2man doxygen
+  brew install help2man doxygen
 
 MacPorts
 ********
