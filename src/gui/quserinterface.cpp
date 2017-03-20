@@ -359,43 +359,6 @@ void ssr::QUserInterface::_unsolo_selected_sources()
 
 }
 
-void ssr::QUserInterface::_toggle_solo_state_of_selected_sources()
-{
-  for (selected_sources_map_t::iterator i = _selected_sources_map.begin(); 
-       i != _selected_sources_map.end(); i++)
-  {
-    if (_soloed_sources.find(i->second) == _soloed_sources.end())
-    {
-      // solo source
-      _soloed_sources.insert(i->second); 
-    }
-    else 
-    {
-      // unsolo source
-      _soloed_sources.erase(i->second);
-    }
-  } // for
-
-  // get sources
-  source_buffer_list_t source_buffer_list;
-  _scene.get_sources(source_buffer_list);
-
-  for (source_buffer_list_t::const_iterator i = source_buffer_list.begin(); 
-       i != source_buffer_list.end(); i++)
-  {
-    if (_soloed_sources.find(i->id) == _soloed_sources.end())
-    {
-      // mute 
-      _controller.set_source_mute(i->id, true);
-    }
-    else 
-    {
-      // unmute
-      _controller.set_source_mute(i->id, false);
-    }
-  }
-}
-
 void ssr::QUserInterface::_unsolo_all_sources()
 {
   _soloed_sources.clear();
@@ -1256,7 +1219,7 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
                   {
                     _unsolo_all_sources();
                   }
-		  else _solo_selected_sources(); 
+		  else _toggle_solo_state_of_selected_sources();
                   break;
 
   case Qt::Key_T: if ( event->modifiers() == Qt::ControlModifier ) 
@@ -1415,6 +1378,48 @@ void ssr::QUserInterface::_toggle_mute_state_of_selected_sources()
     _controller.set_source_mute(i->second,
                                 !_scene.get_source_mute_state(i->second));
   }
+}
+
+void ssr::QUserInterface::_toggle_solo_state_of_selected_sources()
+{
+  // get sources
+  source_buffer_list_t source_buffer_list;
+  _scene.get_sources(source_buffer_list);
+
+  for (selected_sources_map_t::iterator i = _selected_sources_map.begin();
+       i != _selected_sources_map.end(); i++)
+  {
+    if (_soloed_sources.find(i->second) == _soloed_sources.end())
+    {
+      // solo source
+      _soloed_sources.insert(i->second);
+      // make sure it's not muted
+      _controller.set_source_mute(i->second, false);
+
+      // mute other sources
+      for (source_buffer_list_t::const_iterator j = source_buffer_list.begin();
+      j != source_buffer_list.end(); j++)
+      {
+        // if source is not soloed
+        if (_soloed_sources.find(j->id) == _soloed_sources.end())
+        {
+          // then mute it
+          _controller.set_source_mute(j->id, true);
+        }
+      }
+    }
+    else
+    {
+      // unsolo source
+      _soloed_sources.erase(i->second);
+      // unmute sources
+      for (source_buffer_list_t::const_iterator j = source_buffer_list.begin();
+      j != source_buffer_list.end(); j++)
+      {
+        _controller.set_source_mute(j->id, false);
+      }
+    }
+  } // for
 }
 
 void ssr::QUserInterface::_toggle_source_models()
