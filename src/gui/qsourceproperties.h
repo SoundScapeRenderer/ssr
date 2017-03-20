@@ -51,7 +51,7 @@ class QSourceProperties : public QFrame
     QSourceProperties(QWidget* parent = 0);
     ~QSourceProperties();
 
-    void update_displays(const Source& source,
+    void update_displays(const Source& source, 
 			 const DirectionalPoint& reference);
 
   private:
@@ -78,11 +78,11 @@ class QSourceProperties : public QFrame
     QClickTextLabel* _close_button;
 
     QLabel* _create_text_label(const QString& text = QString());
-
+   
     bool _create_new_source;
 
     virtual void mousePressEvent(QMouseEvent *event);
-    //virtual bool event(QEvent *e);
+    virtual bool event(QEvent *e);
 
   private slots:
       void _set_source_mute(bool flag);
