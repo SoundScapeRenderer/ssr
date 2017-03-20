@@ -82,7 +82,6 @@ class QSourceProperties : public QFrame
     bool _create_new_source;
 
     virtual void mousePressEvent(QMouseEvent *event);
-    virtual bool event(QEvent *e);
 
   private slots:
       void _set_source_mute(bool flag);
