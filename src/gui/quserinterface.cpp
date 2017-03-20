@@ -1144,11 +1144,7 @@ void ssr::QUserInterface::_update_source_properties_position()
   _get_pixel_pos(source_position->x, source_position->y,
 		 0,&x, &y);
 
-#ifdef __APPLE__
   _source_properties->move(QPoint(this->x() + x + 100, this->y() + y));
-#else
-  _source_properties->move(QPoint(x + 100, y));
-#endif
 
 }
 
