@@ -343,7 +343,8 @@ void QSourceProperties::update_displays(const Source& source,
   {
     _properties_display->setText(source.properties_file.c_str());
   }
-this->raise();
+
+  this->raise();
 }
 
 void QSourceProperties::_expand()
