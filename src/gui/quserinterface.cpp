@@ -114,7 +114,6 @@ ssr::QUserInterface::QUserInterface(Publisher& controller, const Scene& scene
   // set default size
   setGeometry(200, 100, 900, 800);
   
-#ifdef ENABLE_FLOATING_CONTROL_PANEL
   // TODO: use screen size for initial window positions
   //QRect screenSize = QApplication::desktop()->screenGeometry();
   setGeometry(200, 70, 900, 700);
@@ -124,10 +123,6 @@ ssr::QUserInterface::QUserInterface(Publisher& controller, const Scene& scene
   _controlsParent->setWindowTitle("Controls");
   _controlsParent->installEventFilter(this);
   _controlsParent->show();
-#else
-  // build up frame around OpenGL window
-  _frame = new QGUIFrame(this);
-#endif
 
   _source_properties = new QSourceProperties(this);
   connect(_source_properties, SIGNAL(signal_set_source_mute(bool)), this, SLOT(_set_source_mute(bool)));
@@ -237,23 +232,16 @@ ssr::QUserInterface::QUserInterface(Publisher& controller, const Scene& scene
   // functional inits
   _deselect_all_sources(); // no source selected
 
-#ifdef ENABLE_FLOATING_CONTROL_PANEL
   // scene menu is not shown if floating control panel is used
   VERBOSE("Floating control panel is used, scene menu will not be shown.");
   (void)path_to_scene_menu;
-#else
-  // create the scene menu if an according config file is present
-  _create_scene_menu(path_to_scene_menu);
-#endif
 
   // update screen with update_frequency
   QTimer *timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(_update_screen()));
   timer->start(static_cast<unsigned int>(1.0f/static_cast<float>(update_frequency) * 1000.0f));
 
-#ifdef ENABLE_FLOATING_CONTROL_PANEL
   _resizeControls(_controlsParent->width());
-#endif
 }
 
 /// Dtor.
@@ -698,77 +686,12 @@ void ssr::QUserInterface::_update_screen()
     update();
 }
 
-#ifndef ENABLE_FLOATING_CONTROL_PANEL
-/** Checks if a mouse event occurred outside of the visible OpenGL window.
- * @param event incoming Qt event.
- * @return @b true if event occurred outside.
- */
-bool ssr::QUserInterface::_mouse_event_out_of_scope(QMouseEvent *event)
-{
-  if (event->x() < DEFAULTFRAMELEFT + 2
-      || event->x() > width() - DEFAULTFRAMERIGHT
-      || event->y() < DEFAULTFRAMETOP + 2
-      || event->y() > height() - DEFAULTFRAMEBOTTOM)
-  {
-    return true;
-  }
-
-  return false;
-}
-
-/** Catches mouse events which occurred outside of the visible OpenGL widget.
- * @param event incoming Qt event.
- * @return @b true if event was caught.
- */
-bool ssr::QUserInterface::event(QEvent *e)
-{
-  // check if mouse action starts outside of scope
-  if (e->type() == QEvent::MouseButtonPress
-      || e->type() == QEvent::MouseButtonDblClick)
-  {
-
-    // close text edit in time line if visible
-    //_time_line->reset_appearence();
-
-    QMouseEvent *mouse_event = (QMouseEvent *)e;
-    if (_mouse_event_out_of_scope(mouse_event))
-    {
-      _ignore_mouse_events = true;
-      return true;
-    }
-    else _ignore_mouse_events = false;
-  }
-
-  else if (e->type() == QEvent::MouseMove && _ignore_mouse_events)
-  {
-    return true;
-  }
-
-  return QOpenGLPlotter::event(e);
-}
-#endif
-
 /** Handles Qt resize events.
  * @param event Qt resize event.
  */
 void ssr::QUserInterface::resizeEvent(QResizeEvent *event)
 {
   QOpenGLPlotter::resizeEvent(event);
-
-#ifndef ENABLE_FLOATING_CONTROL_PANEL
-  // resize frame
-  _frame->resize(DEFAULTFRAMETOP, DEFAULTFRAMEBOTTOM, DEFAULTFRAMELEFT, DEFAULTFRAMERIGHT);
-
-  // horizontal arrangement of buttons in pixels:
-  // frame            file menu                        proc. but.
-  // DEFAULTFRAMELEFT FILEMENUWIDTH BETWEENBUTTONSPACE BUTTONWIDTH BETWEENBUTTONSPACE
-  // skip button                    pause                          play
-  // BUTTONWIDTH BETWEENBUTTONSPACE BUTTONWIDTH BETWEENBUTTONSPACE BUTTONWIDTH
-  //
-  // 3*BETWEENBUTTONSPACE
-
-  _resizeControls(width());
-#endif
 }
 
 void ssr::QUserInterface::_resizeControls(int newWidth)
@@ -1197,7 +1120,6 @@ void ssr::QUserInterface::mouseReleaseEvent (QMouseEvent *event)
   }
 }
 
-#ifdef ENABLE_FLOATING_CONTROL_PANEL
 /** Catches Qt key press events for floating control panel.
  * @param sender Qt object that sent the event.
  * @param event The event itself.
@@ -1213,7 +1135,6 @@ bool ssr::QUserInterface::eventFilter(QObject *sender, QEvent *event)
   }
   return false;
 }
-#endif
 
 /** Handles Qt key press events.
  * @param event Qt key event.

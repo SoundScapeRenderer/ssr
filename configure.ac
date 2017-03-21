@@ -513,14 +513,6 @@ AS_IF([test x$have_gui = xyes],
   AC_SUBST(QTMOC)
   AC_SUBST(QTLIBDIR)
   AC_SUBST(MOCFLAGS)
-
-  # enable floating control panel, as it is the only option on qt5
-  enable_floating_control_panel=yes
-])
-
-ENABLE_EXPLICIT([floating-control-panel], [separate control window],
-[
-  AS_IF([test x$have_gui = xno], [have_floating_control_panel=no])
 ])
 
 ENABLE_FORCED([ip-interface], [network (TCP/IP) interface],
@@ -759,8 +751,7 @@ AS_IF([test x$have_intersense = xyes],
 
 gui_string=$have_gui
 AS_IF([test x$have_gui = xyes],
-  AS_IF([test x$have_floating_control_panel = xyes],
-    [gui_string="yes (floating)"]))
+  [gui_string="yes"])
 
 echo "|"
 echo "| Build with tracker support:"
