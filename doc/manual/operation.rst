@@ -1312,7 +1312,7 @@ and as a result, the GUI buttons are not shown in newer Qt versions.
 To overcome this limitation, we provide two GUI variants:
 
 - Traditional GUI, can be used up to Qt 4.6.x
-- Floating control panel, should be used with Qt 4.7 and above
+- Floating control panel, which is used with Qt 4.7 and above
 
 The floating control panel is the default setting on Mac OS X, for Linux it
 can be activated with::
