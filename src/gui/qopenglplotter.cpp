@@ -592,7 +592,14 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
   gluDisk(_glu_quadric, 0.0f, 0.15f * scale, LEVELOFDETAIL, 1);
 
   // fill source
-  qglColor(_color_vector[source->id%_color_vector.size()]);
+  if (source->mute)
+  {
+    qglColor(_color_vector[source->id%_color_vector.size()].darker(180));
+  }
+  else
+  {
+    qglColor(_color_vector[source->id%_color_vector.size()]);
+  }
 
   gluPartialDisk(_glu_quadric, 0.0f, 0.125f * scale,
                  LEVELOFDETAIL, 1, 0.0f, 360.0f);
