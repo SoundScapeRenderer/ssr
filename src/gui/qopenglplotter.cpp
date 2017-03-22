@@ -49,7 +49,7 @@
 
 #define BACKGROUNDCOLOR 0.9294f,0.9294f,0.9020f
 // Define how detailedly circles are plotted
-#define LEVELOFDETAIL 40
+#define LEVELOFDETAIL 50
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation of the nested class QGUI::SourceCopy
@@ -114,12 +114,12 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
   _soloed_sources.clear();
 
   // define possible colors for sources
-  _color_vector.push_back(QColor(163, 95, 35));
-  _color_vector.push_back(QColor( 43,174,247));
-  _color_vector.push_back(QColor( 75,135, 35));
-  _color_vector.push_back(QColor( 97, 31,160));
-  _color_vector.push_back(QColor(173, 54, 35));
-  //_color_vector.push_back(QColor(242,226, 22));  // yellow is too hard to read
+  _color_vector.push_back(QColor(228, 26, 28));
+  _color_vector.push_back(QColor( 55,126,184));
+  _color_vector.push_back(QColor( 77,175, 74));
+  _color_vector.push_back(QColor(152, 78,163));
+  _color_vector.push_back(QColor(255,127,  0));
+  //http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=5
 
 }
 

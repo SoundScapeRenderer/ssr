@@ -40,7 +40,7 @@ QString qt_style_sheet =
 #else
   "QWidget {                                               \n"
   "   color: black;                                        \n"
-  "   font: normal 9pt \"Monospace\";                      \n"
+  "   font: normal 10pt \"Monospace\";                     \n"
   "   }                                                    \n"
 #endif
   "QLabel {                                                \n"
