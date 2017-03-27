@@ -95,6 +95,20 @@
 # carriage return: 13)
 #END_OF_MESSAGE_CHARACTER = 10
 
+############################ Networking configuration ##########################
+
+# networking mode (client|server|off)
+#NETWORK_MODE = server
+
+# networking port for sending (default: 50001)
+#NETWORK_PORT_SEND = 50001
+
+# networking port for receiving (default: 50002)
+#NETWORK_PORT_RECEIVE = 50002
+
+# networking clients by hostname:port
+#NETWORK_CLIENTS = "test:50002 test:50002"
+
 ############################## Verbosity Level #################################
 
 # Set the level of system information
