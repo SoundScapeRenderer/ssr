@@ -57,6 +57,10 @@ struct conf_struct
   std::string output_port_prefix;       ///< e.g. "alsa_pcm:playback"
   std::string path_to_gui_images;       ///< dto.
   std::string path_to_scene_menu;       ///< path to scene_menu.conf
+  std::string network_mode;             ///< network mode (client or server)
+  std::string network_clients;          ///< list of network clients and ports
+  int network_port_send;                ///< network sending port
+  int network_port_receive;             ///< network receiving port
   int end_of_message_character;         ///< ASCII
   bool auto_rotate_sources;             ///< Automatic orientation of sources
 
