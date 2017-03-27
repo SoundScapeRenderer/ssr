@@ -1,1 +1,10 @@
-ssr_scene_autosave.asd
+Makefile.in
+aclocal.m4
+autom4te.cache/
+autotools/
+configure
+data/MacOSX/Makefile.in
+data/Makefile.in
+man/Makefile.in
+src/Makefile.in
+src/config.h.in
