@@ -85,6 +85,8 @@ conf_struct configuration(int& argc, char* argv[]);
 // static int parse(const char *line, char *key, char *value);
 // static int is_comment_or_empty(const char *line);
 int load_config_file(const char *filename, conf_struct& conf);
+std::string remove_whitespace(const std::string& str);
+
 
 }  // namespace ssr
 
