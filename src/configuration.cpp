@@ -112,7 +112,7 @@ namespace // anonymous
 /* This function removes all whitespaces from a string.
  * If the string is " " it will return an empty string.
  */
-std::string trim(const std::string& str)
+std::string remove_whitespace(const std::string& str)
 {
   if (str == " ") return "";
   size_t first = str.find_first_not_of(' ');
@@ -128,7 +128,8 @@ std::string trim(const std::string& str)
  * string and stores it in a multimap.
  */
 static int parse_network_clients(const char *input,
-    std::multimap<std::string, int> clients){
+    std::multimap<std::string, int> clients)
+{
   std::istringstream iss(input);
   std::string name;
   int port;
@@ -136,8 +137,8 @@ static int parse_network_clients(const char *input,
 
   while (std::getline(iss, token, ',')) {
     size_t pos = token.find(':');
-    std::string port_temp = trim(token.substr(pos+1));
-    name = trim(token.substr(0, pos));
+    std::string port_temp = remove_whitespace(token.substr(pos+1));
+    name = remove_whitespace(token.substr(0, pos));
 
     if (!name.empty())
     {
