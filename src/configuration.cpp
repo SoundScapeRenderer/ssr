@@ -112,7 +112,7 @@ namespace // anonymous
 /* This function removes all whitespaces from a string.
  * If the string is " " it will return an empty string.
  */
-std::string remove_whitespace(const std::string& str)
+std::string ssr::remove_whitespace(const std::string& str)
 {
   if (str == " ") return "";
   size_t first = str.find_first_not_of(' ');
@@ -137,13 +137,11 @@ static int parse_network_clients(const char *input,
 
   while (std::getline(iss, token, ',')) {
     size_t pos = token.find(':');
-    std::string port_temp = remove_whitespace(token.substr(pos+1));
-    name = remove_whitespace(token.substr(0, pos));
+    std::string port_temp = ssr::remove_whitespace(token.substr(pos+1));
+    name = ssr::remove_whitespace(token.substr(0, pos));
 
     if (!name.empty())
     {
-      std::cout << name << "(" << name.length() << ")" << std::endl;
-      std::cout << port_temp << "(" << port_temp.length() << ")" << std::endl;
       // if no port supplied, insert standard
       if ( port_temp.empty() || port_temp == name )
       {
@@ -155,6 +153,10 @@ static int parse_network_clients(const char *input,
       }
       clients.insert(make_pair(name, port));
     }
+  }
+  VERBOSE2("Using the following network clients:");
+  for (const auto& client: clients) {
+    VERBOSE2(client.first << ":" << client.second);
   }
   return CONFIG_SUCCESS;
 }
