@@ -30,6 +30,7 @@
 #ifndef SSR_CONFIGURATION_H
 #define SSR_CONFIGURATION_H
 
+#include <map>
 #include <string>
 
 #include "apf/parameter_map.h"
@@ -58,7 +59,8 @@ struct conf_struct
   std::string path_to_gui_images;       ///< dto.
   std::string path_to_scene_menu;       ///< path to scene_menu.conf
   std::string network_mode;             ///< network mode (client or server)
-  std::string network_clients;          ///< list of network clients and ports
+  ///< list of network clients and ports
+  std::multimap<std::string, int> network_clients;
   int network_port_send;                ///< network sending port
   int network_port_receive;             ///< network receiving port
   int end_of_message_character;         ///< ASCII
