@@ -51,5 +51,4 @@ src/ssr-vbap
 src/ssr-wfs
 src/*.o
 src/stamp-h1
-ssr-qt4.patch
 tags
