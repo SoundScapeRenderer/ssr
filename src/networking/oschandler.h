@@ -1,21 +1,32 @@
 #ifndef OSC_HANDLER_H
 #define OSC_HANDLER_H
+#endif
 
+#ifdef HAVE_CONFIG_H
 #include <config.h> // for ENABLE_*
+#endif
+
+#include <map>
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
-#include <osc_receiver.h>
-#include <osc_sender.h>
+
+#include "oscreceiver.h"
+#include "oscsender.h"
 
 namespace ssr
 {
+
+struct Publisher;
+
 /*
  * \class OscHandler
  * \brief Class holding Publisher and Subscriber implementation, while being responsible for
  * sending and receiving OSC messages.
  * This class holds a Publisher implementation (OscReceiver), which turns
  * incoming OSC messages into calls to the Controller.
- * It also holds an implementation of Subscriber (OscSender), which 
+ * It also holds an implementation of Subscriber (OscSender), which turns
+ * Publisher functionality into outgoing OSC messages
+ *
  * \author David Runge
  * \version $Revision: 0.1 $
  * \date $Date: 2017/03/29
@@ -25,20 +36,29 @@ namespace ssr
 class OscHandler
 {
   private:
-    int _port;
-    lo::ServerThread *_serverThread;
-    lo::Address _serverAddress;
+    // mode: client|server
+    std::string _mode;
     Publisher& _controller;
-    OscReceiver _oscReceiver;
-    OscSender _oscSender;
+    OscReceiver _osc_receiver;
+    OscSender _osc_sender;
 
   public:
-    OscHandler(Publisher& controller, int port);
+    // client ctor
+    OscHandler(Publisher& controller, int port_in, int port_out, std::string
+        mode);
+    // server ctor
+    OscHandler(Publisher& controller, int port_in, int port_out, std::string
+        mode, std::multimap<std::string, int> clients);
     ~OscHandler();
-    void setPort(int port);
-    int getPort();
     void start();
     void stop();
+
+    //declare set_server_for_client() as friend of class OscReceiver
+    friend void OscReceiver::set_server_for_client(OscHandler& self,
+        lo::Address server_address);
+    //declare set_server_for_client() as friend of class OscReceiver
+    friend lo::Address OscReceiver::server_address(OscHandler& self);
+
 };
 
 }
