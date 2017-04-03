@@ -178,6 +178,18 @@ SSRSOURCES += \
 	network/server.h
 endif
 
+if ENABLE_OSC_INTERFACE
+AM_CPPFLAGS += -I$(srcdir)/networking
+
+SSRSOURCES += \
+	networking/oschandler.cpp \
+	networking/oschandler.h \
+	networking/oscreceiver.cpp \
+	networking/oscreceiver.h \
+	networking/oscsender.cpp \
+	networking/oscsender.h
+endif
+
 if ENABLE_GUI
 AM_CPPFLAGS += -I$(srcdir)/gui
 
