@@ -6,7 +6,7 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int
     port_out, std::string mode)
   : _controller(controller),
   , _osc_receiver(controller, *this, port_in)
-  , _osc_sender(*this, port_out)
+  , _osc_sender(controller, *this, port_out)
   , _mode(mode)
 {}
 
@@ -16,6 +16,7 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
     clients)
   : _controller(controller),
   , _osc_receiver(controller, *this, port_in)
+  , _osc_sender(controller, *this, port_out)
   , _mode(mode)
 {
   std::vector<lo::Address> new_clients;
