@@ -68,6 +68,7 @@ void add_server_to_client_methods()
       if(server.hostname() != from.hostname() && server.port() != from.port())
       {
         set_server_address(from);
+        // TODO: send reply to subscribed server
       }
     }
   ):
@@ -85,18 +86,18 @@ void add_server_to_client_methods()
   // set source fixed: "source/position_fixed, iT, id, true"
   _receiver.add_method("source/position_fixed", "iT", [](lo_arg **argv, int)
     {
-      _controller.set_source_position_fixed(argv[0]->i, argv[1]->T);
-      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed = "
-          << argv[1]->T);
+      _controller.set_source_position_fixed(argv[0]->i, true);
+      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed =
+          true");
     }
   );
 
   // set source fixed: "source/position_fixed, iF, id, false"
   _receiver.add_method("source/position_fixed", "iF", [](lo_arg **argv, int)
     {
-      _controller.set_source_position_fixed(argv[0]->i, argv[1]->F);
-      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed = "
-          << argv[1]->F);
+      _controller.set_source_position_fixed(argv[0]->i, false);
+      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed =
+          false");
     }
   );
 
@@ -121,18 +122,16 @@ void add_server_to_client_methods()
   // set source mute: "source/mute, iT, id, true"
   _receiver.add_method("source/mute", "iT", [](lo_arg **argv, int)
     {
-      _controller.set_source_mute(argv[0]->i, argv[1]->T);
-      VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = " <<
-          dB2linear(argv[1]->T));
+      _controller.set_source_mute(argv[0]->i, true);
+      VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = true");
     }
   );
 
   // set source mute: "source/mute, iF, id, false"
   _receiver.add_method("source/mute", "iF", [](lo_arg **argv, int)
     {
-      _controller.set_source_mute(argv[0]->i, argv[1]->F);
-      VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = " <<
-          dB2linear(argv[1]->F));
+      _controller.set_source_mute(argv[0]->i, false);
+      VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = false");
     }
   );
 
@@ -172,52 +171,162 @@ void add_server_to_client_methods()
     }
   );
 
-  //FIXME: spezialize with TF types
-
-  // create new source: "source/new, sssffbfbfb, name, model, port_name, x, y,
-  // position_fixed, orientation, orientation_fixed, volume, muted"
-  _receiver.add_method("source/new", "sssffbfbfb", [](lo_arg **argv, int)
+  // create new source: "source/new, sssffff{T,F}{T,F}{T,F}, name, model,
+  // port_name, x, y, orientation, volume, position_fixed, orientation_fixed,
+  // muted"
+  // create new source: "source/new, sssffffis{T,F}{T,F}{T,F}, name, model,
+  // port_name, x, y, orientation, volume, channel, properties_file,
+  // position_fixed, orientation_fixed, muted"
+  _receiver.add_method("source/new", NULL, [](lo_arg **argv, int,
+        lo::Message message)
     {
-      _controller.new_source(argv[0]->s, argv[1]->s, argv[2]->s, 0,
-          Position(argv[3]->f, argv[4]->f), argv[5]->b, argv[6]->f, argv[7]->b,
-          argv[8]->f, argv[9]->b, "");
-      VERBOSE2("Creating source with following properties:"
-          "\nname: " << argv[0]->s <<
-          "\nmodel: " << argv[1]->s <<
-          "\nfile_or_port_name: " << argv[2]->s <<
-          "\nchannel: 0" <<
-          "\nposition: " << Position(argv[3]->f, argv[4]->f) <<
-          "\nposition_fixed: " << argv[5]->b <<
-          "\norientation: " << argv[6]->f <<
-          "\norientation_fixed: " << argv[7]->b <<
-          "\nvolume (linear): " << argv[8]->f <<
-          "\nmuted: " << argv[9]->b <<
-          "\nproperties_file: " <<
-          "\n");
-    }
-  );
-
-  // create new source: "source/new, sssiffbfbfbs, name, model, file, channel,
-  // x, y, position_fixed, orientation, orientation_fixed, volume, muted,
-  // properties_file"
-  _receiver.add_method("source/new", "sssiffbfbfbs", [](lo_arg **argv, int)
-    {
-      _controller.new_source(argv[0]->s, argv[1]->s, argv[2]->s, 0,
-          Position(argv[3]->f, argv[4]->f), argv[5]->b, argv[6]->f, argv[7]->b,
-          argv[8]->f, argv[9]->b, "");
-      VERBOSE2("Creating source with following properties:"
-          "\nname: " << argv[0]->s <<
-          "\nmodel: " << argv[1]->s <<
-          "\nfile_or_port_name: " << argv[2]->s <<
-          "\nchannel: " << argv[3]->i <<
-          "\nposition: " << Position(argv[4]->f, argv[5]->f) <<
-          "\nposition_fixed: " << argv[6]->b <<
-          "\norientation: " << argv[7]->f <<
-          "\norientation_fixed: " << argv[8]->b <<
-          "\nvolume (linear): " << argv[9]->f <<
-          "\nmuted: " << argv[10]->b <<
-          "\nproperties_file: " << argv[11]->s <<
-          "\n");
+      std::string name(argv[0]->s);
+      std::string model(argv[1]->s);
+      std::string file_or_portname(argv[2]->s);
+      float x(argv[3]->f);
+      float y(argv[4]->f);
+      float orientation(argv[5]->f);
+      float volume(argv[6]->f);
+      int channel = 0;
+      std::string properties_file = "";
+      bool position_fixed;
+      bool orientation_fixed;
+      bool muted;
+      bool setup = false;
+      switch (message.types())
+      {
+      case "sssffffTTT":
+        position_fixed = true;
+        orientation_fixed = true;
+        muted = true;
+        setup = true;
+      break;
+      case "sssffffTTF":
+        position_fixed = true;
+        orientation_fixed = true;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffTFF":
+        position_fixed = true;
+        orientation_fixed = false;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffFFF":
+        position_fixed = false;
+        orientation_fixed = false;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffTFT":
+        position_fixed = true;
+        orientation_fixed = false;
+        muted = true;
+        setup = true;
+      break;
+      case "sssffffFTF":
+        position_fixed = false;
+        orientation_fixed = true;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffFTT":
+        position_fixed = false;
+        orientation_fixed = true;
+        muted = true;
+        setup = true;
+      break;
+      case "sssffffFFT":
+        position_fixed = false;
+        orientation_fixed = false;
+        muted = true;
+        setup = true;
+      break;
+      case "sssffffisTTT":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = true;
+        orientation_fixed = true;
+        muted = true;
+        setup = true;
+      break;
+      case "sssffffisTTF":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = true;
+        orientation_fixed = true;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffisTFF":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = true;
+        orientation_fixed = false;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffisFFF":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = false;
+        orientation_fixed = false;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffisTFT":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = true;
+        orientation_fixed = false;
+        muted = true;
+        setup = true;
+      break;
+      case "sssffffisFTF":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = false;
+        orientation_fixed = true;
+        muted = false;
+        setup = true;
+      break;
+      case "sssffffisFTT":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = false;
+        orientation_fixed = true;
+        muted = true;
+        setup = true;
+      break;
+      case "sssffffisFFT":
+        channel = argv[7]->i;
+        properties_file = argv[8]->s;
+        position_fixed = false;
+        orientation_fixed = false;
+        muted = true;
+        setup = true;
+      break;
+      }
+      if (setup)
+      {
+        _controller.new_source(name, model, file_or_port_name, channel,
+            Position(x, y), position_fixed, orientation, orientation_fixed,
+            volume, muted, properties_file);
+        VERBOSE2("Creating source with following properties:"
+            "\nname: " << name <<
+            "\nmodel: " << model <<
+            "\nfile_or_port_name: " << file_or_port_name <<
+            "\nchannel: " << channel <<
+            "\nposition: " << Position(x, y) <<
+            "\nposition_fixed: " << position_fixed <<
+            "\norientation: " << orientation <<
+            "\norientation_fixed: " << orientation_fixed <<
+            "\nvolume (linear): " << volume <<
+            "\nmuted: " << muted <<
+            "\nproperties_file: " << properties_file <<
+            "\n");
+      }
     }
   );
 
