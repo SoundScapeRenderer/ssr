@@ -39,10 +39,13 @@ class OscSender : public Subscriber
     std::vector<lo::Address> _client_addresses;
     // reference to handler
     OscHandler& _handler;
+    // reference to controller
+    Publisher& _controller;
+    bool _is_subscribed;
 
   public:
-    OscSender(OscHandler& handler, int port);
-    OscSender(int port);
+    OscSender(Publisher& controller, OscHandler& handler, int port);
+    OscSender(Publisher& controller, int port);
     ~OscSender();
     void start();
     void stop();
