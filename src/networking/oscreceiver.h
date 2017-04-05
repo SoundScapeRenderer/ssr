@@ -1,7 +1,7 @@
 /**
- * \file oscreceiver.h
- * \brief Header for OscReceiver, defining a class, responsible for evaluating
- * received OSC messages and interfacing the SSR's controller
+ * @file oscreceiver.h
+ * Header for OscReceiver, declaring a class, responsible for evaluating
+ * received OSC messages and interfacing the SSR's controller.
  */
 
 #ifndef OSC_RECEIVER_H
@@ -26,17 +26,11 @@ struct Publisher;
 // forward declaration for OscHandler friend functions
 class OscHandler;
 
-/** OscReceiver
- * \brief Class holding Publisher and Subscriber implementation, while being responsible for
- * sending and receiving OSC messages.
- * This class holds a Publisher implementation (OscReceiver), which turns
- * incoming OSC messages into calls to the Controller.
- * It also holds an implementation of Subscriber (OscSender), which 
- * \author David Runge
- * \version $Revision: 0.1 $
- * \date $Date: 2017/03/29
- * Contact: dave@sleepmap.de
- *
+/**
+ * OscReceiver
+ * This class holds a Publisher and an OscHandler reference.
+ * It is responsible for all incoming OSC messages and using callback functions
+ * to trigger functionality in the Publisher.
  */
 class OscReceiver
 {
@@ -52,7 +46,6 @@ class OscReceiver
     ~OscReceiver();
     void start();
     void stop();
-
     void set_server_for_client(OscHandler& handler, lo::Address
         server_address);
     lo::Address server_address(OscHandler& handler);
