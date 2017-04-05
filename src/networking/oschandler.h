@@ -1,3 +1,9 @@
+/**
+ * Header for OscHandler, defining a class, responsible for sending OSC messages
+ * and subscribing to the SSR's Publisher.
+ * @file oschandler.h
+ */
+
 #ifndef OSC_HANDLER_H
 #define OSC_HANDLER_H
 #endif
@@ -18,47 +24,33 @@ namespace ssr
 
 struct Publisher;
 
-/*
- * \class OscHandler
- * \brief Class holding Publisher and Subscriber implementation, while being responsible for
- * sending and receiving OSC messages.
- * This class holds a Publisher implementation (OscReceiver), which turns
- * incoming OSC messages into calls to the Controller.
- * It also holds an implementation of Subscriber (OscSender), which turns
- * Publisher functionality into outgoing OSC messages
- *
- * \author David Runge
- * \version $Revision: 0.1 $
- * \date $Date: 2017/03/29
- * Contact: dave@sleepmap.de
- *
+/**
+ * OscHandler
+ * This class holds a Subscriber derivate (OscSender), which turns actions of
+ * the referenced Publisher into OSC messages to clients or a server and an
+ * OscReceiver, responsible for callbacks on arriving OSC messages, that are
+ * delegated to the Publisher reference.
  */
 class OscHandler
 {
   private:
-    // mode: client|server
-    std::string _mode;
-    Publisher& _controller;
+    std::string _mode; //< mode: client|server
+    Publisher& _controller; //< reference to Publisher object
     OscReceiver _osc_receiver;
     OscSender _osc_sender;
 
   public:
-    // client ctor
     OscHandler(Publisher& controller, int port_in, int port_out, std::string
         mode);
-    // server ctor
     OscHandler(Publisher& controller, int port_in, int port_out, std::string
         mode, std::multimap<std::string, int> clients);
     ~OscHandler();
     void start();
     void stop();
-
-    //declare set_server_for_client() as friend of class OscReceiver
+    std::string mode();
     friend void OscReceiver::set_server_for_client(OscHandler& self,
         lo::Address server_address);
-    //declare set_server_for_client() as friend of class OscReceiver
     friend lo::Address OscReceiver::server_address(OscHandler& self);
-
 };
 
-}
+} // namespace ssr
