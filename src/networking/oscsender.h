@@ -1,3 +1,9 @@
+/**
+ * Header for OscSender, declaring a class, responsible for sending OSC
+ * messages and subscribing to the SSR's Publisher.
+ * @file oscsender.h
+ */
+
 #ifndef OSC_SENDER_H
 #define OSC_SENDER_H
 #endif
@@ -16,43 +22,45 @@
 namespace ssr
 {
 
-/** OscSender
- * \brief Class holding Publisher and Subscriber implementation, while being responsible for
- * sending and receiving OSC messages.
- * This class holds a Publisher implementation (OscReceiver), which turns
- * incoming OSC messages into calls to the Controller.
- * It also holds an implementation of Subscriber (OscSender), which 
- * \author David Runge
- * \version $Revision: 0.1 $
- * \date $Date: 2017/03/29
- * Contact: dave@sleepmap.de
- *
+/**
+ * OscSender
+ * This class holds a Publisher and an OscHandler reference, while implementing
+ * the Subscriber interface.
+ * The Publisher is subscribed to, using its interface to send out OSC messages
+ * on all events it emmits.
  */
 class OscSender : public Subscriber
 {
   private:
-    // address of server (only used for client -> server connection)
+    // address of server (client)
     lo::Address _server_address;
-    // ServerThread to send from specific port (client <-> server)
+    // ServerThread to send from specific port (client|server)
     lo::ServerThread _send_from;
-    // vector of client address objects (only for server -> clients)
+    // vector of client address objects (server)
     std::vector<lo::Address> _client_addresses;
     // reference to handler
-    OscHandler& _handler;
+    OscHandler& _handler; // TODO: really needed?
     // reference to controller
     Publisher& _controller;
     bool _is_subscribed;
+    std::string _mode;
+    typedef std::map<id_t,float> source_level_map_t;
+    source_level_map_t _source_levels;
+    float _master_level;
 
   public:
-    OscSender(Publisher& controller, OscHandler& handler, int port);
-    OscSender(Publisher& controller, int port);
+    OscSender(Publisher& controller, OscHandler& handler, int port_out);
+    OscSender(Publisher& controller, OscHandler& handler, int port_out,
+        std::vector<lo::Address> client_addresses);
     ~OscSender();
+
     void start();
     void stop();
-
-    // server -> clients
-    void poll_clients(); // poll the list of clients
-
+    void set_server_address(lo::Address server_address);
+    lo::Address server_address();
+    void poll_clients();
+    void send_to_server(lo::Message message);
+    void send_to_server(lo::Bundle bundle);
 
     void update_all_clients(std::string str);
     void send_levels();
@@ -94,15 +102,6 @@ class OscSender : public Subscriber
     virtual void set_sample_rate(int sample_rate);
     virtual bool set_source_signal_level(const id_t id, const float& level);
 
-//    // declare set_server_address() as friend of class OscHandler
-//    friend void OscHandler::set_server_address(OscSender& self, lo::Address
-//        server_address);
-//    // declare server_address() as friend of class OscHandler
-//    friend lo::Address OscHandler::server_address(OscSender& self);
-    // declare set_server_address() as friend of class OscHandler
-    void set_server_address(lo::Address server_address);
-    // declare server_address() as friend of class OscHandler
-    lo::Address server_address();
 };
 
 } // namespace ssr
