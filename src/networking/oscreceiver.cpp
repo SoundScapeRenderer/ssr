@@ -1,3 +1,8 @@
+/**
+ * Implementation of oscreceiver.h
+ * @file oscreceiver.cpp
+ */
+
 #include "oscreiver.h"
 #include "oschandler.h"
 #include "publisher.h"
@@ -6,18 +11,30 @@
 
 using namespace apf::str;
 
+/**
+ * Constructor
+ * @param controller reference to a Publisher object
+ * @param port integer representing a port to used for incoming OSC messages
+ * @todo add error handler for ServerThread
+ */
 ssr::OscReceiver::OscReceiver(Publisher& controller, int port)
   : _controller(controller)
-    //TODO: add error handler here
   , _receiver(port)
 {}
 
+/**
+ * Destructor
+ * Stops the lo::ServerThread, used for listening for OSC messages
+ */
 ssr::OscReceiver::~OscReceiver()
 {
   _receiver.stop();
 }
 
-
+/**
+ * Starts the OscReceiver, by adding client|server callback functions and
+ * starting the lo::ServerThread used for listening to OSC messages.
+ */
 void ssr::OscReceiver::start()
 {
   // add method handlers for received messages
@@ -31,18 +48,10 @@ void ssr::OscReceiver::start()
   }
   // start server thread
   _receiver.start();
-
-//  _controller.subscribe(&_subscriber);
-
 }
 
-lo::Address server_address(OscHandler& handler)
-{
-  return handler.server_address(handler->_osc_sender);
-}
-
-/** Add callback handlers for OSC messages received from clients.
- *
+/**
+ * Adds callback handlers for OSC messages received from clients.
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
  */
@@ -51,8 +60,8 @@ void add_client_to_server_methods()
 //TODO: implement!
 }
 
-/** Add callback handlers for OSC messages received from a server.
- *
+/**
+ * Adds callback handlers for OSC messages received from a server.
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
  */
