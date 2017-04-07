@@ -14,12 +14,12 @@ using namespace apf::str;
 /**
  * Constructor
  * @param controller reference to a Publisher object
- * @param port integer representing a port to used for incoming OSC messages
+ * @param port_in integer representing a port to used for incoming OSC messages
  * @todo add error handler for ServerThread
  */
-ssr::OscReceiver::OscReceiver(Publisher& controller, int port)
+ssr::OscReceiver::OscReceiver(Publisher& controller, int port_in)
   : _controller(controller)
-  , _receiver(port)
+  , _receiver(port_in)
 {}
 
 /**
@@ -55,7 +55,7 @@ void ssr::OscReceiver::start()
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
  */
-void add_client_to_server_methods()
+void ssr::OscReceiver::add_client_to_server_methods()
 {
 //TODO: implement!
 }
@@ -65,7 +65,7 @@ void add_client_to_server_methods()
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
  */
-void add_server_to_client_methods()
+void ssr::OscReceiver::add_server_to_client_methods()
 {
   // set _server_address for OscSender through OscHandler, depending on, if
   // polled from given server before
