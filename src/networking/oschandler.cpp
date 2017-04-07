@@ -7,46 +7,36 @@
 #include <vector>
 
 /**
- * Constructor used to create client objects
+ * Constructor
  * @param controller reference to a Publisher object
  * @param port_in an integer describing the port number used for incoming
  * traffic
  * @param port_out an integer describing the port number used for outgoing
  * traffic
  * @param mode a string defining the mode (client|server)
- */
-ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int
-    port_out, std::string mode)
-  : _controller(controller),
-  , _osc_receiver(controller, *this, port_in)
-  , _osc_sender(controller, *this, port_out)
-  , _mode(mode)
-{}
-
-/**
- * Constructor used to create server objects
- * @param controller reference to a Publisher object
- * @param port_in an integer describing the port number used for incoming
- * traffic
- * @param port_out an integer describing the port number used for outgoing
- * traffic
- * @param mode a string defining the mode (client|server)
- * @param clients a multimap holding hostname, port pairs
+ * @param clients a multimap holding hostname, port pairs (only used for
+ * server)
  */
 ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
-    std::string mode, std::multimap<std::string hostname, int port>
-    clients)
+    std::string mode, std::multimap<std::string hostname, int port> clients)
   : _controller(controller),
   , _osc_receiver(controller, *this, port_in)
   , _mode(mode)
 {
-  std::vector<lo::Address> new_clients;
-  for (const auto& hostname: clients)
+  if (mode == "server")
   {
-    new_clients.push_back(new lo::Address(hostname.first,
-          std::to_string(hostname.second)));
+    std::vector<lo::Address> new_clients;
+    for (const auto& hostname: clients)
+    {
+      new_clients.push_back(new lo::Address(hostname.first,
+            std::to_string(hostname.second)));
+    }
+    _osc_sender(controller, *this, port_out, new_clients);
   }
-  _osc_sender(*this, port_out, new_clients);
+  else if(mode == "client")
+  {
+    _osc_sender(controller, *this, port_out);
+  }
 }
 
 /**
@@ -81,7 +71,7 @@ ssr::OscHandler::start()
 void ssr::OscReceiver::set_server_for_client(OscHandler& self, lo::Address
     server_address)
 {
-  self->_osc_sender->set_server_address(server_address);
+  self->_osc_sender.set_server_address(server_address);
 }
 
 /**
@@ -92,6 +82,102 @@ void ssr::OscReceiver::set_server_for_client(OscHandler& self, lo::Address
 lo::Address OscReceiver::server_address(OscHandler& self)
 {
   return self->_osc_sender.server_address;
+}
+
+/**
+ * OscHandler's friend function to send an OSC message to a client, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param client_address lo::Address of client to send to (must be in _client_addresses)
+ * @param message lo::Message to be sent
+ */
+void ssr::OscReceiver::send_to_client(OscHandler& self, lo::Address
+    client_address, std::string path, lo::Message message)
+{
+  self->_osc_sender.send_to_client(client_address, path, message);
+}
+
+/**
+ * OscHandler's friend function to send an OSC bundle to a client, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param client_address lo::Address of client to send to (must be in _client_addresses)
+ * @param message lo::Bundle to be sent
+ */
+void ssr::OscReceiver::send_to_client(OscHandler& self, lo::Address
+    client_address, lo::Bundle bundle)
+{
+  self->_osc_sender.send_to_client(client_address, bundle);
+}
+
+/**
+ * OscHandler's friend function to send an OSC message to a client, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param message lo::Message to be sent
+ */
+void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
+    lo::Message message)
+{
+  self->_osc_sender.send_to_all_clients(path, message);
+}
+
+/**
+ * OscHandler's friend function to send an OSC bundle to a client, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param client_address lo::Address of client to send to (must be in _client_addresses)
+ * @param message lo::Bundle to be sent
+ */
+void ssr::OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle bundle)
+{
+  self->_osc_sender.send_to_all_clients(bundle);
+}
+
+/**
+ * OscHandler's friend function to send an OSC message to all clients, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param message lo::Message to be sent
+ */
+void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
+    lo::Message message)
+{
+  self->_osc_sender.send_to_all_clients(path, message);
+}
+
+/**
+ * OscHandler's friend function to send an OSC bundle to all clients, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param message lo::Bundle to be sent
+ */
+void ssr::OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle bundle)
+{
+  self->_osc_sender.send_to_all_clients(bundle);
+}
+
+/**
+ * OscHandler's friend function to send an OSC message to the server, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param message lo::Message to be sent
+ */
+void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
+    lo::Message message)
+{
+  self->_osc_sender.send_to_all_clients(path, message);
+}
+
+/**
+ * OscHandler's friend function to send an OSC bundle to the server, using
+ * OscSender.
+ * @param self reference to OscHandler holding OscSender
+ * @param message lo::Bundle to be sent
+ */
+void ssr::OscReceiver::send_to_server(OscHandler& self, lo::Bundle bundle)
+{
+  self->_osc_sender.send_to_server(bundle);
 }
 
 /**
