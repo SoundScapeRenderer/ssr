@@ -427,11 +427,13 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 #ifdef ENABLE_OSC_INTERFACE
   if (_conf.network_mode == "client" || _conf.network_mode == "server")
   {
-    VERBOSE2("Starting OSC interface.\nReceiving on port " <<
-        std::to_string(_conf.network_port_receive) << ".\nSending on port " <<
+    VERBOSE2("Starting OSC interface as "<< _conf.network_mode <<
+        ".\nReceiving messages on port " <<
+        std::to_string(_conf.network_port_receive) <<
+        ".\nSending messages from port " <<
         std::to_string(_conf.network_port_send) << ".");
     _osc_interface.reset(new OscHandler(*this, _conf.network_port_receive,
-          _conf.network_mode));
+          _conf.network_port_send, _conf.network_mode, _conf.network_clients));
     _osc_interface->start();
   }
 #endif
