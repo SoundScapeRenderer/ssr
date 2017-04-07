@@ -42,13 +42,21 @@ class OscReceiver
     void add_client_to_server_methods();
     void add_server_to_client_methods();
   public:
-    OscReceiver(Publisher& controller, OscHandler& handler, int port);
+    OscReceiver(Publisher& controller, OscHandler& handler, int port_in);
     ~OscReceiver();
     void start();
     void stop();
     void set_server_for_client(OscHandler& handler, lo::Address
         server_address);
     lo::Address server_address(OscHandler& handler);
+    void send_to_client(OscHandler& self, lo::Address client_address,
+        std::string path, lo::Message message);
+    void send_to_client(OscHandler& self, lo::Address client_address,
+        lo::Bundle bundle);
+    void send_to_all_clients(OscHandler& self, std::string path, lo::Message message);
+    void send_to_all_clients(OscHandler& self, lo::Bundle bundle);
+    void send_to_server(OscHandler& self, std::string path, lo::Message message);
+    void send_to_server(OscHandler& self, lo::Bundle bundle);
 };
 
 } // namespace ssr
