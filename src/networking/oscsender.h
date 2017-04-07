@@ -13,6 +13,7 @@
 #endif
 
 #include <vector>
+#include <thread>
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
@@ -42,11 +43,15 @@ class OscSender : public Subscriber
     OscHandler& _handler; // TODO: really needed?
     // reference to controller
     Publisher& _controller;
+    // thread used for calling poll_all_clients continuously
+    std::thread *_poll_thread;
     bool _is_subscribed;
+    bool _poll_all_clients;
     std::string _mode;
     typedef std::map<id_t,float> source_level_map_t;
     source_level_map_t _source_levels;
     float _master_level;
+    void poll_all_clients();
 
   public:
     OscSender(Publisher& controller, OscHandler& handler, int port_out);
@@ -59,8 +64,13 @@ class OscSender : public Subscriber
     void set_server_address(lo::Address server_address);
     lo::Address server_address();
     void poll_clients();
-    void send_to_server(lo::Message message);
+    void send_to_server(std::string path, lo::Message message);
     void send_to_server(lo::Bundle bundle);
+    void send_to_client(lo::Address address, std::string path, lo::Message
+        message);
+    void send_to_client(lo::Address address, lo::Bundle bundle);
+    void send_to_all_client(std::string path, lo::Message message);
+    void send_to_all_client(lo::Bundle bundle);
 
     void update_all_clients(std::string str);
     void send_levels();
