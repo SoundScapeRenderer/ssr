@@ -41,8 +41,6 @@ class OscHandler
 
   public:
     OscHandler(Publisher& controller, int port_in, int port_out, std::string
-        mode);
-    OscHandler(Publisher& controller, int port_in, int port_out, std::string
         mode, std::multimap<std::string, int> clients);
     ~OscHandler();
     void start();
@@ -51,6 +49,18 @@ class OscHandler
     friend void OscReceiver::set_server_for_client(OscHandler& self,
         lo::Address server_address);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
+    friend void OscReceiver::send_to_client(OscHandler& self, lo::Address
+        client_address, std::string path, lo::Message message);
+    friend void OscReceiver::send_to_client(OscHandler& self, lo::Address
+        client_address, lo::Bundle bundle);
+    friend void OscReceiver::send_to_all_clients(OscHandler& self, std::string
+        path, lo::Message message);
+    friend void OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle
+        bundle);
+    friend void OscReceiver::send_to_server(OscHandler& self, std::string path,
+        lo::Message message);
+    friend void OscReceiver::send_to_server(OscHandler& self, lo::Bundle
+        bundle);
 };
 
 } // namespace ssr
