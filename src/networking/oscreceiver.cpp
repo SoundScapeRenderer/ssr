@@ -153,8 +153,8 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
 
-  // set source file: "source/file, is, id, file"
-  _receiver.add_method("source/file", "is", [](lo_arg **argv, int)
+  // set source file: "source/properties_file, is, id, properties_file"
+  _receiver.add_method("source/properties_file", "is", [](lo_arg **argv, int)
     {
       _controller.set_source_properties_file(argv[0]->i, argv[1]->s);
       VERBOSE2("set source properties file name: id = " << argv[0]->i << ",
@@ -181,17 +181,17 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // create new source: "source/new, sssffff{T,F}{T,F}{T,F}, name, model,
-  // port_name, x, y, orientation, volume, position_fixed, orientation_fixed,
-  // muted"
+  // file_name_or_port_number, x, y, orientation, volume, position_fixed,
+  // orientation_fixed, muted"
   // create new source: "source/new, sssffffis{T,F}{T,F}{T,F}, name, model,
-  // port_name, x, y, orientation, volume, channel, properties_file,
-  // position_fixed, orientation_fixed, muted"
+  // file_name_or_port_number, x, y, orientation, volume, channel,
+  // properties_file, position_fixed, orientation_fixed, muted"
   _receiver.add_method("source/new", NULL, [](lo_arg **argv, int,
         lo::Message message)
     {
       std::string name(argv[0]->s);
       std::string model(argv[1]->s);
-      std::string file_or_portname(argv[2]->s);
+      std::string file_name_or_portname(argv[2]->s);
       float x(argv[3]->f);
       float y(argv[4]->f);
       float orientation(argv[5]->f);
@@ -319,13 +319,13 @@ void ssr::OscReceiver::add_server_to_client_methods()
       }
       if (setup)
       {
-        _controller.new_source(name, model, file_or_port_name, channel,
+        _controller.new_source(name, model, file_name_or_port_number, channel,
             Position(x, y), position_fixed, orientation, orientation_fixed,
             volume, muted, properties_file);
         VERBOSE2("Creating source with following properties:"
             "\nname: " << name <<
             "\nmodel: " << model <<
-            "\nfile_or_port_name: " << file_or_port_name <<
+            "\nfile_name_or_port_number: " << file_name_or_port_number <<
             "\nchannel: " << channel <<
             "\nposition: " << Position(x, y) <<
             "\nposition_fixed: " << position_fixed <<
@@ -365,7 +365,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set reference orientation: "reference/orientation, f, azimuth"
-  _receiver.add_method("reference/position", "f", [](lo_arg **argv, int)
+  _receiver.add_method("reference/orientation", "f", [](lo_arg **argv, int)
     {
       _controller.set_reference_orientation(Orientation(argv[0]->f));
       VERBOSE2("set reference orientation: " << Orientation(argv[0]->f));
@@ -385,7 +385,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
 
   // set reference offset orientation: "reference_offset/orientation, f,
   // azimuth"
-  _receiver.add_method("reference_offset/position", "f"
+  _receiver.add_method("reference_offset/orientation", "f"
     , [](lo_arg **argv, int)
     {
       _controller.set_reference_offset_orientation(Orientation(argv[0]->f));
