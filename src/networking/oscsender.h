@@ -13,12 +13,14 @@
 #endif
 
 #include <vector>
+#include <map>
 #include <thread>
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
 #include "ssr_global.h"
 #include "subscriber.h"
+#include "apf/parameter_map.h"
 
 namespace ssr
 {
@@ -39,6 +41,8 @@ class OscSender : public Subscriber
     lo::ServerThread _send_from;
     // vector of client address objects (server)
     std::vector<lo::Address> _client_addresses;
+    // map of id/parameter_map pairs for new sources (server)
+    std::map<id_t, apf::parameter_map> _new_sources;
     // reference to handler
     OscHandler& _handler; // TODO: really needed?
     // reference to controller
@@ -51,7 +55,13 @@ class OscSender : public Subscriber
     typedef std::map<id_t,float> source_level_map_t;
     source_level_map_t _source_levels;
     float _master_level;
+
+    bool is_client();
+    bool is_server();
+    bool is_new_source(id_t id); //< check, if source id is in _new_sources
+    bool is_complete_source(id_t id); //< check, if source is complete
     void poll_all_clients();
+    void send_new_source_message_from_id(id_t id); //< creates a 'new source' OSC message
 
   public:
     OscSender(Publisher& controller, OscHandler& handler, int port_out);
