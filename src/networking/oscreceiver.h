@@ -31,6 +31,7 @@ class OscHandler;
  * This class holds a Publisher and an OscHandler reference.
  * It is responsible for all incoming OSC messages and using callback functions
  * to trigger functionality in the Publisher.
+ * @todo add functionality to only process a subset of incoming client messages
  */
 class OscReceiver
 {
