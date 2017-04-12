@@ -364,11 +364,16 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
 // Subscriber interface (differentiating between client and server)
 
 
+/**
+ * Subscriber function called, when Publisher sets up the list of loudspeakers.
+ * Not implemented in OscSender.
+ * @param loudpspeakers Loudspeaker container representing the list of
+ * loudspeakers to set up.
+ */
 void ssr::OscSender::set_loudspeakers(const Loudspeaker::container_t&
     loudspeakers)
 {
   (void) loudspeakers;
-  //not_implemented("OscSender::set_loudspeakers()");
 }
 
 /**
@@ -1113,11 +1118,11 @@ void ssr::OscSender::set_processing_state(bool state)
   message.add(state);
   if(is_server())
   {
-    this->send_to_all_clients("state/processing", message);
+    this->send_to_all_clients("processing/state", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/state/processing", message);
+    this->send_to_server("update/processing/state", message);
   }
 }
 
@@ -1142,16 +1147,16 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
   if(is_server())
   {
     lo::Bundle bundle({
-        {"state/transport", message_state},
-        {"state/transport/seek", message_time}
+        {"transport/state", message_state},
+        {"transport/seek", message_time}
     });
     this->send_to_all_clients(bundle);
   }
   else if(is_client())
   {
     lo::Bundle bundle({
-        {"update/state/transport", message_state},
-        {"update/state/transport/seek", message_time}
+        {"update/transport/state", message_state},
+        {"update/transport/seek", message_time}
     });
     this->send_to_server(bundle);
   }
@@ -1267,11 +1272,11 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
   message.add(apf::math::linear2dB(level));
   if(is_server())
   {
-    this->send_to_all_clients("scene/master_signal_level", message);
+    this->send_to_all_clients("source/level", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/scene/master_signal_level", message);
+    this->send_to_server("update/source/level", message);
   }
   return true;
 }
