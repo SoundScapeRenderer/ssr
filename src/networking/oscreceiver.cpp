@@ -53,11 +53,363 @@ void ssr::OscReceiver::start()
 /**
  * Adds callback handlers for OSC messages received from clients.
  * This function uses C++11 lambda functions to define the behavior for every
- * callback, that interface with the Publisher's functionality.
+ * callback.
  */
 void ssr::OscReceiver::add_client_to_server_methods()
 {
-//TODO: implement!
+  // update on new source: "update/source/new, i, id"
+  _receiver.add_method("update/source/new", "i", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << " created.");
+    }
+  );
+
+  // update on deleted source: "update/source/delete, i, id"
+  _receiver.add_method("update/source/delete", "i", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      if(agrv[0]->i == 0)
+      {
+        VERBOSE("Update: Client '" << client.hostname() << "', all sources
+            deleted."); }
+      else
+      {
+        VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+            argv[0]->i << " deleted.");
+      }
+    }
+  );
+
+  // update on source position: "update/source/position, iff, id, x, y"
+  _receiver.add_method("update/source/position", "iff", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", position: "<< argv[1]->f << "/"argv[2]->f << ".");
+    }
+  );
+
+  // update on source position fixation: "update/source/position_fixed, i{T,F},
+  // id, {true,false}"
+  _receiver.add_method("update/source/position_fixed", NULL, [](lo_arg **argv,
+        int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      std::string position_fixed;
+      if(message.types() == "iT")
+      {
+        position_fixed = "true";
+      }
+      else if(message.types() == "iF")
+      {
+        position_fixed = "false";
+      }
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", position_fixed: "<< position_fixed << ".");
+    }
+  );
+
+  // update on source orientation: "update/source/orientation, if, id, azimuth"
+  _receiver.add_method("update/source/orientation", "if", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", orientation: "<< argv[1]->f << ".");
+    }
+  );
+
+  // update on source volume: "update/source/volume, if, id, volume"
+  _receiver.add_method("update/source/volume", "if", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", volume: "<< argv[1]->f << ".");
+    }
+  );
+
+  // update on source position mute: "update/source/mute, i{T,F},
+  // id, {true,false}"
+  _receiver.add_method("update/source/mute", NULL, [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      std::string state;
+      if(message.types() == "iT")
+      {
+        state = "true";
+      }
+      else if(message.types() == "iF")
+      {
+        state = "false";
+      }
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", mute: "<< state  < ".");
+    }
+  );
+
+  // update on source name: "update/source/name, is, id, name"
+  _receiver.add_method("update/source/name", "is", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", name: "<< argv[1]->s << ".");
+    }
+  );
+
+  // update on source properties_file: "update/source/properties_file, is, id,
+  // properties_file"
+  _receiver.add_method("update/source/properties_file", "is", [](lo_arg **argv,
+        int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", properties_file: "<< argv[1]->s << ".");
+    }
+  );
+
+  // update on scene decay exponent: "update/scene/decay_exponent, f,
+  // decay_exponent"
+  _receiver.add_method("update/scene/decay_exponent", "f", [](lo_arg **argv,
+        int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', decay_exponent:
+          "<< argv[0]->f << "."); }
+  );
+
+  // update on scene amplitude reference distance:
+  // "update/scene/amplitude_reference_distance, f,
+  // amplitude_reference_distance"
+  _receiver.add_method("update/scene/amplitude_reference_distance", "f",
+      [](lo_arg **argv, int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "',
+          amplitude_reference_distance: "<< argv[0]->f << "."); }
+  );
+
+  // update on source model: "update/source/model, is, id, model"
+  _receiver.add_method("update/source/model", "is", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", model: "<< argv[1]->s << ".");
+    }
+  );
+
+  // update on source port_name: "update/source/port_name, is, id, port_name"
+  _receiver.add_method("update/source/port_name", "is", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", port_name: "<< argv[1]->s << ".");
+    }
+  );
+
+  // update on source file_name_or_port_number:
+  // "update/source/file_name_or_port_number, is, id, file_name_or_port_number"
+  _receiver.add_method("update/source/file_name_or_port_number", "is",
+      [](lo_arg **argv, int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", file_name_or_port_number: "<< argv[1]->s << ".");
+    }
+  );
+
+  // update on source channel: "update/source/channel, ii, id, channel"
+  _receiver.add_method("update/source/channel", "ii", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", channel: "<< argv[1]->i << ".");
+    }
+  );
+
+  // update on source file length: "update/source/length, ii, id, length"
+  _receiver.add_method("update/source/length", "ii", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", length: "<< argv[1]->i << ".");
+    }
+  );
+
+  // update on reference position: "update/reference/position, ff, x, y"
+  _receiver.add_method("update/reference/position", "ff", [](lo_arg **argv,
+        int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', reference
+          position: "<< argv[0]->f << "/" << argv[1]->f << " (x/y).");
+    }
+  );
+
+  // update on reference orientation: "update/reference/orientation, f,
+  // azimuth"
+  _receiver.add_method("update/reference/orientation", "f", [](lo_arg **argv,
+        int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', reference
+          orientation: "<< argv[0]->f << " (azimuth).");
+    }
+  );
+
+  // update on reference offset position: "update/reference_offset/position,
+  // ff, x, y"
+  _receiver.add_method("update/reference_offset/position", "ff", [](lo_arg
+        **argv, int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', reference offset
+          position: "<< argv[0]->f << "/" << argv[1]->f << " (x/y).");
+    }
+  );
+
+  // update on reference offset orientation:
+  // "update/reference_offset/orientation, f, azimuth"
+  _receiver.add_method("update/reference_offset/orientation", "f", [](lo_arg
+        **argv, int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', reference offset
+          orientation: "<< argv[0]->f << " (azimuth).");
+    }
+  );
+
+  // update on scene volume: "update/scene/volume, f, volume"
+  _receiver.add_method("update/scene/volume", "f", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', scene volume: "<<
+          argv[0]->f << "dB.");
+    }
+  );
+
+  // update on state processing: "update/processing/state, {T,F}, {true,false}"
+  _receiver.add_method("update/processing/state", NULL, [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      std::string state;
+      if(message.types() == "T")
+      {
+        state = "true";
+      }
+      else if(message.types() == "F")
+      {
+        state = "false";
+      }
+      VERBOSE("Update: Client '" << client.hostname() << "', state processing:
+          "<< state  < ".");
+    }
+  );
+
+  // update on transport state: "update/transport/state, {T,F}, {true,false}"
+  _receiver.add_method("update/transport/state", NULL, [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      std::string state;
+      if(message.types() == "T")
+      {
+        state = "true";
+      }
+      else if(message.types() == "F")
+      {
+        state = "false";
+      }
+      VERBOSE("Update: Client '" << client.hostname() << "', transport state:
+          "<< state  < ".");
+    }
+  );
+
+  // update on transport seek: "update/transport/seek, s, time"
+  _receiver.add_method("update/transport/seek", "s", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', transport seek:
+          "<< argv[0]->s << ".");
+    }
+  );
+
+  // update on scene source auto rotation: "update/scene/auto_rotate_sources,
+  // {T,F}, {true,false}"
+  _receiver.add_method("update/scene/auto_rotate_sources", NULL, [](lo_arg
+        **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      std::string state;
+      if(message.types() == "T")
+      {
+        state = "true";
+      }
+      else if(message.types() == "F")
+      {
+        state = "false";
+      }
+      VERBOSE("Update: Client '" << client.hostname() << "', scene
+          auto_rotate_sources: "<< state  < ".");
+    }
+  );
+
+  // update on cpu_load: "update/cpu_load, f, load"
+  _receiver.add_method("update/cpu_load", "f", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE2("Update: Client '" << client.hostname() << "', cpu_load: "<<
+          argv[0]->f << "%.");
+    }
+  );
+
+  // update on scene sample rate: "update/scene/sample_rate, i, sample_rate"
+  _receiver.add_method("update/scene/sample_rate", "i", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', scene sample_rate:
+          "<< argv[0]->i << "Hz.");
+    }
+  );
+
+  // update on scene master signal level: "update/scene/master_signal_level, f,
+  // master_signal_level"
+  _receiver.add_method("update/scene/master_signal_level", "f", [](lo_arg
+        **argv, int, lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE("Update: Client '" << client.hostname() << "', scene
+          master_signal_level: "<< argv[0]->f << "dB.");
+    }
+  );
+
+  // update on source signal level: "update/source/level, if, id, level"
+  _receiver.add_method("update/source/level", "if", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      lo::Address client(message.source());
+      VERBOSE2("Update: Client '" << client.hostname() << "', source id = " <<
+          argv[0]->i << ", level: "<< argv[1]->f << "dB.");
+    }
+  );
+
 }
 
 /**
@@ -191,7 +543,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
     {
       std::string name(argv[0]->s);
       std::string model(argv[1]->s);
-      std::string file_name_or_portname(argv[2]->s);
+      std::string file_name_or_port_number(argv[2]->s);
       float x(argv[3]->f);
       float y(argv[4]->f);
       float orientation(argv[5]->f);
@@ -421,7 +773,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // clear scene: "scene/clear"
-  _receiver.add_method("scene/load", NULL
+  _receiver.add_method("scene/clear", NULL
     , [](lo_arg **argv, int)
     {
       _controller.delete_all_sources();
@@ -430,8 +782,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set processing state: "state/processing, T, true"
-  _receiver.add_method("state/processing", "T"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("processing/state", "T" , [](lo_arg **argv, int)
     {
       _controller.start_processing();
       VERBOSE2("start processing.");
@@ -439,26 +790,23 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set processing state: "state/processing, F, false"
-  _receiver.add_method("state/processing", "F"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("processing/state", "F" , [](lo_arg **argv, int)
     {
       _controller.stop_processing();
       VERBOSE2("stop processing.");
     }
   );
 
-  // set transport state: "state/transport, T, true"
-  _receiver.add_method("state/transport", "T"
-    , [](lo_arg **argv, int)
+  // set transport state: "transport/state, T, true"
+  _receiver.add_method("transport/state", "T" , [](lo_arg **argv, int)
     {
       _controller.transport_start();
       VERBOSE2("start transport.");
     }
   );
 
-  // set transport state: "state/transport, F, false"
-  _receiver.add_method("state/transport", "F"
-    , [](lo_arg **argv, int)
+  // set transport state: "transport/state, F, false"
+  _receiver.add_method("transport/state", "F" , [](lo_arg **argv, int)
     {
       _controller.transport_stop();
       VERBOSE2("stop transport.");
@@ -466,8 +814,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // rewind transport state: "state/transport/rewind"
-  _receiver.add_method("state/transport/rewind", NULL
-    , [](lo_arg **argv, int)
+  _receiver.add_method("transport/rewind", NULL , [](lo_arg **argv, int)
     {
       _controller.transport_locate(0);
       VERBOSE2("rewind transport.");
@@ -475,8 +822,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // seek transport state: "state/transport/seek, s, time"
-  _receiver.add_method("state/transport/seek", "s"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("transport/seek", "s" , [](lo_arg **argv, int)
     {
       float time;
       if(string2time(argv[0]->s, time))
