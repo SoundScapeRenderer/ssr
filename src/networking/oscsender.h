@@ -31,6 +31,7 @@ namespace ssr
  * the Subscriber interface.
  * The Publisher is subscribed to, using its interface to send out OSC messages
  * on all events it emmits.
+ * @todo implement sending levels periodically
  */
 class OscSender : public Subscriber
 {
@@ -82,7 +83,6 @@ class OscSender : public Subscriber
     void send_to_all_client(std::string path, lo::Message message);
     void send_to_all_client(lo::Bundle bundle);
 
-    void update_all_clients(std::string str);
     void send_levels();
 
     // Subscriber Interface
