@@ -16,6 +16,8 @@
  * @param mode a string defining the mode (client|server)
  * @param clients a multimap holding hostname, port pairs (only used for
  * server)
+ * @todo add _osc_sender to initializer list, to circumvent reorder warning,
+ * create client list after initialization, when in server mode
  */
 ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
     std::string mode, std::multimap<std::string, int> clients)
