@@ -63,10 +63,10 @@ void ssr::OscHandler::start()
  * @param self reference to OscHandler holding OscSender
  * @param server_address lo::Address object to be used for OscSender
  */
-void ssr::OscReceiver::set_server_for_client(OscHandler& self, lo::Address
+void ssr::OscReceiver::set_server_for_client(ssr::OscHandler& self, lo::Address
     server_address)
 {
-  self->_osc_sender.set_server_address(server_address);
+  self._osc_sender.set_server_address(server_address);
 }
 
 /**
@@ -74,7 +74,7 @@ void ssr::OscReceiver::set_server_for_client(OscHandler& self, lo::Address
  * @param self reference to OscHandler holding the OscSender
  * @return lo::Address server_address of OscSender
  */
-lo::Address OscReceiver::server_address(OscHandler& self)
+lo::Address OscReceiver::server_address(ssr::OscHandler& self)
 {
   return self->_osc_sender.server_address;
 }
@@ -89,7 +89,7 @@ lo::Address OscReceiver::server_address(OscHandler& self)
 void ssr::OscReceiver::send_to_client(OscHandler& self, lo::Address
     client_address, std::string path, lo::Message message)
 {
-  self->_osc_sender.send_to_client(client_address, path, message);
+  self._osc_sender.send_to_client(client_address, path, message);
 }
 
 /**
@@ -102,7 +102,7 @@ void ssr::OscReceiver::send_to_client(OscHandler& self, lo::Address
 void ssr::OscReceiver::send_to_client(OscHandler& self, lo::Address
     client_address, lo::Bundle bundle)
 {
-  self->_osc_sender.send_to_client(client_address, bundle);
+  self._osc_sender.send_to_client(client_address, bundle);
 }
 
 /**
@@ -114,7 +114,7 @@ void ssr::OscReceiver::send_to_client(OscHandler& self, lo::Address
 void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
     lo::Message message)
 {
-  self->_osc_sender.send_to_all_clients(path, message);
+  self._osc_sender.send_to_all_clients(path, message);
 }
 
 /**
@@ -126,7 +126,7 @@ void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
  */
 void ssr::OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle bundle)
 {
-  self->_osc_sender.send_to_all_clients(bundle);
+  self._osc_sender.send_to_all_clients(bundle);
 }
 
 /**
