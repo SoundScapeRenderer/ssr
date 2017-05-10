@@ -50,19 +50,19 @@ ssr::OscHandler::~OscHandler()
 /**
  * Stop this OscHandler by stopping its OscReceiver and OscSender
  */
-ssr::OscHandler::stop()
+void ssr::OscHandler::stop()
 {
-  _oscSender.stop();
-  _oscReceiver.stop();
+  _osc_receiver.stop();
+  _osc_sender.stop();
 }
 
 /**
  * Start this OscHandler by starting its OscReceiver and OscSender
  */
-ssr::OscHandler::start()
+void ssr::OscHandler::start()
 {
-  _oscReceiver.start();
-  _oscSender.start();
+  _osc_receiver.start();
+  _osc_sender.start();
 }
 
 /**
