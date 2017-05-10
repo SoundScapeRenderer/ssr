@@ -18,7 +18,7 @@
  * server)
  */
 ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
-    std::string mode, std::multimap<std::string hostname, int port> clients)
+    std::string mode, std::multimap clients)
   : _controller(controller),
   , _osc_receiver(controller, *this, port_in)
   , _mode(mode)
