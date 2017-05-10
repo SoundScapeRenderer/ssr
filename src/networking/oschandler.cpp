@@ -74,9 +74,9 @@ void ssr::OscReceiver::set_server_for_client(ssr::OscHandler& self, lo::Address
  * @param self reference to OscHandler holding the OscSender
  * @return lo::Address server_address of OscSender
  */
-lo::Address OscReceiver::server_address(ssr::OscHandler& self)
+lo::Address ssr::OscReceiver::server_address(ssr::OscHandler& self)
 {
-  return self->_osc_sender.server_address;
+  return self._osc_sender.server_address();
 }
 
 /**
@@ -106,7 +106,7 @@ void ssr::OscReceiver::send_to_client(OscHandler& self, lo::Address
 }
 
 /**
- * OscHandler's friend function to send an OSC message to a client, using
+ * OscHandler's friend function to send an OSC message to all clients, using
  * OscSender.
  * @param self reference to OscHandler holding OscSender
  * @param message lo::Message to be sent
@@ -118,30 +118,6 @@ void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
 }
 
 /**
- * OscHandler's friend function to send an OSC bundle to a client, using
- * OscSender.
- * @param self reference to OscHandler holding OscSender
- * @param client_address lo::Address of client to send to (must be in _client_addresses)
- * @param message lo::Bundle to be sent
- */
-void ssr::OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle bundle)
-{
-  self._osc_sender.send_to_all_clients(bundle);
-}
-
-/**
- * OscHandler's friend function to send an OSC message to all clients, using
- * OscSender.
- * @param self reference to OscHandler holding OscSender
- * @param message lo::Message to be sent
- */
-void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
-    lo::Message message)
-{
-  self->_osc_sender.send_to_all_clients(path, message);
-}
-
-/**
  * OscHandler's friend function to send an OSC bundle to all clients, using
  * OscSender.
  * @param self reference to OscHandler holding OscSender
@@ -149,19 +125,7 @@ void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
  */
 void ssr::OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle bundle)
 {
-  self->_osc_sender.send_to_all_clients(bundle);
-}
-
-/**
- * OscHandler's friend function to send an OSC message to the server, using
- * OscSender.
- * @param self reference to OscHandler holding OscSender
- * @param message lo::Message to be sent
- */
-void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
-    lo::Message message)
-{
-  self->_osc_sender.send_to_all_clients(path, message);
+  self._osc_sender.send_to_all_clients(bundle);
 }
 
 /**
@@ -172,13 +136,13 @@ void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
  */
 void ssr::OscReceiver::send_to_server(OscHandler& self, lo::Bundle bundle)
 {
-  self->_osc_sender.send_to_server(bundle);
+  self._osc_sender.send_to_server(bundle);
 }
 
 /**
  * This function returns the OscHandler's mode
  */
-std::string mode()
+std::string ssr::OscHandler::mode()
 {
-  return *this->_mode;
+  return _mode;
 }
