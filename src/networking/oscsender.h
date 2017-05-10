@@ -31,7 +31,8 @@ namespace ssr
  * the Subscriber interface.
  * The Publisher is subscribed to, using its interface to send out OSC messages
  * on all events it emmits.
- * @todo implement sending levels periodically
+ * @todo implement sending levels periodically using apf/cxx_thread_policy.h
+ * @todo implement polling clients periodically using apf/cxx_thread_policy.h
  */
 class OscSender : public Subscriber
 {
