@@ -3,7 +3,7 @@
  * @file oscreceiver.cpp
  */
 
-#include "oscreiver.h"
+#include "oscreceiver.h"
 #include "oschandler.h"
 #include "publisher.h"
 #include "apf/stringtools.h"
