@@ -82,8 +82,8 @@ class OscSender : public Subscriber
     void send_to_client(lo::Address address, std::string path, lo::Message
         message);
     void send_to_client(lo::Address address, lo::Bundle bundle);
-    void send_to_all_client(std::string path, lo::Message message);
-    void send_to_all_client(lo::Bundle bundle);
+    void send_to_all_clients(std::string path, lo::Message message);
+    void send_to_all_clients(lo::Bundle bundle);
 
     void send_levels();
 
