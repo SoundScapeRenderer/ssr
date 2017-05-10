@@ -361,6 +361,15 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
   }
 }
 
+/**
+ * Adds a new client to the vector of clients
+ * @param clients lo::Address of a client
+ */
+void add_client(lo::Address client)
+{
+  _client_addresses.push_back(client);
+}
+
 // Subscriber interface (differentiating between client and server)
 
 
