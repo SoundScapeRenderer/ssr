@@ -74,7 +74,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
       lo::Address client(message.source());
       if(agrv[0]->i == 0)
       {
-        VERBOSE("Update: Client '" << client.hostname() << "', all sources
+        VERBOSE("Update: Client '" << client.hostname() << "', all sources \
             deleted."); }
       else
       {
@@ -181,7 +181,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         int, lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', decay_exponent:
+      VERBOSE("Update: Client '" << client.hostname() << "', decay_exponent: \
           "<< argv[0]->f << "."); }
   );
 
@@ -192,7 +192,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
       [](lo_arg **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "',
+      VERBOSE("Update: Client '" << client.hostname() << "', \
           amplitude_reference_distance: "<< argv[0]->f << "."); }
   );
 
@@ -252,7 +252,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         int, lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', reference
+      VERBOSE("Update: Client '" << client.hostname() << "', reference \
           position: "<< argv[0]->f << "/" << argv[1]->f << " (x/y).");
     }
   );
@@ -263,7 +263,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         int, lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', reference
+      VERBOSE("Update: Client '" << client.hostname() << "', reference \
           orientation: "<< argv[0]->f << " (azimuth).");
     }
   );
@@ -274,7 +274,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', reference offset
+      VERBOSE("Update: Client '" << client.hostname() << "', reference offset \
           position: "<< argv[0]->f << "/" << argv[1]->f << " (x/y).");
     }
   );
@@ -285,7 +285,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', reference offset
+      VERBOSE("Update: Client '" << client.hostname() << "', reference offset \
           orientation: "<< argv[0]->f << " (azimuth).");
     }
   );
@@ -314,8 +314,8 @@ void ssr::OscReceiver::add_client_to_server_methods()
       {
         state = "false";
       }
-      VERBOSE("Update: Client '" << client.hostname() << "', state processing:
-          "<< state  < ".");
+      VERBOSE("Update: Client '" << client.hostname() << "', state processing: \
+          " << state  < ".");
     }
   );
 
@@ -333,7 +333,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
       {
         state = "false";
       }
-      VERBOSE("Update: Client '" << client.hostname() << "', transport state:
+      VERBOSE("Update: Client '" << client.hostname() << "', transport state: \
           "<< state  < ".");
     }
   );
@@ -343,7 +343,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', transport seek:
+      VERBOSE("Update: Client '" << client.hostname() << "', transport seek: \
           "<< argv[0]->s << ".");
     }
   );
@@ -364,7 +364,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
       {
         state = "false";
       }
-      VERBOSE("Update: Client '" << client.hostname() << "', scene
+      VERBOSE("Update: Client '" << client.hostname() << "', scene \
           auto_rotate_sources: "<< state  < ".");
     }
   );
@@ -384,8 +384,8 @@ void ssr::OscReceiver::add_client_to_server_methods()
         lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', scene sample_rate:
-          "<< argv[0]->i << "Hz.");
+      VERBOSE("Update: Client '" << client.hostname() << "', scene \
+          sample_rate: "<< argv[0]->i << "Hz.");
     }
   );
 
@@ -395,7 +395,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
-      VERBOSE("Update: Client '" << client.hostname() << "', scene
+      VERBOSE("Update: Client '" << client.hostname() << "', scene \
           master_signal_level: "<< argv[0]->f << "dB.");
     }
   );
@@ -448,7 +448,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   _receiver.add_method("source/position_fixed", "iT", [](lo_arg **argv, int)
     {
       _controller.set_source_position_fixed(argv[0]->i, true);
-      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed =
+      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed = \
           true");
     }
   );
@@ -457,7 +457,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   _receiver.add_method("source/position_fixed", "iF", [](lo_arg **argv, int)
     {
       _controller.set_source_position_fixed(argv[0]->i, false);
-      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed =
+      VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed = \
           false");
     }
   );
@@ -509,7 +509,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   _receiver.add_method("source/properties_file", "is", [](lo_arg **argv, int)
     {
       _controller.set_source_properties_file(argv[0]->i, argv[1]->s);
-      VERBOSE2("set source properties file name: id = " << argv[0]->i << ",
+      VERBOSE2("set source properties file name: id = " << argv[0]->i << ", \
           file = " << argv[1]->s);
     }
   );
@@ -518,8 +518,8 @@ void ssr::OscReceiver::add_server_to_client_methods()
   _receiver.add_method("source/model", "is", [](lo_arg **argv, int)
     {
       _controller.set_source_model(argv[0]->i, argv[1]->s);
-      VERBOSE2("set source model: id = " << argv[0]->i << ",
-          model = " << argv[1]->s);
+      VERBOSE2("set source model: id = " << argv[0]->i << ", model = " <<
+          argv[1]->s);
     }
   );
 
@@ -527,8 +527,8 @@ void ssr::OscReceiver::add_server_to_client_methods()
   _receiver.add_method("source/port_name", "is", [](lo_arg **argv, int)
     {
       _controller.set_source_port_name(argv[0]->i, argv[1]->s);
-      VERBOSE2("set source port name: id = " << argv[0]->i << ",
-          port = " << argv[1]->s);
+      VERBOSE2("set source port name: id = " << argv[0]->i << ", port = " <<
+          argv[1]->s);
     }
   );
 
