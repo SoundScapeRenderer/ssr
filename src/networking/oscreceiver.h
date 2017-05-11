@@ -6,7 +6,6 @@
 
 #ifndef OSC_RECEIVER_H
 #define OSC_RECEIVER_H
-#endif
 
 
 #ifdef HAVE_CONFIG_H
@@ -39,7 +38,6 @@ class OscReceiver
     lo::ServerThread _receiver;
     Publisher& _controller;
     ssr::OscHandler& _handler;
-    std::string _mode;
     void add_client_to_server_methods();
     void add_server_to_client_methods();
   public:
@@ -61,3 +59,4 @@ class OscReceiver
 };
 
 } // namespace ssr
+#endif
