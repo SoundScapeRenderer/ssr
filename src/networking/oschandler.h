@@ -6,7 +6,6 @@
 
 #ifndef OSC_HANDLER_H
 #define OSC_HANDLER_H
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include <config.h> // for ENABLE_*
@@ -64,3 +63,4 @@ class OscHandler
 };
 
 } // namespace ssr
+#endif
