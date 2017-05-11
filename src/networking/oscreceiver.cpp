@@ -553,15 +553,14 @@ void ssr::OscReceiver::add_server_to_client_methods()
   // create new source: "source/new, sssffffis{T,F}{T,F}{T,F}, name, model,
   // file_name_or_port_number, x, y, orientation, volume, channel,
   // properties_file, position_fixed, orientation_fixed, muted"
-  _receiver.add_method("source/new", NULL, [](lo_arg **argv, int,
+  _receiver.add_method("source/new", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
       std::string name(apf::str::A2S(argv[0]->s));
-      std::string model(apf::str::A2S(argv[1]->s));
       std::string file_name_or_port_number(apf::str::A2S(argv[2]->s));
+      std::string types(message.types());
       float x(argv[3]->f);
       float y(argv[4]->f);
-      float orientation(argv[5]->f);
       float volume(argv[6]->f);
       int channel = 0;
       std::string properties_file = "";
@@ -569,132 +568,152 @@ void ssr::OscReceiver::add_server_to_client_methods()
       bool orientation_fixed;
       bool muted;
       bool setup = false;
-      switch (message.types())
+      Source::model_t model = Source::model_t();
+      if (!apf::str::S2A(apf::str::A2S(argv[1]->s), model))
       {
-      case "sssffffTTT":
+        model = Source::point;
+      }
+      Position position(x, y);
+      Orientation orientation(argv[5]->f);
+      if (types.compare("sssffffTTT") == 0)
+      {
         position_fixed = true;
         orientation_fixed = true;
         muted = true;
         setup = true;
-      break;
-      case "sssffffTTF":
+      }
+      if (types.compare("sssffffTTF") == 0)
+      {
         position_fixed = true;
         orientation_fixed = true;
         muted = false;
         setup = true;
-      break;
-      case "sssffffTFF":
+      }
+      if (types.compare("sssffffTFF") == 0)
+      {
         position_fixed = true;
         orientation_fixed = false;
         muted = false;
         setup = true;
-      break;
-      case "sssffffFFF":
+      }
+      if (types.compare("sssffffFFF") == 0)
+      {
         position_fixed = false;
         orientation_fixed = false;
         muted = false;
         setup = true;
-      break;
-      case "sssffffTFT":
+      }
+      if (types.compare("sssffffTFT") == 0)
+      {
         position_fixed = true;
         orientation_fixed = false;
         muted = true;
         setup = true;
-      break;
-      case "sssffffFTF":
+      }
+      if (types.compare("sssffffFTF") == 0)
+      {
         position_fixed = false;
         orientation_fixed = true;
         muted = false;
         setup = true;
-      break;
-      case "sssffffFTT":
+      }
+      if (types.compare("sssffffFTT") == 0)
+      {
         position_fixed = false;
         orientation_fixed = true;
         muted = true;
         setup = true;
-      break;
-      case "sssffffFFT":
+      }
+      if (types.compare("sssffffFFT") == 0)
+      {
         position_fixed = false;
         orientation_fixed = false;
         muted = true;
         setup = true;
-      break;
-      case "sssffffisTTT":
+      }
+      if (types.compare("sssffffisTTT") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = true;
         orientation_fixed = true;
         muted = true;
         setup = true;
-      break;
-      case "sssffffisTTF":
+      }
+      if (types.compare("sssffffisTTF") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = true;
         orientation_fixed = true;
         muted = false;
         setup = true;
-      break;
-      case "sssffffisTFF":
+      }
+      if (types.compare("sssffffisTFF") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = true;
         orientation_fixed = false;
         muted = false;
         setup = true;
-      break;
-      case "sssffffisFFF":
+      }
+      if (types.compare("sssffffisFFF") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = false;
         orientation_fixed = false;
         muted = false;
         setup = true;
-      break;
-      case "sssffffisTFT":
+      }
+      if (types.compare("sssffffisTFT") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = true;
         orientation_fixed = false;
         muted = true;
         setup = true;
-      break;
-      case "sssffffisFTF":
+      }
+      if (types.compare("sssffffisFTF") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = false;
         orientation_fixed = true;
         muted = false;
         setup = true;
-      break;
-      case "sssffffisFTT":
+      }
+      if (types.compare("sssffffisFTT") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = false;
         orientation_fixed = true;
         muted = true;
         setup = true;
-      break;
-      case "sssffffisFFT":
+      }
+      if (types.compare("sssffffisFFT") == 0)
+      {
         channel = argv[7]->i;
         properties_file = argv[8]->s;
         position_fixed = false;
         orientation_fixed = false;
         muted = true;
         setup = true;
-      break;
       }
       if (setup)
       {
         _controller.new_source(name, model, file_name_or_port_number, channel,
-            Position(x, y), position_fixed, orientation, orientation_fixed,
+            position, position_fixed, orientation, orientation_fixed,
             volume, muted, properties_file);
         VERBOSE2("Creating source with following properties:"
             "\nname: " << name <<
             "\nmodel: " << model <<
             "\nfile_name_or_port_number: " << file_name_or_port_number <<
             "\nchannel: " << channel <<
-            "\nposition: " << Position(x, y) <<
+            "\nposition: " << position <<
             "\nposition_fixed: " << position_fixed <<
             "\norientation: " << orientation <<
             "\norientation_fixed: " << orientation_fixed <<
