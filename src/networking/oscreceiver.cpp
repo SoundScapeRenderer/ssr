@@ -727,7 +727,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
 
   // delete source: "source/delete, i, id"
   // special case: i == 0 deletes all sources!
-  _receiver.add_method("source/delete", "i", [](lo_arg **argv, int)
+  _receiver.add_method("source/delete", "i", [this](lo_arg **argv, int)
     {
       if (argv[0]->i == 0)
       {
@@ -743,15 +743,15 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set reference position: "reference/position, ff, x, y"
-  _receiver.add_method("reference/position", "ff", [](lo_arg **argv, int)
+  _receiver.add_method("reference/position", "ff", [this](lo_arg **argv, int)
     {
-      _controller.set_reference_position(Position(argv[0]->f, argv[1]->f);
+      _controller.set_reference_position(Position(argv[0]->f, argv[1]->f));
       VERBOSE2("set reference position: " << Position(argv[0]->f, argv[1]->f));
     }
   );
 
   // set reference orientation: "reference/orientation, f, azimuth"
-  _receiver.add_method("reference/orientation", "f", [](lo_arg **argv, int)
+  _receiver.add_method("reference/orientation", "f", [this](lo_arg **argv, int)
     {
       _controller.set_reference_orientation(Orientation(argv[0]->f));
       VERBOSE2("set reference orientation: " << Orientation(argv[0]->f));
@@ -759,11 +759,11 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set reference offset position: "reference_offset/position, ff, x, y"
-  _receiver.add_method("reference_offset/position", "ff"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("reference_offset/position", "ff" , [this](lo_arg
+        **argv, int)
     {
       _controller.set_reference_offset_position(Position(argv[0]->f,
-            argv[1]->f);
+            argv[1]->f));
       VERBOSE2("set reference offset position: " << Position(argv[0]->f,
           argv[1]->f));
     }
@@ -771,8 +771,8 @@ void ssr::OscReceiver::add_server_to_client_methods()
 
   // set reference offset orientation: "reference_offset/orientation, f,
   // azimuth"
-  _receiver.add_method("reference_offset/orientation", "f"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("reference_offset/orientation", "f" , [this](lo_arg **argv,
+      int)
     {
       _controller.set_reference_offset_orientation(Orientation(argv[0]->f));
       VERBOSE2("set reference offset orientation: " <<
@@ -781,85 +781,89 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // save scene to file: "scene/save, s, file"
-  _receiver.add_method("scene/save", "s"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("scene/save", "s" , [this](lo_arg **argv, int)
     {
-      _controller.save_scene_as_XML(argv[0]->s);
-      VERBOSE2("saving theme as: " << argv[0]->s);
+      _controller.save_scene_as_XML(apf::str::A2S(argv[0]->s));
+      VERBOSE2("saving theme as: " << apf::str::A2S(argv[0]->s));
     }
   );
 
   // load scene from file: "scene/load, s, file"
-  _receiver.add_method("scene/load", "s"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("scene/load", "s" , [this](lo_arg **argv, int)
     {
-      _controller.load_scene(argv[0]->s);
-      VERBOSE2("loading scene: " << argv[0]->s);
+      _controller.load_scene(apf::str::A2S(argv[0]->s));
+      VERBOSE2("loading scene: " << apf::str::A2S(argv[0]->s));
     }
   );
 
   // set master volume: "scene/volume, f, volume"
-  _receiver.add_method("scene/volume", "f"
-    , [](lo_arg **argv, int)
+  _receiver.add_method("scene/volume", "f" , [this](lo_arg **argv, int)
     {
-      _controller.set_master_volume(dB2linear(argv[0]->f));
-      VERBOSE2("set master volume: " << dB2linear(argv[0]->f) << " dB"); }
+      _controller.set_master_volume(apf::math::dB2linear(argv[0]->f));
+      VERBOSE2("set master volume: " << apf::math::dB2linear(argv[0]->f) << " \
+          dB");
+    }
   );
 
   // clear scene: "scene/clear"
-  _receiver.add_method("scene/clear", NULL
-    , [](lo_arg **argv, int)
+  _receiver.add_method("scene/clear", NULL , [this](lo_arg **argv, int)
     {
+      (void) argv;
       _controller.delete_all_sources();
       VERBOSE2("clearing scene.");
     }
   );
 
   // set processing state: "state/processing, T, true"
-  _receiver.add_method("processing/state", "T" , [](lo_arg **argv, int)
+  _receiver.add_method("processing/state", "T" , [this](lo_arg **argv, int)
     {
+      (void) argv;
       _controller.start_processing();
       VERBOSE2("start processing.");
     }
   );
 
   // set processing state: "state/processing, F, false"
-  _receiver.add_method("processing/state", "F" , [](lo_arg **argv, int)
+  _receiver.add_method("processing/state", "F" , [this](lo_arg **argv, int)
     {
+      (void) argv;
       _controller.stop_processing();
       VERBOSE2("stop processing.");
     }
   );
 
   // set transport state: "transport/state, T, true"
-  _receiver.add_method("transport/state", "T" , [](lo_arg **argv, int)
+  _receiver.add_method("transport/state", "T" , [this](lo_arg **argv, int)
     {
+      (void) argv;
       _controller.transport_start();
       VERBOSE2("start transport.");
     }
   );
 
   // set transport state: "transport/state, F, false"
-  _receiver.add_method("transport/state", "F" , [](lo_arg **argv, int)
+  _receiver.add_method("transport/state", "F" , [this](lo_arg **argv, int)
     {
+      (void) argv;
       _controller.transport_stop();
       VERBOSE2("stop transport.");
     }
   );
 
   // rewind transport state: "state/transport/rewind"
-  _receiver.add_method("transport/rewind", NULL , [](lo_arg **argv, int)
+  _receiver.add_method("transport/rewind", NULL , [this](lo_arg **argv, int)
     {
+      (void) argv;
       _controller.transport_locate(0);
       VERBOSE2("rewind transport.");
     }
   );
 
   // seek transport state: "state/transport/seek, s, time"
-  _receiver.add_method("transport/seek", "s" , [](lo_arg **argv, int)
+  _receiver.add_method("transport/seek", "s" , [this](lo_arg **argv, int)
     {
       float time;
-      if(string2time(argv[0]->s, time))
+      if(apf::str::string2time(apf::str::A2S(argv[0]->s), time))
       {
         _controller.transport_locate(time);
         VERBOSE2("Seek transport to: " << time);
@@ -873,13 +877,12 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // reset tracker: "tracker/reset"
-  _receiver.add_method("tracker/reset", NULL
-    , [](lo_arg **argv, int)
+  _receiver.add_method("tracker/reset", NULL , [this](lo_arg **argv, int)
     {
+      (void) argv;
       _controller.calibrate_client();
       VERBOSE2("calibrate tracker.");
     }
   );
-
 
 }
