@@ -17,9 +17,10 @@ using namespace apf::str;
  * @param port_in integer representing a port to used for incoming OSC messages
  * @todo add error handler for ServerThread
  */
-ssr::OscReceiver::OscReceiver(Publisher& controller, int port_in)
-  : _controller(controller)
-  , _receiver(port_in)
+ssr::OscReceiver::OscReceiver(Publisher& controller, OscHandler& handler, int port_in)
+  : _receiver(port_in)
+  , _controller(controller)
+  , _handler(handler)
 {}
 
 /**
@@ -38,11 +39,11 @@ ssr::OscReceiver::~OscReceiver()
 void ssr::OscReceiver::start()
 {
   // add method handlers for received messages
-  if (_mode == "server")
+  if (_handler.mode() == "server")
   {
     add_client_to_server_methods();
   }
-  else if (_mode == "client")
+  else if (_handler.mode() == "client")
   {
     add_server_to_client_methods();
   }
@@ -72,7 +73,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         lo::Message message)
     {
       lo::Address client(message.source());
-      if(agrv[0]->i == 0)
+      if(argv[0]->i == 0)
       {
         VERBOSE("Update: Client '" << client.hostname() << "', all sources \
             deleted."); }
