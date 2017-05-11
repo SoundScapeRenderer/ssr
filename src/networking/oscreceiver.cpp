@@ -427,31 +427,32 @@ void ssr::OscReceiver::add_server_to_client_methods()
 {
   // set _server_address for OscSender through OscHandler, depending on, if
   // polled from given server before
-  _receiver.add_method("poll", NULL, [](lo_arg **argv, int, lo::Message
+  _receiver.add_method("poll", NULL, [this](lo_arg **argv, int, lo::Message
         message)
     {
-      lo::Address server = server_address(&_handler);
+      lo::Address server = server_address(_handler);
       lo::Address from(message.source());
+      (void) argv;
       if(server.hostname() != from.hostname() && server.port() != from.port())
       {
-        set_server_address(from);
+        set_server_for_client(_handler, from);
         // TODO: send reply to subscribed server
       }
     }
-  ):
+  );
 
   // set source position: "source/position, iff, id, x, y"
-  _receiver.add_method("source/position", "iff", [](lo_arg **argv, int)
+  _receiver.add_method("source/position", "iff", [this](lo_arg **argv, int)
     {
       _controller.set_source_position(argv[0]->i, Position(argv[1]->f,
-            argv[2]->f);
+            argv[2]->f));
       VERBOSE2("set source position: id = " << argv[0]->i << ", " <<
         Position(argv[1]->f, argv[2]->f));
     }
   );
 
   // set source fixed: "source/position_fixed, iT, id, true"
-  _receiver.add_method("source/position_fixed", "iT", [](lo_arg **argv, int)
+  _receiver.add_method("source/position_fixed", "iT", [this](lo_arg **argv, int)
     {
       _controller.set_source_position_fixed(argv[0]->i, true);
       VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed = \
@@ -460,7 +461,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set source fixed: "source/position_fixed, iF, id, false"
-  _receiver.add_method("source/position_fixed", "iF", [](lo_arg **argv, int)
+  _receiver.add_method("source/position_fixed", "iF", [this](lo_arg **argv, int)
     {
       _controller.set_source_position_fixed(argv[0]->i, false);
       VERBOSE2("set source position fixed: id = " << argv[0]->i << ", fixed = \
@@ -469,7 +470,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set source orientation: "source/orientation, if, id, azimuth"
-  _receiver.add_method("source/orientation", "if", [](lo_arg **argv, int)
+  _receiver.add_method("source/orientation", "if", [this](lo_arg **argv, int)
     {
       _controller.set_source_orientation(argv[0]->i, Orientation(argv[1]->f));
       VERBOSE2("set source orientation: id = " << argv[0]->i << ", "
@@ -478,16 +479,17 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set source volume: "source/volume, if, id, volume"
-  _receiver.add_method("source/volume", "if", [](lo_arg **argv, int)
+  _receiver.add_method("source/volume", "if", [this](lo_arg **argv, int)
     {
-      _controller.set_source_gain(argv[0]->i, dB2linear(argv[1]->f));
+      _controller.set_source_gain(argv[0]->i,
+          apf::math::dB2linear(argv[1]->f));
       VERBOSE2("set source volume: id = " << argv[0]->i << ", volume = " <<
-          dB2linear(argv[1]->f));
+          apf::math::dB2linear(argv[1]->f));
     }
   );
 
   // set source mute: "source/mute, iT, id, true"
-  _receiver.add_method("source/mute", "iT", [](lo_arg **argv, int)
+  _receiver.add_method("source/mute", "iT", [this](lo_arg **argv, int)
     {
       _controller.set_source_mute(argv[0]->i, true);
       VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = true");
@@ -495,7 +497,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set source mute: "source/mute, iF, id, false"
-  _receiver.add_method("source/mute", "iF", [](lo_arg **argv, int)
+  _receiver.add_method("source/mute", "iF", [this](lo_arg **argv, int)
     {
       _controller.set_source_mute(argv[0]->i, false);
       VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = false");
@@ -503,38 +505,45 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
 
   // set source name: "source/name, is, id, name"
-  _receiver.add_method("source/name", "is", [](lo_arg **argv, int)
+  _receiver.add_method("source/name", "is", [this](lo_arg **argv, int)
     {
-      _controller.set_source_name(argv[0]->i, argv[1]->s);
+      _controller.set_source_name(argv[0]->i, apf::str::A2S(argv[1]->s));
       VERBOSE2("set source name: id = " << argv[0]->i << ", name = " <<
-          argv[1]->s);
+          apf::str::A2S(argv[1]->s));
     }
   );
 
   // set source file: "source/properties_file, is, id, properties_file"
-  _receiver.add_method("source/properties_file", "is", [](lo_arg **argv, int)
+  _receiver.add_method("source/properties_file", "is", [this](lo_arg **argv,
+        int)
     {
-      _controller.set_source_properties_file(argv[0]->i, argv[1]->s);
+      _controller.set_source_properties_file(argv[0]->i,
+          apf::str::A2S(argv[1]->s));
       VERBOSE2("set source properties file name: id = " << argv[0]->i << ", \
-          file = " << argv[1]->s);
+          file = " << apf::str::A2S(argv[1]->s));
     }
   );
 
   // set source model: "source/model, is, id, model"
-  _receiver.add_method("source/model", "is", [](lo_arg **argv, int)
+  _receiver.add_method("source/model", "is", [this](lo_arg **argv, int)
     {
-      _controller.set_source_model(argv[0]->i, argv[1]->s);
+      Source::model_t model = Source::model_t();
+      if (!apf::str::S2A(apf::str::A2S(argv[1]->s), model))
+      {
+        model = Source::point;
+      }
+      _controller.set_source_model(argv[0]->i, model);
       VERBOSE2("set source model: id = " << argv[0]->i << ", model = " <<
-          argv[1]->s);
+          apf::str::A2S(argv[1]->s));
     }
   );
 
   // set source port name: "source/port_name, is, id, port_name"
-  _receiver.add_method("source/port_name", "is", [](lo_arg **argv, int)
+  _receiver.add_method("source/port_name", "is", [this](lo_arg **argv, int)
     {
-      _controller.set_source_port_name(argv[0]->i, argv[1]->s);
+      _controller.set_source_port_name(argv[0]->i, apf::str::A2S(argv[1]->s));
       VERBOSE2("set source port name: id = " << argv[0]->i << ", port = " <<
-          argv[1]->s);
+          apf::str::A2S(argv[1]->s));
     }
   );
 
@@ -547,9 +556,9 @@ void ssr::OscReceiver::add_server_to_client_methods()
   _receiver.add_method("source/new", NULL, [](lo_arg **argv, int,
         lo::Message message)
     {
-      std::string name(argv[0]->s);
-      std::string model(argv[1]->s);
-      std::string file_name_or_port_number(argv[2]->s);
+      std::string name(apf::str::A2S(argv[0]->s));
+      std::string model(apf::str::A2S(argv[1]->s));
+      std::string file_name_or_port_number(apf::str::A2S(argv[2]->s));
       float x(argv[3]->f);
       float y(argv[4]->f);
       float orientation(argv[5]->f);
