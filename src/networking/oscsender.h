@@ -6,7 +6,6 @@
 
 #ifndef OSC_SENDER_H
 #define OSC_SENDER_H
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include <config.h> // for ENABLE_*
@@ -127,3 +126,4 @@ class OscSender : public Subscriber
 };
 
 } // namespace ssr
+#endif
