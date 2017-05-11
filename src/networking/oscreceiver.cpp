@@ -91,7 +91,8 @@ void ssr::OscReceiver::add_client_to_server_methods()
     {
       lo::Address client(message.source());
       VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
-          argv[0]->i << ", position: "<< argv[1]->f << "/"argv[2]->f << ".");
+          argv[0]->i << ", position: "<< argv[1]->f << "/" << argv[2]->f <<
+          ".");
     }
   );
 
@@ -151,7 +152,8 @@ void ssr::OscReceiver::add_client_to_server_methods()
         state = "false";
       }
       VERBOSE("Update: Client '" << client.hostname() << "', source id = " <<
-          argv[0]->i << ", mute: "<< state  < ".");
+          apf::str::A2S(argv[0]->i) << ", mute: "<< state  <<
+          ".");
     }
   );
 
@@ -307,6 +309,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
     {
       lo::Address client(message.source());
       std::string state;
+      (void) argv;
       if(message.types() == "T")
       {
         state = "true";
@@ -316,7 +319,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         state = "false";
       }
       VERBOSE("Update: Client '" << client.hostname() << "', state processing: \
-          " << state  < ".");
+          " << state  << ".");
     }
   );
 
@@ -326,6 +329,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
     {
       lo::Address client(message.source());
       std::string state;
+      (void) argv;
       if(message.types() == "T")
       {
         state = "true";
@@ -335,7 +339,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         state = "false";
       }
       VERBOSE("Update: Client '" << client.hostname() << "', transport state: \
-          "<< state  < ".");
+          "<< state  << ".");
     }
   );
 
@@ -357,6 +361,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
     {
       lo::Address client(message.source());
       std::string state;
+      (void) argv;
       if(message.types() == "T")
       {
         state = "true";
@@ -366,7 +371,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         state = "false";
       }
       VERBOSE("Update: Client '" << client.hostname() << "', scene \
-          auto_rotate_sources: "<< state  < ".");
+          auto_rotate_sources: "<< state  << ".");
     }
   );
 
