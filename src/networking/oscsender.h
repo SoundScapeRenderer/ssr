@@ -14,9 +14,7 @@
 #include <vector>
 #include <map>
 #include <thread>
-#include <lo/lo.h>
 #include <lo/lo_cpp.h>
-
 #include "ssr_global.h"
 #include "subscriber.h"
 #include "apf/parameter_map.h"
