@@ -54,8 +54,12 @@ void ssr::OscSender::start()
   );
   VERBOSE("OSC URL: " << _send_from.url()<<".");
   _send_from.start();
-  _poll_all_clients = true;
-  _poll_thread = new std::thread(std::bind(&OscSender::poll_all_clients()), this);
+  if (is_server())
+  {
+    _poll_all_clients = true;
+    std::thread _poll_thread(&OscSender::poll_all_clients, this);
+    _poll_thread.detach();
+  }
 }
 
 /**
@@ -67,13 +71,11 @@ void ssr::OscSender::stop()
 {
   _controller.unsubscribe(this);
   _is_subscribed = false;
-  VERBOSE2("Stopping client polling thread ...");
-  _poll_all_clients = false;
-  if (_poll_thread)
+  if (is_server())
   {
-    _poll_thread->join();
+    _poll_all_clients = false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
-  VERBOSE2("Client polling thread stopped.");
 }
 
 /**
@@ -114,12 +116,14 @@ bool ssr::OscSender::is_server()
  */
 void ssr::OscSender::poll_all_clients()
 {
+  VERBOSE("Polling all clients.");
   while(_poll_all_clients)
   {
     send_to_all_clients("poll", lo::Message());
     //TODO find better solution to compensate for execution time
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
+  VERBOSE("Stopped polling all clients.");
 }
 
 /**
