@@ -25,12 +25,9 @@ ssr::OscReceiver::OscReceiver(Publisher& controller, OscHandler& handler, int po
 
 /**
  * Destructor
- * Stops the lo::ServerThread, used for listening for OSC messages
  */
 ssr::OscReceiver::~OscReceiver()
-{
-  _receiver.stop();
-}
+{}
 
 /**
  * Starts the OscReceiver, by adding client|server callback functions and
@@ -49,6 +46,15 @@ void ssr::OscReceiver::start()
   }
   // start server thread
   _receiver.start();
+}
+
+/**
+ * Stops the OscReceiver, by stopping the lo::ServerThread, used for listening
+ * for OSC messages
+ */
+void ssr::OscReceiver::stop()
+{
+  _receiver.stop();
 }
 
 /**
