@@ -36,23 +36,22 @@ namespace ssr
 class OscSender : public Subscriber
 {
   private:
-    // address of server (client)
-    lo::Address _server_address;
+    // reference to controller
+    Publisher& _controller;
+    // reference to handler
+    OscHandler& _handler;
     // ServerThread to send from specific port (client|server)
     lo::ServerThread _send_from;
+    bool _is_subscribed;
+    // address of server (client)
+    lo::Address _server_address;
     // vector of client address objects (server)
     std::vector<lo::Address> _client_addresses;
     // map of id/parameter_map pairs for new sources (server)
     std::map<id_t, apf::parameter_map> _new_sources;
-    // reference to handler
-    OscHandler& _handler; // TODO: really needed?
-    // reference to controller
-    Publisher& _controller;
     // thread used for calling poll_all_clients continuously
     std::thread *_poll_thread;
-    bool _is_subscribed;
     bool _poll_all_clients;
-    std::string _mode;
     typedef std::map<id_t,float> source_level_map_t;
     source_level_map_t _source_levels;
     float _master_level;
