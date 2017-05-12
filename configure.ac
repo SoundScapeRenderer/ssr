@@ -517,6 +517,7 @@ AS_IF([test x$have_gui = xyes],
 dnl check for liblo
 ENABLE_FORCED([osc-interface], [OSC interface],
   [
+  CPPFLAGS="$CPPFLAGS -llo"
   AC_CHECK_HEADER([lo/lo.h], , [have_osc_interface=no])
   AC_CHECK_HEADER([lo/lo_cpp.h], , [have_osc_interface=no])
   AC_MSG_RESULT([$have_osc_interface])
