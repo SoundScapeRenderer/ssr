@@ -212,6 +212,14 @@ PKG_CHECK_MODULES([LIBXML], [libxml-2.0 >= 2.0],
   LIBS="$LIBS $LIBXML_LIBS"
 ])
 
+dnl Checking for liblo
+PKG_CHECK_MODULES([LIBLO], [liblo >= 0.28],
+  [
+  PKG_FLAGS="$PKG_FLAGS $LIBLO_CFLAGS"
+  LIBS="$LIBS $LIBLO_LIBS"
+  ]
+)
+
 dnl by the way, AC_HELP_STRING is deprecated, use AS_HELP_STRING instead!
 
 ENABLE_EXPLICIT([debugging],[debugging symbols, asserts, ...])
@@ -521,20 +529,18 @@ ENABLE_EXPLICIT([floating-control-panel], [separate control window],
 [
   AS_IF([test x$have_gui = xno], [have_floating_control_panel=no])
 ])
-dnl check for liblo
-ENABLE_FORCED([osc-interface], [OSC interface],
-  [
-  CPPFLAGS="$CPPFLAGS -llo"
-  AC_CHECK_HEADER([lo/lo.h], , [have_osc_interface=no])
-  AC_CHECK_HEADER([lo/lo_cpp.h], , [have_osc_interface=no])
-  AC_MSG_RESULT([$have_osc_interface])
-  ]
-)
 
 ENABLE_FORCED([ip-interface], [network (TCP/IP) interface],
 [
   CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
   AC_CHECK_HEADER([asio.hpp], , [have_ip_interface=no])
+])
+
+ENABLE_FORCED([osc-interface], [network OSC interface],
+[
+  AC_CHECK_HEADER([lo/lo.h], , [have_osc_interface=no])
+  AC_CHECK_HEADER([lo/lo_cpp.h], , [have_osc_interface=no])
+  AC_MSG_RESULT([$have_osc_interface])
 ])
 
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
