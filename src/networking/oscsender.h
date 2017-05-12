@@ -50,7 +50,7 @@ class OscSender : public Subscriber
     // map of id/parameter_map pairs for new sources (server)
     std::map<id_t, apf::parameter_map> _new_sources;
     // thread used for calling poll_all_clients continuously
-    std::thread *_poll_thread;
+    std::thread _poll_thread;
     bool _poll_all_clients;
     typedef std::map<id_t,float> source_level_map_t;
     source_level_map_t _source_levels;
@@ -58,9 +58,9 @@ class OscSender : public Subscriber
 
     bool is_client();
     bool is_server();
+    void poll_all_clients();
     bool is_new_source(id_t id); //< check, if source id is in _new_sources
     bool is_complete_source(id_t id); //< check, if source is complete
-    void poll_all_clients();
     void send_new_source_message_from_id(id_t id); //< creates a 'new source' OSC message
 
   public:
@@ -74,7 +74,6 @@ class OscSender : public Subscriber
     void set_server_address(lo::Address server_address);
     lo::Address server_address();
     void add_client(lo::Address client);
-    void poll_clients();
     void send_to_server(std::string path, lo::Message message);
     void send_to_server(lo::Bundle bundle);
     void send_to_client(lo::Address address, std::string path, lo::Message
