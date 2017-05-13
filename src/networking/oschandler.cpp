@@ -24,9 +24,10 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
   , _osc_receiver(controller, *this, port_in)
   , _osc_sender(controller, *this, port_out)
 {
-  VERBOSE("Initialized OscHandler.");
+  VERBOSE("OscHandler: Initialized.");
   if (mode == "server")
   {
+    VERBOSE2("OscHandler: server mode.");
     for (const auto& hostname: clients)
     {
       _osc_sender.add_client(new lo::Address(hostname.first,
@@ -39,13 +40,17 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
  * Destructor
  */
 ssr::OscHandler::~OscHandler()
-{}
+{
+  stop();
+  VERBOSE("OscHandler: Destructing.");
+}
 
 /**
  * Stop this OscHandler by stopping its OscReceiver and OscSender
  */
 void ssr::OscHandler::stop()
 {
+  VERBOSE("OscHandler: Stopping");
   _osc_receiver.stop();
   _osc_sender.stop();
 }
@@ -55,6 +60,7 @@ void ssr::OscHandler::stop()
  */
 void ssr::OscHandler::start()
 {
+  VERBOSE("OscHandler: Starting");
   _osc_receiver.start();
   _osc_sender.start();
 }
@@ -127,6 +133,19 @@ void ssr::OscReceiver::send_to_all_clients(OscHandler& self, std::string path,
 void ssr::OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle bundle)
 {
   self._osc_sender.send_to_all_clients(bundle);
+}
+
+/**
+ * OscHandler's friend function to send an OSC message to the server, using
+ * OscSender and a designated path.
+ * @param self reference to OscHandler holding OscSender
+ * @param path std::string defining the path to send on
+ * @param message lo::Bundle to be sent
+ */
+void ssr::OscReceiver::send_to_server(OscHandler& self, std::string path,
+    lo::Message message)
+{
+  self._osc_sender.send_to_server(path, message);
 }
 
 /**
