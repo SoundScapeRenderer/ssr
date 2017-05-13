@@ -24,6 +24,7 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
   , _osc_receiver(controller, *this, port_in)
   , _osc_sender(controller, *this, port_out)
 {
+  VERBOSE("Initialized OscHandler.");
   if (mode == "server")
   {
     for (const auto& hostname: clients)
