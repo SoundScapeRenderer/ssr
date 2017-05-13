@@ -22,8 +22,10 @@ ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler, int
   : _controller(controller)
   , _handler(handler)
   , _send_from(port_out)
-  , _server_address("none")
-{}
+  , _server_address("none", "50001")
+{
+  VERBOSE("Initialized OscSender.");
+}
 
 /**
  * Destructor
