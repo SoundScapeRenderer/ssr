@@ -22,9 +22,9 @@ ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler, int
   : _controller(controller)
   , _handler(handler)
   , _send_from(port_out)
-  , _server_address("none", "50001")
+  , _server_address("none", "50002")
 {
-  VERBOSE("Initialized OscSender.");
+  VERBOSE("OscSender: Initialized.");
 }
 
 /**
@@ -43,18 +43,18 @@ void ssr::OscSender::start()
   _is_subscribed = true;
   // check if lo::ServerThread is valid
   if (!_send_from.is_valid()) {
-    ERROR("OSC ServerThread to send from could not be started!");
+    ERROR("OscSender: ServerThread could not be started!");
   }
   _send_from.set_callbacks([this]()
     {
-      VERBOSE2("OSC ServerThread init: "<<&this->_send_from <<".");
+      VERBOSE("OscSender: Started ServerThread for sending messages.");
     },
     []()
     {
-      VERBOSE2("OSC ServerThread cleanup.");
+      VERBOSE2("OscSender: ServerThread cleanup.");
     }
   );
-  VERBOSE("OSC URL: " << _send_from.url()<<".");
+  VERBOSE("OscSender: url = " << _send_from.url() << ".");
   _send_from.start();
   if (is_server())
   {
@@ -114,18 +114,18 @@ bool ssr::OscSender::is_server()
 
 /**
  * Sends a '/poll' message to all client instances listed in _client_addresses,
- * then makes the thread calling this function sleep for 1000 milliseconds
+ * then makes the thread calling this function sleep for 100 milliseconds
  */
 void ssr::OscSender::poll_all_clients()
 {
-  VERBOSE("Polling all clients.");
+  VERBOSE2("OscSender: Polling all clients.");
   while(_poll_all_clients)
   {
-    send_to_all_clients("poll", lo::Message());
+    send_to_all_clients("/poll", lo::Message());
     //TODO find better solution to compensate for execution time
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
-  VERBOSE("Stopped polling all clients.");
+  VERBOSE2("OscSender: Stopped polling all clients.");
 }
 
 /**
@@ -143,7 +143,9 @@ lo::Address ssr::OscSender::server_address()
  */
 void ssr::OscSender::set_server_address(lo::Address server_address)
 {
-  this->_server_address = server_address;
+  this->_server_address = new lo::Address(server_address);
+  VERBOSE2("OscSender: Setting up new server_address: "<<
+      server_address.hostname() << ":" << server_address.port() << ".");
 }
 
 /**
@@ -154,7 +156,14 @@ void ssr::OscSender::set_server_address(lo::Address server_address)
  */
 void ssr::OscSender::send_to_server(std::string path, lo::Message message)
 {
-  _server_address.send_from(_send_from, path, message);
+  if((_server_address.hostname() != "none") && (_server_address.port() !=
+        "50002"))
+  {
+    _server_address.send_from(_send_from, path, message.types(), message);
+  VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
+      "] to server " << _server_address.hostname() << ":" <<
+      _server_address.port() << ".");
+  }
 }
 
 /**
@@ -164,6 +173,9 @@ void ssr::OscSender::send_to_server(std::string path, lo::Message message)
 void ssr::OscSender::send_to_server(lo::Bundle bundle)
 {
   _server_address.send_from(_send_from, bundle);
+  VERBOSE3("OscSender: Sending bundle (" << bundle.length() <<
+      " messages) to server " << _server_address.hostname() << ":" <<
+      _server_address.port() << ".");
 }
 
 /**
@@ -181,7 +193,10 @@ void ssr::OscSender::send_to_client(lo::Address address, std::string path,
     if(client.hostname() == address.hostname() && client.port() ==
         address.port())
     {
-      client.send_from(_send_from, path, message);
+      client.send_from(_send_from, path, message.types(), message);
+      VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
+          "] to client " << address.hostname() << ":" << address.port() <<
+          ".");
     }
   }
 }
@@ -200,7 +215,8 @@ void ssr::OscSender::send_to_client(lo::Address address, lo::Bundle bundle)
         address.port())
     {
       client.send_from(_send_from, bundle);
-    }
+      VERBOSE3("OscSender: Sending bundle to client " << address.hostname() <<
+          ":" << address.port() << "."); }
   }
 }
 
@@ -215,6 +231,9 @@ void ssr::OscSender::send_to_all_clients(std::string path, lo::Message message)
   for (const auto& client_address: _client_addresses)
   {
     client_address.send_from(_send_from, path, message);
+    VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
+        "] to client " << client_address.hostname() << ":" <<
+        client_address.port() << ".");
   }
 }
 
@@ -227,6 +246,7 @@ void ssr::OscSender::send_to_all_clients(lo::Bundle bundle)
   for (const auto& client_address: _client_addresses)
   {
     client_address.send_from(_send_from, bundle);
+    VERBOSE3("OscSender: Sending bundle to all clients.");
   }
 }
 
@@ -308,19 +328,23 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
       _new_sources.at(id).has_key("muted") &&
       _new_sources.at(id).size() == 12 )
   {
-    message.add(_new_sources.at(id).get<std::string>("name", ""));
-    message.add(_new_sources.at(id).get<std::string>("model", ""));
-    message.add(_new_sources.at(id).get<std::string>("file_name_or_port_number", ""));
-    message.add(_new_sources.at(id).get<float>("x", 0.0));
-    message.add(_new_sources.at(id).get<float>("y", 0.0));
-    message.add(_new_sources.at(id).get<float>("orientation", 0.0));
-    message.add(_new_sources.at(id).get<float>("volume", 0.0));
-    message.add(_new_sources.at(id).get<int>("channel", 1));
-    message.add(_new_sources.at(id).get<std::string>("properties_file", ""));
-    message.add(_new_sources.at(id).get<bool>("position_fixed", false));
-    message.add(_new_sources.at(id).get<bool>("orientation_fixed", false));
-    message.add(_new_sources.at(id).get<bool>("muted", false));
-    this->send_to_all_clients("source/new", message);
+    message.add_string(_new_sources.at(id).get<std::string>("name", ""));
+    message.add_string(_new_sources.at(id).get<std::string>("model", ""));
+    message.add_string(_new_sources.at(id).get<std::string>("file_name_or_port_number",
+          ""));
+    message.add_float(_new_sources.at(id).get<float>("x", 0.0));
+    message.add_float(_new_sources.at(id).get<float>("y", 0.0));
+    message.add_float(_new_sources.at(id).get<float>("orientation", 0.0));
+    message.add_float(_new_sources.at(id).get<float>("volume", 0.0));
+    message.add_int32(_new_sources.at(id).get<int>("channel", 1));
+    message.add_string(_new_sources.at(id).get<std::string>("properties_file", ""));
+    (_new_sources.at(id).get<bool>("position_fixed", false)?
+     message.add_true(): message.add_false());
+    (_new_sources.at(id).get<bool>("orientation_fixed", false)?
+     message.add_true(): message.add_false());
+    (_new_sources.at(id).get<bool>("muted", false)?
+     message.add_true(): message.add_false());
+    this->send_to_all_clients("/source/new", message);
   }
   else if(_new_sources.at(id).has_key("name") &&
     _new_sources.at(id).has_key("model") &&
@@ -334,17 +358,21 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
     _new_sources.at(id).has_key("muted") &&
     _new_sources.at(id).size() == 10 )
   {
-    message.add(_new_sources.at(id).get<std::string>("name", ""));
-    message.add(_new_sources.at(id).get<std::string>("model", ""));
-    message.add(_new_sources.at(id).get<std::string>("file_name_or_port_number", ""));
-    message.add(_new_sources.at(id).get<float>("x", 0.0));
-    message.add(_new_sources.at(id).get<float>("y", 0.0));
-    message.add(_new_sources.at(id).get<float>("orientation", 0.0));
-    message.add(_new_sources.at(id).get<float>("volume", 0.0));
-    message.add(_new_sources.at(id).get<bool>("position_fixed", false));
-    message.add(_new_sources.at(id).get<bool>("orientation_fixed", false));
-    message.add(_new_sources.at(id).get<bool>("muted", false));
-    this->send_to_all_clients("source/new", message);
+    message.add_string(_new_sources.at(id).get<std::string>("name", ""));
+    message.add_string(_new_sources.at(id).get<std::string>("model", ""));
+    message.add_string(_new_sources.at(id).get<std::string>("file_name_or_port_number",
+          ""));
+    message.add_float(_new_sources.at(id).get<float>("x", 0.0));
+    message.add_float(_new_sources.at(id).get<float>("y", 0.0));
+    message.add_float(_new_sources.at(id).get<float>("orientation", 0.0));
+    message.add_float(_new_sources.at(id).get<float>("volume", 0.0));
+    (_new_sources.at(id).get<bool>("position_fixed", false)?
+     message.add_true(): message.add_false());
+    (_new_sources.at(id).get<bool>("orientation_fixed", false)?
+     message.add_true(): message.add_false());
+    (_new_sources.at(id).get<bool>("muted", false)?
+     message.add_true(): message.add_false());
+    this->send_to_all_clients("/source/new", message);
   }
 }
 
@@ -355,6 +383,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
 void ssr::OscSender::add_client(lo::Address client)
 {
   _client_addresses.push_back(client);
+  VERBOSE2("OscSender: Added client " << client.hostname() << " to list.");
 }
 
 // Subscriber interface (differentiating between client and server)
@@ -370,6 +399,7 @@ void ssr::OscSender::set_loudspeakers(const Loudspeaker::container_t&
     loudspeakers)
 {
   (void) loudspeakers;
+  VERBOSE3("OscSender: set_loudspeakers");
 }
 
 /**
@@ -391,8 +421,8 @@ void ssr::OscSender::new_source(id_t id)
   {
     lo::Message message;
     int32_t message_id = id;
-    message.add(message_id);
-    this->send_to_server("update/source/new", message);
+    message.add_int32(message_id);
+    this->send_to_server("/update/source/new", message);
   }
 }
 
@@ -407,14 +437,14 @@ void ssr::OscSender::delete_source(id_t id)
 {
   lo::Message message;
   int32_t message_id = id;
-  message.add(message_id);
+  message.add_int32(message_id);
   if(is_server())
   {
-    this->send_to_all_clients("source/delete", message);
+    this->send_to_all_clients("/source/delete", message);
   }
   else if (is_client())
   {
-    this->send_to_server("update/source/delete", message);
+    this->send_to_server("/update/source/delete", message);
     _source_levels.erase(id);
   }
 }
@@ -428,11 +458,11 @@ void ssr::OscSender::delete_source(id_t id)
 void ssr::OscSender::delete_all_sources()
 {
   lo::Message message;
-  message.add(0);
+  message.add_int32(0);
   if(is_server())
-    this->send_to_all_clients("source/delete", message);
+    this->send_to_all_clients("/source/delete", message);
   else if(is_client())
-    this->send_to_server("update/source/delete", message);
+    this->send_to_server("/update/source/delete", message);
 
   _source_levels.clear();
 }
@@ -464,18 +494,18 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
     }
     else
     {
-      message.add(message_id);
-      message.add(position.x);
-      message.add(position.y);
-      this->send_to_all_clients("source/position", message);
+      message.add_int32(message_id);
+      message.add_float(position.x);
+      message.add_float(position.y);
+      this->send_to_all_clients("/source/position", message);
     }
   }
   else if (is_client())
   {
-    message.add(message_id);
-    message.add(position.x);
-    message.add(position.y);
-    this->send_to_server("update/source/position", message);
+    message.add_int32(message_id);
+    message.add_float(position.x);
+    message.add_float(position.y);
+    this->send_to_server("/update/source/position", message);
   }
   return true;
 }
@@ -507,16 +537,16 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
     }
     else
     {
-      message.add(message_id);
-      message.add(fixed);
-      this->send_to_all_clients("source/position_fixed", message);
+      message.add_int32(message_id);
+      message.add_bool(fixed);
+      this->send_to_all_clients("/source/position_fixed", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(fixed);
-    this->send_to_server("update/source/position_fixed", message);
+    message.add_int32(message_id);
+    message.add_bool(fixed);
+    this->send_to_server("/update/source/position_fixed", message);
   }
   return true;
 }
@@ -547,16 +577,16 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
     }
     else
     {
-      message.add(message_id);
-      message.add(orientation.azimuth);
-      this->send_to_all_clients("source/orientation", message);
+      message.add_int32(message_id);
+      message.add_float(orientation.azimuth);
+      this->send_to_all_clients("/source/orientation", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(orientation.azimuth);
-    this->send_to_server("update/source/orientation", message);
+    message.add_int32(message_id);
+    message.add_float(orientation.azimuth);
+    this->send_to_server("/update/source/orientation", message);
   }
   return true;
 }
@@ -587,16 +617,16 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
     }
     else
     {
-      message.add(message_id);
-      message.add(gain);
-      this->send_to_all_clients("source/volume", message);
+      message.add_int32(message_id);
+      message.add_float(gain);
+      this->send_to_all_clients("/source/volume", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(gain);
-    this->send_to_server("update/source/volume", message);
+    message.add_int32(message_id);
+    message.add_float(gain);
+    this->send_to_server("/update/source/volume", message);
   }
   return true;
 }
@@ -627,16 +657,16 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
     }
     else
     {
-      message.add(message_id);
-      message.add(mute);
-      this->send_to_all_clients("source/mute", message);
+      message.add_int32(message_id);
+      message.add_bool(mute);
+      this->send_to_all_clients("/source/mute", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(mute);
-    this->send_to_server("update/source/mute", message);
+    message.add_int32(message_id);
+    message.add_bool(mute);
+    this->send_to_server("/update/source/mute", message);
   }
   return true;
 }
@@ -667,16 +697,16 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
     }
     else
     {
-      message.add(message_id);
-      message.add(name);
-      this->send_to_all_clients("source/name", message);
+      message.add_int32(message_id);
+      message.add_string(name);
+      this->send_to_all_clients("/source/name", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(name);
-    this->send_to_server("update/source/name", message);
+    message.add_int32(message_id);
+    message.add_string(name);
+    this->send_to_server("/update/source/name", message);
   }
   return true;
 }
@@ -708,16 +738,16 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
     }
     else
     {
-      message.add(message_id);
-      message.add(name);
-      this->send_to_all_clients("source/properties_file", message);
+      message.add_int32(message_id);
+      message.add_string(name);
+      this->send_to_all_clients("/source/properties_file", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(name);
-    this->send_to_server("update/source/properties_file", message);
+    message.add_int32(message_id);
+    message.add_string(name);
+    this->send_to_server("/update/source/properties_file", message);
   }
   return true;
 }
@@ -733,14 +763,14 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
 void ssr::OscSender::set_decay_exponent(float exponent)
 {
   lo::Message message;
-  message.add(exponent);
+  message.add_float(exponent);
   if(is_server())
   {
-    this->send_to_all_clients("scene/decay_exponent", message);
+    this->send_to_all_clients("/scene/decay_exponent", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/scene/decay_exponent", message);
+    this->send_to_server("/update/scene/decay_exponent", message);
   }
 }
 
@@ -757,15 +787,15 @@ void ssr::OscSender::set_decay_exponent(float exponent)
 void ssr::OscSender::set_amplitude_reference_distance(float distance)
 {
   lo::Message message;
-  message.add(distance);
+  message.add_float(distance);
   if(is_server())
   {
-    this->send_to_all_clients("scene/amplitude_reference_distance",
+    this->send_to_all_clients("/scene/amplitude_reference_distance",
         message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/scene/amplitude_reference_distance",
+    this->send_to_server("/update/scene/amplitude_reference_distance",
         message);
   }
 }
@@ -799,16 +829,16 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
     }
     else
     {
-      message.add(message_id);
-      message.add(tmp_model);
-      this->send_to_all_clients("source/model", message);
+      message.add_int32(message_id);
+      message.add_string(tmp_model);
+      this->send_to_all_clients("/source/model", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(tmp_model);
-    this->send_to_server("update/source/model", message);
+    message.add_int32(message_id);
+    message.add_string(tmp_model);
+    this->send_to_server("/update/source/model", message);
   }
   return true;
 }
@@ -842,16 +872,16 @@ bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
     }
     else
     {
-      message.add(message_id);
-      message.add(port_name);
-      this->send_to_all_clients("source/port_name", message);
+      message.add_int32(message_id);
+      message.add_string(port_name);
+      this->send_to_all_clients("/source/port_name", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(port_name);
-    this->send_to_server("update/source/port_name", message);
+    message.add_int32(message_id);
+    message.add_string(port_name);
+    this->send_to_server("/update/source/port_name", message);
   }
   return true;
 }
@@ -888,16 +918,16 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
     }
     else
     {
-      message.add(message_id);
-      message.add(file_name);
-      this->send_to_all_clients("source/file_name_or_port_number", message);
+      message.add_int32(message_id);
+      message.add_string(file_name);
+      this->send_to_all_clients("/source/file_name_or_port_number", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(file_name);
-    this->send_to_server("update/source/file_name_or_port_number", message);
+    message.add_int32(message_id);
+    message.add_string(file_name);
+    this->send_to_server("/update/source/file_name_or_port_number", message);
   }
   return true;
 }
@@ -920,6 +950,7 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
 {
   lo::Message message;
   int32_t message_id = id;
+  int32_t message_file_channel = file_channel;
   if(is_server())
   {
     if(is_new_source(id))
@@ -930,16 +961,16 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
     }
     else
     {
-      message.add(message_id);
-      message.add(file_channel);
-      this->send_to_all_clients("source/channel", message);
+      message.add_int32(message_id);
+      message.add_int32(message_file_channel);
+      this->send_to_all_clients("/source/channel", message);
     }
   }
   else if(is_client())
   {
-    message.add(message_id);
-    message.add(file_channel);
-    this->send_to_server("update/source/channel", message);
+    message.add_int32(message_id);
+    message.add_int32(message_file_channel);
+    this->send_to_server("/update/source/channel", message);
   }
   return true;
 }
@@ -960,11 +991,12 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
 {
   lo::Message message;
   int32_t message_id = id;
+  int32_t message_length = length;
   if(is_client())
   {
-    message.add(message_id);
-    message.add(length);
-    this->send_to_server("update/source/length", message);
+    message.add_int32(message_id);
+    message.add_int32(message_length);
+    this->send_to_server("/update/source/length", message);
   }
   return true;
 }
@@ -982,15 +1014,15 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
 void ssr::OscSender::set_reference_position(const Position& position)
 {
   lo::Message message;
-  message.add(position.x);
-  message.add(position.y);
+  message.add_float(position.x);
+  message.add_float(position.y);
   if(is_server())
   {
-    this->send_to_all_clients("reference/position", message);
+    this->send_to_all_clients("/reference/position", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/reference/position", message);
+    this->send_to_server("/update/reference/position", message);
   }
 }
 
@@ -1007,14 +1039,14 @@ void ssr::OscSender::set_reference_position(const Position& position)
 void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
 {
   lo::Message message;
-  message.add(orientation.azimuth);
+  message.add_float(orientation.azimuth);
   if(is_server())
   {
-    this->send_to_all_clients("reference/orientation", message);
+    this->send_to_all_clients("/reference/orientation", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/reference/orientation", message);
+    this->send_to_server("/update/reference/orientation", message);
   }
 }
 
@@ -1032,15 +1064,15 @@ void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
 void ssr::OscSender::set_reference_offset_position(const Position& position)
 {
   lo::Message message;
-  message.add(position.x);
-  message.add(position.y);
+  message.add_float(position.x);
+  message.add_float(position.y);
   if(is_server())
   {
-    this->send_to_all_clients("reference_offset/position", message);
+    this->send_to_all_clients("/reference_offset/position", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/reference_offset/position", message);
+    this->send_to_server("/update/reference_offset/position", message);
   }
 }
 
@@ -1060,14 +1092,14 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
     orientation)
 {
   lo::Message message;
-  message.add(orientation.azimuth);
+  message.add_float(orientation.azimuth);
   if(is_server())
   {
-    this->send_to_all_clients("reference_offset/orientation", message);
+    this->send_to_all_clients("/reference_offset/orientation", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/reference_offset/orientation", message);
+    this->send_to_server("/update/reference_offset/orientation", message);
   }
 }
 
@@ -1084,14 +1116,14 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
 void ssr::OscSender::set_master_volume(float volume)
 {
   lo::Message message;
-  message.add(apf::math::linear2dB(volume));
+  message.add_float(apf::math::linear2dB(volume));
   if(is_server())
   {
-    this->send_to_all_clients("scene/volume", message);
+    this->send_to_all_clients("/scene/volume", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/scene/volume", message);
+    this->send_to_server("/update/scene/volume", message);
   }
 }
 
@@ -1125,14 +1157,14 @@ void ssr::OscSender::set_source_output_levels(id_t id, float* first , float*
 void ssr::OscSender::set_processing_state(bool state)
 {
   lo::Message message;
-  message.add(state);
+  message.add_bool(state);
   if(is_server())
   {
-    this->send_to_all_clients("processing/state", message);
+    this->send_to_all_clients("/processing/state", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/processing/state", message);
+    this->send_to_server("/update/processing/state", message);
   }
 }
 
@@ -1152,23 +1184,26 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
 {
   lo::Message message_state;
   lo::Message message_time;
-  message_state.add(state.first);
-  message_time.add(std::to_string(state.second));
+  message_state.add_bool(state.first);
+  message_time.add_string(std::to_string(state.second));
   if(is_server())
   {
     lo::Bundle bundle({
-        {"transport/state", message_state},
-        {"transport/seek", message_time}
+        {"/transport/state", message_state},
+        {"/transport/seek", message_time}
     });
-    this->send_to_all_clients(bundle);
+
+// TODO: debug this!
+//    this->send_to_all_clients(bundle);
   }
   else if(is_client())
   {
     lo::Bundle bundle({
-        {"update/transport/state", message_state},
-        {"update/transport/seek", message_time}
+        {"/update/transport/state", message_state},
+        {"/update/transport/seek", message_time}
     });
-    this->send_to_server(bundle);
+// TODO: debug this!
+//    this->send_to_server(bundle);
   }
 }
 
@@ -1187,14 +1222,14 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
 void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
 {
   lo::Message message;
-  message.add(auto_rotate_sources);
+  message.add_bool(auto_rotate_sources);
   if(is_server())
   {
-    this->send_to_all_clients("scene/auto_rotate_sources", message);
+    this->send_to_all_clients("/scene/auto_rotate_sources", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/scene/auto_rotate_sources", message);
+    this->send_to_server("/update/scene/auto_rotate_sources", message);
   }
 }
 
@@ -1209,10 +1244,10 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
 void ssr::OscSender::set_cpu_load(float load)
 {
   lo::Message message;
-  message.add(load);
+  message.add_float(load);
   if(is_client())
   {
-    this->send_to_server("update/cpu_load", message);
+    this->send_to_server("/update/cpu_load", message);
   }
 }
 
@@ -1229,14 +1264,15 @@ void ssr::OscSender::set_cpu_load(float load)
 void ssr::OscSender::set_sample_rate(int sr)
 {
   lo::Message message;
-  message.add(sr);
+  int32_t message_sr = sr;
+  message.add_int32(message_sr);
   if(is_server())
   {
-    this->send_to_all_clients("scene/sample_rate", message);
+    this->send_to_all_clients("/scene/sample_rate", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/scene/sample_rate", message);
+    this->send_to_server("/update/scene/sample_rate", message);
   }
 }
 
@@ -1253,14 +1289,15 @@ void ssr::OscSender::set_sample_rate(int sr)
 void ssr::OscSender::set_master_signal_level(float level)
 {
   lo::Message message;
-  message.add(apf::math::linear2dB(level));
+  float message_level(apf::math::linear2dB(level));
+  message.add_float(message_level);
   if(is_server())
   {
-    this->send_to_all_clients("scene/master_signal_level", message);
+    this->send_to_all_clients("/scene/master_signal_level", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/scene/master_signal_level", message);
+    this->send_to_server("/update/scene/master_signal_level", message);
   }
 }
 
@@ -1280,15 +1317,15 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
 {
   lo::Message message;
   int32_t message_id = id;
-  message.add(message_id);
-  message.add(apf::math::linear2dB(level));
+  message.add_int32(message_id);
+  message.add_float(apf::math::linear2dB(level));
   if(is_server())
   {
-    this->send_to_all_clients("source/volume", message);
+    this->send_to_all_clients("/source/volume", message);
   }
   else if(is_client())
   {
-    this->send_to_server("update/source/level", message);
+    this->send_to_server("/update/source/level", message);
   }
   return true;
 }
