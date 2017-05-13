@@ -21,7 +21,9 @@ ssr::OscReceiver::OscReceiver(Publisher& controller, OscHandler& handler, int po
   : _receiver(port_in)
   , _controller(controller)
   , _handler(handler)
-{}
+{
+  VERBOSE("Initialized OscReceiver.");
+}
 
 /**
  * Destructor
@@ -38,14 +40,17 @@ void ssr::OscReceiver::start()
   // add method handlers for received messages
   if (_handler.mode() == "server")
   {
+    VERBOSE("Adding client-to-server callback methods.");
     add_client_to_server_methods();
   }
   else if (_handler.mode() == "client")
   {
+    VERBOSE("Adding server-to-client callback methods.");
     add_server_to_client_methods();
   }
   // start server thread
   _receiver.start();
+  VERBOSE("Started ServerThread for receiving messages.");
 }
 
 /**
