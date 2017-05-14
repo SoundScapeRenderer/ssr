@@ -128,7 +128,7 @@ std::string ssr::remove_whitespace(const std::string& str)
  * string and stores it in a multimap.
  */
 static int parse_network_clients(const char *input,
-    std::multimap<std::string, int> clients)
+    std::multimap<std::string, int>& clients)
 {
   std::istringstream iss(input);
   std::string name;
@@ -302,7 +302,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
                                                            "(default: client)\n"
 "  -C  --network_clients=VALUE\n"
 "                      List of network clients and their ports (e.g. "
-                                                "client1:50002 client2:50002)\n"
+                                               "client1:50002, client2:50002)\n"
 "  -P  --network_port_send=VALUE\n"
 "                      Port to send OSC messages from (default: 50001)\n"
 "  -p  --network_port_receive=VALUE\n"
