@@ -106,8 +106,8 @@
 # networking port for receiving (default: 50002)
 #NETWORK_PORT_RECEIVE = 50002
 
-# networking clients by hostname:port
-#NETWORK_CLIENTS = "test:50002 test:50002"
+# networking clients, comma-separated by hostname:port
+#NETWORK_CLIENTS = "client:50002, client:50002"
 
 ############################## Verbosity Level #################################
 
