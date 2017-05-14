@@ -73,7 +73,7 @@ void ssr::OscHandler::start()
 void ssr::OscReceiver::set_server_for_client(ssr::OscHandler& self, lo::Address
     server_address)
 {
-  self._osc_sender.set_server_address(server_address);
+  self._osc_sender.set_server_address(server_address.hostname(), server_address.port());
 }
 
 /**

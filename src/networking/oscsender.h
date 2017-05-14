@@ -69,7 +69,7 @@ class OscSender : public Subscriber
 
     void start();
     void stop();
-    void set_server_address(lo::Address server_address);
+    void set_server_address(std::string hostname, std::string port);
     lo::Address server_address();
     void add_client(lo::Address client);
     void send_to_server(std::string path, lo::Message message);
