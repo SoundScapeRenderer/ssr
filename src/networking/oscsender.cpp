@@ -76,7 +76,7 @@ void ssr::OscSender::stop()
   if (is_server())
   {
     _poll_all_clients = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 }
 
@@ -118,12 +118,12 @@ bool ssr::OscSender::is_server()
  */
 void ssr::OscSender::poll_all_clients()
 {
-  VERBOSE2("OscSender: Polling all clients.");
+  VERBOSE("OscSender: Starting to poll all clients.");
   while(_poll_all_clients)
   {
     send_to_all_clients("/poll", lo::Message());
     //TODO find better solution to compensate for execution time
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
   VERBOSE2("OscSender: Stopped polling all clients.");
 }
@@ -191,10 +191,10 @@ void ssr::OscSender::send_to_client(lo::Address address, std::string path,
 {
   for (const auto& client: _client_addresses)
   {
-    if(client.hostname() == address.hostname() && client.port() ==
+    if(client->hostname() == address.hostname() && client->port() ==
         address.port())
     {
-      client.send_from(_send_from, path, message.types(), message);
+      client->send_from(_send_from, path, message.types(), message);
       VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
           "] to client " << address.hostname() << ":" << address.port() <<
           ".");
@@ -212,10 +212,10 @@ void ssr::OscSender::send_to_client(lo::Address address, lo::Bundle bundle)
 {
   for (const auto& client: _client_addresses)
   {
-    if(client.hostname() == address.hostname() && client.port() ==
+    if(client->hostname() == address.hostname() && client->port() ==
         address.port())
     {
-      client.send_from(_send_from, bundle);
+      client->send_from(_send_from, bundle);
       VERBOSE3("OscSender: Sending bundle to client " << address.hostname() <<
           ":" << address.port() << "."); }
   }
@@ -231,10 +231,10 @@ void ssr::OscSender::send_to_all_clients(std::string path, lo::Message message)
 {
   for (const auto& client_address: _client_addresses)
   {
-    client_address.send_from(_send_from, path, message);
     VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
-        "] to client " << client_address.hostname() << ":" <<
-        client_address.port() << ".");
+        "] to client " << client_address->hostname() << ":" <<
+        client_address->port() << ".");
+    client_address->send_from(_send_from, path, message.types(), message);
   }
 }
 
@@ -246,7 +246,7 @@ void ssr::OscSender::send_to_all_clients(lo::Bundle bundle)
 {
   for (const auto& client_address: _client_addresses)
   {
-    client_address.send_from(_send_from, bundle);
+    client_address->send_from(_send_from, bundle);
     VERBOSE3("OscSender: Sending bundle to all clients.");
   }
 }
@@ -379,12 +379,13 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
 
 /**
  * Adds a new client to the vector of clients
- * @param clients lo::Address of a client
+ * @param hostname std::string representing the hostname of a client
+ * @param port std::string representing the port of a client
  */
-void ssr::OscSender::add_client(lo::Address client)
+void ssr::OscSender::add_client(std::string hostname, std::string port)
 {
-  _client_addresses.push_back(client);
-  VERBOSE2("OscSender: Added client " << client.hostname() << " to list.");
+  _client_addresses.push_back(new lo::Address(hostname, port));
+  VERBOSE2("OscSender: Added client " << hostname << ":" << port << ".");
 }
 
 // Subscriber interface (differentiating between client and server)

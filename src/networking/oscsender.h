@@ -43,8 +43,8 @@ class OscSender : public Subscriber
     bool _is_subscribed;
     // address of server (client)
     lo::Address _server_address;
-    // vector of client address objects (server)
-    std::vector<lo::Address> _client_addresses;
+    // vector of pointers to client address objects (server)
+    std::vector<lo::Address*> _client_addresses;
     // map of id/parameter_map pairs for new sources (server)
     std::map<id_t, apf::parameter_map> _new_sources;
     // thread used for calling poll_all_clients continuously
@@ -71,7 +71,7 @@ class OscSender : public Subscriber
     void stop();
     void set_server_address(std::string hostname, std::string port);
     lo::Address server_address();
-    void add_client(lo::Address client);
+    void add_client(std::string hostname, std::string port);
     void send_to_server(std::string path, lo::Message message);
     void send_to_server(lo::Bundle bundle);
     void send_to_client(lo::Address address, std::string path, lo::Message
