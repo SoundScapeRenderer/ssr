@@ -27,11 +27,10 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
   VERBOSE("OscHandler: Initialized.");
   if (mode == "server")
   {
-    VERBOSE2("OscHandler: server mode.");
-    for (const auto& hostname: clients)
+    VERBOSE("OscHandler: " << clients.size() << " client(s).");
+    for (const auto& client: clients)
     {
-      _osc_sender.add_client(new lo::Address(hostname.first,
-            std::to_string(hostname.second)));
+      _osc_sender.add_client(client.first, std::to_string(client.second));
     }
   }
 }
