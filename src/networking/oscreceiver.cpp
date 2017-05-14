@@ -493,15 +493,15 @@ void ssr::OscReceiver::add_server_to_client_methods()
   this->_receiver.add_method("/poll", NULL, [this](lo_arg **argv, int, lo::Message
         message)
     {
-      lo::Address server = server_address(_handler);
+      lo::Address server(server_address(_handler));
       lo::Address from(message.source());
       (void) argv;
       VERBOSE3("OscReceiver: Received /poll from " << from.hostname() << ":" <<
           from.port() << ".");
-      if((server.hostname() != from.hostname()) &&
-          (server.port() != from.port()) &&
-          (from.port() != "50001") &&
-          (from.hostname() != "none")
+      if((server.hostname().compare(from.hostname()) != 0) &&
+          (server.port().compare(from.port()) != 0) &&
+          (from.port().compare("50001") != 0) &&
+          (from.hostname().compare("none") != 0)
         )
       {
         set_server_for_client(_handler, from);

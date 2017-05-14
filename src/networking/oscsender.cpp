@@ -134,18 +134,19 @@ void ssr::OscSender::poll_all_clients()
  */
 lo::Address ssr::OscSender::server_address()
 {
-  return this->_server_address;
+  lo::Address server(_server_address.hostname(), _server_address.port());
+  return server;
 }
 
 /**
  * Function to set OscSender's _server_address
  * @param server_address a lo::Address to be used as _server_address
  */
-void ssr::OscSender::set_server_address(lo::Address server_address)
+void ssr::OscSender::set_server_address(std::string hostname, std::string port)
 {
-  this->_server_address = new lo::Address(server_address);
-  VERBOSE2("OscSender: Setting up new server_address: "<<
-      server_address.hostname() << ":" << server_address.port() << ".");
+  _server_address = lo::Address(hostname, port);
+  VERBOSE2("OscSender: Setting up new server address: "<<
+      _server_address.hostname() << ":" << _server_address.port() << ".");
 }
 
 /**
@@ -156,13 +157,13 @@ void ssr::OscSender::set_server_address(lo::Address server_address)
  */
 void ssr::OscSender::send_to_server(std::string path, lo::Message message)
 {
-  if((_server_address.hostname() != "none") && (_server_address.port() !=
-        "50002"))
+  if((_server_address.hostname().compare("none") != 0) &&
+      (_server_address.port().compare("50002") != 0))
   {
     _server_address.send_from(_send_from, path, message.types(), message);
-  VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
-      "] to server " << _server_address.hostname() << ":" <<
-      _server_address.port() << ".");
+    VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
+        "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
