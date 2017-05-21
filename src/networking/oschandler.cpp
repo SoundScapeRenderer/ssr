@@ -188,7 +188,7 @@ std::string ssr::OscHandler::mode()
  * Return reference to OscHandler's lo::ServerThread
  * @return lo::ServerThread& reference to _server
  */
-const lo::ServerThread& ssr::OscHandler::server() const
+lo::ServerThread& ssr::OscHandler::server()
 {
   return _server;
 }
