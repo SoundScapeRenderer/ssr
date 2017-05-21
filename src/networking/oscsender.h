@@ -38,8 +38,6 @@ class OscSender : public Subscriber
     Publisher& _controller;
     // reference to handler
     OscHandler& _handler;
-    // ServerThread to send from specific port (client|server)
-    lo::ServerThread _send_from;
     bool _is_subscribed;
     // address of server (client)
     lo::Address _server_address;
@@ -62,9 +60,7 @@ class OscSender : public Subscriber
     void send_new_source_message_from_id(id_t id); //< creates a 'new source' OSC message
 
   public:
-    OscSender(Publisher& controller, OscHandler& handler, int port_out);
-    OscSender(Publisher& controller, OscHandler& handler, int port_out,
-        std::vector<lo::Address> client_addresses);
+    OscSender(Publisher& controller, OscHandler& handler);
     ~OscSender();
 
     void start();
