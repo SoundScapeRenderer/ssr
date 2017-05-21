@@ -17,12 +17,13 @@
  * @param clients a multimap holding hostname, port pairs (only used for
  * server)
  */
-ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
-    std::string mode, std::multimap<std::string, int> clients)
+ssr::OscHandler::OscHandler(Publisher& controller, int port, std::string mode,
+    std::multimap<std::string, int> clients)
   : _mode(mode)
   , _controller(controller)
-  , _osc_receiver(controller, *this, port_in)
-  , _osc_sender(controller, *this, port_out)
+  , _server(port)
+  , _osc_receiver(controller, *this)
+  , _osc_sender(controller, *this)
 {
   VERBOSE("OscHandler: Initialized.");
   if (mode == "server")
@@ -41,6 +42,7 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port_in, int port_out,
 ssr::OscHandler::~OscHandler()
 {
   stop();
+  //TODO: delete members of _client_addresses
   VERBOSE("OscHandler: Destructing.");
 }
 
@@ -60,8 +62,23 @@ void ssr::OscHandler::stop()
 void ssr::OscHandler::start()
 {
   VERBOSE("OscHandler: Starting");
+  // check if lo::ServerThread is valid
+  if (!_server.is_valid()) {
+    ERROR("OscHandler: ServerThread could not be started!");
+  }
+  _server.set_callbacks([this]()
+    {
+      VERBOSE("OscHandler: Started ServerThread.");
+    },
+    []()
+    {
+      VERBOSE2("OscHandler: ServerThread cleanup.");
+    }
+  );
+  VERBOSE("OscHandler: url = " << _server.url() << ".");
   _osc_receiver.start();
   _osc_sender.start();
+  _server.start();
 }
 
 /**
@@ -160,8 +177,18 @@ void ssr::OscReceiver::send_to_server(OscHandler& self, lo::Bundle bundle)
 
 /**
  * This function returns the OscHandler's mode
+ * @return std::string (either server or client)
  */
 std::string ssr::OscHandler::mode()
 {
   return _mode;
+}
+
+/**
+ * Return reference to OscHandler's lo::ServerThread
+ * @return lo::ServerThread& reference to _server
+ */
+const lo::ServerThread& ssr::OscHandler::server() const
+{
+  return _server;
 }
