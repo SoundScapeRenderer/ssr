@@ -35,13 +35,12 @@ class OscHandler;
 class OscReceiver
 {
   private:
-    lo::ServerThread _receiver;
     Publisher& _controller;
     ssr::OscHandler& _handler;
     void add_client_to_server_methods();
     void add_server_to_client_methods();
   public:
-    OscReceiver(Publisher& controller, OscHandler& handler, int port_in);
+    OscReceiver(Publisher& controller, OscHandler& handler);
     ~OscReceiver();
     void start();
     void stop();
