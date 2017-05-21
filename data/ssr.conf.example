@@ -97,17 +97,14 @@
 
 ############################ Networking configuration ##########################
 
-# networking mode (client|server|off)
+# networking mode: client, server (default: client)
 #NETWORK_MODE = server
 
 # networking port for sending (default: 50001)
-#NETWORK_PORT_SEND = 50001
-
-# networking port for receiving (default: 50002)
-#NETWORK_PORT_RECEIVE = 50002
+#OSC_PORT = 50001
 
 # networking clients, comma-separated by hostname:port
-#NETWORK_CLIENTS = "client:50002, client:50002"
+#NETWORK_CLIENTS = "client:50001, client:50001"
 
 ############################## Verbosity Level #################################
 
