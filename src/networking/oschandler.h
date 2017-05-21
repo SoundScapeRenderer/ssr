@@ -46,7 +46,7 @@ class OscHandler
     void start();
     void stop();
     std::string mode();
-    const lo::ServerThread& server() const;
+    lo::ServerThread& server();
     friend void OscReceiver::set_server_for_client(OscHandler& self,
         lo::Address server_address);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
