@@ -61,8 +61,7 @@ struct conf_struct
   std::string network_mode;             ///< network mode (client or server)
   ///< list of network clients and ports
   std::multimap<std::string, int> network_clients;
-  int network_port_send;                ///< network sending port
-  int network_port_receive;             ///< network receiving port
+  int osc_port;                         ///< osc communication port
   int end_of_message_character;         ///< ASCII
   bool auto_rotate_sources;             ///< Automatic orientation of sources
 
