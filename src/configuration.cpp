@@ -154,7 +154,7 @@ static int parse_network_clients(const char *input,
       clients.insert(make_pair(name, port));
     }
   }
-  VERBOSE2("Using the following network clients:");
+  VERBOSE("Read the following clients:");
   for (const auto& client: clients) {
     VERBOSE2(client.first << ":" << client.second);
   }
@@ -211,8 +211,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   conf.renderer_params.set("amplitude_reference_distance", 3.0f);  // meters
   // default network settings, also stated in data/ssr.conf.example
   conf.network_mode = "client";
-  conf.network_port_send = 50001;
-  conf.network_port_receive = 50002;
+  conf.osc_port = 50001;
 
   conf.auto_rotate_sources = true;
 
@@ -297,16 +296,14 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "      --no-auto-rotation\n"
 "                      Don't auto-rotate sound sources' orientation toward "
                                                                "the reference\n"
-"  -N  --network_mode=VALUE\n"
+"  -N  --network-mode=VALUE\n"
 "                      Which network mode to use: client or server "
                                                            "(default: client)\n"
-"  -C  --network_clients=VALUE\n"
+"  -C  --network-clients=VALUE\n"
 "                      List of network clients and their ports (e.g. "
-                                               "client1:50002, client2:50002)\n"
-"  -P  --network_port_send=VALUE\n"
-"                      Port to send OSC messages from (default: 50001)\n"
-"  -p  --network_port_receive=VALUE\n"
-"                      Port to receive OSC messages on (default: 50002)\n"
+                                               "client1:50001, client2:50001)\n"
+"  -p  --osc-port=VALUE\n"
+"                      Port to use for OSC communication (default: 50001)\n"
 
 #ifdef ENABLE_IP_INTERFACE
 "  -i, --ip-server[=PORT]\n"
@@ -392,8 +389,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     {"no-auto-rotation", no_argument,   nullptr,  0 },
     {"network-mode", required_argument, nullptr, 'N'},
     {"network-clients", required_argument, nullptr, 'C'},
-    {"network-port-send", required_argument, nullptr, 'P'},
-    {"network-port-receive", required_argument, nullptr, 'p'},
+    {"osc-port", required_argument, nullptr, 'p'},
     {"ip-server",    optional_argument, nullptr, 'i'},
     {"no-ip-server", no_argument,       nullptr, 'I'},
     {"end-of-message-character", required_argument, nullptr, 0},
@@ -412,7 +408,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   };
   // one colon: required argument; two colons: optional argument
   // if first character is '-', non-option arguments return 1 (see case 1 below)
-  const char *optstring = "-c:C:fgGhi::IN:n:o:P:p:r:s:t:TvV?";
+  const char *optstring = "-c:C:fgGhi::IN:n:o:p:r:s:t:TvV?";
 
   int opt;
   int longindex = 0;
@@ -569,16 +565,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
       case 'o':
         conf.renderer_params.set("ambisonics_order", atoi(optarg));
         break;
-      case 'P':
-        //TODO: check if in port range
-        if (!S2A(optarg, conf.network_port_send))
-        {
-          ERROR("Invalid port for network send specified!");
-        }
-        break;
       case 'p':
         //TODO: check if in port range
-        if (!S2A(optarg, conf.network_port_receive))
+        if (!S2A(optarg, conf.osc_port))
         {
           ERROR("Invalid port for network receive specified!");
         }
@@ -903,13 +892,9 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       parse_network_clients(value, conf.network_clients);
     }
-    else if (!strcmp(key, "NETWORK_PORT_SEND"))
+    else if (!strcmp(key, "OSC_PORT"))
     {
-      conf.network_port_send = atoi(value);
-    }
-    else if (!strcmp(key, "NETWORK_PORT_RECEIVE"))
-    {
-      conf.network_port_receive = atoi(value);
+      conf.osc_port = atoi(value);
     }
     else if (!strcmp(key, "NETWORK_INTERFACE"))
     {
