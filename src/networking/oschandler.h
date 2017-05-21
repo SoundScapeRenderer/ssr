@@ -35,16 +35,18 @@ class OscHandler
   private:
     std::string _mode; //< mode: client|server
     Publisher& _controller; //< reference to Publisher object
+    lo::ServerThread _server; //< ServerThread used for OSC communication
     OscReceiver _osc_receiver;
     OscSender _osc_sender;
 
   public:
-    OscHandler(Publisher& controller, int port_in, int port_out, std::string
-        mode, std::multimap<std::string, int> clients);
+    OscHandler(Publisher& controller, int port, std::string mode,
+        std::multimap<std::string, int> clients);
     ~OscHandler();
     void start();
     void stop();
     std::string mode();
+    const lo::ServerThread& server() const;
     friend void OscReceiver::set_server_for_client(OscHandler& self,
         lo::Address server_address);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
