@@ -17,12 +17,10 @@
  * @param port_out an integer describing the port number to be used
  * for outgoing traffic
  */
-ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler, int
-    port_out)
+ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler)
   : _controller(controller)
   , _handler(handler)
-  , _send_from(port_out)
-  , _server_address("none", "50002")
+  , _server_address("none", "50001")
 {
   VERBOSE("OscSender: Initialized.");
 }
@@ -41,21 +39,6 @@ void ssr::OscSender::start()
 {
   _controller.subscribe(this);
   _is_subscribed = true;
-  // check if lo::ServerThread is valid
-  if (!_send_from.is_valid()) {
-    ERROR("OscSender: ServerThread could not be started!");
-  }
-  _send_from.set_callbacks([this]()
-    {
-      VERBOSE("OscSender: Started ServerThread for sending messages.");
-    },
-    []()
-    {
-      VERBOSE2("OscSender: ServerThread cleanup.");
-    }
-  );
-  VERBOSE("OscSender: url = " << _send_from.url() << ".");
-  _send_from.start();
   if (is_server())
   {
     _poll_all_clients = true;
@@ -158,9 +141,9 @@ void ssr::OscSender::set_server_address(std::string hostname, std::string port)
 void ssr::OscSender::send_to_server(std::string path, lo::Message message)
 {
   if((_server_address.hostname().compare("none") != 0) &&
-      (_server_address.port().compare("50002") != 0))
+      (_server_address.port().compare("50001") != 0))
   {
-    _server_address.send_from(_send_from, path, message.types(), message);
+    _server_address.send_from(_handler.server(), path, message.types(), message);
     VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
         "] to server " << _server_address.hostname() << ":" <<
         _server_address.port() << ".");
@@ -173,7 +156,7 @@ void ssr::OscSender::send_to_server(std::string path, lo::Message message)
  */
 void ssr::OscSender::send_to_server(lo::Bundle bundle)
 {
-  _server_address.send_from(_send_from, bundle);
+  _server_address.send_from(_handler.server(), bundle);
   VERBOSE3("OscSender: Sending bundle (" << bundle.length() <<
       " messages) to server " << _server_address.hostname() << ":" <<
       _server_address.port() << ".");
@@ -194,7 +177,7 @@ void ssr::OscSender::send_to_client(lo::Address address, std::string path,
     if(client->hostname() == address.hostname() && client->port() ==
         address.port())
     {
-      client->send_from(_send_from, path, message.types(), message);
+      client->send_from(_handler.server(), path, message.types(), message);
       VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
           "] to client " << address.hostname() << ":" << address.port() <<
           ".");
@@ -215,7 +198,7 @@ void ssr::OscSender::send_to_client(lo::Address address, lo::Bundle bundle)
     if(client->hostname() == address.hostname() && client->port() ==
         address.port())
     {
-      client->send_from(_send_from, bundle);
+      client->send_from(_handler.server(), bundle);
       VERBOSE3("OscSender: Sending bundle to client " << address.hostname() <<
           ":" << address.port() << "."); }
   }
@@ -234,7 +217,7 @@ void ssr::OscSender::send_to_all_clients(std::string path, lo::Message message)
     VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
         "] to client " << client_address->hostname() << ":" <<
         client_address->port() << ".");
-    client_address->send_from(_send_from, path, message.types(), message);
+    client_address->send_from(_handler.server(), path, message.types(), message);
   }
 }
 
@@ -246,7 +229,7 @@ void ssr::OscSender::send_to_all_clients(lo::Bundle bundle)
 {
   for (const auto& client_address: _client_addresses)
   {
-    client_address->send_from(_send_from, bundle);
+    client_address->send_from(_handler.server(), bundle);
     VERBOSE3("OscSender: Sending bundle to all clients.");
   }
 }
