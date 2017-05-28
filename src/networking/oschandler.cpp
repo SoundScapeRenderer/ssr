@@ -176,6 +176,29 @@ void ssr::OscReceiver::send_to_server(OscHandler& self, lo::Bundle bundle)
 }
 
 /**
+ * OscHandler's friend function to add a client to the list of OscSender's
+ * _client_addresses.
+ * @param self reference to OscHandler holding OscSender
+ * @param client lo::Address representing client to be added
+ */
+void ssr::OscReceiver::add_client(OscHandler& self, lo::Address client)
+{
+  self._osc_sender.add_client(client.hostname(), client.port());
+}
+
+/**
+ * OscHandler's friend function to remove a client from the list of OscSender's
+ * _client_addresses.
+ * @param self reference to OscHandler holding OscSender
+ * @param client lo::Address representing client to be removed
+ */
+void ssr::OscReceiver::remove_client(OscHandler& self, lo::Address client)
+{
+  self._osc_sender.remove_client(client.hostname(), client.port());
+}
+
+
+/**
  * This function returns the OscHandler's mode
  * @return std::string (either server or client)
  */
@@ -191,4 +214,13 @@ std::string ssr::OscHandler::mode()
 lo::ServerThread& ssr::OscHandler::server()
 {
   return _server;
+}
+
+/**
+ * Return reference to current _message_level
+ * @return const unsigned int&
+ */
+const unsigned int& ssr::OscHandler::message_level()
+{
+  return _message_level;
 }
