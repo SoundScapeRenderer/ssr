@@ -182,6 +182,8 @@ if ENABLE_OSC_INTERFACE
 AM_CPPFLAGS += -I$(srcdir)/networking
 
 SSRSOURCES += \
+	networking/oscclient.cpp \
+	networking/oscclient.h \
 	networking/oschandler.cpp \
 	networking/oschandler.h \
 	networking/oscreceiver.cpp \
