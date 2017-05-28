@@ -33,8 +33,7 @@ ssr::OscReceiver::~OscReceiver()
 }
 
 /**
- * Starts the OscReceiver, by adding client|server callback functions and
- * starting the lo::ServerThread used for listening to OSC messages.
+ * Starts the OscReceiver, by adding client/ server callback functions.
  */
 void ssr::OscReceiver::start()
 {
@@ -53,8 +52,7 @@ void ssr::OscReceiver::start()
 }
 
 /**
- * Stops the OscReceiver, by stopping the lo::ServerThread, used for listening
- * for OSC messages
+ * Stops the OscReceiver
  */
 void ssr::OscReceiver::stop()
 {
@@ -68,7 +66,32 @@ void ssr::OscReceiver::stop()
  */
 void ssr::OscReceiver::add_client_to_server_methods()
 {
+  // add local  reference to OscHandler's lo::ServerThread for add_method()
   lo::ServerThread& server = _handler.server();
+
+  // adding new subscribing client: "/subscribe, T"
+  server.add_method("/subscribe", NULL, [this](lo_arg **argv, int, lo::Message
+        message)
+    {
+      lo::Address client(message.source());
+      (void) argv;
+      VERBOSE2("Subscribe called with " << message.types() << ".");
+      if(message.types().compare("T") == 0)
+      {
+        add_client(_handler, client);
+        VERBOSE("Client '" << client.hostname() << ":" << client.port() <<
+            "' subscribed.");
+      }
+      else if(message.types().compare("F") == 0)
+      {
+        remove_client(_handler, client);
+        VERBOSE("Client '" << client.hostname() << ":" << client.port() <<
+            "' unsubscribed.");
+      }
+    }
+  );
+  VERBOSE("OscReceiver: Added method for /subscribe {T|F}.");
+
   // update on new source: "/update/source/new, i, id"
   server.add_method("/update/source/new", "i", [](lo_arg **argv, int,
         lo::Message message)
@@ -481,8 +504,6 @@ void ssr::OscReceiver::add_server_to_client_methods()
       lo::Address server(server_address(_handler));
       lo::Address from(message.source());
       (void) argv;
-      VERBOSE3("OscReceiver: Received /poll from " << from.hostname() << ":" <<
-          from.port() << ".");
       if((server.hostname().compare(from.hostname()) != 0) &&
           (server.port().compare(from.port()) != 0) &&
           (from.port().compare("50001") != 0) &&
@@ -490,9 +511,9 @@ void ssr::OscReceiver::add_server_to_client_methods()
         )
       {
         set_server_for_client(_handler, from);
-        lo::Message reply;
-        reply.add_true();
-        this->send_to_server(_handler, "/update/subscribe", reply);
+        from.send_from(_handler.server(), "/subscribe", "T");
+        VERBOSE2("OscReceiver: Got /poll from server " << from.hostname() <<
+            ":" << from.port() << ". Subscribing...");
       }
     }
   );
@@ -625,8 +646,9 @@ void ssr::OscReceiver::add_server_to_client_methods()
   server.add_method("/source/new", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
-      std::string name(apf::str::A2S(argv[0]->s));
-      std::string file_name_or_port_number(apf::str::A2S(argv[2]->s));
+      VERBOSE3("OscReceiver: [/source/new, " << message.types() << "].");
+      std::string name(&(argv[0]->s));
+      std::string file_name_or_port_number(&(argv[2]->s));
       std::string types(message.types());
       float x(argv[3]->f);
       float y(argv[4]->f);
@@ -703,7 +725,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisTTT") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = true;
         orientation_fixed = true;
         muted = true;
@@ -712,7 +734,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisTTF") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = true;
         orientation_fixed = true;
         muted = false;
@@ -721,7 +743,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisTFF") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = true;
         orientation_fixed = false;
         muted = false;
@@ -730,7 +752,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisFFF") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = false;
         orientation_fixed = false;
         muted = false;
@@ -739,7 +761,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisTFT") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = true;
         orientation_fixed = false;
         muted = true;
@@ -748,7 +770,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisFTF") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = false;
         orientation_fixed = true;
         muted = false;
@@ -757,7 +779,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisFTT") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = false;
         orientation_fixed = true;
         muted = true;
@@ -766,7 +788,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       if (types.compare("sssffffisFFT") == 0)
       {
         channel = argv[7]->i;
-        properties_file = argv[8]->s;
+        properties_file = &(argv[8]->s);
         position_fixed = false;
         orientation_fixed = false;
         muted = true;
@@ -788,8 +810,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
             "\norientation_fixed: " << orientation_fixed <<
             "\nvolume (linear): " << volume <<
             "\nmuted: " << muted <<
-            "\nproperties_file: " << properties_file <<
-            "\n");
+            "\nproperties_file: " << properties_file);
       }
     }
   );
@@ -858,8 +879,8 @@ void ssr::OscReceiver::add_server_to_client_methods()
   // save scene to file: "/scene/save, s, file"
   server.add_method("/scene/save", "s" , [this](lo_arg **argv, int)
     {
-      _controller.save_scene_as_XML(apf::str::A2S(argv[0]->s));
-      VERBOSE2("saving theme as: " << apf::str::A2S(argv[0]->s));
+      _controller.save_scene_as_XML(std::string(&(argv[0]->s)));
+      VERBOSE2("saving scene as: " << std::string(&(argv[0]->s)));
     }
   );
   VERBOSE("OscReceiver: Added method for /scene/save.");
@@ -867,8 +888,8 @@ void ssr::OscReceiver::add_server_to_client_methods()
   // load scene from file: "/scene/load, s, file"
   server.add_method("/scene/load", "s" , [this](lo_arg **argv, int)
     {
-      _controller.load_scene(apf::str::A2S(argv[0]->s));
-      VERBOSE2("loading scene: " << apf::str::A2S(argv[0]->s));
+      _controller.load_scene(std::string(&(argv[0]->s)));
+      VERBOSE2("loading scene: " << std::string(&(argv[0]->s)));
     }
   );
   VERBOSE("OscReceiver: Added method for /scene/load.");
@@ -944,7 +965,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /transport/rewind.");
 
   // seek transport state: "/transport/seek, s, time"
-  server.add_method("transport/seek", "s" , [this](lo_arg **argv, int)
+  server.add_method("/transport/seek", "s" , [this](lo_arg **argv, int)
     {
       float time;
       if(apf::str::string2time(apf::str::A2S(argv[0]->s), time))
