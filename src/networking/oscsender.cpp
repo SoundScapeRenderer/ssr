@@ -58,6 +58,7 @@ void ssr::OscSender::stop()
   _is_subscribed = false;
   if (is_server())
   {
+    remove_all_client_addresses();
     _poll_all_clients = false;
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
@@ -92,6 +93,39 @@ bool ssr::OscSender::is_server()
   else
   {
     return false;
+  }
+}
+
+/**
+ * Returns true, if the _server_address is the default (setup at initialization)
+ * @return true, if _server_address is the default, false otherwise.
+ */
+bool ssr::OscSender::server_is_default()
+{
+  if((_server_address.hostname().compare("none") == 0) &&
+      (_server_address.port().compare("50001") == 0))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+/**
+ * Returns true, if the _server_address is the default (setup at initialization)
+ * @return true, if _server_address is the default, false otherwise.
+ */
+const std::string ssr::OscSender::bool_to_message_type(const bool& message)
+{
+  if(message)
+  {
+    return _message_type_true;
+  }
+  else
+  {
+    return _message_type_false;
   }
 }
 
@@ -371,6 +405,41 @@ void ssr::OscSender::add_client(std::string hostname, std::string port)
   VERBOSE2("OscSender: Added client " << hostname << ":" << port << ".");
 }
 
+/**
+ * Removes a client from the vector of clients
+ * @param hostname std::string representing the hostname of a client
+ * @param port std::string representing the port of a client
+ */
+void ssr::OscSender::remove_client(std::string hostname, std::string port)
+{
+  for (auto client = _client_addresses.begin(); client !=
+      _client_addresses.end(); )
+  {
+    if(!((*client)->hostname().compare(hostname)) &&
+        !((*client)->port().compare(port)))
+    {
+      delete *client;
+      client = _client_addresses.erase(client);
+      VERBOSE2("OscSender: Removed client " << hostname << ":" << port << ".");
+    }
+    else
+    {
+      ++client;
+    }
+  }
+}
+
+/**
+ * Removes all clients from the vector of clients.
+ */
+void ssr::OscSender::remove_all_client_addresses()
+{
+  for (auto client: _client_addresses ) delete client;
+  _client_addresses.clear();
+  VERBOSE2("OscSender: Removed all clients.");
+}
+
+
 // Subscriber interface (differentiating between client and server)
 
 
@@ -404,10 +473,12 @@ void ssr::OscSender::new_source(id_t id)
   }
   else if(is_client())
   {
-    lo::Message message;
-    int32_t message_id = id;
-    message.add_int32(message_id);
-    this->send_to_server("/update/source/new", message);
+    int32_t message_id = static_cast<int32_t>(id);
+    _server_address.send_from(_handler.server(), "/update/source/new", "i",
+        message_id);
+    VERBOSE3("OscSender: Sent [/update/source/new, i, " << message_id <<
+        "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
@@ -420,17 +491,26 @@ void ssr::OscSender::new_source(id_t id)
  */
 void ssr::OscSender::delete_source(id_t id)
 {
-  lo::Message message;
-  int32_t message_id = id;
-  message.add_int32(message_id);
+  int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
-    this->send_to_all_clients("/source/delete", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/source/delete", "i",
+          message_id);
+      VERBOSE3("OscSender: Sent [/source/delete, i," << message_id <<
+          "] to client " << client_address->hostname() << ":" <<
+          client_address->port() << ".");
+    }
   }
-  else if (is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/source/delete", message);
     _source_levels.erase(id);
+    _server_address.send_from(_handler.server(), "/update/source/delete",
+        "i", message_id);
+    VERBOSE3("OscSender: Sent [/update/source/delete, i, " << message_id <<
+        "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
@@ -442,13 +522,23 @@ void ssr::OscSender::delete_source(id_t id)
  */
 void ssr::OscSender::delete_all_sources()
 {
-  lo::Message message;
-  message.add_int32(0);
   if(is_server())
-    this->send_to_all_clients("/source/delete", message);
-  else if(is_client())
-    this->send_to_server("/update/source/delete", message);
-
+  {
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/source/delete", "i", 0);
+      VERBOSE3("OscSender: Sent [/source/delete, i, 0] to client " <<
+          client_address->hostname() << ":" << client_address->port() <<
+          ".");
+    }
+  }
+  else if(is_client() && !server_is_default())
+  {
+    _server_address.send_from(_handler.server(), "/update/source/delete",
+        "i", 0);
+    VERBOSE3("OscSender: Sent [/update/source/delete, i, 0] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
+  }
   _source_levels.clear();
 }
 
@@ -466,8 +556,7 @@ void ssr::OscSender::delete_all_sources()
  */
 bool ssr::OscSender::set_source_position(id_t id, const Position& position)
 {
-  lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
     if(is_new_source(id))
@@ -479,18 +568,24 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_float(position.x);
-      message.add_float(position.y);
-      this->send_to_all_clients("/source/position", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/position", "iff",
+            message_id, position.x, position.y);
+        VERBOSE3("OscSender: Sent [/source/position, iff, " << message_id <<
+            position.x << ", " <<  position.y << "] to client " <<
+            client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if (is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_float(position.x);
-    message.add_float(position.y);
-    this->send_to_server("/update/source/position", message);
+    _server_address.send_from(_handler.server(), "/update/source/position",
+        "iff", message_id, position.x, position.y);
+    VERBOSE3("OscSender: Sent [/update/source/position, iff, " << message_id <<
+        ", " << position.x << ", " << position.y << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -510,8 +605,8 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
  */
 bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
 {
-  lo::Message message;
-  int32_t message_id = id;
+//  lo::Message message;
+  int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
     if(is_new_source(id))
@@ -522,16 +617,24 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_bool(fixed);
-      this->send_to_all_clients("/source/position_fixed", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/position_fixed",
+            "i"+bool_to_message_type(fixed), message_id);
+        VERBOSE3("OscSender: Sent [/source/position_fixed, i" <<
+            bool_to_message_type(fixed) << ", " << message_id << "] to client "
+            << client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_bool(fixed);
-    this->send_to_server("/update/source/position_fixed", message);
+    _server_address.send_from(_handler.server(), "/update/source/position_fixed",
+        "i"+bool_to_message_type(fixed), message_id);
+    VERBOSE3("OscSender: Sent [/update/source/position_fixed, i"
+        +bool_to_message_type(fixed) << ", " << message_id << "] to server "
+        << _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -550,8 +653,8 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
 bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
     orientation)
 {
-  lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
+  float message_orientation = orientation.azimuth;
   if(is_server())
   {
     if(is_new_source(id))
@@ -562,16 +665,25 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_float(orientation.azimuth);
-      this->send_to_all_clients("/source/orientation", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/orientation",
+            "if", message_id, message_orientation);
+        VERBOSE3("OscSender: Sent [/source/orientation, if, " <<
+             message_id << ", " << message_orientation << "] to client "
+            << client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_float(orientation.azimuth);
-    this->send_to_server("/update/source/orientation", message);
+    _server_address.send_from(_handler.server(), "/update/source/orientation",
+        "if", message_id, message_orientation);
+    VERBOSE3("OscSender: Sent [/update/source/volume, if, " <<
+        apf::str::A2S(message_id) << ", " <<
+        apf::str::A2S(message_orientation) << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -590,8 +702,7 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
  */
 bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
 {
-  lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
     if(is_new_source(id))
@@ -602,16 +713,25 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_float(gain);
-      this->send_to_all_clients("/source/volume", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/volume", "if",
+            message_id, gain);
+        VERBOSE3("OscSender: Sent [/source/volume, if, " <<
+             message_id << ", " << gain << "] to client "
+            << client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_float(gain);
-    this->send_to_server("/update/source/volume", message);
+    _server_address.send_from(_handler.server(), "/update/source/volume",
+        "if", message_id, gain);
+    VERBOSE3("OscSender: Sent [/update/source/volume, if, " <<
+        apf::str::A2S(message_id) << ", " <<  apf::str::A2S(gain) <<
+        "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
   return true;
 }
@@ -630,8 +750,7 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
  */
 bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
 {
-  lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
     if(is_new_source(id))
@@ -642,16 +761,24 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_bool(mute);
-      this->send_to_all_clients("/source/mute", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/mute",
+            "i"+bool_to_message_type(mute), message_id);
+        VERBOSE3("OscSender: Sent [/source/mute, i" <<
+            bool_to_message_type(mute) << ", " << message_id << "] to client "
+            << client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_bool(mute);
-    this->send_to_server("/update/source/mute", message);
+    _server_address.send_from(_handler.server(), "/update/source/mute",
+        "i"+bool_to_message_type(mute), message_id);
+    VERBOSE3("OscSender: Sent [/update/source/mute, i" << bool_to_message_type(mute) <<
+        ", " <<  apf::str::A2S(message_id) << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -670,8 +797,8 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
  */
 bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
 {
-  lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
+  const char * message_name = name.c_str();
   if(is_server())
   {
     if(is_new_source(id))
@@ -682,16 +809,23 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_string(name);
-      this->send_to_all_clients("/source/name", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/name", "is",
+            message_id, message_name);
+        VERBOSE3("OscSender: Sent [/source/name, is, " << message_id << ", " <<
+            message_name << "] to client " << client_address->hostname() << ":"
+            << client_address->port() << ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_string(name);
-    this->send_to_server("/update/source/name", message);
+    _server_address.send_from(_handler.server(), "/update/source/name", "is",
+        message_id, message_name);
+    VERBOSE3("OscSender: Sent [/update/source/name, is, " << message_id << ", "
+        << message_name << "] to server " << _server_address.hostname() << ":"
+        << _server_address.port() << ".");
   }
   return true;
 }
@@ -712,7 +846,8 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
     name)
 {
   lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
+  const char * file_name = name.c_str();
   if(is_server())
   {
     if(is_new_source(id))
@@ -723,16 +858,24 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_string(name);
-      this->send_to_all_clients("/source/properties_file", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/properties_file",
+            "is", message_id, file_name);
+        VERBOSE3("OscSender: Sent [/source/properties_file, is, " << message_id
+            << ", " << file_name << "] to client " <<
+            client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_string(name);
-    this->send_to_server("/update/source/properties_file", message);
+    _server_address.send_from(_handler.server(),
+        "/update/source/properties_file", "is", message_id, file_name);
+    VERBOSE3("OscSender: Sent [/update/source/properties_file, is, " <<
+        message_id << ", " << file_name << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -747,15 +890,24 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
  */
 void ssr::OscSender::set_decay_exponent(float exponent)
 {
-  lo::Message message;
-  message.add_float(exponent);
   if(is_server())
   {
-    this->send_to_all_clients("/scene/decay_exponent", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/scene/decay_exponent",
+          "f", exponent);
+      VERBOSE3("OscSender: Sent [/scene/decay_exponent, f, " << exponent <<
+          "] to client " << client_address->hostname() << ":" <<
+          client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/scene/decay_exponent", message);
+    _server_address.send_from(_handler.server(),
+        "/update/scene/decay_exponent", "f", exponent);
+    VERBOSE3("OscSender: Sent [/update/scene/decay_exponent, f, " << exponent
+        << "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
@@ -771,17 +923,24 @@ void ssr::OscSender::set_decay_exponent(float exponent)
  */
 void ssr::OscSender::set_amplitude_reference_distance(float distance)
 {
-  lo::Message message;
-  message.add_float(distance);
   if(is_server())
   {
-    this->send_to_all_clients("/scene/amplitude_reference_distance",
-        message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(),
+          "/scene/amplitude_reference_distance", "f", distance);
+      VERBOSE3("OscSender: Sent [/scene/decay_exponent, f, " << distance <<
+          "] to client " << client_address->hostname() << ":" <<
+          client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/scene/amplitude_reference_distance",
-        message);
+    _server_address.send_from(_handler.server(),
+        "/update/scene/amplitude_reference_distance", "f", distance);
+    VERBOSE3("OscSender: Sent [/update/scene/amplitude_reference_distance, f, "
+        << distance << "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
@@ -799,31 +958,36 @@ void ssr::OscSender::set_amplitude_reference_distance(float distance)
  */
 bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
 {
-  lo::Message message;
-  int32_t message_id = id;
-  std::string tmp_model;
-  tmp_model = apf::str::A2S(model);
-  if (tmp_model == "") return false;
+  int32_t message_id = static_cast<int32_t>(id);
+  std::string message_model = apf::str::A2S(model);
+  if (message_model == "") return false;
   if(is_server())
   {
     if(is_new_source(id))
     {
-      _new_sources.at(id).set<std::string>("model", tmp_model);
+      _new_sources.at(id).set<std::string>("model", message_model);
       if(is_complete_source(id))
         this->send_new_source_message_from_id(id);
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_string(tmp_model);
-      this->send_to_all_clients("/source/model", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/model", "is",
+            message_id, message_model.c_str());
+        VERBOSE3("OscSender: Sent [/source/model, is, " << message_id << ", "
+            << message_model << "] to client " << client_address->hostname() <<
+            ":" << client_address->port() << ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_string(tmp_model);
-    this->send_to_server("/update/source/model", message);
+    _server_address.send_from(_handler.server(), "/update/source/model", "is",
+        message_id, message_model.c_str());
+    VERBOSE3("OscSender: Sent [/update/source/model, is, " << message_id <<
+        ", " << message_model << "] to server " << _server_address.hostname() <<
+        ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -845,8 +1009,7 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
 bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
     port_name)
 {
-  lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
     if(is_new_source(id))
@@ -857,16 +1020,23 @@ bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_string(port_name);
-      this->send_to_all_clients("/source/port_name", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/port_name", "is",
+            message_id, port_name.c_str());
+        VERBOSE3("OscSender: Sent [/source/port_name, is, " << message_id <<
+            ", " << port_name << "] to client " << client_address->hostname()
+            << ":" << client_address->port() << ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_string(port_name);
-    this->send_to_server("/update/source/port_name", message);
+    _server_address.send_from(_handler.server(), "/update/source/port_name",
+        "is", message_id, port_name.c_str());
+    VERBOSE3("OscSender: Sent [/update/source/port_name, is, " << message_id <<
+        ", " << port_name << "] to server " << _server_address.hostname() <<
+        ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -890,8 +1060,7 @@ bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
 bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
     file_name)
 {
-  lo::Message message;
-  int32_t message_id = id;
+  int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
     if(is_new_source(id))
@@ -903,16 +1072,26 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_string(file_name);
-      this->send_to_all_clients("/source/file_name_or_port_number", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(),
+            "/source/file_name_or_port_number", "is", message_id,
+            file_name.c_str());
+        VERBOSE3("OscSender: Sent [/source/file_name_or_port_number, is, " <<
+            message_id << ", " << file_name << "] to client " <<
+            client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_string(file_name);
-    this->send_to_server("/update/source/file_name_or_port_number", message);
+    _server_address.send_from(_handler.server(),
+        "/update/source/file_name_or_port_number", "is", message_id,
+        file_name.c_str());
+    VERBOSE3("OscSender: Sent [/update/source/file_name_or_port_number, is, "
+        << message_id << ", " << file_name << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -933,9 +1112,8 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
  */
 bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
 {
-  lo::Message message;
-  int32_t message_id = id;
-  int32_t message_file_channel = file_channel;
+  int32_t message_id = static_cast<int32_t>(id);
+  int32_t message_file_channel = static_cast<int32_t>(file_channel);
   if(is_server())
   {
     if(is_new_source(id))
@@ -946,16 +1124,24 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
     }
     else
     {
-      message.add_int32(message_id);
-      message.add_int32(message_file_channel);
-      this->send_to_all_clients("/source/channel", message);
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/file_channel",
+            "ii", message_id, message_file_channel);
+        VERBOSE3("OscSender: Sent [/source/file_channel, ii, " << message_id <<
+            ", " << message_file_channel << "] to client " <<
+            client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
     }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_int32(message_file_channel);
-    this->send_to_server("/update/source/channel", message);
+    _server_address.send_from(_handler.server(),
+        "/update/source/file_channel", "ii", message_id, message_file_channel);
+    VERBOSE3("OscSender: Sent [/update/source/file_channel, ii, " << message_id
+        << ", " << message_file_channel << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -974,14 +1160,15 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
  */
 bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
 {
-  lo::Message message;
-  int32_t message_id = id;
-  int32_t message_length = length;
-  if(is_client())
+  int32_t message_id = static_cast<int32_t>(id);
+  int32_t message_length = static_cast<int32_t>(length);
+  if(is_client() && !server_is_default())
   {
-    message.add_int32(message_id);
-    message.add_int32(message_length);
-    this->send_to_server("/update/source/length", message);
+    _server_address.send_from(_handler.server(), "/update/source/length", "ii",
+        message_id, message_length);
+    VERBOSE3("OscSender: Sent [/update/source/length, ii, " << message_id
+        << ", " << message_length << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
 }
@@ -998,16 +1185,24 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
  */
 void ssr::OscSender::set_reference_position(const Position& position)
 {
-  lo::Message message;
-  message.add_float(position.x);
-  message.add_float(position.y);
   if(is_server())
   {
-    this->send_to_all_clients("/reference/position", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/reference/position", "ff",
+          position.x, position.y);
+      VERBOSE3("OscSender: Sent [/reference/position, ff, " << position.x <<
+          ", " << position.y << "] to client " << client_address->hostname() <<
+          ":" << client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/reference/position", message);
+    _server_address.send_from(_handler.server(), "/update/reference/position",
+        "ff", position.x, position.y);
+    VERBOSE3("OscSender: Sent [/update/reference/position, ff, " << position.x
+        << ", " << position.y << "] to server " << _server_address.hostname()
+        << ":" << _server_address.port() << ".");
   }
 }
 
@@ -1023,15 +1218,24 @@ void ssr::OscSender::set_reference_position(const Position& position)
  */
 void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
 {
-  lo::Message message;
-  message.add_float(orientation.azimuth);
   if(is_server())
   {
-    this->send_to_all_clients("/reference/orientation", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/reference/orientation",
+          "f", orientation.azimuth);
+      VERBOSE3("OscSender: Sent [/reference/orientation, f, " <<
+          orientation.azimuth << "] to client " << client_address->hostname()
+          << ":" << client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/reference/orientation", message);
+    _server_address.send_from(_handler.server(),
+        "/update/reference/orientation", "f", orientation.azimuth);
+    VERBOSE3("OscSender: Sent [/update/reference/orientation, f, " <<
+        orientation.azimuth << "] to server " << _server_address.hostname() <<
+        ":" << _server_address.port() << ".");
   }
 }
 
@@ -1048,16 +1252,24 @@ void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
  */
 void ssr::OscSender::set_reference_offset_position(const Position& position)
 {
-  lo::Message message;
-  message.add_float(position.x);
-  message.add_float(position.y);
   if(is_server())
   {
-    this->send_to_all_clients("/reference_offset/position", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(),
+          "/reference_offset/position", "ff", position.x, position.y);
+      VERBOSE3("OscSender: Sent [/reference_offset/position, ff, " <<
+          position.x << ", " << position.y << "] to client " <<
+          client_address->hostname() << ":" << client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/reference_offset/position", message);
+    _server_address.send_from(_handler.server(),
+        "/update/reference_offset/position", "ff", position.x, position.y);
+    VERBOSE3("OscSender: Sent [/update/reference_offset/position, ff, " <<
+        position.x << ", " << position.y << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
 }
 
@@ -1076,15 +1288,24 @@ void ssr::OscSender::set_reference_offset_position(const Position& position)
 void ssr::OscSender::set_reference_offset_orientation(const Orientation&
     orientation)
 {
-  lo::Message message;
-  message.add_float(orientation.azimuth);
   if(is_server())
   {
-    this->send_to_all_clients("/reference_offset/orientation", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(),
+          "/reference_offset/orientation", "f", orientation.azimuth);
+      VERBOSE3("OscSender: Sent [/reference_offset/orientation, f, " <<
+          orientation.azimuth << "] to client " << client_address->hostname()
+          << ":" << client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/reference_offset/orientation", message);
+    _server_address.send_from(_handler.server(),
+        "/update/reference_offset/orientation", "f", orientation.azimuth);
+    VERBOSE3("OscSender: Sent [/update/reference_offset/orientation, f, " <<
+        orientation.azimuth << "] to server " << _server_address.hostname() <<
+        ":" << _server_address.port() << ".");
   }
 }
 
@@ -1100,15 +1321,25 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
  */
 void ssr::OscSender::set_master_volume(float volume)
 {
-  lo::Message message;
-  message.add_float(apf::math::linear2dB(volume));
+  float message_volume = apf::math::linear2dB(volume);
   if(is_server())
   {
-    this->send_to_all_clients("/scene/volume", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/scene/volume", "f",
+          message_volume);
+      VERBOSE3("OscSender: Sent [/scene/volume, f, " << message_volume <<
+          "] to client " << client_address->hostname() << ":" <<
+          client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/scene/volume", message);
+    _server_address.send_from(_handler.server(), "/update/scene/volume", "f",
+        message_volume);
+    VERBOSE3("OscSender: Sent [/update/scene/volume, f, " << message_volume <<
+        "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
@@ -1141,20 +1372,29 @@ void ssr::OscSender::set_source_output_levels(id_t id, float* first , float*
  */
 void ssr::OscSender::set_processing_state(bool state)
 {
-  lo::Message message;
-  message.add_bool(state);
   if(is_server())
   {
-    this->send_to_all_clients("/processing/state", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/processing/state",
+          bool_to_message_type(state));
+      VERBOSE3("OscSender: Sent [/processing/state, " <<
+          bool_to_message_type(state) << "] to client " <<
+          client_address->hostname() << ":" << client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/processing/state", message);
+    _server_address.send_from(_handler.server(), "/update/processing/state",
+        bool_to_message_type(state));
+    VERBOSE3("OscSender: Sent [/update/processing/state, " <<
+        bool_to_message_type(state) << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
 }
 
 /**
- * Subscriber function called, when Publisher set the processing state.
+ * Subscriber function called, when Publisher sets the transport state.
  * On server: Sends out OSC message to all clients to update their processing
  * state.
  * On client: Sends out OSC message to server about the update of its
@@ -1167,28 +1407,42 @@ void ssr::OscSender::set_processing_state(bool state)
 void ssr::OscSender::set_transport_state( const std::pair<bool,
     jack_nframes_t>& state)
 {
-  lo::Message message_state;
-  lo::Message message_time;
-  message_state.add_bool(state.first);
-  message_time.add_string(std::to_string(state.second));
+  int32_t message_nframes = static_cast<int32_t>(state.second);
   if(is_server())
   {
-    lo::Bundle bundle({
-        {"/transport/state", message_state},
-        {"/transport/seek", message_time}
-    });
-
-// TODO: debug this!
-//    this->send_to_all_clients(bundle);
+    if(_handler.message_level() >= 2)
+    {
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/transport/state",
+            bool_to_message_type(state.first));
+        VERBOSE3("OscSender: Sent [/transport/state, " <<
+            bool_to_message_type(state.first) << "] to client " <<
+            client_address->hostname() << ":" << client_address->port() <<
+            ".");
+        client_address->send_from(_handler.server(), "/transport/seek", "i",
+            message_nframes);
+        VERBOSE3("OscSender: Sent [/transport/seek, i, " << message_nframes <<
+            "] to client " << client_address->hostname() << ":" <<
+            client_address->port() << ".");
+      }
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    lo::Bundle bundle({
-        {"/update/transport/state", message_state},
-        {"/update/transport/seek", message_time}
-    });
-// TODO: debug this!
-//    this->send_to_server(bundle);
+    if(_handler.message_level() >= 2)
+    {
+      _server_address.send_from(_handler.server(), "/update/transport/state",
+          bool_to_message_type(state.first));
+      VERBOSE3("OscSender: Sent [/update/transport/state, " <<
+          bool_to_message_type(state.first) << "] to server " <<
+          _server_address.hostname() << ":" << _server_address.port() << ".");
+      _server_address.send_from(_handler.server(), "/update/transport/seek",
+          "i", message_nframes);
+      VERBOSE3("OscSender: Sent [/update/transport/state, i, " <<
+          message_nframes << "] to server " << _server_address.hostname() <<
+          ":" << _server_address.port() << ".");
+    }
   }
 }
 
@@ -1206,15 +1460,26 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
  */
 void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
 {
-  lo::Message message;
-  message.add_bool(auto_rotate_sources);
   if(is_server())
   {
-    this->send_to_all_clients("/scene/auto_rotate_sources", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(),
+          "/scene/auto_rotate_sources",
+          bool_to_message_type(auto_rotate_sources));
+      VERBOSE3("OscSender: Sent [/scene/auto_rotate_sources, " <<
+          bool_to_message_type(auto_rotate_sources) << "] to client " <<
+          client_address->hostname() << ":" << client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/scene/auto_rotate_sources", message);
+    _server_address.send_from(_handler.server(),
+        "/update/scene/auto_rotate_sources",
+        bool_to_message_type(auto_rotate_sources));
+    VERBOSE3("OscSender: Sent [/update/scene/auto_rotate_sources, " <<
+        bool_to_message_type(auto_rotate_sources) << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
 }
 
@@ -1228,11 +1493,17 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
  */
 void ssr::OscSender::set_cpu_load(float load)
 {
-  lo::Message message;
-  message.add_float(load);
-  if(is_client())
+  //TODO: implement pooling of cpu_load updates
+  if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/cpu_load", message);
+    if(_handler.message_level() >= 2)
+    {
+      _server_address.send_from(_handler.server(), "/update/cpu_load", "f",
+          load);
+      VERBOSE3("OscSender: Sent [/update/cpu_load, f, " << apf::str::A2S(load)
+          << "] to server " << _server_address.hostname() << ":" <<
+          _server_address.port() << ".");
+    }
   }
 }
 
@@ -1248,16 +1519,25 @@ void ssr::OscSender::set_cpu_load(float load)
  */
 void ssr::OscSender::set_sample_rate(int sr)
 {
-  lo::Message message;
-  int32_t message_sr = sr;
-  message.add_int32(message_sr);
+  int32_t message_sr = static_cast<int32_t>(sr);
   if(is_server())
   {
-    this->send_to_all_clients("/scene/sample_rate", message);
+    for (const auto& client_address: _client_addresses)
+    {
+      client_address->send_from(_handler.server(), "/scene/sample_rate", "i",
+          message_sr);
+      VERBOSE3("OscSender: Sent [/scene/sample_rate, i, " <<
+          apf::str::A2S(message_sr) << "] to client " <<
+          client_address->hostname() << ":" << client_address->port() << ".");
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/scene/sample_rate", message);
+    _server_address.send_from(_handler.server(), "/update/scene/sample_rate",
+        "i", message_sr);
+    VERBOSE3("OscSender: Sent [/update/scene/sample_rate, i, " <<
+        apf::str::A2S(message_sr) << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
 }
 
@@ -1273,16 +1553,32 @@ void ssr::OscSender::set_sample_rate(int sr)
  */
 void ssr::OscSender::set_master_signal_level(float level)
 {
-  lo::Message message;
   float message_level(apf::math::linear2dB(level));
-  message.add_float(message_level);
   if(is_server())
   {
-    this->send_to_all_clients("/scene/master_signal_level", message);
+    if(_handler.message_level() >= 1)
+    {
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(),
+            "/scene/master_signal_level", "f", message_level);
+        VERBOSE3("OscSender: Sent [/scene/master_signal_level, f, " <<
+            apf::str::A2S(message_level) << "] to client " <<
+            client_address->hostname() << ":" << client_address->port() <<
+            ".");
+      }
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/scene/master_signal_level", message);
+    if(_handler.message_level() >= 1)
+    {
+      _server_address.send_from(_handler.server(),
+          "/update/scene/master_signal_level", "f", message_level);
+      VERBOSE3("OscSender: Sent [/update/scene/master_signal_level, f, " <<
+          apf::str::A2S(message_level) << "] to server " <<
+          _server_address.hostname() << ":" << _server_address.port() << ".");
+    }
   }
 }
 
@@ -1300,17 +1596,33 @@ void ssr::OscSender::set_master_signal_level(float level)
  */
 bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
 {
-  lo::Message message;
-  int32_t message_id = id;
-  message.add_int32(message_id);
-  message.add_float(apf::math::linear2dB(level));
+  int32_t message_id = static_cast<int32_t>(id);
+  float message_level(apf::math::linear2dB(level));
   if(is_server())
   {
-    this->send_to_all_clients("/source/volume", message);
+    if(_handler.message_level() >= 1)
+    {
+      for (const auto& client_address: _client_addresses)
+      {
+        client_address->send_from(_handler.server(), "/source/level", "if",
+            message_id, message_level);
+        VERBOSE3("OscSender: Sent [/source/level, if, " << message_id << ", "
+            << message_level << "] to client " << client_address->hostname() <<
+            ":" << client_address->port() << ".");
+      }
+    }
   }
-  else if(is_client())
+  else if(is_client() && !server_is_default())
   {
-    this->send_to_server("/update/source/level", message);
+    if(_handler.message_level() >= 1)
+    {
+      _server_address.send_from(_handler.server(), "/update/source/level",
+          "if", message_id, message_level);
+      VERBOSE3("OscSender: Sent [/update/source/level, if, " <<
+          apf::str::A2S(message_id) << ", " << apf::str::A2S(message_level) <<
+          "] to server " << _server_address.hostname() << ":" <<
+          _server_address.port() << ".");
+    }
   }
   return true;
 }
