@@ -19,6 +19,12 @@
 #include "subscriber.h"
 #include "apf/parameter_map.h"
 
+namespace
+{
+  const std::string _message_type_false{"F"};
+  const std::string _message_type_true{"T"};
+}
+
 namespace ssr
 {
 
@@ -54,7 +60,10 @@ class OscSender : public Subscriber
 
     bool is_client();
     bool is_server();
+    bool server_is_default();
+    const std::string bool_to_message_type(const bool& message);
     void poll_all_clients();
+    void remove_all_client_addresses();
     bool is_new_source(id_t id); //< check, if source id is in _new_sources
     bool is_complete_source(id_t id); //< check, if source is complete
     void send_new_source_message_from_id(id_t id); //< creates a 'new source' OSC message
@@ -68,6 +77,7 @@ class OscSender : public Subscriber
     void set_server_address(std::string hostname, std::string port);
     lo::Address server_address();
     void add_client(std::string hostname, std::string port);
+    void remove_client(std::string hostname, std::string port);
     void send_to_server(std::string path, lo::Message message);
     void send_to_server(lo::Bundle bundle);
     void send_to_client(lo::Address address, std::string path, lo::Message
