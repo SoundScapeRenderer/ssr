@@ -11,11 +11,9 @@
 #include "apf/math.h"
 
 /**
- * Constructor used to create client objects
+ * Constructor used to create OscSender objects
  * @param controller reference to a Publisher object
  * @param handler reference to an OscHandler object
- * @param port_out an integer describing the port number to be used
- * for outgoing traffic
  */
 ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler)
   : _controller(controller)
@@ -31,7 +29,8 @@ ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler)
 ssr::OscSender::~OscSender()
 {}
 
-/** Function to start the OscSender object
+/**
+ * Function to start the OscSender object
  * This subscribes the OscSender to the Publisher and starts the
  * lo::ServerThread to send from
  */
