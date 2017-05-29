@@ -30,6 +30,7 @@ class OscClient
     ~OscClient();
 
     ssr::MessageLevel message_level();
+    lo::Address address();
     void set_message_level(MessageLevel message_level);
     const std::string hostname();
     const std::string port();
