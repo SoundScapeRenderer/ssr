@@ -33,6 +33,15 @@ ssr::MessageLevel ssr::OscClient::message_level()
 }
 
 /**
+ * Function to get the OscClient's _address
+ * @return a lo::Address used for the OscClient
+ **/
+lo::Address ssr::OscClient::address()
+{
+  return _address;
+}
+
+/**
  * Function to set the OscClient's _message_level.
  * @param message_level a MessageLevel to be used for the OscClient
  **/
