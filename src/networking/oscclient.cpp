@@ -15,7 +15,9 @@ ssr::OscClient::OscClient(std::string hostname, std::string port, MessageLevel
     message_level)
   : _address(hostname, port)
   , _message_level(message_level)
-{}
+{
+  _active = true;
+}
 
 /**
  * Destructor
@@ -31,6 +33,25 @@ ssr::MessageLevel ssr::OscClient::message_level()
 {
   return _message_level;
 }
+
+/**
+ * Function to get the OscClient's _active state
+ * @return a bool, representing the OscClient's state
+ **/
+bool ssr::OscClient::active()
+{
+  return _active;
+}
+
+/**
+ * Function to set the OscClient's _active state
+ * @param bool, representing the OscClient's new state
+ **/
+void ssr::OscClient::deactivate()
+{
+  _active = false;
+}
+
 
 /**
  * Function to get the OscClient's _address
