@@ -4,6 +4,7 @@
  */
 
 #include "oscclient.h"
+#include "ssr_global.h"
 
 /**
  * Constructor used to create OSC client objects
@@ -17,6 +18,8 @@ ssr::OscClient::OscClient(std::string hostname, std::string port, MessageLevel
   , _message_level(message_level)
 {
   _active = true;
+  VERBOSE("OscClient: Initialized as " << _address.hostname() << ":" <<
+      _address.port() << ".");
 }
 
 /**
@@ -57,7 +60,7 @@ void ssr::OscClient::deactivate()
  * Function to get the OscClient's _address
  * @return a lo::Address used for the OscClient
  **/
-lo::Address ssr::OscClient::address()
+lo::Address& ssr::OscClient::address()
 {
   return _address;
 }
