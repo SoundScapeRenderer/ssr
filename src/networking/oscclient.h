@@ -14,15 +14,15 @@ namespace ssr
 
 enum class MessageLevel : unsigned int
 {
-  MESSAGE_LEVEL_SERVER = 0,
-  MESSAGE_LEVEL_THIN_CLIENT = 1,
-  MESSAGE_LEVEL_CLIENT = 2
+  SERVER = 0,
+  THIN_CLIENT = 1,
+  CLIENT = 2
 };
 
 class OscClient
 {
   private:
-    const lo::Address _address;
+    lo::Address _address;
     MessageLevel _message_level;
     bool _active = false;
 
@@ -32,7 +32,7 @@ class OscClient
     ~OscClient();
 
     ssr::MessageLevel message_level();
-    lo::Address address();
+    lo::Address& address();
     bool active();
     void deactivate();
     void set_message_level(MessageLevel message_level);
