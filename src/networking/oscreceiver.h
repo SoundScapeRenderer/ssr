@@ -56,7 +56,7 @@ class OscReceiver
     void send_to_server(OscHandler& self, std::string path, lo::Message message);
     void send_to_server(OscHandler& self, lo::Bundle bundle);
     void add_client(OscHandler& self, lo::Address client);
-    void remove_client(OscHandler& self, lo::Address client);
+    void deactivate_client(OscHandler& self, lo::Address client);
 };
 
 } // namespace ssr
