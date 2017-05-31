@@ -84,7 +84,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
       }
       else if(message.types().compare("F") == 0)
       {
-        remove_client(_handler, client);
+        deactivate_client(_handler, client);
         VERBOSE("Client '" << client.hostname() << ":" << client.port() <<
             "' unsubscribed.");
       }
