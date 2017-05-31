@@ -187,14 +187,14 @@ void ssr::OscReceiver::add_client(OscHandler& self, lo::Address client)
 }
 
 /**
- * OscHandler's friend function to remove a client from the list of OscSender's
- * _client_addresses.
+ * OscHandler's friend function to deactivate a client from the list of
+ * OscSender's _clients
  * @param self reference to OscHandler holding OscSender
- * @param client lo::Address representing client to be removed
+ * @param client lo::Address representing client to be deactivated
  */
-void ssr::OscReceiver::remove_client(OscHandler& self, lo::Address client)
+void ssr::OscReceiver::deactivate_client(OscHandler& self, lo::Address client)
 {
-  self._osc_sender.remove_client(client.hostname(), client.port());
+  self._osc_sender.deactivate_client(client.hostname(), client.port());
 }
 
 
