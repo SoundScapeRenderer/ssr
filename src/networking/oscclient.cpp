@@ -47,12 +47,19 @@ bool ssr::OscClient::active()
 }
 
 /**
- * Function to set the OscClient's _active state
- * @param bool, representing the OscClient's new state
+ * Function to set the OscClient's _active state to false
  **/
 void ssr::OscClient::deactivate()
 {
   _active = false;
+}
+
+/**
+ * Function to set the OscClient's _active state to true
+ **/
+void ssr::OscClient::activate()
+{
+  _active = true;
 }
 
 
