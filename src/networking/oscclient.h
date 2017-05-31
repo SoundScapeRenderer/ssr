@@ -34,6 +34,7 @@ class OscClient
     ssr::MessageLevel message_level();
     lo::Address& address();
     bool active();
+    void activate();
     void deactivate();
     void set_message_level(MessageLevel message_level);
     const std::string hostname();
