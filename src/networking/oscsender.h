@@ -15,6 +15,7 @@
 #include <map>
 #include <thread>
 #include <lo/lo_cpp.h>
+#include "oscclient.h"
 #include "ssr_global.h"
 #include "subscriber.h"
 #include "apf/parameter_map.h"
@@ -47,8 +48,10 @@ class OscSender : public Subscriber
     bool _is_subscribed;
     // address of server (client)
     lo::Address _server_address;
-    // vector of pointers to client address objects (server)
+    // (obsolete) vector of pointers to client address objects (server)
     std::vector<lo::Address*> _client_addresses;
+    // vector of pointers to OscClient objects (server)
+    std::vector<OscClient*> _clients;
     // map of id/parameter_map pairs for new sources (server)
     std::map<id_t, apf::parameter_map> _new_sources;
     // thread used for calling poll_all_clients continuously
@@ -63,7 +66,7 @@ class OscSender : public Subscriber
     bool server_is_default();
     const std::string bool_to_message_type(const bool& message);
     void poll_all_clients();
-    void remove_all_client_addresses();
+    void remove_all_clients();
     bool is_new_source(id_t id); //< check, if source id is in _new_sources
     bool is_complete_source(id_t id); //< check, if source is complete
     void send_new_source_message_from_id(id_t id); //< creates a 'new source' OSC message
@@ -77,7 +80,7 @@ class OscSender : public Subscriber
     void set_server_address(std::string hostname, std::string port);
     lo::Address server_address();
     void add_client(std::string hostname, std::string port);
-    void remove_client(std::string hostname, std::string port);
+    void deactivate_client(std::string hostname, std::string port);
     void send_to_server(std::string path, lo::Message message);
     void send_to_server(lo::Bundle bundle);
     void send_to_client(lo::Address address, std::string path, lo::Message
@@ -115,8 +118,8 @@ class OscSender : public Subscriber
     virtual void set_master_volume(float volume);
     virtual void set_source_output_levels(id_t id, float* first, float* last);
     virtual void set_processing_state(bool state);
-    virtual void set_transport_state(
-        const std::pair<bool, jack_nframes_t>& state);
+    virtual void set_transport_state( const std::pair<bool, jack_nframes_t>&
+        state);
     virtual void set_auto_rotation(bool auto_rotate_sources);
     virtual void set_decay_exponent(float exponent);
     virtual void set_amplitude_reference_distance(float distance);
