@@ -65,7 +65,8 @@ class OscHandler
     friend void OscReceiver::send_to_server(OscHandler& self, lo::Bundle
         bundle);
     friend void OscReceiver::add_client(OscHandler& self, lo::Address client);
-    friend void OscReceiver::remove_client(OscHandler& self, lo::Address client);
+    friend void OscReceiver::deactivate_client(OscHandler& self, lo::Address
+        client);
 };
 
 } // namespace ssr
