@@ -16,7 +16,8 @@ enum class MessageLevel : unsigned int
 {
   SERVER = 0,
   THIN_CLIENT = 1,
-  CLIENT = 2
+  CLIENT = 2,
+  GUI_CLIENT = 3
 };
 
 class OscClient
