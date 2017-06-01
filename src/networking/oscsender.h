@@ -48,6 +48,8 @@ class OscSender : public Subscriber
     bool _is_subscribed;
     // address of server (client)
     lo::Address _server_address;
+    // level of messages to send to server (client)
+    MessageLevel _message_level;
     // (obsolete) vector of pointers to client address objects (server)
     std::vector<lo::Address*> _client_addresses;
     // vector of pointers to OscClient objects (server)
@@ -79,6 +81,7 @@ class OscSender : public Subscriber
     void stop();
     void set_server_address(std::string hostname, std::string port);
     lo::Address server_address();
+    void set_message_level(const unsigned int& message_level);
     void add_client(std::string hostname, std::string port);
     void deactivate_client(std::string hostname, std::string port);
     void send_to_server(std::string path, lo::Message message);
