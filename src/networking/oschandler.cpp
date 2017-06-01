@@ -31,7 +31,8 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port, std::string mode,
     VERBOSE("OscHandler: " << clients.size() << " client(s).");
     for (const auto& client: clients)
     {
-      _osc_sender.add_client(client.first, std::to_string(client.second));
+      _osc_sender.add_client(client.first, std::to_string(client.second),
+          ssr::MessageLevel::CLIENT);
     }
   }
 }
@@ -181,9 +182,10 @@ void ssr::OscReceiver::send_to_server(OscHandler& self, lo::Bundle bundle)
  * @param self reference to OscHandler holding OscSender
  * @param client lo::Address representing client to be added
  */
-void ssr::OscReceiver::add_client(OscHandler& self, lo::Address client)
+void ssr::OscReceiver::add_client(OscHandler& self, lo::Address client,
+    ssr::MessageLevel message_level = ssr::MessageLevel::CLIENT)
 {
-  self._osc_sender.add_client(client.hostname(), client.port());
+  self._osc_sender.add_client(client.hostname(), client.port(), message_level);
 }
 
 /**
@@ -195,6 +197,18 @@ void ssr::OscReceiver::add_client(OscHandler& self, lo::Address client)
 void ssr::OscReceiver::deactivate_client(OscHandler& self, lo::Address client)
 {
   self._osc_sender.deactivate_client(client.hostname(), client.port());
+}
+
+/**
+ * OscHandler's friend function to set a client's message_level
+ * @param self reference to OscHandler holding OscSender
+ * @param client lo::Address representing client to be deactivated
+ */
+void ssr::OscReceiver::set_message_level(OscHandler& self, lo::Address client,
+    ssr::MessageLevel message_level)
+{
+  self._osc_sender.set_client_message_level(client.hostname(), client.port(),
+      message_level);
 }
 
 

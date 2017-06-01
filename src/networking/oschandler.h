@@ -14,7 +14,7 @@
 #include <map>
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
-
+#include "ssr_global.h" // for VERBOSE, MessageLevel
 #include "oscreceiver.h"
 #include "oscsender.h"
 
@@ -62,9 +62,12 @@ class OscHandler
         lo::Message message);
     friend void OscReceiver::send_to_server(OscHandler& self, lo::Bundle
         bundle);
-    friend void OscReceiver::add_client(OscHandler& self, lo::Address client);
+    friend void OscReceiver::add_client(OscHandler& self, lo::Address client,
+        ssr::MessageLevel message_level);
     friend void OscReceiver::deactivate_client(OscHandler& self, lo::Address
         client);
+    friend void OscReceiver::set_message_level(OscHandler& self, lo::Address
+        client, ssr::MessageLevel message_level);
 };
 
 } // namespace ssr
