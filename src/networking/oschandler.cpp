@@ -216,11 +216,3 @@ lo::ServerThread& ssr::OscHandler::server()
   return _server;
 }
 
-/**
- * Return reference to current _message_level
- * @return const unsigned int&
- */
-const unsigned int& ssr::OscHandler::message_level()
-{
-  return _message_level;
-}
