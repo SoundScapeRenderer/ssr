@@ -312,7 +312,8 @@ bool ssr::OscSender::is_complete_source(id_t id)
         _new_sources.at(id).has_key("properties_file") &&
         _new_sources.at(id).has_key("position_fixed") &&
         _new_sources.at(id).has_key("orientation_fixed") &&
-        _new_sources.at(id).has_key("muted"))||
+        _new_sources.at(id).has_key("mute") &&
+        _new_sources.at(id).size() == 12)||
         (_new_sources.at(id).has_key("name") &&
         _new_sources.at(id).has_key("model") &&
         _new_sources.at(id).has_key("file_name_or_port_number") &&
@@ -322,21 +323,21 @@ bool ssr::OscSender::is_complete_source(id_t id)
         _new_sources.at(id).has_key("volume") &&
         _new_sources.at(id).has_key("position_fixed") &&
         _new_sources.at(id).has_key("orientation_fixed") &&
-        _new_sources.at(id).has_key("muted")))
+        _new_sources.at(id).has_key("mute") &&
+        _new_sources.at(id).size() == 10))
       is_complete = true;
   }
   return is_complete;
 }
 
 /**
- * Creates a lo::Message used to create a new source on clients. It will
+ * Creates a message used to create a new source on clients. It will
  * collect all parameters from a parameter_map in _new_sources according to an
  * id.
  * @param id id_t id of the local source a message will be created for.
  */
 void ssr::OscSender::send_new_source_message_from_id(id_t id)
 {
-  lo::Message message;
   if(_new_sources.at(id).has_key("name") &&
       _new_sources.at(id).has_key("model") &&
       _new_sources.at(id).has_key("file_name_or_port_number") &&
@@ -348,26 +349,53 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
       _new_sources.at(id).has_key("properties_file") &&
       _new_sources.at(id).has_key("position_fixed") &&
       _new_sources.at(id).has_key("orientation_fixed") &&
-      _new_sources.at(id).has_key("muted") &&
-      _new_sources.at(id).size() == 12 )
+      _new_sources.at(id).has_key("mute"))
   {
-    message.add_string(_new_sources.at(id).get<std::string>("name", ""));
-    message.add_string(_new_sources.at(id).get<std::string>("model", ""));
-    message.add_string(_new_sources.at(id).get<std::string>("file_name_or_port_number",
-          ""));
-    message.add_float(_new_sources.at(id).get<float>("x", 0.0));
-    message.add_float(_new_sources.at(id).get<float>("y", 0.0));
-    message.add_float(_new_sources.at(id).get<float>("orientation", 0.0));
-    message.add_float(_new_sources.at(id).get<float>("volume", 0.0));
-    message.add_int32(_new_sources.at(id).get<int>("channel", 1));
-    message.add_string(_new_sources.at(id).get<std::string>("properties_file", ""));
-    (_new_sources.at(id).get<bool>("position_fixed", false)?
-     message.add_true(): message.add_false());
-    (_new_sources.at(id).get<bool>("orientation_fixed", false)?
-     message.add_true(): message.add_false());
-    (_new_sources.at(id).get<bool>("muted", false)?
-     message.add_true(): message.add_false());
-    this->send_to_all_clients("/source/new", message);
+    for (const auto& client: _clients)
+    {
+      if(client && client->active())
+      {
+        client->address().send_from(_handler.server(), "/source/new",
+            "sssffffis"+
+            bool_to_message_type(_new_sources.at(id).get<bool>(
+                "position_fixed", false))
+            +bool_to_message_type(_new_sources.at(id).get<bool>(
+                "orientation_fixed", false))
+            +bool_to_message_type(_new_sources.at(id).get<bool>(
+                "mute", false)),
+            _new_sources.at(id).get<std::string>("name", "").c_str(),
+            _new_sources.at(id).get<std::string>("model", "").c_str(),
+            _new_sources.at(id).get<std::string>(
+              "file_name_or_port_number","").c_str(),
+            _new_sources.at(id).get<float>("x", 0.0),
+            _new_sources.at(id).get<float>("y", 0.0),
+            _new_sources.at(id).get<float>("orientation", 0.0),
+            _new_sources.at(id).get<float>("volume", 0.0),
+            _new_sources.at(id).get<int>("channel", 1),
+            _new_sources.at(id).get<std::string>("properties_file", ""));
+        VERBOSE2("OscSender: Sent [/source/new, sssffffis" <<
+            bool_to_message_type(_new_sources.at(id).get<bool>(
+                "position_fixed", false)) <<
+            bool_to_message_type(_new_sources.at(id).get<bool>(
+                "orientation_fixed", false)) <<
+            bool_to_message_type(_new_sources.at(id).get<bool>("mute",
+                false)) <<
+            ", " <<
+            _new_sources.at(id).get<std::string>("name", "") << ", " <<
+            _new_sources.at(id).get<std::string>("model", "") << ", " <<
+            _new_sources.at(id).get<std::string>("file_name_or_port_number","")
+            << ", " <<
+            _new_sources.at(id).get<float>("x", 0.0) << ", " <<
+            _new_sources.at(id).get<float>("y", 0.0) << ", " <<
+            _new_sources.at(id).get<float>("orientation", 0.0) << ", " <<
+            _new_sources.at(id).get<float>("volume", 0.0) << ", " <<
+            _new_sources.at(id).get<int>("channel", 1) << ", " <<
+            _new_sources.at(id).get<std::string>("properties_file", "")
+             << "] to client " <<
+            client->address().hostname() << ":" <<
+            client->address().port() << ".");
+      }
+    }
   }
   else if(_new_sources.at(id).has_key("name") &&
     _new_sources.at(id).has_key("model") &&
@@ -378,24 +406,48 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
     _new_sources.at(id).has_key("volume") &&
     _new_sources.at(id).has_key("position_fixed") &&
     _new_sources.at(id).has_key("orientation_fixed") &&
-    _new_sources.at(id).has_key("muted") &&
-    _new_sources.at(id).size() == 10 )
+    _new_sources.at(id).has_key("mute"))
   {
-    message.add_string(_new_sources.at(id).get<std::string>("name", ""));
-    message.add_string(_new_sources.at(id).get<std::string>("model", ""));
-    message.add_string(_new_sources.at(id).get<std::string>("file_name_or_port_number",
-          ""));
-    message.add_float(_new_sources.at(id).get<float>("x", 0.0));
-    message.add_float(_new_sources.at(id).get<float>("y", 0.0));
-    message.add_float(_new_sources.at(id).get<float>("orientation", 0.0));
-    message.add_float(_new_sources.at(id).get<float>("volume", 0.0));
-    (_new_sources.at(id).get<bool>("position_fixed", false)?
-     message.add_true(): message.add_false());
-    (_new_sources.at(id).get<bool>("orientation_fixed", false)?
-     message.add_true(): message.add_false());
-    (_new_sources.at(id).get<bool>("muted", false)?
-     message.add_true(): message.add_false());
-    this->send_to_all_clients("/source/new", message);
+    for (const auto& client: _clients)
+    {
+      if(client && client->active())
+      {
+        client->address().send_from(_handler.server(), "/source/new",
+            "sssffff"+
+            bool_to_message_type(
+              _new_sources.at(id).get<bool>("position_fixed", false))
+            +bool_to_message_type(
+              _new_sources.at(id).get<bool>("orientation_fixed", false))
+            +bool_to_message_type(_new_sources.at(id).get<bool>("mute",
+                false)),
+            _new_sources.at(id).get<std::string>("name", "").c_str(),
+            _new_sources.at(id).get<std::string>("model", "").c_str(),
+            _new_sources.at(id).get<std::string>(
+              "file_name_or_port_number","").c_str(),
+            _new_sources.at(id).get<float>("x", 0.0),
+            _new_sources.at(id).get<float>("y", 0.0),
+            _new_sources.at(id).get<float>("orientation", 0.0),
+            _new_sources.at(id).get<float>("volume", 0.0));
+        VERBOSE2("OscSender: Sent [/source/new, sssffff" <<
+            bool_to_message_type(
+              _new_sources.at(id).get<bool>( "position_fixed", false)) <<
+            bool_to_message_type(
+              _new_sources.at(id).get<bool>("orientation_fixed", false)) <<
+            bool_to_message_type(
+              _new_sources.at(id).get<bool>("mute", false)) << ", " <<
+            _new_sources.at(id).get<std::string>("name", "") << ", " <<
+            _new_sources.at(id).get<std::string>("model", "") << ", " <<
+            _new_sources.at(id).get<std::string>("file_name_or_port_number","")
+            << ", " <<
+            _new_sources.at(id).get<float>("x", 0.0) << ", " <<
+            _new_sources.at(id).get<float>("y", 0.0) << ", " <<
+            _new_sources.at(id).get<float>("orientation", 0.0) << ", " <<
+            _new_sources.at(id).get<float>("volume", 0.0)
+             << "] to client " <<
+            client->address().hostname() << ":" <<
+            client->address().port() << ".");
+      }
+    }
   }
 }
 
@@ -418,6 +470,14 @@ void ssr::OscSender::add_client(std::string hostname, std::string port)
       VERBOSE2("OscSender: Recycled client " << hostname << ":" << port <<
           ".");
       break;
+    }
+    else if(client && client->active() &&
+        !(client->address().hostname().compare(hostname)) &&
+        !(client->address().port().compare(port)) )
+    {
+      setup = true;
+      VERBOSE2("OscSender: Client " << hostname << ":" << port <<
+          " already active.");
     }
   }
   if (!setup)
@@ -630,7 +690,6 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
  */
 bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
 {
-//  lo::Message message;
   int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
@@ -689,6 +748,7 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
     if(is_new_source(id))
     {
       _new_sources.at(id).set<float>("orientation", orientation.azimuth);
+      _new_sources.at(id).set<bool>("orientation_fixed", false);
       if(is_complete_source(id))
         send_new_source_message_from_id(id);
     }
@@ -787,11 +847,12 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
   int32_t message_id = static_cast<int32_t>(id);
   if(is_server())
   {
-    if(is_new_source(id))
+    if(is_new_source(id) &&
+        _new_sources.at(id).has_key("file_name_or_port_number"))
     {
       _new_sources.at(id).set<bool>("mute", mute);
       if(is_complete_source(id))
-        this->send_new_source_message_from_id(id);
+        send_new_source_message_from_id(id);
     }
     else
     {
@@ -886,14 +947,13 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
 bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
     name)
 {
-  lo::Message message;
   int32_t message_id = static_cast<int32_t>(id);
   const char * file_name = name.c_str();
   if(is_server())
   {
-    if(is_new_source(id))
+    if(is_new_source(id) && !name.empty())
     {
-      _new_sources.at(id).set<std::string>("properties_file", name);
+      _new_sources.at(id).set<std::string>("properties_file", file_name);
       if(is_complete_source(id))
         send_new_source_message_from_id(id);
     }
@@ -1048,10 +1108,7 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
 
 /**
  * Subscriber function called, when Publisher set a source's port_name.
- * On server: Sends out OSC message to set the port_name of given source on all
- * clients. If id is found in _new_sources, the port_name will be stored in the
- * parameter_map for id and an OSC message will be send to clients only, if the
- * source is complete.
+ * On server: Does nothing, as port_name is local and depends on prefix
  * On client: Sends out OSC message to server about the successful updating of
  * the source's port_name.
  * @param id id_t representing the source
@@ -1064,31 +1121,7 @@ bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
     port_name)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_server())
-  {
-    if(is_new_source(id))
-    {
-      _new_sources.at(id).set<std::string>("port_name", port_name);
-      if(is_complete_source(id))
-        send_new_source_message_from_id(id);
-    }
-    else
-    {
-      for (const auto& client: _clients)
-      {
-        if(client && client->active())
-        {
-          client->address().send_from(_handler.server(), "/source/port_name",
-              "is", message_id, port_name.c_str());
-          VERBOSE3("OscSender: Sent [/source/port_name, is, " << message_id <<
-              ", " << port_name << "] to client " <<
-              client->address().hostname() << ":" <<
-              client->address().port() << ".");
-        }
-      }
-    }
-  }
-  else if(is_client() && !server_is_default())
+  if(is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/port_name",
         "is", message_id, port_name.c_str());
@@ -1177,7 +1210,7 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
   int32_t message_file_channel = static_cast<int32_t>(file_channel);
   if(is_server())
   {
-    if(is_new_source(id))
+    if(is_new_source(id) && file_channel > 0)
     {
       _new_sources.at(id).set<int>("channel", file_channel);
       if(is_complete_source(id))
