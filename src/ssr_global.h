@@ -51,6 +51,13 @@ extern float c;         ///< speed of sound (meters per second)
 extern float c_inverse; ///< reciprocal value of c
 /// time to sleep after connecting a new soundfile with ecasound
 extern unsigned int usleeptime;
+enum class MessageLevel : id_t
+{
+  SERVER = 0,
+  THIN_CLIENT = 1,
+  CLIENT = 2,
+  GUI_CLIENT = 3
+};
 
 }  // namespace ssr
 
