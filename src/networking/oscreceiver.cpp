@@ -39,12 +39,12 @@ void ssr::OscReceiver::start()
 {
   VERBOSE("OscReceiver: Starting.");
   // add method handlers for received messages
-  if (_handler.mode() == "server")
+  if (!_handler.mode().compare("server"))
   {
     add_client_to_server_methods();
     VERBOSE("OscReceiver: Added client-to-server callbacks.");
   }
-  else if (_handler.mode() == "client")
+  else if (!_handler.mode().compare("client"))
   {
     add_server_to_client_methods();
     VERBOSE("OscReceiver: Added server-to-client callbacks.");
@@ -69,28 +69,46 @@ void ssr::OscReceiver::add_client_to_server_methods()
   // add local  reference to OscHandler's lo::ServerThread for add_method()
   lo::ServerThread& server = _handler.server();
 
-  // adding new subscribing client: "/subscribe, T"
+  // adding new subscribing client: "/subscribe, {T,Ti,F}"
   server.add_method("/subscribe", NULL, [this](lo_arg **argv, int, lo::Message
         message)
     {
       lo::Address client(message.source());
-      (void) argv;
-      VERBOSE2("Subscribe called with " << message.types() << ".");
-      if(message.types().compare("T") == 0)
+      if(!message.types().compare("T"))
       {
-        add_client(_handler, client);
-        VERBOSE("Client '" << client.hostname() << ":" << client.port() <<
-            "' subscribed.");
+        VERBOSE2("OscReceiver: Got subscribe request from '" <<
+            client.hostname() << ":" << client.port() << "'.");
+        add_client(_handler, client, ssr::MessageLevel::CLIENT);
       }
-      else if(message.types().compare("F") == 0)
+      else if(!message.types().compare("F"))
       {
+        VERBOSE2("OscReceiver: Got unsubscribe request from '" <<
+            client.hostname() << ":" << client.port() << "'.");
         deactivate_client(_handler, client);
-        VERBOSE("Client '" << client.hostname() << ":" << client.port() <<
-            "' unsubscribed.");
+      }
+      else if(!message.types().compare("Ti"))
+      {
+        VERBOSE2("OscReceiver: Got subscribe request from '" <<
+            client.hostname() << ":" << client.port() <<
+            "' for message level: " << argv[1]->i);
+        add_client(_handler, client, static_cast<ssr::MessageLevel>(argv[1]->i));
       }
     }
   );
   VERBOSE("OscReceiver: Added method for /subscribe {T|F}.");
+
+  // adding new subscribing client: "/message_level, i"
+  server.add_method("/message_level", "i", [this](lo_arg **argv, int, lo::Message
+        message)
+    {
+      lo::Address client(message.source());
+      VERBOSE2("OscReceiver: Got request to set message level for client '" <<
+          client.hostname() << ":" << client.port() << "' to: " << argv[0]->i);
+      set_message_level(_handler, client,
+          static_cast<ssr::MessageLevel>(argv[0]->i));
+    }
+  );
+  VERBOSE("OscReceiver: Added method for /message_level.");
 
   // update on new source: "/update/source/new, i, id"
   server.add_method("/update/source/new", "i", [](lo_arg **argv, int,
