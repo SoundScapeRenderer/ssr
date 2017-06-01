@@ -19,6 +19,7 @@ ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler)
   : _controller(controller)
   , _handler(handler)
   , _server_address("none", "50001")
+  , _message_level(MessageLevel::THIN_CLIENT)
 {
   VERBOSE("OscSender: Initialized.");
 }
@@ -69,7 +70,7 @@ void ssr::OscSender::stop()
  */
 bool ssr::OscSender::is_client()
 {
-  if(_handler.mode() == "client")
+  if(!_handler.mode().compare("client"))
   {
     return true;
   }
@@ -85,7 +86,7 @@ bool ssr::OscSender::is_client()
  */
 bool ssr::OscSender::is_server()
 {
-  if(_handler.mode() == "server")
+  if(!_handler.mode().compare("server"))
   {
     return true;
   }
@@ -158,6 +159,16 @@ lo::Address ssr::OscSender::server_address()
 {
   lo::Address server(_server_address.hostname(), _server_address.port());
   return server;
+}
+
+/**
+ * Function to set OscSender's _message_level.
+ * If the message level is out of 
+ * @param MessageLevel enum representing the new message level
+ */
+void ssr::OscSender::set_message_level(const unsigned int& message_level)
+{
+  _message_level = static_cast<MessageLevel>(message_level);
 }
 
 /**
@@ -1530,42 +1541,38 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
   int32_t message_nframes = static_cast<int32_t>(state.second);
   if(is_server())
   {
-    if(_handler.message_level() >= 2)
+    for (const auto& client: _clients)
     {
-      for (const auto& client: _clients)
+      if(client && client->active() && client->message_level() >=
+          MessageLevel::CLIENT)
       {
-        if(client && client->active())
-        {
-          client->address().send_from(_handler.server(), "/transport/state",
-              bool_to_message_type(state.first));
-          VERBOSE3("OscSender: Sent [/transport/state, " <<
-              bool_to_message_type(state.first) << "] to client " <<
-              client->address().hostname() << ":" <<
-              client->address().port() << ".");
-          client->address().send_from(_handler.server(), "/transport/seek",
-              "i", message_nframes);
-          VERBOSE3("OscSender: Sent [/transport/seek, i, " << message_nframes
-              << "] to client " << client->address().hostname() << ":" <<
-              client->address().port() << ".");
-        }
+        client->address().send_from(_handler.server(), "/transport/state",
+            bool_to_message_type(state.first));
+        VERBOSE3("OscSender: Sent [/transport/state, " <<
+            bool_to_message_type(state.first) << "] to client " <<
+            client->address().hostname() << ":" << client->address().port() <<
+            ".");
+        client->address().send_from(_handler.server(), "/transport/seek", "i",
+            message_nframes);
+        VERBOSE3("OscSender: Sent [/transport/seek, i, " << message_nframes <<
+            "] to client " << client->address().hostname() << ":" <<
+            client->address().port() << ".");
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(is_client() && !server_is_default() && _message_level ==
+      MessageLevel::GUI_CLIENT)
   {
-    if(_handler.message_level() >= 2)
-    {
-      _server_address.send_from(_handler.server(), "/update/transport/state",
-          bool_to_message_type(state.first));
-      VERBOSE3("OscSender: Sent [/update/transport/state, " <<
-          bool_to_message_type(state.first) << "] to server " <<
-          _server_address.hostname() << ":" << _server_address.port() << ".");
-      _server_address.send_from(_handler.server(), "/update/transport/seek",
-          "i", message_nframes);
-      VERBOSE3("OscSender: Sent [/update/transport/state, i, " <<
-          message_nframes << "] to server " << _server_address.hostname() <<
-          ":" << _server_address.port() << ".");
-    }
+    _server_address.send_from(_handler.server(), "/update/transport/state",
+        bool_to_message_type(state.first));
+    VERBOSE3("OscSender: Sent [/update/transport/state, " <<
+        bool_to_message_type(state.first) << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
+    _server_address.send_from(_handler.server(), "/update/transport/seek", "i",
+        message_nframes);
+    VERBOSE3("OscSender: Sent [/update/transport/state, i, " << message_nframes
+        << "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
@@ -1621,16 +1628,14 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
  */
 void ssr::OscSender::set_cpu_load(float load)
 {
-  if(is_client() && !server_is_default())
+  if(is_client() && !server_is_default() && _message_level ==
+      MessageLevel::GUI_CLIENT)
   {
-    if(_handler.message_level() >= 2)
-    {
-      _server_address.send_from(_handler.server(), "/update/cpu_load", "f",
-          load);
-      VERBOSE3("OscSender: Sent [/update/cpu_load, f, " << apf::str::A2S(load)
-          << "] to server " << _server_address.hostname() << ":" <<
-          _server_address.port() << ".");
-    }
+    _server_address.send_from(_handler.server(), "/update/cpu_load", "f",
+        load);
+    VERBOSE3("OscSender: Sent [/update/cpu_load, f, " << apf::str::A2S(load)
+        << "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
 }
 
@@ -1687,32 +1692,28 @@ void ssr::OscSender::set_master_signal_level(float level)
   float message_level(apf::math::linear2dB(level));
   if(is_server())
   {
-    if(_handler.message_level() >= 1)
+    for (const auto& client: _clients)
     {
-      for (const auto& client: _clients)
+      if(client && client->active() && client->message_level() >=
+          MessageLevel::CLIENT)
       {
-        if(client && client->active())
-        {
-          client->address().send_from(_handler.server(),
-              "/scene/master_signal_level", "f", message_level);
-          VERBOSE3("OscSender: Sent [/scene/master_signal_level, f, " <<
-              apf::str::A2S(message_level) << "] to client " <<
-              client->address().hostname() << ":" <<
-              client->address().port() << ".");
-        }
+        client->address().send_from(_handler.server(),
+            "/scene/master_signal_level", "f", message_level);
+        VERBOSE3("OscSender: Sent [/scene/master_signal_level, f, " <<
+            apf::str::A2S(message_level) << "] to client " <<
+            client->address().hostname() << ":" << client->address().port() <<
+            ".");
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(is_client() && !server_is_default() && _message_level ==
+      MessageLevel::GUI_CLIENT)
   {
-    if(_handler.message_level() >= 1)
-    {
-      _server_address.send_from(_handler.server(),
-          "/update/scene/master_signal_level", "f", message_level);
-      VERBOSE3("OscSender: Sent [/update/scene/master_signal_level, f, " <<
-          apf::str::A2S(message_level) << "] to server " <<
-          _server_address.hostname() << ":" << _server_address.port() << ".");
-    }
+    _server_address.send_from(_handler.server(),
+        "/update/scene/master_signal_level", "f", message_level);
+    VERBOSE3("OscSender: Sent [/update/scene/master_signal_level, f, " <<
+        apf::str::A2S(message_level) << "] to server " <<
+        _server_address.hostname() << ":" << _server_address.port() << ".");
   }
 }
 
@@ -1734,33 +1735,28 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
   float message_level(apf::math::linear2dB(level));
   if(is_server())
   {
-    if(_handler.message_level() >= 1)
+    for (const auto& client: _clients)
     {
-      for (const auto& client: _clients)
+      if(client && client->active() && client->message_level() >=
+          MessageLevel::CLIENT)
       {
-        if(client && client->active())
-        {
-          client->address().send_from(_handler.server(), "/source/level",
-              "if", message_id, message_level);
-          VERBOSE3("OscSender: Sent [/source/level, if, " << message_id << ", "
-              << message_level << "] to client " <<
-              client->address().hostname() << ":" <<
-              client->address().port() << ".");
-        }
+        client->address().send_from(_handler.server(), "/source/level", "if",
+            message_id, message_level);
+        VERBOSE3("OscSender: Sent [/source/level, if, " << message_id << ", "
+            << message_level << "] to client " << client->address().hostname()
+            << ":" << client->address().port() << ".");
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(is_client() && !server_is_default() && _message_level ==
+      MessageLevel::GUI_CLIENT)
   {
-    if(_handler.message_level() >= 1)
-    {
-      _server_address.send_from(_handler.server(), "/update/source/level",
-          "if", message_id, message_level);
-      VERBOSE3("OscSender: Sent [/update/source/level, if, " <<
-          apf::str::A2S(message_id) << ", " << apf::str::A2S(message_level) <<
-          "] to server " << _server_address.hostname() << ":" <<
-          _server_address.port() << ".");
-    }
+    _server_address.send_from(_handler.server(), "/update/source/level",
+        "if", message_id, message_level);
+    VERBOSE3("OscSender: Sent [/update/source/level, if, " <<
+        apf::str::A2S(message_id) << ", " << apf::str::A2S(message_level) <<
+        "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
   return true;
 }
