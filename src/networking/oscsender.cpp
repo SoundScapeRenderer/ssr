@@ -467,7 +467,8 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
  * @param hostname std::string representing the hostname of a client
  * @param port std::string representing the port of a client
  */
-void ssr::OscSender::add_client(std::string hostname, std::string port)
+void ssr::OscSender::add_client(std::string hostname, std::string port,
+    ssr::MessageLevel message_level)
 {
   bool setup = false;
   for (auto& client: _clients)
@@ -476,6 +477,8 @@ void ssr::OscSender::add_client(std::string hostname, std::string port)
         !(client->address().hostname().compare(hostname)) &&
         !(client->address().port().compare(port)) )
     {
+      if(client->message_level() != message_level)
+        client->set_message_level(message_level);
       client->activate();
       setup = true;
       VERBOSE2("OscSender: Recycled client " << hostname << ":" << port <<
@@ -493,8 +496,10 @@ void ssr::OscSender::add_client(std::string hostname, std::string port)
   }
   if (!setup)
   {
-    _clients.push_back(new OscClient(hostname, port, MessageLevel::CLIENT));
-    VERBOSE2("OscSender: Added new client " << hostname << ":" << port << ".");
+    _clients.push_back(new OscClient(hostname, port, message_level));
+    VERBOSE2("OscSender: Added new client " << hostname << ":" << port <<
+        " using message level " << static_cast<unsigned int>(message_level) <<
+        ".");
   }
 }
 
@@ -512,6 +517,28 @@ void ssr::OscSender::deactivate_client(std::string hostname, std::string port)
     {
       client->deactivate();
       VERBOSE2("OscSender: Deactivated client " << hostname << ":" << port << ".");
+    }
+  }
+}
+
+/**
+ * Set message level of a client
+ * @param hostname std::string representing the hostname of a client
+ * @param port std::string representing the port of a client
+ * @param message_level ssr::MessageLevel enum representing the message level
+ * to use
+ */
+void ssr::OscSender::set_client_message_level(std::string hostname, std::string
+    port, ssr::MessageLevel message_level)
+{
+  for (auto& client: _clients)
+  {
+    if(!(client->hostname().compare(hostname)) &&
+        !(client->port().compare(port)))
+    {
+      client->set_message_level(message_level);
+      VERBOSE2("OscSender: Set message level of client '" << hostname << ":" <<
+          port << "' to: " << static_cast<unsigned int>(message_level) << ".");
     }
   }
 }
