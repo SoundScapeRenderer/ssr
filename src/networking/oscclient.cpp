@@ -4,7 +4,6 @@
  */
 
 #include "oscclient.h"
-#include "ssr_global.h"
 
 /**
  * Constructor used to create OSC client objects

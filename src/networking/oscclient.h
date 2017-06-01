@@ -8,17 +8,10 @@
 
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
+#include "ssr_global.h" // for VERBOSE, MessageLevel
 
 namespace ssr
 {
-
-enum class MessageLevel : unsigned int
-{
-  SERVER = 0,
-  THIN_CLIENT = 1,
-  CLIENT = 2,
-  GUI_CLIENT = 3
-};
 
 class OscClient
 {
