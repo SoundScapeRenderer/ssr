@@ -16,7 +16,7 @@
 #include <thread>
 #include <lo/lo_cpp.h>
 #include "oscclient.h"
-#include "ssr_global.h"
+#include "ssr_global.h" // for VERBOSE, MessageLevel
 #include "subscriber.h"
 #include "apf/parameter_map.h"
 
@@ -82,7 +82,10 @@ class OscSender : public Subscriber
     void set_server_address(std::string hostname, std::string port);
     lo::Address server_address();
     void set_message_level(const unsigned int& message_level);
-    void add_client(std::string hostname, std::string port);
+    void add_client(std::string hostname, std::string port, ssr::MessageLevel
+        message_level);
+    void set_client_message_level(std::string hostname, std::string port,
+        ssr::MessageLevel message_level);
     void deactivate_client(std::string hostname, std::string port);
     void send_to_server(std::string path, lo::Message message);
     void send_to_server(lo::Bundle bundle);
