@@ -38,7 +38,6 @@ class OscHandler
     lo::ServerThread _server; //< ServerThread used for OSC communication
     OscReceiver _osc_receiver;
     OscSender _osc_sender;
-    const unsigned int _message_level = 2;
 
   public:
     OscHandler(Publisher& controller, int port, std::string mode,
@@ -48,7 +47,6 @@ class OscHandler
     void stop();
     std::string mode();
     lo::ServerThread& server();
-    const unsigned int& message_level();
     friend void OscReceiver::set_server_for_client(OscHandler& self,
         lo::Address server_address);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
