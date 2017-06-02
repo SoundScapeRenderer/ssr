@@ -42,12 +42,23 @@ void ssr::OscReceiver::start()
   if (!_handler.mode().compare("server"))
   {
     add_client_to_server_methods();
-    VERBOSE("OscReceiver: Added client-to-server callbacks.");
+    add_update_notification_methods();
+    add_source_methods();
+    add_reference_methods();
+    add_scene_methods();
+    add_processing_methods();
+    add_transport_methods();
+    add_tracker_methods();
   }
   else if (!_handler.mode().compare("client"))
   {
-    add_server_to_client_methods();
-    VERBOSE("OscReceiver: Added server-to-client callbacks.");
+    add_poll_methods();
+    add_source_methods();
+    add_reference_methods();
+    add_scene_methods();
+    add_processing_methods();
+    add_transport_methods();
+    add_tracker_methods();
   }
 }
 
@@ -60,17 +71,15 @@ void ssr::OscReceiver::stop()
 }
 
 /**
- * Adds callback handlers for OSC messages received from clients.
+ * Adds callback handlers (for server) for subscribe and message level messages
+ * received from clients.
  * This function uses C++11 lambda functions to define the behavior for every
  * callback.
  */
 void ssr::OscReceiver::add_client_to_server_methods()
 {
-  // add local  reference to OscHandler's lo::ServerThread for add_method()
-  lo::ServerThread& server = _handler.server();
-
   // adding new subscribing client: "/subscribe, {T,Ti,F}"
-  server.add_method("/subscribe", NULL, [this](lo_arg **argv, int, lo::Message
+  _handler.server().add_method("/subscribe", NULL, [this](lo_arg **argv, int, lo::Message
         message)
     {
       lo::Address client(message.source());
@@ -95,10 +104,10 @@ void ssr::OscReceiver::add_client_to_server_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /subscribe {T|F}.");
+  VERBOSE("OscReceiver: Added method for /subscribe {T,F,Ti}.");
 
   // adding new subscribing client: "/message_level, i"
-  server.add_method("/message_level", "i", [this](lo_arg **argv, int, lo::Message
+  _handler.server().add_method("/message_level", "i", [this](lo_arg **argv, int, lo::Message
         message)
     {
       lo::Address client(message.source());
@@ -108,10 +117,19 @@ void ssr::OscReceiver::add_client_to_server_methods()
           static_cast<ssr::MessageLevel>(argv[0]->i));
     }
   );
-  VERBOSE("OscReceiver: Added method for /message_level.");
+  VERBOSE("OscReceiver: Added method for /message_level i.");
+}
 
+/**
+ * Adds callback handlers (for server) for update messages received from
+ * clients.
+ * This function uses C++11 lambda functions to define the behavior for every
+ * callback.
+ */
+void ssr::OscReceiver::add_update_notification_methods()
+{
   // update on new source: "/update/source/new, i, id"
-  server.add_method("/update/source/new", "i", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/new", "i", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -122,7 +140,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/new.");
 
   // update on deleted source: "/update/source/delete, i, id"
-  server.add_method("/update/source/delete", "i", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/delete", "i", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -141,7 +159,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/delete.");
 
   // update on source position: "/update/source/position, iff, id, x, y"
-  server.add_method("/update/source/position", "iff", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/position", "iff", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -154,7 +172,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on source position fixation: "/update/source/position_fixed, i{T,F},
   // id, {true,false}"
-  server.add_method("/update/source/position_fixed", NULL, [](lo_arg **argv,
+  _handler.server().add_method("/update/source/position_fixed", NULL, [](lo_arg **argv,
         int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -174,7 +192,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/position_fixed.");
 
   // update on source orientation: "/update/source/orientation, if, id, azimuth"
-  server.add_method("/update/source/orientation", "if", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/orientation", "if", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -185,7 +203,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/orientation.");
 
   // update on source volume: "/update/source/volume, if, id, volume"
-  server.add_method("/update/source/volume", "if", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/volume", "if", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -197,7 +215,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on source position mute: "/update/source/mute, i{T,F},
   // id, {true,false}"
-  server.add_method("/update/source/mute", NULL, [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/mute", NULL, [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -217,7 +235,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/mute.");
 
   // update on source name: "/update/source/name, is, id, name"
-  server.add_method("/update/source/name", "is", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/name", "is", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -229,7 +247,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on source properties_file: "/update/source/properties_file, is, id,
   // properties_file"
-  server.add_method("/update/source/properties_file", "is", [](lo_arg **argv,
+  _handler.server().add_method("/update/source/properties_file", "is", [](lo_arg **argv,
         int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -241,7 +259,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on scene decay exponent: "/update/scene/decay_exponent, f,
   // decay_exponent"
-  server.add_method("/update/scene/decay_exponent", "f", [](lo_arg **argv,
+  _handler.server().add_method("/update/scene/decay_exponent", "f", [](lo_arg **argv,
         int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -254,7 +272,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   // update on scene amplitude reference distance:
   // "update/scene/amplitude_reference_distance, f,
   // amplitude_reference_distance"
-  server.add_method("/update/scene/amplitude_reference_distance", "f",
+  _handler.server().add_method("/update/scene/amplitude_reference_distance", "f",
       [](lo_arg **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -266,7 +284,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 /update/scene/amplitude_reference_distance.");
 
   // update on source model: "/update/source/model, is, id, model"
-  server.add_method("/update/source/model", "is", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/model", "is", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -277,7 +295,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/model.");
 
   // update on source port_name: "/update/source/port_name, is, id, port_name"
-  server.add_method("/update/source/port_name", "is", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/port_name", "is", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -289,7 +307,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on source file_name_or_port_number:
   // "/update/source/file_name_or_port_number, is, id, file_name_or_port_number"
-  server.add_method("/update/source/file_name_or_port_number", "is",
+  _handler.server().add_method("/update/source/file_name_or_port_number", "is",
       [](lo_arg **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -301,7 +319,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 /update/source/file_name_or_port_number.");
 
   // update on source channel: "/update/source/channel, ii, id, channel"
-  server.add_method("/update/source/channel", "ii", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/channel", "ii", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -312,7 +330,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/channel.");
 
   // update on source file length: "/update/source/length, ii, id, length"
-  server.add_method("/update/source/length", "ii", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/length", "ii", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -323,7 +341,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/source/length.");
 
   // update on reference position: "/update/reference/position, ff, x, y"
-  server.add_method("/update/reference/position", "ff", [](lo_arg **argv,
+  _handler.server().add_method("/update/reference/position", "ff", [](lo_arg **argv,
         int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -336,7 +354,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on reference orientation: "/update/reference/orientation, f,
   // azimuth"
-  server.add_method("/update/reference/orientation", "f", [](lo_arg **argv,
+  _handler.server().add_method("/update/reference/orientation", "f", [](lo_arg **argv,
         int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -348,7 +366,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on reference offset position: "/update/reference_offset/position,
   // ff, x, y"
-  server.add_method("/update/reference_offset/position", "ff", [](lo_arg
+  _handler.server().add_method("/update/reference_offset/position", "ff", [](lo_arg
         **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -361,7 +379,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on reference offset orientation:
   // "/update/reference_offset/orientation, f, azimuth"
-  server.add_method("/update/reference_offset/orientation", "f", [](lo_arg
+  _handler.server().add_method("/update/reference_offset/orientation", "f", [](lo_arg
         **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -373,7 +391,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 /update/reference_offset/orientation.");
 
   // update on scene volume: "/update/scene/volume, f, volume"
-  server.add_method("/update/scene/volume", "f", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/scene/volume", "f", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -384,7 +402,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/scene/volume.");
 
   // update on state processing: "/update/processing/state, {T,F}, {true,false}"
-  server.add_method("/update/processing/state", NULL, [](lo_arg **argv, int,
+  _handler.server().add_method("/update/processing/state", NULL, [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -405,7 +423,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/processing/state.");
 
   // update on transport state: "/update/transport/state, {T,F}, {true,false}"
-  server.add_method("/update/transport/state", NULL, [](lo_arg **argv, int,
+  _handler.server().add_method("/update/transport/state", NULL, [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -426,7 +444,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/transport/state.");
 
   // update on transport seek: "/update/transport/seek, s, time"
-  server.add_method("/update/transport/seek", "s", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/transport/seek", "s", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -438,7 +456,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on scene source auto rotation: "/update/scene/auto_rotate_sources,
   // {T,F}, {true,false}"
-  server.add_method("/update/scene/auto_rotate_sources", NULL, [](lo_arg
+  _handler.server().add_method("/update/scene/auto_rotate_sources", NULL, [](lo_arg
         **argv, int,
         lo::Message message)
     {
@@ -460,7 +478,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/scene/auto_rotate_sources.");
 
   // update on cpu_load: "/update/cpu_load, f, load"
-  server.add_method("/update/cpu_load", "f", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/cpu_load", "f", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -471,7 +489,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/cpu_load.");
 
   // update on scene sample rate: "/update/scene/sample_rate, i, sample_rate"
-  server.add_method("/update/scene/sample_rate", "i", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/scene/sample_rate", "i", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -483,7 +501,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
 
   // update on scene master signal level: "/update/scene/master_signal_level, f,
   // master_signal_level"
-  server.add_method("/update/scene/master_signal_level", "f", [](lo_arg
+  _handler.server().add_method("/update/scene/master_signal_level", "f", [](lo_arg
         **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
@@ -494,7 +512,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
   VERBOSE("OscReceiver: Added method for /update/scene/master_signal_level.");
 
   // update on source signal level: "/update/source/level, if, id, level"
-  server.add_method("/update/source/level", "if", [](lo_arg **argv, int,
+  _handler.server().add_method("/update/source/level", "if", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
@@ -503,20 +521,19 @@ void ssr::OscReceiver::add_client_to_server_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /update/source/level.");
-
 }
 
 /**
- * Adds callback handlers for OSC messages received from a server.
+ * Adds callback handlers (for clients) for poll messages received from a
+ * server.
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
  */
-void ssr::OscReceiver::add_server_to_client_methods()
+void ssr::OscReceiver::add_poll_methods()
 {
-  lo::ServerThread& server = _handler.server();
   // set _server_address for OscSender through OscHandler, depending on, if
   // polled from given server before
-  server.add_method("/poll", NULL, [this](lo_arg **argv, int, lo::Message
+  _handler.server().add_method("/poll", NULL, [this](lo_arg **argv, int, lo::Message
         message)
     {
       lo::Address server(server_address(_handler));
@@ -536,9 +553,21 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /poll.");
+}
 
+/**
+ * Adds callback handlers (for clients and server) for source related messages
+ * received from a server or a client with MessageLevel::SERVER (respectively).
+ * This function uses C++11 lambda functions to define the behavior for every
+ * callback, that interface with the Publisher's functionality.
+ * @todo add checks for client MessageLevel when this is used for a server
+ * (only clients with message_level MessageLevel::SERVER ought to be able to
+ * set source related settings).
+ */
+void ssr::OscReceiver::add_source_methods()
+{
   // set source position: "source/position, iff, id, x, y"
-  server.add_method("/source/position", "iff", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/position", "iff", [this](lo_arg **argv, int)
     {
       _controller.set_source_position(argv[0]->i, Position(argv[1]->f,
             argv[2]->f));
@@ -549,7 +578,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/position.");
 
   // set source fixed: "source/position_fixed, iT, id, true"
-  server.add_method("/source/position_fixed", "iT", [this](lo_arg **argv,
+  _handler.server().add_method("/source/position_fixed", "iT", [this](lo_arg **argv,
         int)
     {
       _controller.set_source_position_fixed(argv[0]->i, true);
@@ -560,7 +589,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/position_fixed true.");
 
   // set source fixed: "source/position_fixed, iF, id, false"
-  server.add_method("/source/position_fixed", "iF", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/position_fixed", "iF", [this](lo_arg **argv, int)
     {
       _controller.set_source_position_fixed(argv[0]->i, false);
       VERBOSE2("set source position fixed: id = " << argv[0]->i <<
@@ -570,7 +599,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/position_fixed false.");
 
   // set source orientation: "source/orientation, if, id, azimuth"
-  server.add_method("/source/orientation", "if", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/orientation", "if", [this](lo_arg **argv, int)
     {
       _controller.set_source_orientation(argv[0]->i, Orientation(argv[1]->f));
       VERBOSE2("set source orientation: id = " << argv[0]->i << ", " <<
@@ -580,7 +609,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/orientation.");
 
   // set source volume: "source/volume, if, id, volume"
-  server.add_method("/source/volume", "if", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/volume", "if", [this](lo_arg **argv, int)
     {
       _controller.set_source_gain(argv[0]->i,
           apf::math::dB2linear(argv[1]->f));
@@ -591,7 +620,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/volume.");
 
   // set source mute: "source/mute, iT, id, true"
-  server.add_method("/source/mute", "iT", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/mute", "iT", [this](lo_arg **argv, int)
     {
       _controller.set_source_mute(argv[0]->i, true);
       VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = true");
@@ -600,7 +629,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/mute true.");
 
   // set source mute: "source/mute, iF, id, false"
-  server.add_method("/source/mute", "iF", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/mute", "iF", [this](lo_arg **argv, int)
     {
       _controller.set_source_mute(argv[0]->i, false);
       VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = false");
@@ -609,7 +638,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/mute false.");
 
   // set source name: "source/name, is, id, name"
-  server.add_method("/source/name", "is", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/name", "is", [this](lo_arg **argv, int)
     {
       _controller.set_source_name(argv[0]->i, apf::str::A2S(argv[1]->s));
       VERBOSE2("set source name: id = " << argv[0]->i << ", name = " <<
@@ -619,7 +648,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/name.");
 
   // set source file: "/source/properties_file, is, id, properties_file"
-  server.add_method("/source/properties_file", "is", [this](lo_arg **argv,
+  _handler.server().add_method("/source/properties_file", "is", [this](lo_arg **argv,
         int)
     {
       _controller.set_source_properties_file(argv[0]->i,
@@ -631,7 +660,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/properties_file.");
 
   // set source model: "/source/model, is, id, model"
-  server.add_method("/source/model", "is", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/model", "is", [this](lo_arg **argv, int)
     {
       Source::model_t model = Source::model_t();
       if (!apf::str::S2A(apf::str::A2S(argv[1]->s), model))
@@ -646,7 +675,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/model.");
 
   // set source port name: "/source/port_name, is, id, port_name"
-  server.add_method("/source/port_name", "is", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/port_name", "is", [this](lo_arg **argv, int)
     {
       _controller.set_source_port_name(argv[0]->i, apf::str::A2S(argv[1]->s));
       VERBOSE2("set source port name: id = " << argv[0]->i << ", port = " <<
@@ -661,7 +690,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   // create new source: "/source/new, sssffffis{T,F}{T,F}{T,F}, name, model,
   // file_name_or_port_number, x, y, orientation, volume, channel,
   // properties_file, position_fixed, orientation_fixed, muted"
-  server.add_method("/source/new", NULL, [this](lo_arg **argv, int,
+  _handler.server().add_method("/source/new", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
       VERBOSE3("OscReceiver: [/source/new, " << message.types() << "].");
@@ -836,7 +865,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
 
   // delete source: "/source/delete, i, id"
   // special case: i == 0 deletes all sources!
-  server.add_method("/source/delete", "i", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/delete", "i", [this](lo_arg **argv, int)
     {
       if (argv[0]->i == 0)
       {
@@ -851,9 +880,22 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /source/delete.");
+}
 
+/**
+ * Adds callback handlers (for clients and server) for reference related
+ * messages received from a server or a client with MessageLevel::SERVER
+ * (respectively).
+ * This function uses C++11 lambda functions to define the behavior for every
+ * callback, that interface with the Publisher's functionality.
+ * @todo add checks for client MessageLevel when this is used for a server
+ * (only clients with message_level MessageLevel::SERVER ought to be able to
+ * interact)
+ */
+void ssr::OscReceiver::add_reference_methods()
+{
   // set reference position: "/reference/position, ff, x, y"
-  server.add_method("/reference/position", "ff", [this](lo_arg **argv, int)
+  _handler.server().add_method("/reference/position", "ff", [this](lo_arg **argv, int)
     {
       _controller.set_reference_position(Position(argv[0]->f, argv[1]->f));
       VERBOSE2("set reference position: " << Position(argv[0]->f, argv[1]->f));
@@ -862,7 +904,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /source/position.");
 
   // set reference orientation: "/reference/orientation, f, azimuth"
-  server.add_method("/reference/orientation", "f", [this](lo_arg **argv, int)
+  _handler.server().add_method("/reference/orientation", "f", [this](lo_arg **argv, int)
     {
       _controller.set_reference_orientation(Orientation(argv[0]->f));
       VERBOSE2("set reference orientation: " << Orientation(argv[0]->f));
@@ -871,7 +913,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /reference/orientation.");
 
   // set reference offset position: "/reference_offset/position, ff, x, y"
-  server.add_method("/reference_offset/position", "ff" , [this](lo_arg
+  _handler.server().add_method("/reference_offset/position", "ff" , [this](lo_arg
         **argv, int)
     {
       _controller.set_reference_offset_position(Position(argv[0]->f,
@@ -884,7 +926,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
 
   // set reference offset orientation: "/reference_offset/orientation, f,
   // azimuth"
-  server.add_method("/reference_offset/orientation", "f" , [this](lo_arg
+  _handler.server().add_method("/reference_offset/orientation", "f" , [this](lo_arg
         **argv, int)
     {
       _controller.set_reference_offset_orientation(Orientation(argv[0]->f));
@@ -893,9 +935,21 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /reference_offset/orientation.");
+}
 
+/**
+ * Adds callback handlers (for clients and server) for scene related messages
+ * received from a server or a client with MessageLevel::SERVER (respectively).
+ * This function uses C++11 lambda functions to define the behavior for every
+ * callback, that interface with the Publisher's functionality.
+ * @todo add checks for client MessageLevel when this is used for a server
+ * (only clients with message_level MessageLevel::SERVER ought to be able to
+ * interact)
+ */
+void ssr::OscReceiver::add_scene_methods()
+{
   // save scene to file: "/scene/save, s, file"
-  server.add_method("/scene/save", "s" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/save", "s" , [this](lo_arg **argv, int)
     {
       _controller.save_scene_as_XML(std::string(&(argv[0]->s)));
       VERBOSE2("saving scene as: " << std::string(&(argv[0]->s)));
@@ -904,7 +958,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /scene/save.");
 
   // load scene from file: "/scene/load, s, file"
-  server.add_method("/scene/load", "s" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/load", "s" , [this](lo_arg **argv, int)
     {
       _controller.load_scene(std::string(&(argv[0]->s)));
       VERBOSE2("loading scene: " << std::string(&(argv[0]->s)));
@@ -913,7 +967,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /scene/load.");
 
   // set master volume: "/scene/volume, f, volume"
-  server.add_method("/scene/volume", "f" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/volume", "f" , [this](lo_arg **argv, int)
     {
       _controller.set_master_volume(apf::math::dB2linear(argv[0]->f));
       VERBOSE2("set master volume: " << apf::math::dB2linear(argv[0]->f) <<
@@ -923,7 +977,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /scene/volume.");
 
   // clear scene: "/scene/clear"
-  server.add_method("/scene/clear", NULL , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/clear", NULL , [this](lo_arg **argv, int)
     {
       (void) argv;
       _controller.delete_all_sources();
@@ -931,9 +985,22 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /scene/clear.");
+}
 
+/**
+ * Adds callback handlers (for clients and server) for processing related
+ * messages received from a server or a client with MessageLevel::SERVER
+ * (respectively).
+ * This function uses C++11 lambda functions to define the behavior for every
+ * callback, that interface with the Publisher's functionality.
+ * @todo add checks for client MessageLevel when this is used for a server
+ * (only clients with message_level MessageLevel::SERVER ought to be able to
+ * interact)
+ */
+void ssr::OscReceiver::add_processing_methods()
+{
   // set processing state: "/processing/state, T, true"
-  server.add_method("/processing/state", "T" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/processing/state", "T" , [this](lo_arg **argv, int)
     {
       (void) argv;
       _controller.start_processing();
@@ -943,7 +1010,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /processing/state true.");
 
   // set processing state: "/processing/state, F, false"
-  server.add_method("/processing/state", "F" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/processing/state", "F" , [this](lo_arg **argv, int)
     {
       (void) argv;
       _controller.stop_processing();
@@ -951,9 +1018,22 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /processing/state false.");
+}
 
+/**
+ * Adds callback handlers (for clients and server) for transport related
+ * messages received from a server or a client with MessageLevel::SERVER
+ * (respectively).
+ * This function uses C++11 lambda functions to define the behavior for every
+ * callback, that interface with the Publisher's functionality.
+ * @todo add checks for client MessageLevel when this is used for a server
+ * (only clients with message_level MessageLevel::SERVER ought to be able to
+ * interact)
+ */
+void ssr::OscReceiver::add_transport_methods()
+{
   // set transport state: "transport/state, T, true"
-  server.add_method("transport/state", "T" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/transport/state", "T" , [this](lo_arg **argv, int)
     {
       (void) argv;
       _controller.transport_start();
@@ -963,7 +1043,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /transport/state true.");
 
   // set transport state: "/transport/state, F, false"
-  server.add_method("/transport/state", "F" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/transport/state", "F" , [this](lo_arg **argv, int)
     {
       (void) argv;
       _controller.transport_stop();
@@ -973,7 +1053,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /transport/state false.");
 
   // rewind transport state: "/transport/rewind"
-  server.add_method("/transport/rewind", NULL , [this](lo_arg **argv, int)
+  _handler.server().add_method("/transport/rewind", NULL , [this](lo_arg **argv, int)
     {
       (void) argv;
       _controller.transport_locate(0);
@@ -983,7 +1063,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   VERBOSE("OscReceiver: Added method for /transport/rewind.");
 
   // seek transport state: "/transport/seek, s, time"
-  server.add_method("/transport/seek", "s" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/transport/seek", "s" , [this](lo_arg **argv, int)
     {
       float time;
       if(apf::str::string2time(apf::str::A2S(argv[0]->s), time))
@@ -999,9 +1079,21 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /transport/seek.");
+}
 
+/**
+ * Adds callback handlers (for clients and server) for tracker related messages
+ * received from a server or a client with MessageLevel::SERVER (respectively).
+ * This function uses C++11 lambda functions to define the behavior for every
+ * callback, that interface with the Publisher's functionality.
+ * @todo add checks for client MessageLevel when this is used for a server
+ * (only clients with message_level MessageLevel::SERVER ought to be able to
+ * interact)
+ */
+void ssr::OscReceiver::add_tracker_methods()
+{
   // reset tracker: "/tracker/reset"
-  server.add_method("/tracker/reset", NULL , [this](lo_arg **argv, int)
+  _handler.server().add_method("/tracker/reset", NULL , [this](lo_arg **argv, int)
     {
       (void) argv;
       _controller.calibrate_client();
@@ -1009,5 +1101,5 @@ void ssr::OscReceiver::add_server_to_client_methods()
     }
   );
   VERBOSE("OscReceiver: Added method for /tracker/reset.");
-
 }
+

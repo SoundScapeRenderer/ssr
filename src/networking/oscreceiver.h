@@ -38,7 +38,15 @@ class OscReceiver
     Publisher& _controller;
     ssr::OscHandler& _handler;
     void add_client_to_server_methods();
-    void add_server_to_client_methods();
+    void add_update_notification_methods();
+    void add_poll_methods();
+    void add_source_methods();
+    void add_reference_methods();
+    void add_scene_methods();
+    void add_processing_methods();
+    void add_transport_methods();
+    void add_tracker_methods();
+
   public:
     OscReceiver(Publisher& controller, OscHandler& handler);
     ~OscReceiver();
