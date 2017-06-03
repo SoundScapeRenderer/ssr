@@ -172,8 +172,8 @@ void ssr::OscReceiver::add_update_notification_methods()
 
   // update on source position fixation: "/update/source/position_fixed, i{T,F},
   // id, {true,false}"
-  _handler.server().add_method("/update/source/position_fixed", NULL, [](lo_arg **argv,
-        int, lo::Message message)
+  _handler.server().add_method("/update/source/position_fixed", NULL, [](lo_arg
+        **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
       std::string position_fixed;
@@ -192,8 +192,8 @@ void ssr::OscReceiver::add_update_notification_methods()
   VERBOSE("OscReceiver: Added method for /update/source/position_fixed.");
 
   // update on source orientation: "/update/source/orientation, if, id, azimuth"
-  _handler.server().add_method("/update/source/orientation", "if", [](lo_arg **argv, int,
-        lo::Message message)
+  _handler.server().add_method("/update/source/orientation", "if", [](lo_arg
+        **argv, int, lo::Message message)
     {
       lo::Address client(message.source());
       VERBOSE3("Update: Client '" << client.hostname() << "', source id = " <<
@@ -213,10 +213,9 @@ void ssr::OscReceiver::add_update_notification_methods()
   );
   VERBOSE("OscReceiver: Added method for /update/source/volume.");
 
-  // update on source position mute: "/update/source/mute, i{T,F},
-  // id, {true,false}"
-  _handler.server().add_method("/update/source/mute", NULL, [](lo_arg **argv, int,
-        lo::Message message)
+  // update on source mute: "/update/source/mute, i{T,F}, id, {true,false}"
+  _handler.server().add_method("/update/source/mute", NULL, [](lo_arg **argv,
+        int, lo::Message message)
     {
       lo::Address client(message.source());
       std::string state;
@@ -567,122 +566,144 @@ void ssr::OscReceiver::add_poll_methods()
 void ssr::OscReceiver::add_source_methods()
 {
   // set source position: "source/position, iff, id, x, y"
-  _handler.server().add_method("/source/position", "iff", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/position", "iff", [this](lo_arg **argv,
+        int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/source/position, " << argv[0]->i << ", " <<
+        argv[1]->f << ", " <<  argv[2]->f << "] from client '" <<
+        message.source().hostname() << ":" << message.source().port() << "'.");
       _controller.set_source_position(argv[0]->i, Position(argv[1]->f,
             argv[2]->f));
-      VERBOSE2("set source position: id = " << argv[0]->i << ", " <<
-        Position(argv[1]->f, argv[2]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/position.");
+  VERBOSE("OscReceiver: Added method for /source/position iff.");
 
-  // set source fixed: "source/position_fixed, iT, id, true"
-  _handler.server().add_method("/source/position_fixed", "iT", [this](lo_arg **argv,
-        int)
+  // set source fixed: "source/position_fixed, i{T,F}, id, true|false"
+  _handler.server().add_method("/source/position_fixed", NULL, [this](lo_arg
+        **argv, int, lo::Message message)
     {
-      _controller.set_source_position_fixed(argv[0]->i, true);
-      VERBOSE2("set source position fixed: id = " << argv[0]->i <<
-          ", fixed = true");
+      if (!message.types().compare("iT"))
+      {
+        VERBOSE2("OscReceiver: Got [/source/position_fixed, " << argv[0]->i <<
+            ", true] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        _controller.set_source_position_fixed(argv[0]->i, true);
+      }
+      else if (!message.types().compare("iF"))
+      {
+        VERBOSE2("OscReceiver: Got [/source/position_fixed, " << argv[0]->i <<
+            ", false] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        _controller.set_source_position_fixed(argv[0]->i, false);
+      }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/position_fixed true.");
-
-  // set source fixed: "source/position_fixed, iF, id, false"
-  _handler.server().add_method("/source/position_fixed", "iF", [this](lo_arg **argv, int)
-    {
-      _controller.set_source_position_fixed(argv[0]->i, false);
-      VERBOSE2("set source position fixed: id = " << argv[0]->i <<
-          ", fixed = false");
-    }
-  );
-  VERBOSE("OscReceiver: Added method for /source/position_fixed false.");
+  VERBOSE("OscReceiver: Added method for /source/position_fixed i{T,F}.");
 
   // set source orientation: "source/orientation, if, id, azimuth"
-  _handler.server().add_method("/source/orientation", "if", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/orientation", "if", [this](lo_arg
+        **argv, int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/source/orientation, " << argv[0]->i << ", "
+          << argv[1]->f << "] from client '" << message.source().hostname() <<
+          ":" << message.source().port() << "'.");
       _controller.set_source_orientation(argv[0]->i, Orientation(argv[1]->f));
-      VERBOSE2("set source orientation: id = " << argv[0]->i << ", " <<
-          Orientation(argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/orientation.");
+  VERBOSE("OscReceiver: Added method for /source/orientation if.");
 
-  // set source volume: "source/volume, if, id, volume"
-  _handler.server().add_method("/source/volume", "if", [this](lo_arg **argv, int)
+  // set source volume: "/source/volume, if, id, volume"
+  _handler.server().add_method("/source/volume", "if", [this](lo_arg **argv,
+        int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/source/volume, " << argv[0]->i << ", " <<
+          argv[1]->f << "] from client '" << message.source().hostname() << ":"
+          << message.source().port() << "'.");
       _controller.set_source_gain(argv[0]->i,
           apf::math::dB2linear(argv[1]->f));
-      VERBOSE2("set source volume: id = " << argv[0]->i << ", volume = " <<
-          apf::math::dB2linear(argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/volume.");
+  VERBOSE("OscReceiver: Added method for /source/volume if.");
 
-  // set source mute: "source/mute, iT, id, true"
-  _handler.server().add_method("/source/mute", "iT", [this](lo_arg **argv, int)
+  // set source mute: "source/mute, i{T,F}, id, true|false"
+  _handler.server().add_method("/source/mute", NULL, [this](lo_arg **argv, int,
+        lo::Message message)
     {
-      _controller.set_source_mute(argv[0]->i, true);
-      VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = true");
+      if(!message.types().compare("iT"))
+      {
+        VERBOSE2("OscReceiver: Got [/source/mute, " << argv[0]->i <<
+            ", true] from client '"<< message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        _controller.set_source_mute(argv[0]->i, true);
+      }
+      else if(!message.types().compare("iF"))
+      {
+        VERBOSE2("OscReceiver: Got [/source/mute, " << argv[0]->i <<
+            ", false] from client '"<< message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        _controller.set_source_mute(argv[0]->i, false);
+      }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/mute true.");
-
-  // set source mute: "source/mute, iF, id, false"
-  _handler.server().add_method("/source/mute", "iF", [this](lo_arg **argv, int)
-    {
-      _controller.set_source_mute(argv[0]->i, false);
-      VERBOSE2("set source mute: id = " << argv[0]->i << ", mute = false");
-    }
-  );
-  VERBOSE("OscReceiver: Added method for /source/mute false.");
+  VERBOSE("OscReceiver: Added method for /source/mute i{T,F}.");
 
   // set source name: "source/name, is, id, name"
-  _handler.server().add_method("/source/name", "is", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/name", "is", [this](lo_arg **argv, int,
+      lo::Message message)
     {
-      _controller.set_source_name(argv[0]->i, apf::str::A2S(argv[1]->s));
-      VERBOSE2("set source name: id = " << argv[0]->i << ", name = " <<
-          apf::str::A2S(argv[1]->s));
+      std::string name(&argv[1]->s);
+      VERBOSE2("OscReceiver: Got [/source/name, " << argv[0]->i << ", " <<
+          name << "] from client '" << message.source().hostname() << ":" <<
+          message.source().port() <<
+          "'.");
+      _controller.set_source_name(argv[0]->i, name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/name.");
+  VERBOSE("OscReceiver: Added method for /source/name is.");
 
   // set source file: "/source/properties_file, is, id, properties_file"
   _handler.server().add_method("/source/properties_file", "is", [this](lo_arg **argv,
-        int)
+        int, lo::Message message)
     {
-      _controller.set_source_properties_file(argv[0]->i,
-          apf::str::A2S(argv[1]->s));
-      VERBOSE2("set source properties file name: id = " << argv[0]->i <<
-          ", file = " << apf::str::A2S(argv[1]->s));
+      std::string name(&argv[1]->s);
+      VERBOSE2("OscReceiver: Got [/source/properties_file, " << argv[0]->i <<
+          ", " << name << "] from client '" << message.source().hostname() <<
+          ":" << message.source().port() << "'.");
+      _controller.set_source_properties_file(argv[0]->i, name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/properties_file.");
+  VERBOSE("OscReceiver: Added method for /source/properties_file is.");
 
   // set source model: "/source/model, is, id, model"
-  _handler.server().add_method("/source/model", "is", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/model", "is", [this](lo_arg **argv,
+        int, lo::Message message)
     {
+      std::string name(&argv[1]->s);
       Source::model_t model = Source::model_t();
-      if (!apf::str::S2A(apf::str::A2S(argv[1]->s), model))
+      if (!apf::str::S2A(name, model))
       {
         model = Source::point;
       }
+      VERBOSE2("OscReceiver: Got [/source/model, " << argv[0]->i << ", " <<
+          name << "] from client '" << message.source().hostname() << ":" <<
+          message.source().port() << "'.");
       _controller.set_source_model(argv[0]->i, model);
-      VERBOSE2("set source model: id = " << argv[0]->i << ", model = " <<
-          apf::str::A2S(argv[1]->s));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/model.");
+  VERBOSE("OscReceiver: Added method for /source/model is.");
 
   // set source port name: "/source/port_name, is, id, port_name"
-  _handler.server().add_method("/source/port_name", "is", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/port_name", "is", [this](lo_arg **argv,
+        int, lo::Message message)
     {
-      _controller.set_source_port_name(argv[0]->i, apf::str::A2S(argv[1]->s));
-      VERBOSE2("set source port name: id = " << argv[0]->i << ", port = " <<
-          apf::str::A2S(argv[1]->s));
+      std::string name(&argv[1]->s);
+      VERBOSE2("OscReceiver: Got [/source/port_name, " << argv[0]->i << ", " <<
+          name << "] from client '" << message.source().hostname() << ":" << 
+          message.source().port() << "'.");
+      _controller.set_source_port_name(argv[0]->i, name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/port_name.");
+  VERBOSE("OscReceiver: Added method for /source/port_name is.");
 
   // create new source: "/source/new, sssffff{T,F}{T,F}{T,F}, name, model,
   // file_name_or_port_number, x, y, orientation, volume, position_fixed,
@@ -693,7 +714,6 @@ void ssr::OscReceiver::add_source_methods()
   _handler.server().add_method("/source/new", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
-      VERBOSE3("OscReceiver: [/source/new, " << message.types() << "].");
       std::string name(&(argv[0]->s));
       std::string file_name_or_port_number(&(argv[2]->s));
       std::string types(message.types());
@@ -702,6 +722,7 @@ void ssr::OscReceiver::add_source_methods()
       float volume(argv[6]->f);
       int channel = 0;
       std::string properties_file = "";
+      std::string channel_and_properties = "";
       bool position_fixed;
       bool orientation_fixed;
       bool muted;
@@ -773,6 +794,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = true;
         muted = true;
@@ -782,6 +804,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = true;
         muted = false;
@@ -791,6 +814,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = false;
         muted = false;
@@ -800,6 +824,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = false;
         muted = false;
@@ -809,6 +834,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = false;
         muted = true;
@@ -818,6 +844,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = true;
         muted = false;
@@ -827,6 +854,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = true;
         muted = true;
@@ -836,6 +864,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         channel = argv[7]->i;
         properties_file = &(argv[8]->s);
+        channel_and_properties = (channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = false;
         muted = true;
@@ -843,10 +872,19 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (setup)
       {
+        VERBOSE3("OscReceiver: Got [/source/new, " << name << ", " << model <<
+            ", " << file_name_or_port_number << ", " << x << ", " << y << ", "
+            << orientation.azimuth << ", " << volume << ", " <<
+            channel_and_properties << ", " <<
+            _handler.bool_to_string(position_fixed) << ", " <<
+            _handler.bool_to_string(orientation_fixed) << ", " <<
+            _handler.bool_to_string(muted) <<  "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
         _controller.new_source(name, model, file_name_or_port_number, channel,
-            position, position_fixed, orientation, orientation_fixed,
-            volume, muted, properties_file);
-        VERBOSE2("Creating source with following properties:"
+            position, position_fixed, orientation, orientation_fixed, volume,
+            muted, properties_file);
+        VERBOSE2("OscReceiver: Created source with following properties:"
             "\nname: " << name <<
             "\nmodel: " << model <<
             "\nfile_name_or_port_number: " << file_name_or_port_number <<
@@ -861,25 +899,27 @@ void ssr::OscReceiver::add_source_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/new.");
+  VERBOSE("OscReceiver: Added method for /source/new {sssffff,sssffffis}{F,T}{F,T}{F,T}.");
 
   // delete source: "/source/delete, i, id"
   // special case: i == 0 deletes all sources!
-  _handler.server().add_method("/source/delete", "i", [this](lo_arg **argv, int)
+  _handler.server().add_method("/source/delete", "i", [this](lo_arg **argv,
+        int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/source/delete, " << argv[0]->i <<
+          "] from client '" << message.source().hostname() << ":" <<
+          message.source().port() << "'.");
       if (argv[0]->i == 0)
       {
         _controller.delete_all_sources();
-        VERBOSE2("delete all sources");
       }
       else
       {
         _controller.delete_source(argv[0]->i);
-        VERBOSE2("delete source with id = " << argv[0]->i);
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/delete.");
+  VERBOSE("OscReceiver: Added method for /source/delete i.");
 }
 
 /**
