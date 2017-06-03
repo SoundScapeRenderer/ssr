@@ -20,12 +20,6 @@
 #include "subscriber.h"
 #include "apf/parameter_map.h"
 
-namespace
-{
-  const std::string _message_type_false{"F"};
-  const std::string _message_type_true{"T"};
-}
-
 namespace ssr
 {
 
@@ -66,7 +60,6 @@ class OscSender : public Subscriber
     bool is_client();
     bool is_server();
     bool server_is_default();
-    const std::string bool_to_message_type(const bool& message);
     void poll_all_clients();
     void remove_all_clients();
     bool is_new_source(id_t id); //< check, if source id is in _new_sources
