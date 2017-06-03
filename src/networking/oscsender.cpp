@@ -113,21 +113,21 @@ bool ssr::OscSender::server_is_default()
   }
 }
 
-/**
- * Returns true, if the _server_address is the default (setup at initialization)
- * @return true, if _server_address is the default, false otherwise.
- */
-const std::string ssr::OscSender::bool_to_message_type(const bool& message)
-{
-  if(message)
-  {
-    return _message_type_true;
-  }
-  else
-  {
-    return _message_type_false;
-  }
-}
+///**
+// * Returns true, if the _server_address is the default (setup at initialization)
+// * @return true, if _server_address is the default, false otherwise.
+// */
+//const std::string ssr::OscSender::bool_to_message_type(const bool& message)
+//{
+//  if(message)
+//  {
+//    return _message_type_true;
+//  }
+//  else
+//  {
+//    return _message_type_false;
+//  }
+//}
 
 /**
  * Sends a '/poll' message to all client instances listed in _clients, then
@@ -368,11 +368,11 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
       {
         client->address().send_from(_handler.server(), "/source/new",
             "sssffffis"+
-            bool_to_message_type(_new_sources.at(id).get<bool>(
+            _handler.bool_to_message_type(_new_sources.at(id).get<bool>(
                 "position_fixed", false))
-            +bool_to_message_type(_new_sources.at(id).get<bool>(
+            +_handler.bool_to_message_type(_new_sources.at(id).get<bool>(
                 "orientation_fixed", false))
-            +bool_to_message_type(_new_sources.at(id).get<bool>(
+            +_handler.bool_to_message_type(_new_sources.at(id).get<bool>(
                 "mute", false)),
             _new_sources.at(id).get<std::string>("name", "").c_str(),
             _new_sources.at(id).get<std::string>("model", "").c_str(),
@@ -385,13 +385,12 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<int>("channel", 1),
             _new_sources.at(id).get<std::string>("properties_file", ""));
         VERBOSE2("OscSender: Sent [/source/new, sssffffis" <<
-            bool_to_message_type(_new_sources.at(id).get<bool>(
+            _handler.bool_to_message_type(_new_sources.at(id).get<bool>(
                 "position_fixed", false)) <<
-            bool_to_message_type(_new_sources.at(id).get<bool>(
+            _handler.bool_to_message_type(_new_sources.at(id).get<bool>(
                 "orientation_fixed", false)) <<
-            bool_to_message_type(_new_sources.at(id).get<bool>("mute",
-                false)) <<
-            ", " <<
+            _handler.bool_to_message_type(_new_sources.at(id).get<bool>(
+                "mute", false)) << ", " <<
             _new_sources.at(id).get<std::string>("name", "") << ", " <<
             _new_sources.at(id).get<std::string>("model", "") << ", " <<
             _new_sources.at(id).get<std::string>("file_name_or_port_number","")
@@ -425,12 +424,12 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
       {
         client->address().send_from(_handler.server(), "/source/new",
             "sssffff"+
-            bool_to_message_type(
+            _handler.bool_to_message_type(
               _new_sources.at(id).get<bool>("position_fixed", false))
-            +bool_to_message_type(
+            +_handler.bool_to_message_type(
               _new_sources.at(id).get<bool>("orientation_fixed", false))
-            +bool_to_message_type(_new_sources.at(id).get<bool>("mute",
-                false)),
+            +_handler.bool_to_message_type(_new_sources.at(id).get<bool>(
+                "mute", false)),
             _new_sources.at(id).get<std::string>("name", "").c_str(),
             _new_sources.at(id).get<std::string>("model", "").c_str(),
             _new_sources.at(id).get<std::string>(
@@ -440,11 +439,11 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("orientation", 0.0),
             _new_sources.at(id).get<float>("volume", 0.0));
         VERBOSE2("OscSender: Sent [/source/new, sssffff" <<
-            bool_to_message_type(
+            _handler.bool_to_message_type(
               _new_sources.at(id).get<bool>( "position_fixed", false)) <<
-            bool_to_message_type(
+            _handler.bool_to_message_type(
               _new_sources.at(id).get<bool>("orientation_fixed", false)) <<
-            bool_to_message_type(
+            _handler.bool_to_message_type(
               _new_sources.at(id).get<bool>("mute", false)) << ", " <<
             _new_sources.at(id).get<std::string>("name", "") << ", " <<
             _new_sources.at(id).get<std::string>("model", "") << ", " <<
@@ -744,10 +743,10 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
         if(client && client->active())
         {
           client->address().send_from(_handler.server(),
-              "/source/position_fixed", "i"+bool_to_message_type(fixed),
+              "/source/position_fixed", "i"+_handler.bool_to_message_type(fixed),
               message_id);
           VERBOSE3("OscSender: Sent [/source/position_fixed, i" <<
-              bool_to_message_type(fixed) << ", " << message_id <<
+              _handler.bool_to_message_type(fixed) << ", " << message_id <<
               "] to client " << client->address().hostname() << ":" <<
               client->address().port() << ".");
         }
@@ -757,10 +756,11 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
   else if(is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/position_fixed",
-        "i"+bool_to_message_type(fixed), message_id);
+        "i"+_handler.bool_to_message_type(fixed), message_id);
     VERBOSE3("OscSender: Sent [/update/source/position_fixed, i"
-        +bool_to_message_type(fixed) << ", " << message_id << "] to server "
-        << _server_address.hostname() << ":" << _server_address.port() << ".");
+        +_handler.bool_to_message_type(fixed) << ", " << message_id <<
+        "] to server " << _server_address.hostname() << ":" <<
+        _server_address.port() << ".");
   }
   return true;
 }
@@ -899,9 +899,9 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
         if(client && client->active())
         {
           client->address().send_from(_handler.server(), "/source/mute",
-              "i"+bool_to_message_type(mute), message_id);
+              "i"+_handler.bool_to_message_type(mute), message_id);
           VERBOSE3("OscSender: Sent [/source/mute, i" <<
-              bool_to_message_type(mute) << ", " << message_id <<
+              _handler.bool_to_message_type(mute) << ", " << message_id <<
               "] to client " << client->address().hostname() << ":" <<
               client->address().port() << ".");
         }
@@ -911,9 +911,10 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
   else if(is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/mute",
-        "i"+bool_to_message_type(mute), message_id);
-    VERBOSE3("OscSender: Sent [/update/source/mute, i" << bool_to_message_type(mute) <<
-        ", " <<  apf::str::A2S(message_id) << "] to server " <<
+        "i"+_handler.bool_to_message_type(mute), message_id);
+    VERBOSE3("OscSender: Sent [/update/source/mute, i" <<
+        _handler.bool_to_message_type(mute) << ", " <<
+        apf::str::A2S(message_id) << "] to server " <<
         _server_address.hostname() << ":" << _server_address.port() << ".");
   }
   return true;
@@ -1533,9 +1534,9 @@ void ssr::OscSender::set_processing_state(bool state)
       if(client && client->active())
       {
         client->address().send_from(_handler.server(), "/processing/state",
-            bool_to_message_type(state));
+            _handler.bool_to_message_type(state));
         VERBOSE3("OscSender: Sent [/processing/state, " <<
-            bool_to_message_type(state) << "] to client " <<
+            _handler.bool_to_message_type(state) << "] to client " <<
             client->address().hostname() << ":" << client->address().port()
             << ".");
       }
@@ -1544,9 +1545,9 @@ void ssr::OscSender::set_processing_state(bool state)
   else if(is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/processing/state",
-        bool_to_message_type(state));
+        _handler.bool_to_message_type(state));
     VERBOSE3("OscSender: Sent [/update/processing/state, " <<
-        bool_to_message_type(state) << "] to server " <<
+        _handler.bool_to_message_type(state) << "] to server " <<
         _server_address.hostname() << ":" << _server_address.port() << ".");
   }
 }
@@ -1574,9 +1575,9 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
           MessageLevel::CLIENT)
       {
         client->address().send_from(_handler.server(), "/transport/state",
-            bool_to_message_type(state.first));
+            _handler.bool_to_message_type(state.first));
         VERBOSE3("OscSender: Sent [/transport/state, " <<
-            bool_to_message_type(state.first) << "] to client " <<
+            _handler.bool_to_message_type(state.first) << "] to client " <<
             client->address().hostname() << ":" << client->address().port() <<
             ".");
         client->address().send_from(_handler.server(), "/transport/seek", "i",
@@ -1591,9 +1592,9 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
       MessageLevel::GUI_CLIENT)
   {
     _server_address.send_from(_handler.server(), "/update/transport/state",
-        bool_to_message_type(state.first));
+        _handler.bool_to_message_type(state.first));
     VERBOSE3("OscSender: Sent [/update/transport/state, " <<
-        bool_to_message_type(state.first) << "] to server " <<
+        _handler.bool_to_message_type(state.first) << "] to server " <<
         _server_address.hostname() << ":" << _server_address.port() << ".");
     _server_address.send_from(_handler.server(), "/update/transport/seek", "i",
         message_nframes);
@@ -1625,11 +1626,11 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
       {
         client->address().send_from(_handler.server(),
             "/scene/auto_rotate_sources",
-            bool_to_message_type(auto_rotate_sources));
+            _handler.bool_to_message_type(auto_rotate_sources));
         VERBOSE3("OscSender: Sent [/scene/auto_rotate_sources, " <<
-            bool_to_message_type(auto_rotate_sources) << "] to client " <<
-            client->address().hostname() << ":" << client->address().port()
-            << ".");
+            _handler.bool_to_message_type(auto_rotate_sources) <<
+            "] to client " << client->address().hostname() << ":" <<
+            client->address().port() << ".");
       }
     }
   }
@@ -1637,9 +1638,9 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
   {
     _server_address.send_from(_handler.server(),
         "/update/scene/auto_rotate_sources",
-        bool_to_message_type(auto_rotate_sources));
+        _handler.bool_to_message_type(auto_rotate_sources));
     VERBOSE3("OscSender: Sent [/update/scene/auto_rotate_sources, " <<
-        bool_to_message_type(auto_rotate_sources) << "] to server " <<
+        _handler.bool_to_message_type(auto_rotate_sources) << "] to server " <<
         _server_address.hostname() << ":" << _server_address.port() << ".");
   }
 }
