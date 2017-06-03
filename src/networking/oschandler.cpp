@@ -230,3 +230,36 @@ lo::ServerThread& ssr::OscHandler::server()
   return _server;
 }
 
+/**
+ * Returns a std::string representing the message type of a boolean type
+ * @param message bool
+ * @return _message_type_true if message true, _message_type_false otherwise
+ */
+const std::string ssr::OscHandler::bool_to_message_type(const bool& message)
+{
+  if(message)
+  {
+    return _message_type_true;
+  }
+  else
+  {
+    return _message_type_false;
+  }
+}
+
+/**
+ * Returns a std::string representing the string of a boolean type
+ * @param message bool
+ * @return 'true' if message true, 'false' otherwise
+ */
+const std::string ssr::OscHandler::bool_to_string(const bool& message)
+{
+  if(message)
+  {
+    return _string_true;
+  }
+  else
+  {
+    return _string_false;
+  }
+}

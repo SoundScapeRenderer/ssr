@@ -18,6 +18,14 @@
 #include "oscreceiver.h"
 #include "oscsender.h"
 
+namespace
+{
+  const std::string _message_type_false{"F"};
+  const std::string _message_type_true{"T"};
+  const std::string _string_false{"false"};
+  const std::string _string_true{"true"};
+}
+
 namespace ssr
 {
 
@@ -47,6 +55,9 @@ class OscHandler
     void stop();
     std::string mode();
     lo::ServerThread& server();
+    const std::string bool_to_message_type(const bool& message);
+    const std::string bool_to_string(const bool& message);
+    // OscReceiver friend functions
     friend void OscReceiver::set_server_for_client(OscHandler& self,
         lo::Address server_address);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
