@@ -54,6 +54,8 @@ class OscHandler
     void start();
     void stop();
     std::string mode();
+    bool is_client();
+    bool is_server();
     lo::ServerThread& server();
     const std::string bool_to_message_type(const bool& message);
     const std::string bool_to_string(const bool& message);

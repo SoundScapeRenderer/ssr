@@ -222,6 +222,38 @@ std::string ssr::OscHandler::mode()
 }
 
 /**
+ * Returns true, if the instance of OscHandler is a 'client', false otherwise.
+ * @return true, if _oschandler.mode() returns 'client', false otherwise.
+ */
+bool ssr::OscHandler::is_client()
+{
+  if(!_mode.compare("client"))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+/**
+ * Returns true, if the instance of OscHandler is a 'server', false otherwise.
+ * @return true, if _oschandler.mode() returns 'server', false otherwise.
+ */
+bool ssr::OscHandler::is_server()
+{
+  if(!_mode.compare("server"))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+/**
  * Return reference to OscHandler's lo::ServerThread
  * @return lo::ServerThread& reference to _server
  */
