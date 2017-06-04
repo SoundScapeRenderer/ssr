@@ -39,7 +39,7 @@ void ssr::OscReceiver::start()
 {
   VERBOSE("OscReceiver: Starting.");
   // add method handlers for received messages
-  if (!_handler.mode().compare("server"))
+  if (_handler.is_server())
   {
     add_client_to_server_methods();
     add_update_notification_methods();
@@ -50,7 +50,7 @@ void ssr::OscReceiver::start()
     add_transport_methods();
     add_tracker_methods();
   }
-  else if (!_handler.mode().compare("client"))
+  else if (_handler.is_client())
   {
     add_poll_methods();
     add_source_methods();
@@ -544,10 +544,10 @@ void ssr::OscReceiver::add_poll_methods()
           (from.hostname().compare("none") != 0)
         )
       {
+        VERBOSE2("OscReceiver: Got [/poll] from server " << from.hostname() <<
+            ":" << from.port() << ". Subscribing...");
         set_server_for_client(_handler, from);
         from.send_from(_handler.server(), "/subscribe", "T");
-        VERBOSE2("OscReceiver: Got /poll from server " << from.hostname() <<
-            ":" << from.port() << ". Subscribing...");
       }
     }
   );
@@ -935,46 +935,55 @@ void ssr::OscReceiver::add_source_methods()
 void ssr::OscReceiver::add_reference_methods()
 {
   // set reference position: "/reference/position, ff, x, y"
-  _handler.server().add_method("/reference/position", "ff", [this](lo_arg **argv, int)
+  _handler.server().add_method("/reference/position", "ff", [this](lo_arg
+        **argv, int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/reference/position, " << argv[0]->f << ", "
+          << argv[1]->f << "] from client '" << message.source().hostname() <<
+          ":" <<  message.source().port() << "'.");
       _controller.set_reference_position(Position(argv[0]->f, argv[1]->f));
-      VERBOSE2("set reference position: " << Position(argv[0]->f, argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/position.");
+  VERBOSE("OscReceiver: Added method for /reference/position ff.");
 
   // set reference orientation: "/reference/orientation, f, azimuth"
-  _handler.server().add_method("/reference/orientation", "f", [this](lo_arg **argv, int)
+  _handler.server().add_method("/reference/orientation", "f", [this](lo_arg
+        **argv, int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/reference/orientation, " << argv[0]->f <<
+          "] from client '" << message.source().hostname() << ":" <<
+          message.source().port() << "'.");
       _controller.set_reference_orientation(Orientation(argv[0]->f));
-      VERBOSE2("set reference orientation: " << Orientation(argv[0]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /reference/orientation.");
+  VERBOSE("OscReceiver: Added method for /reference/orientation f.");
 
   // set reference offset position: "/reference_offset/position, ff, x, y"
   _handler.server().add_method("/reference_offset/position", "ff" , [this](lo_arg
-        **argv, int)
+        **argv, int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/reference/offset_position, " << argv[0]->f
+          << ", " << argv[1]->f << "] from client '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
       _controller.set_reference_offset_position(Position(argv[0]->f,
             argv[1]->f));
-      VERBOSE2("set reference offset position: " << Position(argv[0]->f,
-          argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /reference_offset/position.");
+  VERBOSE("OscReceiver: Added method for /reference_offset/position ff.");
 
   // set reference offset orientation: "/reference_offset/orientation, f,
   // azimuth"
   _handler.server().add_method("/reference_offset/orientation", "f" , [this](lo_arg
-        **argv, int)
+        **argv, int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/reference_offset/orientation, " <<
+          argv[0]->f << "] from client '" << message.source().hostname() << ":"
+          << message.source().port() << "'.");
       _controller.set_reference_offset_orientation(Orientation(argv[0]->f));
-      VERBOSE2("set reference offset orientation: " <<
-          Orientation(argv[0]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /reference_offset/orientation.");
+  VERBOSE("OscReceiver: Added method for /reference_offset/orientation f.");
 }
 
 /**
@@ -989,39 +998,52 @@ void ssr::OscReceiver::add_reference_methods()
 void ssr::OscReceiver::add_scene_methods()
 {
   // save scene to file: "/scene/save, s, file"
-  _handler.server().add_method("/scene/save", "s" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/save", "s" , [this](lo_arg **argv, int,
+        lo::Message message)
     {
-      _controller.save_scene_as_XML(std::string(&(argv[0]->s)));
-      VERBOSE2("saving scene as: " << std::string(&(argv[0]->s)));
+      std::string name(&argv[0]->s);
+      VERBOSE2("OscReceiver: Got [/scene/save, " << name << "] from client '"
+          << message.source().hostname() << ":" << message.source().port() <<
+          "'.");
+      _controller.save_scene_as_XML(name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /scene/save.");
+  VERBOSE("OscReceiver: Added method for /scene/save s.");
 
   // load scene from file: "/scene/load, s, file"
-  _handler.server().add_method("/scene/load", "s" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/load", "s" , [this](lo_arg **argv, int,
+        lo::Message message)
     {
-      _controller.load_scene(std::string(&(argv[0]->s)));
-      VERBOSE2("loading scene: " << std::string(&(argv[0]->s)));
+      std::string name(&argv[0]->s);
+      VERBOSE2("OscReceiver: Got [/scene/load, " << name << "] from client '"
+          << message.source().hostname() << ":" << message.source().port() <<
+          "'.");
+      _controller.load_scene(name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /scene/load.");
+  VERBOSE("OscReceiver: Added method for /scene/load s.");
 
   // set master volume: "/scene/volume, f, volume"
-  _handler.server().add_method("/scene/volume", "f" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/volume", "f" , [this](lo_arg **argv,
+      int, lo::Message message)
     {
+      VERBOSE2("OscReceiver: Got [/scene/volume, " << argv[0]->f <<
+          "] from client '" << message.source().hostname() << ":" <<
+          message.source().port() << "'.");
       _controller.set_master_volume(apf::math::dB2linear(argv[0]->f));
-      VERBOSE2("set master volume: " << apf::math::dB2linear(argv[0]->f) <<
-          " dB");
     }
   );
-  VERBOSE("OscReceiver: Added method for /scene/volume.");
+  VERBOSE("OscReceiver: Added method for /scene/volume f.");
 
   // clear scene: "/scene/clear"
-  _handler.server().add_method("/scene/clear", NULL , [this](lo_arg **argv, int)
+  _handler.server().add_method("/scene/clear", NULL , [this](lo_arg **argv,
+        int, lo::Message message)
     {
       (void) argv;
+      VERBOSE2("OscReceiver: [/scene/clear] from client '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
       _controller.delete_all_sources();
-      VERBOSE2("clearing scene.");
     }
   );
   VERBOSE("OscReceiver: Added method for /scene/clear.");
@@ -1040,24 +1062,30 @@ void ssr::OscReceiver::add_scene_methods()
 void ssr::OscReceiver::add_processing_methods()
 {
   // set processing state: "/processing/state, T, true"
-  _handler.server().add_method("/processing/state", "T" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/processing/state", NULL, [this](lo_arg **argv,
+        int, lo::Message message)
     {
       (void) argv;
-      _controller.start_processing();
-      VERBOSE2("start processing.");
+      if(!message.types().compare("T"))
+      {
+        VERBOSE2("OscReceiver: Got [/processing/state, " <<
+            _handler.bool_to_string(true) << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        _controller.start_processing();
+      }
+      else if(!message.types().compare("T"))
+      {
+        VERBOSE2("OscReceiver: Got [/processing/state, " <<
+            _handler.bool_to_string(false) << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        _controller.stop_processing();
+      }
     }
   );
-  VERBOSE("OscReceiver: Added method for /processing/state true.");
+  VERBOSE("OscReceiver: Added method for /processing/state {T,F}.");
 
-  // set processing state: "/processing/state, F, false"
-  _handler.server().add_method("/processing/state", "F" , [this](lo_arg **argv, int)
-    {
-      (void) argv;
-      _controller.stop_processing();
-      VERBOSE2("stop processing.");
-    }
-  );
-  VERBOSE("OscReceiver: Added method for /processing/state false.");
 }
 
 /**
@@ -1073,52 +1101,64 @@ void ssr::OscReceiver::add_processing_methods()
 void ssr::OscReceiver::add_transport_methods()
 {
   // set transport state: "transport/state, T, true"
-  _handler.server().add_method("/transport/state", "T" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/transport/state", "T" , [this](lo_arg **argv,
+        int, lo::Message message)
     {
       (void) argv;
-      _controller.transport_start();
-      VERBOSE2("start transport.");
+      if(!message.types().compare("T"))
+      {
+        VERBOSE2("OscReceiver: Got [/transport/state, " <<
+            _handler.bool_to_string(true) << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        _controller.transport_start();
+      }
+      if(!message.types().compare("F"))
+      {
+        VERBOSE2("OscReceiver: Got [/transport/state, " <<
+            _handler.bool_to_string(false) << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        _controller.transport_stop();
+      }
     }
   );
-  VERBOSE("OscReceiver: Added method for /transport/state true.");
-
-  // set transport state: "/transport/state, F, false"
-  _handler.server().add_method("/transport/state", "F" , [this](lo_arg **argv, int)
-    {
-      (void) argv;
-      _controller.transport_stop();
-      VERBOSE2("stop transport.");
-    }
-  );
-  VERBOSE("OscReceiver: Added method for /transport/state false.");
+  VERBOSE("OscReceiver: Added method for /transport/state {T,F}.");
 
   // rewind transport state: "/transport/rewind"
-  _handler.server().add_method("/transport/rewind", NULL , [this](lo_arg **argv, int)
+  _handler.server().add_method("/transport/rewind", NULL , [this](lo_arg
+        **argv, int, lo::Message message)
     {
       (void) argv;
+      VERBOSE2("OscReceiver: Got [/transport/rewind] from client '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
       _controller.transport_locate(0);
-      VERBOSE2("rewind transport.");
     }
   );
   VERBOSE("OscReceiver: Added method for /transport/rewind.");
 
   // seek transport state: "/transport/seek, s, time"
-  _handler.server().add_method("/transport/seek", "s" , [this](lo_arg **argv, int)
+  _handler.server().add_method("/transport/seek", "s" , [this](lo_arg **argv,
+        int, lo::Message message)
     {
       float time;
-      if(apf::str::string2time(apf::str::A2S(argv[0]->s), time))
+      std::string message_time(&argv[0]->s);
+      if(apf::str::string2time(message_time, time))
       {
+        VERBOSE2("OscReceiver: Got [/transport/seek, " << message_time <<
+            "] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
         _controller.transport_locate(time);
-        VERBOSE2("Seek transport to: " << time);
       }
       else
       {
         ERROR("Couldn't get the time out of the \"seek\" attribute (\""
-            << argv[0]->s << "\").");
+            << message_time << "\").");
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /transport/seek.");
+  VERBOSE("OscReceiver: Added method for /transport/seek s.");
 }
 
 /**
@@ -1133,11 +1173,14 @@ void ssr::OscReceiver::add_transport_methods()
 void ssr::OscReceiver::add_tracker_methods()
 {
   // reset tracker: "/tracker/reset"
-  _handler.server().add_method("/tracker/reset", NULL , [this](lo_arg **argv, int)
+  _handler.server().add_method("/tracker/reset", NULL , [this](lo_arg **argv,
+        int, lo::Message message)
     {
       (void) argv;
+      VERBOSE2("OscReceiver: Got [/tracker/reset] from client " <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
       _controller.calibrate_client();
-      VERBOSE2("calibrate tracker.");
     }
   );
   VERBOSE("OscReceiver: Added method for /tracker/reset.");
