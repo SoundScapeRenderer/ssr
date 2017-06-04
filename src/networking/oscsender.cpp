@@ -39,7 +39,7 @@ void ssr::OscSender::start()
 {
   _controller.subscribe(this);
   _is_subscribed = true;
-  if (is_server())
+  if (_handler.is_server())
   {
     _poll_all_clients = true;
     std::thread _poll_thread(&OscSender::poll_all_clients, this);
@@ -56,43 +56,11 @@ void ssr::OscSender::stop()
 {
   _controller.unsubscribe(this);
   _is_subscribed = false;
-  if (is_server())
+  if (_handler.is_server())
   {
     remove_all_clients();
     _poll_all_clients = false;
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  }
-}
-
-/**
- * Returns true, if the instance of OscHandler is a 'client', false otherwise.
- * @return true, if _oschandler.mode() returns 'client', false otherwise.
- */
-bool ssr::OscSender::is_client()
-{
-  if(!_handler.mode().compare("client"))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-/**
- * Returns true, if the instance of OscHandler is a 'server', false otherwise.
- * @return true, if _oschandler.mode() returns 'server', false otherwise.
- */
-bool ssr::OscSender::is_server()
-{
-  if(!_handler.mode().compare("server"))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
   }
 }
 
@@ -577,14 +545,14 @@ void ssr::OscSender::set_loudspeakers(const Loudspeaker::container_t&
  */
 void ssr::OscSender::new_source(id_t id)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     if(!is_new_source(id))
       _new_sources.insert(make_pair(id, apf::parameter_map()));
     if(is_complete_source(id))
       send_new_source_message_from_id(id);
   }
-  else if(is_client())
+  else if(_handler.is_client())
   {
     int32_t message_id = static_cast<int32_t>(id);
     _server_address.send_from(_handler.server(), "/update/source/new", "i",
@@ -605,7 +573,7 @@ void ssr::OscSender::new_source(id_t id)
 void ssr::OscSender::delete_source(id_t id)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -619,7 +587,7 @@ void ssr::OscSender::delete_source(id_t id)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _source_levels.erase(id);
     _server_address.send_from(_handler.server(), "/update/source/delete",
@@ -638,7 +606,7 @@ void ssr::OscSender::delete_source(id_t id)
  */
 void ssr::OscSender::delete_all_sources()
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -651,7 +619,7 @@ void ssr::OscSender::delete_all_sources()
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/delete",
         "i", 0);
@@ -676,7 +644,7 @@ void ssr::OscSender::delete_all_sources()
 bool ssr::OscSender::set_source_position(id_t id, const Position& position)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id))
     {
@@ -701,7 +669,7 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/position",
         "iff", message_id, position.x, position.y);
@@ -728,7 +696,7 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
 bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id))
     {
@@ -753,7 +721,7 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/position_fixed",
         "i"+_handler.bool_to_message_type(fixed), message_id);
@@ -781,7 +749,7 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
 {
   int32_t message_id = static_cast<int32_t>(id);
   float message_orientation = orientation.azimuth;
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id))
     {
@@ -806,7 +774,7 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/orientation",
         "if", message_id, message_orientation);
@@ -833,7 +801,7 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
 bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id))
     {
@@ -856,7 +824,7 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/volume",
         "if", message_id, gain);
@@ -883,7 +851,7 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
 bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id) &&
         _new_sources.at(id).has_key("file_name_or_port_number"))
@@ -908,7 +876,7 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/mute",
         "i"+_handler.bool_to_message_type(mute), message_id);
@@ -936,7 +904,7 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
 {
   int32_t message_id = static_cast<int32_t>(id);
   const char * message_name = name.c_str();
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id))
     {
@@ -960,7 +928,7 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/name", "is",
         message_id, message_name);
@@ -988,7 +956,7 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
 {
   int32_t message_id = static_cast<int32_t>(id);
   const char * file_name = name.c_str();
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id) && !name.empty())
     {
@@ -1012,7 +980,7 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/source/properties_file", "is", message_id, file_name);
@@ -1033,7 +1001,7 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
  */
 void ssr::OscSender::set_decay_exponent(float exponent)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1047,7 +1015,7 @@ void ssr::OscSender::set_decay_exponent(float exponent)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/scene/decay_exponent", "f", exponent);
@@ -1069,7 +1037,7 @@ void ssr::OscSender::set_decay_exponent(float exponent)
  */
 void ssr::OscSender::set_amplitude_reference_distance(float distance)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1083,7 +1051,7 @@ void ssr::OscSender::set_amplitude_reference_distance(float distance)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/scene/amplitude_reference_distance", "f", distance);
@@ -1110,7 +1078,7 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
   int32_t message_id = static_cast<int32_t>(id);
   std::string message_model = apf::str::A2S(model);
   if (message_model == "") return false;
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id))
     {
@@ -1134,7 +1102,7 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/model", "is",
         message_id, message_model.c_str());
@@ -1160,7 +1128,7 @@ bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
     port_name)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_client() && !server_is_default())
+  if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/port_name",
         "is", message_id, port_name.c_str());
@@ -1191,7 +1159,7 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
     file_name)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id))
     {
@@ -1217,7 +1185,7 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/source/file_name_or_port_number", "is", message_id,
@@ -1247,7 +1215,7 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
 {
   int32_t message_id = static_cast<int32_t>(id);
   int32_t message_file_channel = static_cast<int32_t>(file_channel);
-  if(is_server())
+  if(_handler.is_server())
   {
     if(is_new_source(id) && file_channel > 0)
     {
@@ -1271,7 +1239,7 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/source/file_channel", "ii", message_id, message_file_channel);
@@ -1298,7 +1266,7 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
 {
   int32_t message_id = static_cast<int32_t>(id);
   int32_t message_length = static_cast<int32_t>(length);
-  if(is_client() && !server_is_default())
+  if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/source/length", "ii",
         message_id, message_length);
@@ -1321,7 +1289,7 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
  */
 void ssr::OscSender::set_reference_position(const Position& position)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1336,7 +1304,7 @@ void ssr::OscSender::set_reference_position(const Position& position)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/reference/position",
         "ff", position.x, position.y);
@@ -1358,7 +1326,7 @@ void ssr::OscSender::set_reference_position(const Position& position)
  */
 void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1373,7 +1341,7 @@ void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/reference/orientation", "f", orientation.azimuth);
@@ -1396,7 +1364,7 @@ void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
  */
 void ssr::OscSender::set_reference_offset_position(const Position& position)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1411,7 +1379,7 @@ void ssr::OscSender::set_reference_offset_position(const Position& position)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/reference_offset/position", "ff", position.x, position.y);
@@ -1436,7 +1404,7 @@ void ssr::OscSender::set_reference_offset_position(const Position& position)
 void ssr::OscSender::set_reference_offset_orientation(const Orientation&
     orientation)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1451,7 +1419,7 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/reference_offset/orientation", "f", orientation.azimuth);
@@ -1474,7 +1442,7 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
 void ssr::OscSender::set_master_volume(float volume)
 {
   float message_volume = apf::math::linear2dB(volume);
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1488,7 +1456,7 @@ void ssr::OscSender::set_master_volume(float volume)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/scene/volume", "f",
         message_volume);
@@ -1527,7 +1495,7 @@ void ssr::OscSender::set_source_output_levels(id_t id, float* first , float*
  */
 void ssr::OscSender::set_processing_state(bool state)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1542,7 +1510,7 @@ void ssr::OscSender::set_processing_state(bool state)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/processing/state",
         _handler.bool_to_message_type(state));
@@ -1567,7 +1535,7 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
     jack_nframes_t>& state)
 {
   int32_t message_nframes = static_cast<int32_t>(state.second);
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1588,7 +1556,7 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
       }
     }
   }
-  else if(is_client() && !server_is_default() && _message_level ==
+  else if(_handler.is_client() && !server_is_default() && _message_level ==
       MessageLevel::GUI_CLIENT)
   {
     _server_address.send_from(_handler.server(), "/update/transport/state",
@@ -1618,7 +1586,7 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
  */
 void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
 {
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1634,7 +1602,7 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(),
         "/update/scene/auto_rotate_sources",
@@ -1656,7 +1624,7 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
  */
 void ssr::OscSender::set_cpu_load(float load)
 {
-  if(is_client() && !server_is_default() && _message_level ==
+  if(_handler.is_client() && !server_is_default() && _message_level ==
       MessageLevel::GUI_CLIENT)
   {
     _server_address.send_from(_handler.server(), "/update/cpu_load", "f",
@@ -1680,7 +1648,7 @@ void ssr::OscSender::set_cpu_load(float load)
 void ssr::OscSender::set_sample_rate(int sr)
 {
   int32_t message_sr = static_cast<int32_t>(sr);
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1695,7 +1663,7 @@ void ssr::OscSender::set_sample_rate(int sr)
       }
     }
   }
-  else if(is_client() && !server_is_default())
+  else if(_handler.is_client() && !server_is_default())
   {
     _server_address.send_from(_handler.server(), "/update/scene/sample_rate",
         "i", message_sr);
@@ -1718,7 +1686,7 @@ void ssr::OscSender::set_sample_rate(int sr)
 void ssr::OscSender::set_master_signal_level(float level)
 {
   float message_level(apf::math::linear2dB(level));
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1734,7 +1702,7 @@ void ssr::OscSender::set_master_signal_level(float level)
       }
     }
   }
-  else if(is_client() && !server_is_default() && _message_level ==
+  else if(_handler.is_client() && !server_is_default() && _message_level ==
       MessageLevel::GUI_CLIENT)
   {
     _server_address.send_from(_handler.server(),
@@ -1761,7 +1729,7 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
 {
   int32_t message_id = static_cast<int32_t>(id);
   float message_level(apf::math::linear2dB(level));
-  if(is_server())
+  if(_handler.is_server())
   {
     for (const auto& client: _clients)
     {
@@ -1776,7 +1744,7 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
       }
     }
   }
-  else if(is_client() && !server_is_default() && _message_level ==
+  else if(_handler.is_client() && !server_is_default() && _message_level ==
       MessageLevel::GUI_CLIENT)
   {
     _server_address.send_from(_handler.server(), "/update/source/level",

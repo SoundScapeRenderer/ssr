@@ -57,8 +57,6 @@ class OscSender : public Subscriber
     source_level_map_t _source_levels;
     float _master_level;
 
-    bool is_client();
-    bool is_server();
     bool server_is_default();
     void poll_all_clients();
     void remove_all_clients();
