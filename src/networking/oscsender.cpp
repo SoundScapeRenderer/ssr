@@ -272,7 +272,7 @@ bool ssr::OscSender::is_complete_source(id_t id)
         _new_sources.at(id).has_key("y") &&
         _new_sources.at(id).has_key("orientation") &&
         _new_sources.at(id).has_key("gain") &&
-        _new_sources.at(id).has_key("channel") &&
+        _new_sources.at(id).has_key("file_channel") &&
         _new_sources.at(id).has_key("properties_file") &&
         _new_sources.at(id).has_key("position_fixed") &&
         _new_sources.at(id).has_key("orientation_fixed") &&
@@ -309,7 +309,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
       _new_sources.at(id).has_key("y") &&
       _new_sources.at(id).has_key("orientation") &&
       _new_sources.at(id).has_key("gain") &&
-      _new_sources.at(id).has_key("channel") &&
+      _new_sources.at(id).has_key("file_channel") &&
       _new_sources.at(id).has_key("properties_file") &&
       _new_sources.at(id).has_key("position_fixed") &&
       _new_sources.at(id).has_key("orientation_fixed") &&
@@ -335,7 +335,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("y", 0.0),
             _new_sources.at(id).get<float>("orientation", 0.0),
             _new_sources.at(id).get<float>("gain", 0.0),
-            _new_sources.at(id).get<int>("channel", 1),
+            _new_sources.at(id).get<int>("file_channel", 1),
             _new_sources.at(id).get<std::string>("properties_file", ""));
         VERBOSE2("OscSender: Sent [/source/new, sssffffis" <<
             _handler.bool_to_message_type(_new_sources.at(id).get<bool>(
@@ -352,7 +352,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("y", 0.0) << ", " <<
             _new_sources.at(id).get<float>("orientation", 0.0) << ", " <<
             _new_sources.at(id).get<float>("gain", 0.0) << ", " <<
-            _new_sources.at(id).get<int>("channel", 1) << ", " <<
+            _new_sources.at(id).get<int>("file_channel", 1) << ", " <<
             _new_sources.at(id).get<std::string>("properties_file", "")
              << "] to client " <<
             client->address().hostname() << ":" <<
@@ -1206,7 +1206,7 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
   {
     if(is_new_source(id) && file_channel > 0)
     {
-      _new_sources.at(id).set<int>("channel", file_channel);
+      _new_sources.at(id).set<int>("file_channel", file_channel);
       if(is_complete_source(id))
         send_new_source_message_from_id(id);
     }
