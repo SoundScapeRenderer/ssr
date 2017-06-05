@@ -260,6 +260,7 @@ bool ssr::OscSender::is_new_source(id_t id)
 {
   if (_new_sources.empty())
     return false;
+  //TODO: introduce exception handling for this call
   if(_new_sources.find(id) != _new_sources.end())
   {
     return true;
@@ -374,6 +375,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             client->address().port() << ".");
       }
     }
+    _new_sources.erase(id);
   }
   else if(_new_sources.at(id).has_key("name") &&
     _new_sources.at(id).has_key("model") &&
@@ -426,6 +428,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             client->address().port() << ".");
       }
     }
+    _new_sources.erase(id);
   }
 }
 
