@@ -165,8 +165,8 @@ void ssr::OscReceiver::add_update_notification_methods()
 
   // update on source position fixation: "/update/source/position_fixed,
   // i{T,F}, id, {true,false}"
-  _handler.server().add_method("/update/source/position_fixed", NULL, [](lo_arg
-        **argv, int, lo::Message message)
+  _handler.server().add_method("/update/source/position_fixed", NULL,
+      [this](lo_arg **argv, int, lo::Message message)
     {
       bool state;
       if(!message.types().compare("iT"))
@@ -212,8 +212,8 @@ i{F,T}.");
   VERBOSE("OscReceiver: Added method for /update/source/gain if.");
 
   // update on source mute: "/update/source/mute, i{T,F}, id, {true,false}"
-  _handler.server().add_method("/update/source/mute", NULL, [](lo_arg **argv,
-        int, lo::Message message)
+  _handler.server().add_method("/update/source/mute", NULL, [this](lo_arg
+        **argv, int, lo::Message message)
     {
       bool state;
       if(!message.types().compare("iT"))
@@ -415,7 +415,7 @@ ff.");
 
   // update on state processing: "/update/processing/state, {T,F},
   // {true,false}"
-  _handler.server().add_method("/update/processing/state", NULL, [](lo_arg
+  _handler.server().add_method("/update/processing/state", NULL, [this](lo_arg
         **argv, int, lo::Message message)
     {
       bool state;
@@ -437,7 +437,7 @@ ff.");
   VERBOSE("OscReceiver: Added method for /update/processing/state {F,T}.");
 
   // update on transport state: "/update/transport/state, {T,F}, {true,false}"
-  _handler.server().add_method("/update/transport/state", NULL, [](lo_arg
+  _handler.server().add_method("/update/transport/state", NULL, [this](lo_arg
         **argv, int, lo::Message message)
     {
       bool state;
@@ -473,7 +473,7 @@ ff.");
   // update on scene source auto rotation: "/update/scene/auto_rotate_sources,
   // {T,F}, {true,false}"
   _handler.server().add_method("/update/scene/auto_rotate_sources", NULL,
-      [](lo_arg **argv, int, lo::Message message)
+      [this](lo_arg **argv, int, lo::Message message)
     {
       bool state;
       (void) argv;
