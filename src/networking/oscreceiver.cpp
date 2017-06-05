@@ -202,16 +202,16 @@ void ssr::OscReceiver::add_update_notification_methods()
   );
   VERBOSE("OscReceiver: Added method for /update/source/orientation.");
 
-  // update on source volume: "/update/source/volume, if, id, volume"
-  _handler.server().add_method("/update/source/volume", "if", [](lo_arg **argv, int,
+  // update on source gain: "/update/source/gain, if, id, gain"
+  _handler.server().add_method("/update/source/gain", "if", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
       VERBOSE3("Update: Client '" << client.hostname() << "', source id = " <<
-          argv[0]->i << ", volume: "<< argv[1]->f << ".");
+          argv[0]->i << ", gain: "<< argv[1]->f << ".");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/volume.");
+  VERBOSE("OscReceiver: Added method for /update/source/gain.");
 
   // update on source mute: "/update/source/mute, i{T,F}, id, {true,false}"
   _handler.server().add_method("/update/source/mute", NULL, [](lo_arg **argv,
@@ -612,18 +612,18 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added method for /source/orientation if.");
 
-  // set source volume: "/source/volume, if, id, volume"
-  _handler.server().add_method("/source/volume", "if", [this](lo_arg **argv,
+  // set source gain: "/source/gain, if, id, gain"
+  _handler.server().add_method("/source/gain", "if", [this](lo_arg **argv,
         int, lo::Message message)
     {
-      VERBOSE2("OscReceiver: Got [/source/volume, " << argv[0]->i << ", " <<
+      VERBOSE2("OscReceiver: Got [/source/gain, " << argv[0]->i << ", " <<
           argv[1]->f << "] from client '" << message.source().hostname() << ":"
           << message.source().port() << "'.");
       _controller.set_source_gain(argv[0]->i,
           apf::math::dB2linear(argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/volume if.");
+  VERBOSE("OscReceiver: Added method for /source/gain if.");
 
   // set source mute: "source/mute, i{T,F}, id, true|false"
   _handler.server().add_method("/source/mute", NULL, [this](lo_arg **argv, int,
@@ -706,10 +706,10 @@ void ssr::OscReceiver::add_source_methods()
   VERBOSE("OscReceiver: Added method for /source/port_name is.");
 
   // create new source: "/source/new, sssffff{T,F}{T,F}{T,F}, name, model,
-  // file_name_or_port_number, x, y, orientation, volume, position_fixed,
+  // file_name_or_port_number, x, y, orientation, gain, position_fixed,
   // orientation_fixed, muted"
   // create new source: "/source/new, sssffffis{T,F}{T,F}{T,F}, name, model,
-  // file_name_or_port_number, x, y, orientation, volume, channel,
+  // file_name_or_port_number, x, y, orientation, gain, channel,
   // properties_file, position_fixed, orientation_fixed, muted"
   _handler.server().add_method("/source/new", NULL, [this](lo_arg **argv, int,
         lo::Message message)
@@ -719,7 +719,7 @@ void ssr::OscReceiver::add_source_methods()
       std::string types(message.types());
       float x(argv[3]->f);
       float y(argv[4]->f);
-      float volume(argv[6]->f);
+      float gain(argv[6]->f);
       int channel = 0;
       std::string properties_file = "";
       std::string channel_and_properties = "";
@@ -874,7 +874,7 @@ void ssr::OscReceiver::add_source_methods()
       {
         VERBOSE3("OscReceiver: Got [/source/new, " << name << ", " << model <<
             ", " << file_name_or_port_number << ", " << x << ", " << y << ", "
-            << orientation.azimuth << ", " << volume << ", " <<
+            << orientation.azimuth << ", " << gain<< ", " <<
             channel_and_properties << ", " <<
             _handler.bool_to_string(position_fixed) << ", " <<
             _handler.bool_to_string(orientation_fixed) << ", " <<
@@ -882,7 +882,7 @@ void ssr::OscReceiver::add_source_methods()
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
         _controller.new_source(name, model, file_name_or_port_number, channel,
-            position, position_fixed, orientation, orientation_fixed, volume,
+            position, position_fixed, orientation, orientation_fixed, gain,
             muted, properties_file);
         VERBOSE2("OscReceiver: Created source with following properties:"
             "\nname: " << name <<
@@ -893,7 +893,7 @@ void ssr::OscReceiver::add_source_methods()
             "\nposition_fixed: " << position_fixed <<
             "\norientation: " << orientation <<
             "\norientation_fixed: " << orientation_fixed <<
-            "\nvolume (linear): " << volume <<
+            "\ngain (linear): " << gain <<
             "\nmuted: " << muted <<
             "\nproperties_file: " << properties_file);
       }
