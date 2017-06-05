@@ -565,7 +565,7 @@ void ssr::OscReceiver::add_poll_methods()
  */
 void ssr::OscReceiver::add_source_methods()
 {
-  // set source position: "source/position, iff, id, x, y"
+  // set source position: "/source/position, iff, id, x, y"
   _handler.server().add_method("/source/position", "iff", [this](lo_arg **argv,
         int, lo::Message message)
     {
@@ -578,7 +578,7 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added method for /source/position iff.");
 
-  // set source fixed: "source/position_fixed, i{T,F}, id, true|false"
+  // set source fixed: "/source/position_fixed, i{T,F}, id, true|false"
   _handler.server().add_method("/source/position_fixed", NULL, [this](lo_arg
         **argv, int, lo::Message message)
     {
@@ -600,7 +600,7 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added method for /source/position_fixed i{T,F}.");
 
-  // set source orientation: "source/orientation, if, id, azimuth"
+  // set source orientation: "/source/orientation, if, id, azimuth"
   _handler.server().add_method("/source/orientation", "if", [this](lo_arg
         **argv, int, lo::Message message)
     {
@@ -625,7 +625,7 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added method for /source/gain if.");
 
-  // set source mute: "source/mute, i{T,F}, id, true|false"
+  // set source mute: "/source/mute, i{T,F}, id, true|false"
   _handler.server().add_method("/source/mute", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
@@ -647,7 +647,7 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added method for /source/mute i{T,F}.");
 
-  // set source name: "source/name, is, id, name"
+  // set source name: "/source/name, is, id, name"
   _handler.server().add_method("/source/name", "is", [this](lo_arg **argv, int,
       lo::Message message)
     {
