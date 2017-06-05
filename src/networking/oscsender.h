@@ -52,6 +52,7 @@ class OscSender : public Subscriber
     std::map<id_t, apf::parameter_map> _new_sources;
     // thread used for calling poll_all_clients continuously
     std::thread _poll_thread;
+    const unsigned int _poll_milliseconds{1000};
     bool _poll_all_clients;
     typedef std::map<id_t,float> source_level_map_t;
     source_level_map_t _source_levels;
