@@ -317,16 +317,16 @@ void ssr::OscReceiver::add_update_notification_methods()
   VERBOSE("OscReceiver: Added method for \
 /update/source/file_name_or_port_number.");
 
-  // update on source channel: "/update/source/channel, ii, id, channel"
-  _handler.server().add_method("/update/source/channel", "ii", [](lo_arg **argv, int,
+  // update on source file_channel: "/update/source/file_channel, ii, id, file_channel"
+  _handler.server().add_method("/update/source/file_channel", "ii", [](lo_arg **argv, int,
         lo::Message message)
     {
       lo::Address client(message.source());
       VERBOSE3("Update: Client '" << client.hostname() << "', source id = " <<
-          argv[0]->i << ", channel: "<< argv[1]->i << ".");
+          argv[0]->i << ", file_channel: "<< argv[1]->i << ".");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/channel.");
+  VERBOSE("OscReceiver: Added method for /update/source/file_channel.");
 
   // update on source file length: "/update/source/length, ii, id, length"
   _handler.server().add_method("/update/source/length", "ii", [](lo_arg **argv, int,
@@ -612,6 +612,18 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added method for /source/orientation if.");
 
+  // set source file_channel: "/source/file_channel, ii, id, file_channel"
+  _handler.server().add_method("/source/file_channel", "ii", [this](lo_arg **argv,
+        int, lo::Message message)
+    {
+      VERBOSE2("OscReceiver: Got [/source/file_channel, " << argv[0]->i << ", "
+          << argv[1]->i << "] from client '" << message.source().hostname() <<
+          ":" << message.source().port() << "'.");
+      _controller.set_source_file_channel(argv[0]->i, argv[1]->i);
+    }
+  );
+  VERBOSE("OscReceiver: Added method for /source/file_channel ii.");
+
   // set source gain: "/source/gain, if, id, gain"
   _handler.server().add_method("/source/gain", "if", [this](lo_arg **argv,
         int, lo::Message message)
@@ -709,7 +721,7 @@ void ssr::OscReceiver::add_source_methods()
   // file_name_or_port_number, x, y, orientation, gain, position_fixed,
   // orientation_fixed, muted"
   // create new source: "/source/new, sssffffis{T,F}{T,F}{T,F}, name, model,
-  // file_name_or_port_number, x, y, orientation, gain, channel,
+  // file_name_or_port_number, x, y, orientation, gain, file_channel,
   // properties_file, position_fixed, orientation_fixed, muted"
   _handler.server().add_method("/source/new", NULL, [this](lo_arg **argv, int,
         lo::Message message)
@@ -720,7 +732,7 @@ void ssr::OscReceiver::add_source_methods()
       float x(argv[3]->f);
       float y(argv[4]->f);
       float gain(argv[6]->f);
-      int channel = 0;
+      int file_channel = 0;
       std::string properties_file = "";
       std::string channel_and_properties = "";
       bool position_fixed;
@@ -792,9 +804,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisTTT") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = true;
         muted = true;
@@ -802,9 +814,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisTTF") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = true;
         muted = false;
@@ -812,9 +824,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisTFF") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = false;
         muted = false;
@@ -822,9 +834,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisFFF") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = false;
         muted = false;
@@ -832,9 +844,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisTFT") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = true;
         orientation_fixed = false;
         muted = true;
@@ -842,9 +854,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisFTF") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = true;
         muted = false;
@@ -852,9 +864,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisFTT") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = true;
         muted = true;
@@ -862,9 +874,9 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (types.compare("sssffffisFFT") == 0)
       {
-        channel = argv[7]->i;
+        file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
-        channel_and_properties = (channel+", "+properties_file);
+        channel_and_properties = (file_channel+", "+properties_file);
         position_fixed = false;
         orientation_fixed = false;
         muted = true;
@@ -881,14 +893,14 @@ void ssr::OscReceiver::add_source_methods()
             _handler.bool_to_string(muted) <<  "] from client '" <<
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
-        _controller.new_source(name, model, file_name_or_port_number, channel,
-            position, position_fixed, orientation, orientation_fixed, gain,
-            muted, properties_file);
+        _controller.new_source(name, model, file_name_or_port_number,
+            file_channel, position, position_fixed, orientation,
+            orientation_fixed, gain, muted, properties_file);
         VERBOSE2("OscReceiver: Created source with following properties:"
             "\nname: " << name <<
             "\nmodel: " << model <<
             "\nfile_name_or_port_number: " << file_name_or_port_number <<
-            "\nchannel: " << channel <<
+            "\nfile_channel: " << file_channel <<
             "\nposition: " << position <<
             "\nposition_fixed: " << position_fixed <<
             "\norientation: " << orientation <<
