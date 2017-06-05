@@ -105,7 +105,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /subscribe {T,F,Ti}.");
+  VERBOSE("OscReceiver: Added callback for /subscribe {T,F,Ti}.");
 
   // adding new subscribing client: "/message_level, i"
   _handler.server().add_method("/message_level", "i", [this](lo_arg **argv,
@@ -118,7 +118,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
           static_cast<ssr::MessageLevel>(argv[0]->i));
     }
   );
-  VERBOSE("OscReceiver: Added method for /message_level i.");
+  VERBOSE("OscReceiver: Added callback for /message_level i.");
 }
 
 /**
@@ -138,7 +138,7 @@ void ssr::OscReceiver::add_update_notification_methods()
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/new i.");
+  VERBOSE("OscReceiver: Added callback for /update/source/new i.");
 
   // update on deleted source: "/update/source/delete, i, id"
   _handler.server().add_method("/update/source/delete", "i", [](lo_arg **argv,
@@ -149,7 +149,7 @@ void ssr::OscReceiver::add_update_notification_methods()
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/delete i.");
+  VERBOSE("OscReceiver: Added callback for /update/source/delete i.");
 
   // update on source position: "/update/source/position, iff, id, x, y"
   _handler.server().add_method("/update/source/position", "iff", [](lo_arg
@@ -161,7 +161,7 @@ void ssr::OscReceiver::add_update_notification_methods()
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/position iff.");
+  VERBOSE("OscReceiver: Added callback for /update/source/position iff.");
 
   // update on source position fixation: "/update/source/position_fixed,
   // i{T,F}, id, {true,false}"
@@ -183,7 +183,7 @@ void ssr::OscReceiver::add_update_notification_methods()
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/position_fixed\
+  VERBOSE("OscReceiver: Added callback for /update/source/position_fixed\
 i{F,T}.");
 
   // update on source orientation: "/update/source/orientation, if, id,
@@ -197,7 +197,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/orientation if.");
+  VERBOSE("OscReceiver: Added callback for /update/source/orientation if.");
 
   // update on source gain: "/update/source/gain, if, id, gain"
   _handler.server().add_method("/update/source/gain", "if", [](lo_arg **argv,
@@ -209,7 +209,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/gain if.");
+  VERBOSE("OscReceiver: Added callback for /update/source/gain if.");
 
   // update on source mute: "/update/source/mute, i{T,F}, id, {true,false}"
   _handler.server().add_method("/update/source/mute", NULL, [this](lo_arg
@@ -230,7 +230,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/mute i{F,T}.");
+  VERBOSE("OscReceiver: Added callback for /update/source/mute i{F,T}.");
 
   // update on source name: "/update/source/name, is, id, name"
   _handler.server().add_method("/update/source/name", "is", [](lo_arg **argv,
@@ -242,7 +242,7 @@ i{F,T}.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/name is.");
+  VERBOSE("OscReceiver: Added callback for /update/source/name is.");
 
   // update on source properties_file: "/update/source/properties_file, is, id,
   // properties_file"
@@ -256,7 +256,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/properties_file is.");
+  VERBOSE("OscReceiver: Added callback for /update/source/properties_file is.");
 
   // update on scene decay exponent: "/update/scene/decay_exponent, f,
   // decay_exponent"
@@ -268,7 +268,7 @@ i{F,T}.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/scene/decay_exponent.");
+  VERBOSE("OscReceiver: Added callback for /update/scene/decay_exponent.");
 
   // update on scene amplitude reference distance:
   // "update/scene/amplitude_reference_distance, f,
@@ -281,7 +281,7 @@ i{F,T}.");
           ":" << message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for \
+  VERBOSE("OscReceiver: Added callback for \
 /update/scene/amplitude_reference_distance f.");
 
   // update on source model: "/update/source/model, is, id, model"
@@ -295,7 +295,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/model is.");
+  VERBOSE("OscReceiver: Added callback for /update/source/model is.");
 
   // update on source port_name: "/update/source/port_name, is, id, port_name"
   _handler.server().add_method("/update/source/port_name", "is", [](lo_arg
@@ -308,7 +308,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/port_name is.");
+  VERBOSE("OscReceiver: Added callback for /update/source/port_name is.");
 
   // update on source file_name_or_port_number:
   // "/update/source/file_name_or_port_number, is, id, file_name_or_port_number"
@@ -322,7 +322,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for \
+  VERBOSE("OscReceiver: Added callback for \
 /update/source/file_name_or_port_number is.");
 
   // update on source file_channel: "/update/source/file_channel, ii, id,
@@ -336,7 +336,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/file_channel ii.");
+  VERBOSE("OscReceiver: Added callback for /update/source/file_channel ii.");
 
   // update on source file length: "/update/source/length, ii, id, length"
   _handler.server().add_method("/update/source/length", "ii", [](lo_arg **argv,
@@ -348,7 +348,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/length ii.");
+  VERBOSE("OscReceiver: Added callback for /update/source/length ii.");
 
   // update on reference position: "/update/reference/position, ff, x, y"
   _handler.server().add_method("/update/reference/position", "ff", [](lo_arg
@@ -360,7 +360,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/reference/position ff.");
+  VERBOSE("OscReceiver: Added callback for /update/reference/position ff.");
 
   // update on reference orientation: "/update/reference/orientation, f,
   // azimuth"
@@ -372,7 +372,7 @@ i{F,T}.");
           << message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/reference/orientation f.");
+  VERBOSE("OscReceiver: Added callback for /update/reference/orientation f.");
 
   // update on reference offset position: "/update/reference_offset/position,
   // ff, x, y"
@@ -385,7 +385,7 @@ i{F,T}.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/reference_offset/position \
+  VERBOSE("OscReceiver: Added callback for /update/reference_offset/position \
 ff.");
 
   // update on reference offset orientation:
@@ -399,7 +399,7 @@ ff.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for \
+  VERBOSE("OscReceiver: Added callback for \
 /update/reference_offset/orientation f.");
 
   // update on scene volume: "/update/scene/volume, f, volume"
@@ -411,7 +411,7 @@ ff.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/scene/volume f.");
+  VERBOSE("OscReceiver: Added callback for /update/scene/volume f.");
 
   // update on state processing: "/update/processing/state, {T,F},
   // {true,false}"
@@ -434,7 +434,7 @@ ff.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/processing/state {F,T}.");
+  VERBOSE("OscReceiver: Added callback for /update/processing/state {F,T}.");
 
   // update on transport state: "/update/transport/state, {T,F}, {true,false}"
   _handler.server().add_method("/update/transport/state", NULL, [this](lo_arg
@@ -456,7 +456,7 @@ ff.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/transport/state {F,T}.");
+  VERBOSE("OscReceiver: Added callback for /update/transport/state {F,T}.");
 
   // update on transport seek: "/update/transport/seek, s, time"
   _handler.server().add_method("/update/transport/seek", "s", [](lo_arg **argv,
@@ -468,7 +468,7 @@ ff.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/transport/seek s.");
+  VERBOSE("OscReceiver: Added callback for /update/transport/seek s.");
 
   // update on scene source auto rotation: "/update/scene/auto_rotate_sources,
   // {T,F}, {true,false}"
@@ -491,7 +491,7 @@ ff.");
           "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/scene/auto_rotate_sources \
+  VERBOSE("OscReceiver: Added callback for /update/scene/auto_rotate_sources \
 {F,T}.");
 
   // update on cpu_load: "/update/cpu_load, f, load"
@@ -503,7 +503,7 @@ ff.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/cpu_load f.");
+  VERBOSE("OscReceiver: Added callback for /update/cpu_load f.");
 
   // update on scene sample rate: "/update/scene/sample_rate, i, sample_rate"
   _handler.server().add_method("/update/scene/sample_rate", "i", [](lo_arg
@@ -514,7 +514,7 @@ ff.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/scene/sample_rate i.");
+  VERBOSE("OscReceiver: Added callback for /update/scene/sample_rate i.");
 
   // update on scene master signal level: "/update/scene/master_signal_level,
   // f, master_signal_level"
@@ -526,7 +526,7 @@ ff.");
           << message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/scene/master_signal_level \
+  VERBOSE("OscReceiver: Added callback for /update/scene/master_signal_level \
 f.");
 
   // update on source signal level: "/update/source/level, if, id, level"
@@ -538,7 +538,7 @@ f.");
           << ":" << message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added method for /update/source/level if.");
+  VERBOSE("OscReceiver: Added callback for /update/source/level if.");
 }
 
 /**
@@ -570,7 +570,7 @@ void ssr::OscReceiver::add_poll_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /poll.");
+  VERBOSE("OscReceiver: Added callback for /poll.");
 }
 
 /**
@@ -595,7 +595,7 @@ void ssr::OscReceiver::add_source_methods()
             argv[2]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/position iff.");
+  VERBOSE("OscReceiver: Added callback for /source/position iff.");
 
   // set source fixed: "/source/position_fixed, i{T,F}, id, true|false"
   _handler.server().add_method("/source/position_fixed", NULL, [this](lo_arg
@@ -617,7 +617,7 @@ void ssr::OscReceiver::add_source_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/position_fixed i{T,F}.");
+  VERBOSE("OscReceiver: Added callback for /source/position_fixed i{T,F}.");
 
   // set source orientation: "/source/orientation, if, id, azimuth"
   _handler.server().add_method("/source/orientation", "if", [this](lo_arg
@@ -629,7 +629,7 @@ void ssr::OscReceiver::add_source_methods()
       _controller.set_source_orientation(argv[0]->i, Orientation(argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/orientation if.");
+  VERBOSE("OscReceiver: Added callback for /source/orientation if.");
 
   // set source file_channel: "/source/file_channel, ii, id, file_channel"
   _handler.server().add_method("/source/file_channel", "ii", [this](lo_arg
@@ -641,7 +641,7 @@ void ssr::OscReceiver::add_source_methods()
       _controller.set_source_file_channel(argv[0]->i, argv[1]->i);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/file_channel ii.");
+  VERBOSE("OscReceiver: Added callback for /source/file_channel ii.");
 
   // set source gain: "/source/gain, if, id, gain"
   _handler.server().add_method("/source/gain", "if", [this](lo_arg **argv,
@@ -654,7 +654,7 @@ void ssr::OscReceiver::add_source_methods()
           apf::math::dB2linear(argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/gain if.");
+  VERBOSE("OscReceiver: Added callback for /source/gain if.");
 
   // set source mute: "/source/mute, i{T,F}, id, true|false"
   _handler.server().add_method("/source/mute", NULL, [this](lo_arg **argv, int,
@@ -676,7 +676,7 @@ void ssr::OscReceiver::add_source_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/mute i{T,F}.");
+  VERBOSE("OscReceiver: Added callback for /source/mute i{T,F}.");
 
   // set source name: "/source/name, is, id, name"
   _handler.server().add_method("/source/name", "is", [this](lo_arg **argv, int,
@@ -690,7 +690,7 @@ void ssr::OscReceiver::add_source_methods()
       _controller.set_source_name(argv[0]->i, name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/name is.");
+  VERBOSE("OscReceiver: Added callback for /source/name is.");
 
   // set source file: "/source/properties_file, is, id, properties_file"
   _handler.server().add_method("/source/properties_file", "is", [this](lo_arg
@@ -703,7 +703,7 @@ void ssr::OscReceiver::add_source_methods()
       _controller.set_source_properties_file(argv[0]->i, name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/properties_file is.");
+  VERBOSE("OscReceiver: Added callback for /source/properties_file is.");
 
   // set source model: "/source/model, is, id, model"
   _handler.server().add_method("/source/model", "is", [this](lo_arg **argv,
@@ -721,7 +721,7 @@ void ssr::OscReceiver::add_source_methods()
       _controller.set_source_model(argv[0]->i, model);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/model is.");
+  VERBOSE("OscReceiver: Added callback for /source/model is.");
 
   // set source port name: "/source/port_name, is, id, port_name"
   _handler.server().add_method("/source/port_name", "is", [this](lo_arg **argv,
@@ -734,7 +734,7 @@ void ssr::OscReceiver::add_source_methods()
       _controller.set_source_port_name(argv[0]->i, name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/port_name is.");
+  VERBOSE("OscReceiver: Added callback for /source/port_name is.");
 
   // create new source: "/source/new, sssffff{T,F}{T,F}{T,F}, name, model,
   // file_name_or_port_number, x, y, orientation, gain, position_fixed,
@@ -930,7 +930,7 @@ void ssr::OscReceiver::add_source_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/new \
+  VERBOSE("OscReceiver: Added callback for /source/new \
 {sssffff,sssffffis}{F,T}{F,T}{F,T}.");
 
   // delete source: "/source/delete, i, id"
@@ -951,7 +951,7 @@ void ssr::OscReceiver::add_source_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /source/delete i.");
+  VERBOSE("OscReceiver: Added callback for /source/delete i.");
 }
 
 /**
@@ -976,7 +976,7 @@ void ssr::OscReceiver::add_reference_methods()
       _controller.set_reference_position(Position(argv[0]->f, argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /reference/position ff.");
+  VERBOSE("OscReceiver: Added callback for /reference/position ff.");
 
   // set reference orientation: "/reference/orientation, f, azimuth"
   _handler.server().add_method("/reference/orientation", "f", [this](lo_arg
@@ -988,7 +988,7 @@ void ssr::OscReceiver::add_reference_methods()
       _controller.set_reference_orientation(Orientation(argv[0]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /reference/orientation f.");
+  VERBOSE("OscReceiver: Added callback for /reference/orientation f.");
 
   // set reference offset position: "/reference_offset/position, ff, x, y"
   _handler.server().add_method("/reference_offset/position", "ff" ,
@@ -1002,7 +1002,7 @@ void ssr::OscReceiver::add_reference_methods()
             argv[1]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /reference_offset/position ff.");
+  VERBOSE("OscReceiver: Added callback for /reference_offset/position ff.");
 
   // set reference offset orientation: "/reference_offset/orientation, f,
   // azimuth"
@@ -1015,7 +1015,7 @@ void ssr::OscReceiver::add_reference_methods()
       _controller.set_reference_offset_orientation(Orientation(argv[0]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /reference_offset/orientation f.");
+  VERBOSE("OscReceiver: Added callback for /reference_offset/orientation f.");
 }
 
 /**
@@ -1040,7 +1040,7 @@ void ssr::OscReceiver::add_scene_methods()
       _controller.save_scene_as_XML(name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /scene/save s.");
+  VERBOSE("OscReceiver: Added callback for /scene/save s.");
 
   // load scene from file: "/scene/load, s, file"
   _handler.server().add_method("/scene/load", "s" , [this](lo_arg **argv, int,
@@ -1053,7 +1053,7 @@ void ssr::OscReceiver::add_scene_methods()
       _controller.load_scene(name);
     }
   );
-  VERBOSE("OscReceiver: Added method for /scene/load s.");
+  VERBOSE("OscReceiver: Added callback for /scene/load s.");
 
   // set master volume: "/scene/volume, f, volume"
   _handler.server().add_method("/scene/volume", "f" , [this](lo_arg **argv,
@@ -1065,7 +1065,7 @@ void ssr::OscReceiver::add_scene_methods()
       _controller.set_master_volume(apf::math::dB2linear(argv[0]->f));
     }
   );
-  VERBOSE("OscReceiver: Added method for /scene/volume f.");
+  VERBOSE("OscReceiver: Added callback for /scene/volume f.");
 
   // clear scene: "/scene/clear"
   _handler.server().add_method("/scene/clear", NULL , [this](lo_arg **argv,
@@ -1078,7 +1078,7 @@ void ssr::OscReceiver::add_scene_methods()
       _controller.delete_all_sources();
     }
   );
-  VERBOSE("OscReceiver: Added method for /scene/clear.");
+  VERBOSE("OscReceiver: Added callback for /scene/clear.");
 }
 
 /**
@@ -1116,7 +1116,7 @@ void ssr::OscReceiver::add_processing_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /processing/state {T,F}.");
+  VERBOSE("OscReceiver: Added callback for /processing/state {T,F}.");
 
 }
 
@@ -1155,7 +1155,7 @@ void ssr::OscReceiver::add_transport_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /transport/state {T,F}.");
+  VERBOSE("OscReceiver: Added callback for /transport/state {T,F}.");
 
   // rewind transport state: "/transport/rewind"
   _handler.server().add_method("/transport/rewind", NULL , [this](lo_arg
@@ -1168,7 +1168,7 @@ void ssr::OscReceiver::add_transport_methods()
       _controller.transport_locate(0);
     }
   );
-  VERBOSE("OscReceiver: Added method for /transport/rewind.");
+  VERBOSE("OscReceiver: Added callback for /transport/rewind.");
 
   // seek transport state: "/transport/seek, s, time"
   _handler.server().add_method("/transport/seek", "s" , [this](lo_arg **argv,
@@ -1190,7 +1190,7 @@ void ssr::OscReceiver::add_transport_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added method for /transport/seek s.");
+  VERBOSE("OscReceiver: Added callback for /transport/seek s.");
 }
 
 /**
@@ -1215,6 +1215,6 @@ void ssr::OscReceiver::add_tracker_methods()
       _controller.calibrate_client();
     }
   );
-  VERBOSE("OscReceiver: Added method for /tracker/reset.");
+  VERBOSE("OscReceiver: Added callback for /tracker/reset.");
 }
 
