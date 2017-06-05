@@ -1534,10 +1534,12 @@ void
 Controller<Renderer>::orient_source_toward_reference(const id_t id)
 {
   // take reference offset into account?
-  
-  _publish(&Subscriber::set_source_orientation, id
-    , (_scene.get_reference().position - 
-        *_scene.get_source_position(id)).orientation());
+  if (_scene.get_source_orientation(id))
+  {
+    _publish(&Subscriber::set_source_orientation, id
+      , (_scene.get_reference().position - 
+          *_scene.get_source_position(id)).orientation());
+  }
 }
 
 template<typename Renderer>
