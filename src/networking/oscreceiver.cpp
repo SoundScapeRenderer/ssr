@@ -53,10 +53,10 @@ void ssr::OscReceiver::start()
   else if (_handler.is_client())
   {
     add_poll_methods();
+    add_processing_methods();
     add_reference_methods();
     add_scene_methods();
     add_source_methods();
-    add_processing_methods();
     add_tracker_methods();
     add_transport_methods();
   }
@@ -82,9 +82,9 @@ void ssr::OscReceiver::add_client_to_server_methods()
   _handler.server().add_method("/message_level", "i", [this](lo_arg **argv,
         int, lo::Message message)
     {
-      lo::Address client(message.source());
-      VERBOSE2("OscReceiver: Got request to set message level for client '" <<
-          client.hostname() << ":" << client.port() << "' to: " << argv[0]->i);
+      VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
+          "] from client '" << message.source().hostname() << ":" <<
+          message.source().port() << "'.");
       set_message_level(_handler, client,
           static_cast<ssr::MessageLevel>(argv[0]->i));
     }
@@ -98,21 +98,24 @@ void ssr::OscReceiver::add_client_to_server_methods()
       lo::Address client(message.source());
       if(!message.types().compare("T"))
       {
-        VERBOSE2("OscReceiver: Got subscribe request from '" <<
+        VERBOSE2("OscReceiver: Got [/subscribe, " <<
+            _handler.bool_to_string(true) << "] from client '" <<
             client.hostname() << ":" << client.port() << "'.");
         add_client(_handler, client, ssr::MessageLevel::CLIENT);
       }
       else if(!message.types().compare("F"))
       {
-        VERBOSE2("OscReceiver: Got unsubscribe request from '" <<
+        VERBOSE2("OscReceiver: Got [/subscribe, " <<
+            _handler.bool_to_string(false) << "] from client '" <<
             client.hostname() << ":" << client.port() << "'.");
         deactivate_client(_handler, client);
       }
       else if(!message.types().compare("Ti"))
       {
-        VERBOSE2("OscReceiver: Got subscribe request from '" <<
-            client.hostname() << ":" << client.port() <<
-            "' for message level: " << argv[1]->i);
+        VERBOSE2("OscReceiver: Got [/subscribe, " <<
+            _handler.bool_to_string(true) << ", " << argv[1]->i <<
+            "] from client '" << client.hostname() << ":" << client.port() <<
+            "'.");
         add_client(_handler, client,
             static_cast<ssr::MessageLevel>(argv[1]->i));
       }
@@ -1154,7 +1157,7 @@ void ssr::OscReceiver::add_transport_methods()
       std::string message_time(&argv[0]->s);
       if(apf::str::string2time(message_time, time))
       {
-        VERBOSE2("OscReceiver: Got [/transport/seek, " << message_time <<
+        VERBOSE3("OscReceiver: Got [/transport/seek, " << message_time <<
             "] from client '" << message.source().hostname() << ":" <<
             message.source().port() << "'.");
         _controller.transport_locate(time);
@@ -1175,7 +1178,7 @@ void ssr::OscReceiver::add_transport_methods()
       (void) argv;
       if(!message.types().compare("T"))
       {
-        VERBOSE2("OscReceiver: Got [/transport/state, " <<
+        VERBOSE3("OscReceiver: Got [/transport/state, " <<
             _handler.bool_to_string(true) << "] from client '" <<
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
@@ -1183,7 +1186,7 @@ void ssr::OscReceiver::add_transport_methods()
       }
       if(!message.types().compare("F"))
       {
-        VERBOSE2("OscReceiver: Got [/transport/state, " <<
+        VERBOSE3("OscReceiver: Got [/transport/state, " <<
             _handler.bool_to_string(false) << "] from client '" <<
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
