@@ -58,9 +58,9 @@ void ssr::OscSender::stop()
   _is_subscribed = false;
   if (_handler.is_server())
   {
-    remove_all_clients();
     _poll_all_clients = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(_poll_milliseconds));
+    remove_all_clients();
   }
 }
 
@@ -81,22 +81,6 @@ bool ssr::OscSender::server_is_default()
   }
 }
 
-///**
-// * Returns true, if the _server_address is the default (setup at initialization)
-// * @return true, if _server_address is the default, false otherwise.
-// */
-//const std::string ssr::OscSender::bool_to_message_type(const bool& message)
-//{
-//  if(message)
-//  {
-//    return _message_type_true;
-//  }
-//  else
-//  {
-//    return _message_type_false;
-//  }
-//}
-
 /**
  * Sends a '/poll' message to all client instances listed in _clients, then
  * makes the thread calling this function sleep for 1000 milliseconds
@@ -114,7 +98,7 @@ void ssr::OscSender::poll_all_clients()
       }
     }
     //TODO find better solution to compensate for execution time
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(_poll_milliseconds));
   }
   VERBOSE2("OscSender: Stopped polling all clients.");
 }
