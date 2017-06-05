@@ -286,7 +286,7 @@ bool ssr::OscSender::is_complete_source(id_t id)
         _new_sources.at(id).has_key("x") &&
         _new_sources.at(id).has_key("y") &&
         _new_sources.at(id).has_key("orientation") &&
-        _new_sources.at(id).has_key("volume") &&
+        _new_sources.at(id).has_key("gain") &&
         _new_sources.at(id).has_key("channel") &&
         _new_sources.at(id).has_key("properties_file") &&
         _new_sources.at(id).has_key("position_fixed") &&
@@ -299,7 +299,7 @@ bool ssr::OscSender::is_complete_source(id_t id)
         _new_sources.at(id).has_key("x") &&
         _new_sources.at(id).has_key("y") &&
         _new_sources.at(id).has_key("orientation") &&
-        _new_sources.at(id).has_key("volume") &&
+        _new_sources.at(id).has_key("gain") &&
         _new_sources.at(id).has_key("position_fixed") &&
         _new_sources.at(id).has_key("orientation_fixed") &&
         _new_sources.at(id).has_key("mute") &&
@@ -323,7 +323,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
       _new_sources.at(id).has_key("x") &&
       _new_sources.at(id).has_key("y") &&
       _new_sources.at(id).has_key("orientation") &&
-      _new_sources.at(id).has_key("volume") &&
+      _new_sources.at(id).has_key("gain") &&
       _new_sources.at(id).has_key("channel") &&
       _new_sources.at(id).has_key("properties_file") &&
       _new_sources.at(id).has_key("position_fixed") &&
@@ -349,7 +349,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("x", 0.0),
             _new_sources.at(id).get<float>("y", 0.0),
             _new_sources.at(id).get<float>("orientation", 0.0),
-            _new_sources.at(id).get<float>("volume", 0.0),
+            _new_sources.at(id).get<float>("gain", 0.0),
             _new_sources.at(id).get<int>("channel", 1),
             _new_sources.at(id).get<std::string>("properties_file", ""));
         VERBOSE2("OscSender: Sent [/source/new, sssffffis" <<
@@ -366,7 +366,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("x", 0.0) << ", " <<
             _new_sources.at(id).get<float>("y", 0.0) << ", " <<
             _new_sources.at(id).get<float>("orientation", 0.0) << ", " <<
-            _new_sources.at(id).get<float>("volume", 0.0) << ", " <<
+            _new_sources.at(id).get<float>("gain", 0.0) << ", " <<
             _new_sources.at(id).get<int>("channel", 1) << ", " <<
             _new_sources.at(id).get<std::string>("properties_file", "")
              << "] to client " <<
@@ -381,7 +381,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
     _new_sources.at(id).has_key("x") &&
     _new_sources.at(id).has_key("y") &&
     _new_sources.at(id).has_key("orientation") &&
-    _new_sources.at(id).has_key("volume") &&
+    _new_sources.at(id).has_key("gain") &&
     _new_sources.at(id).has_key("position_fixed") &&
     _new_sources.at(id).has_key("orientation_fixed") &&
     _new_sources.at(id).has_key("mute"))
@@ -405,7 +405,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("x", 0.0),
             _new_sources.at(id).get<float>("y", 0.0),
             _new_sources.at(id).get<float>("orientation", 0.0),
-            _new_sources.at(id).get<float>("volume", 0.0));
+            _new_sources.at(id).get<float>("gain", 0.0));
         VERBOSE2("OscSender: Sent [/source/new, sssffff" <<
             _handler.bool_to_message_type(
               _new_sources.at(id).get<bool>( "position_fixed", false)) <<
@@ -420,7 +420,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("x", 0.0) << ", " <<
             _new_sources.at(id).get<float>("y", 0.0) << ", " <<
             _new_sources.at(id).get<float>("orientation", 0.0) << ", " <<
-            _new_sources.at(id).get<float>("volume", 0.0)
+            _new_sources.at(id).get<float>("gain", 0.0)
              << "] to client " <<
             client->address().hostname() << ":" <<
             client->address().port() << ".");
@@ -567,7 +567,7 @@ void ssr::OscSender::new_source(id_t id)
  * Subscriber function called, when Publisher deleted a source.
  * On server: Sends out OSC message all clients to delete source with given id.
  * On client: Sends out OSC message about successful deletion of source with id
- * to server and erases complementing volume level from _source_levels.
+ * to server and erases complementing gain level from _source_levels.
  * @param id id_t representing the source
  */
 void ssr::OscSender::delete_source(id_t id)
@@ -778,7 +778,7 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
   {
     _server_address.send_from(_handler.server(), "/update/source/orientation",
         "if", message_id, message_orientation);
-    VERBOSE3("OscSender: Sent [/update/source/volume, if, " <<
+    VERBOSE3("OscSender: Sent [/update/source/orientation, if, " <<
         apf::str::A2S(message_id) << ", " <<
         apf::str::A2S(message_orientation) << "] to server " <<
         _server_address.hostname() << ":" << _server_address.port() << ".");
@@ -787,15 +787,15 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
 }
 
 /**
- * Subscriber function called, when Publisher set a source's volume.
- * On server: Sends out OSC message to set volume of given source on all
- * clients. If id is found in _new_sources, the volume will be stored in the
+ * Subscriber function called, when Publisher set a source's gain.
+ * On server: Sends out OSC message to set gain of given source on all
+ * clients. If id is found in _new_sources, the gain will be stored in the
  * parameter_map for id and an OSC message will be send to clients only, if the
  * source is complete.
  * On client: Sends out OSC to server message about the successful updating of
- * the source's volume.
+ * the source's gain.
  * @param id id_t representing the source
- * @param gain new volume of source
+ * @param gain new gain of source
  * @return true
  */
 bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
@@ -805,7 +805,7 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
   {
     if(is_new_source(id))
     {
-      _new_sources.at(id).set<float>("volume", gain);
+      _new_sources.at(id).set<float>("gain", gain);
       if(is_complete_source(id))
         send_new_source_message_from_id(id);
     }
@@ -815,9 +815,9 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
       {
         if(client && client->active())
         {
-          client->address().send_from(_handler.server(), "/source/volume",
+          client->address().send_from(_handler.server(), "/source/gain",
               "if", message_id, gain);
-          VERBOSE3("OscSender: Sent [/source/volume, if, " << message_id <<
+          VERBOSE3("OscSender: Sent [/source/gain, if, " << message_id <<
               ", " << gain << "] to client " << client->address().hostname()
               << ":" << client->address().port() << ".");
         }
@@ -826,9 +826,9 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
   }
   else if(_handler.is_client() && !server_is_default())
   {
-    _server_address.send_from(_handler.server(), "/update/source/volume",
+    _server_address.send_from(_handler.server(), "/update/source/gain",
         "if", message_id, gain);
-    VERBOSE3("OscSender: Sent [/update/source/volume, if, " <<
+    VERBOSE3("OscSender: Sent [/update/source/gain, if, " <<
         apf::str::A2S(message_id) << ", " <<  apf::str::A2S(gain) <<
         "] to server " << _server_address.hostname() << ":" <<
         _server_address.port() << ".");
