@@ -79,17 +79,32 @@ void ssr::OscReceiver::stop()
 void ssr::OscReceiver::add_client_to_server_methods()
 {
   // adding new subscribing client: "/message_level, i"
-  _handler.server().add_method("/message_level", "i", [this](lo_arg **argv,
+  _handler.server().add_method("/message_level", NULL, [this](lo_arg **argv,
         int, lo::Message message)
     {
-      VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
-          "] from client '" << message.source().hostname() << ":" <<
-          message.source().port() << "'.");
-      set_message_level(_handler, message.source(),
-          static_cast<ssr::MessageLevel>(argv[0]->i));
+      if(!message.types().compare("i"))
+      {
+        VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
+            "] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        set_message_level(_handler, message.source().hostname(),
+            message.source().port(),
+            static_cast<ssr::MessageLevel>(argv[0]->i));
+      }
+      else if(!message.types().compare("ssi"))
+      {
+        std::string hostname(&argv[0]->s);
+        std::string port(&argv[1]->s);
+        VERBOSE2("OscReceiver: Got [/message_level, " << hostname << ", " <<
+            port << ", " << argv[2]->i << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        set_message_level(_handler, hostname, port,
+            static_cast<ssr::MessageLevel>(argv[2]->i));
+      }
     }
   );
-  VERBOSE("OscReceiver: Added callback for /message_level i.");
+  VERBOSE("OscReceiver: Added callback for /message_level {i,ssi}.");
 
   // adding new subscribing client: "/subscribe, {T,Ti,F}"
   _handler.server().add_method("/subscribe", NULL, [this](lo_arg **argv, int,
