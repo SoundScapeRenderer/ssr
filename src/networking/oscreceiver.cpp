@@ -85,7 +85,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
       VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
           "] from client '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
-      set_message_level(_handler, client,
+      set_message_level(_handler, message.source(),
           static_cast<ssr::MessageLevel>(argv[0]->i));
     }
   );
@@ -110,6 +110,8 @@ void ssr::OscReceiver::add_client_to_server_methods()
             client.hostname() << ":" << client.port() << "'.");
         deactivate_client(_handler, client);
       }
+      //TODO: add /subscribe, Fss, host, port
+      //TODO: add /subscribe, Tiss, host, port
       else if(!message.types().compare("Ti"))
       {
         VERBOSE2("OscReceiver: Got [/subscribe, " <<
@@ -592,8 +594,9 @@ void ssr::OscReceiver::add_source_methods()
   _handler.server().add_method("/source/delete", "i", [this](lo_arg **argv,
         int, lo::Message message)
     {
+      std::string from = (_handler.is_server())? "client": "server";
       VERBOSE2("OscReceiver: Got [/source/delete, " << argv[0]->i <<
-          "] from client '" << message.source().hostname() << ":" <<
+          "] from " << from  << " '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
       if (argv[0]->i == 0)
       {
@@ -605,8 +608,8 @@ void ssr::OscReceiver::add_source_methods()
       }
     }
   );
-
   VERBOSE("OscReceiver: Added callback for /source/delete i.");
+
   // set source file_channel: "/source/file_channel, ii, id, file_channel"
   _handler.server().add_method("/source/file_channel", "ii", [this](lo_arg
         **argv, int, lo::Message message)
@@ -1033,6 +1036,13 @@ void ssr::OscReceiver::add_reference_methods()
  */
 void ssr::OscReceiver::add_scene_methods()
 {
+  //TODO: add /scene/transfer ss, host, port (_controller.get_scene_as_XML())
+  //_add_master_volume(node);
+  //_add_transport_state(node);
+  //_add_reference(node);
+  //_add_loudspeakers(node);
+  //_add_sources(node);
+
   // clear scene: "/scene/clear"
   _handler.server().add_method("/scene/clear", NULL , [this](lo_arg **argv,
         int, lo::Message message)
@@ -1044,8 +1054,8 @@ void ssr::OscReceiver::add_scene_methods()
       _controller.delete_all_sources();
     }
   );
-
   VERBOSE("OscReceiver: Added callback for /scene/clear.");
+
   // load scene from file: "/scene/load, s, file"
   _handler.server().add_method("/scene/load", "s" , [this](lo_arg **argv, int,
         lo::Message message)
