@@ -180,23 +180,29 @@ void ssr::OscReceiver::send_to_server(OscHandler& self, lo::Bundle bundle)
  * OscHandler's friend function to add a client to the list of OscSender's
  * _client_addresses.
  * @param self reference to OscHandler holding OscSender
- * @param client lo::Address representing client to be added
+ * @param hostname std::string representing the client's hostname
+ * @param port std::string representing the client's port 
+ * @param message_level ssr::MessageLevel representing the client's message
+ * level
  */
-void ssr::OscReceiver::add_client(OscHandler& self, lo::Address client,
-    ssr::MessageLevel message_level = ssr::MessageLevel::CLIENT)
+void ssr::OscReceiver::add_client(OscHandler& self, std::string hostname,
+    std::string port, ssr::MessageLevel message_level =
+    ssr::MessageLevel::CLIENT)
 {
-  self._osc_sender.add_client(client.hostname(), client.port(), message_level);
+  self._osc_sender.add_client(hostname, port, message_level);
 }
 
 /**
  * OscHandler's friend function to deactivate a client from the list of
  * OscSender's _clients
  * @param self reference to OscHandler holding OscSender
- * @param client lo::Address representing client to be deactivated
+ * @param hostname std::string representing the client's hostname
+ * @param port std::string representing the client's port 
  */
-void ssr::OscReceiver::deactivate_client(OscHandler& self, lo::Address client)
+void ssr::OscReceiver::deactivate_client(OscHandler& self, std::string
+    hostname, std::string port)
 {
-  self._osc_sender.deactivate_client(client.hostname(), client.port());
+  self._osc_sender.deactivate_client(hostname, port);
 }
 
 /**

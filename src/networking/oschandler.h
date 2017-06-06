@@ -75,10 +75,10 @@ class OscHandler
         lo::Message message);
     friend void OscReceiver::send_to_server(OscHandler& self, lo::Bundle
         bundle);
-    friend void OscReceiver::add_client(OscHandler& self, lo::Address client,
-        ssr::MessageLevel message_level);
-    friend void OscReceiver::deactivate_client(OscHandler& self, lo::Address
-        client);
+    friend void OscReceiver::add_client(OscHandler& self, std::string hostname,
+        std::string port, ssr::MessageLevel message_level);
+    friend void OscReceiver::deactivate_client(OscHandler& self, std::string
+        hostname, std::string port);
     friend void OscReceiver::set_message_level(OscHandler& self, std::string
         hostname, std::string port, ssr::MessageLevel message_level);
 };
