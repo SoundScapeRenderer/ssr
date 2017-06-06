@@ -106,39 +106,68 @@ void ssr::OscReceiver::add_client_to_server_methods()
   );
   VERBOSE("OscReceiver: Added callback for /message_level {i,ssi}.");
 
-  // adding new subscribing client: "/subscribe, {T,Ti,F}"
+  // subscribing and unsubscribing clients
   _handler.server().add_method("/subscribe", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
-      lo::Address client(message.source());
       if(!message.types().compare("T"))
       {
+      // subscribing client: "/subscribe, T"
         VERBOSE2("OscReceiver: Got [/subscribe, " <<
             _handler.bool_to_string(true) << "] from client '" <<
-            client.hostname() << ":" << client.port() << "'.");
-        add_client(_handler, client, ssr::MessageLevel::CLIENT);
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        add_client(_handler, message.source().hostname(),
+            message.source().port(), ssr::MessageLevel::CLIENT);
       }
+      // unsubscribing client: "/subscribe, F"
       else if(!message.types().compare("F"))
       {
         VERBOSE2("OscReceiver: Got [/subscribe, " <<
             _handler.bool_to_string(false) << "] from client '" <<
-            client.hostname() << ":" << client.port() << "'.");
-        deactivate_client(_handler, client);
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        deactivate_client(_handler, message.source().hostname(),
+            message.source().port());
       }
-      //TODO: add /subscribe, Fss, host, port
-      //TODO: add /subscribe, Tiss, host, port
+      // unsubscribing client: "/subscribe, Fss, hostname, port"
+      else if(!message.types().compare("Fss"))
+      {
+        std::string hostname(&argv[1]->s);
+        std::string port(&argv[2]->s);
+        VERBOSE2("OscReceiver: Got [/subscribe, " <<
+            _handler.bool_to_string(false) << ", " << hostname << ", " << port
+            <<  "] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        deactivate_client(_handler, hostname, port);
+      }
+      // subscribing client: "/subscribe, Tssi, hostname, port, message_level"
+      else if(!message.types().compare("Tssi"))
+      {
+        std::string hostname(&argv[1]->s);
+        std::string port(&argv[2]->s);
+        VERBOSE2("OscReceiver: Got [/subscribe, " <<
+            _handler.bool_to_string(true) << ", " << hostname << ", " << port
+            << ", " << argv[3]->i << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        add_client(_handler, hostname, port,
+            static_cast<ssr::MessageLevel>(argv[3]->i));
+      }
+      // subscribing client: "/subscribe, Ti, message_level"
       else if(!message.types().compare("Ti"))
       {
         VERBOSE2("OscReceiver: Got [/subscribe, " <<
             _handler.bool_to_string(true) << ", " << argv[1]->i <<
-            "] from client '" << client.hostname() << ":" << client.port() <<
-            "'.");
-        add_client(_handler, client,
+            "] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        add_client(_handler, message.source().hostname(),
+            message.source().port(),
             static_cast<ssr::MessageLevel>(argv[1]->i));
       }
     }
   );
-  VERBOSE("OscReceiver: Added callback for /subscribe {F,T,Ti}.");
+  VERBOSE("OscReceiver: Added callback for /subscribe {F,Fss,T,Ti,Tssi}.");
 }
 
 /**
