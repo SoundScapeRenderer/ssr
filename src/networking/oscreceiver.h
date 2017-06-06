@@ -68,8 +68,8 @@ class OscReceiver
     void add_client(OscHandler& self, lo::Address client, ssr::MessageLevel
         message_level);
     void deactivate_client(OscHandler& self, lo::Address client);
-    void set_message_level(OscHandler& self, lo::Address client,
-        ssr::MessageLevel message_level);
+    void set_message_level(OscHandler& self, std::string hostname, std::string
+        port, ssr::MessageLevel message_level);
 };
 
 } // namespace ssr

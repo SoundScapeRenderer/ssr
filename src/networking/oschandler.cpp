@@ -202,13 +202,14 @@ void ssr::OscReceiver::deactivate_client(OscHandler& self, lo::Address client)
 /**
  * OscHandler's friend function to set a client's message_level
  * @param self reference to OscHandler holding OscSender
- * @param client lo::Address representing client to be deactivated
+ * @param hostname std::string representing the client's hostname
+ * @param port std::string representing the client's port
+ * @param message_level ssr::MessageLevel to be used for client
  */
-void ssr::OscReceiver::set_message_level(OscHandler& self, lo::Address client,
-    ssr::MessageLevel message_level)
+void ssr::OscReceiver::set_message_level(OscHandler& self, std::string
+    hostname, std::string port, ssr::MessageLevel message_level)
 {
-  self._osc_sender.set_client_message_level(client.hostname(), client.port(),
-      message_level);
+  self._osc_sender.set_client_message_level(hostname, port, message_level);
 }
 
 
