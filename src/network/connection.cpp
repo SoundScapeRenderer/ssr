@@ -27,6 +27,7 @@
 /// @file
 /// Connection class (implementation). 
 
+#include <functional>
 #include <memory>
 #include "connection.h"
 #include "publisher.h"

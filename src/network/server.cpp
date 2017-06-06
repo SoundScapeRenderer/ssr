@@ -27,6 +27,7 @@
 /// @file
 /// Server class (implementation).
 
+#include <functional>
 #include "server.h"
 
 ssr::Server::Server(Publisher& controller, int port
