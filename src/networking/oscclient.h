@@ -30,6 +30,7 @@ class OscClient
     bool active();
     void activate();
     void deactivate();
+    void set_address(std::string& hostname, std::string& port);
     void set_message_level(MessageLevel message_level);
     const std::string hostname();
     const std::string port();

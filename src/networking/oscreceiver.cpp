@@ -595,6 +595,8 @@ i{F,T}.");
  * server.
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
+ * @todo rename to add_client_to_server_methods() and add /message_level, i
+ * callback, to set server's MessageLevel.
  */
 void ssr::OscReceiver::add_poll_methods()
 {
@@ -603,19 +605,22 @@ void ssr::OscReceiver::add_poll_methods()
   _handler.server().add_method("/poll", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
-      lo::Address server(server_address(_handler));
       lo::Address from(message.source());
+      std::string hostname(from.hostname());
+      std::string port(from.port());
       (void) argv;
-      if((server.hostname().compare(from.hostname()) != 0) &&
-          (server.port().compare(from.port()) != 0) &&
-          (from.port().compare("50001") != 0) &&
-          (from.hostname().compare("none") != 0)
-        )
+      if(!server_is(_handler, hostname, port))
       {
         VERBOSE2("OscReceiver: Got [/poll] from server " << from.hostname() <<
             ":" << from.port() << ". Subscribing...");
-        set_server_for_client(_handler, from);
+        set_server_address(_handler, hostname, port);
         from.send_from(_handler.server(), "/subscribe", "T");
+      }
+      else
+      {
+        VERBOSE3("OscReceiver: Got [/poll] from server " << from.hostname() <<
+            ":" << from.port() << ". Sending alive signal.");
+        from.send_from(_handler.server(), "/alive", "");
       }
     }
   );

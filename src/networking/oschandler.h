@@ -60,9 +60,12 @@ class OscHandler
     const std::string bool_to_message_type(const bool& message);
     const std::string bool_to_string(const bool& message);
     // OscReceiver friend functions
-    friend void OscReceiver::set_server_for_client(OscHandler& self,
-        lo::Address server_address);
+    friend void OscReceiver::set_server_address(OscHandler& self,
+        std::string& hostname, std::string& port);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
+    friend bool OscReceiver::server_is_default(OscHandler& self);
+    friend bool OscReceiver::server_is(OscHandler& self, std::string& hostname,
+        std::string& port);
     friend void OscReceiver::send_to_client(OscHandler& self, lo::Address
         client_address, std::string path, lo::Message message);
     friend void OscReceiver::send_to_client(OscHandler& self, lo::Address
