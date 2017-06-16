@@ -85,22 +85,51 @@ void ssr::OscHandler::start()
 /**
  * OscHandler's friend function to set the OscSender's server_address
  * @param self reference to OscHandler holding OscSender
- * @param server_address lo::Address object to be used for OscSender
+ * @param hostname reference to std::string representing hostname
+ * @param port reference to std::string representing port
  */
-void ssr::OscReceiver::set_server_for_client(ssr::OscHandler& self, lo::Address
-    server_address)
+void ssr::OscReceiver::set_server_address(ssr::OscHandler& self,
+    std::string& hostname, std::string& port)
 {
-  self._osc_sender.set_server_address(server_address.hostname(), server_address.port());
+  self._osc_sender.set_server_address(hostname, port);
 }
 
 /**
- * OscHandler's friend function return OscSender's server_address
+ * OscHandler's friend function to return OscSender's server_address
  * @param self reference to OscHandler holding the OscSender
  * @return lo::Address server_address of OscSender
  */
 lo::Address ssr::OscReceiver::server_address(ssr::OscHandler& self)
 {
   return self._osc_sender.server_address();
+}
+
+/**
+ * OscHandler's friend function to check, if the current lo::Address of the
+ * server is the default
+ * @see ssr::OscSender::server_is_default()
+ * @param self reference to OscHandler holding the OscSender
+ * @return bool true, if OscSender's server address is the default, false
+ * otherwise
+ */
+bool ssr::OscReceiver::server_is_default(ssr::OscHandler& self)
+{
+  return self._osc_sender.server_is_default();
+}
+
+/**
+ * OscHandler's friend function to check, if the provided hostname and port
+ * match the OscSender's _server lo::Address
+ * @param self reference to OscHandler holding the OscSender
+ * @param hostname reference to std::string representing the hostname
+ * @param port reference to std::string representing the port
+ * @return bool true, if OscSender's server address matches the provided
+ * hostname and port
+ */
+bool ssr::OscReceiver::server_is(ssr::OscHandler& self, std::string& hostname,
+    std::string& port)
+{
+  return self._osc_sender.server_is(hostname, port);
 }
 
 /**

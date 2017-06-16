@@ -72,6 +72,19 @@ lo::Address& ssr::OscClient::address()
 }
 
 /**
+ * Function to set the OscClient's _address.
+ * @param hostname reference to a std::string representing the hostname to be
+ * used
+ * @param port reference to a std::string& representing the port to be used
+ **/
+void ssr::OscClient::set_address(std::string& hostname, std::string& port)
+{
+  _address = lo::Address(hostname, port);
+  VERBOSE3("OscClient: Address changed to: " << _address.hostname() << ":" <<
+      _address.port() << ".");
+}
+
+/**
  * Function to set the OscClient's _message_level.
  * @param message_level a MessageLevel to be used for the OscClient
  **/

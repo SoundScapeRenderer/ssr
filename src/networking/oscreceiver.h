@@ -52,9 +52,11 @@ class OscReceiver
     ~OscReceiver();
     void start();
     void stop();
-    void set_server_for_client(OscHandler& handler, lo::Address
-        server_address);
-    lo::Address server_address(OscHandler& handler);
+    void set_server_address(OscHandler& handler, std::string& hostname,
+        std::string& port); lo::Address server_address(OscHandler& handler);
+    bool server_is_default(OscHandler& handler);
+    bool server_is(OscHandler& handler, std::string& hostname, std::string&
+        port);
     void send_to_client(OscHandler& self, lo::Address client_address,
         std::string path, lo::Message message);
     void send_to_client(OscHandler& self, lo::Address client_address,
