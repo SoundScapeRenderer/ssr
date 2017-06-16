@@ -78,7 +78,7 @@ void ssr::OscReceiver::stop()
  */
 void ssr::OscReceiver::add_client_to_server_methods()
 {
-  // adding new subscribing client: "/message_level, i"
+  // setting MessageLevel of subscribed client: "/message_level, {i,ssi}"
   _handler.server().add_method("/message_level", NULL, [this](lo_arg **argv,
         int, lo::Message message)
     {
@@ -600,6 +600,25 @@ i{F,T}.");
  */
 void ssr::OscReceiver::add_poll_methods()
 {
+
+  _handler.server().add_method("/message_level", "i", [this](lo_arg **argv,
+        int, lo::Message message)
+    {
+//      lo::Address from(message.source());
+      std::string hostname(message.source().hostname());
+      std::string port(message.source().port());
+      if(server_is(_handler, hostname, port))
+      {
+        VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
+            "] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
+        set_server_message_level(_handler,
+            static_cast<ssr::MessageLevel>(argv[0]->i));
+      }
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /message_level i.");
+
   // set _server_address for OscSender through OscHandler, depending on, if
   // polled from given server before
   _handler.server().add_method("/poll", NULL, [this](lo_arg **argv, int,

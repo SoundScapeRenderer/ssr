@@ -135,12 +135,20 @@ lo::Address& ssr::OscSender::server_address()
 
 /**
  * Function to set OscSender's _message_level.
- * If the message level is out of 
  * @param MessageLevel enum representing the new message level
  */
 void ssr::OscSender::set_message_level(const unsigned int& message_level)
 {
   _message_level = static_cast<MessageLevel>(message_level);
+}
+
+/**
+ * Function to set OscSender server's _message_level (client).
+ * @param MessageLevel enum representing the new message level
+ */
+void ssr::OscSender::set_server_message_level(MessageLevel message_level)
+{
+  _server.set_message_level(message_level);
 }
 
 /**
@@ -163,8 +171,7 @@ void ssr::OscSender::set_server_address(std::string& hostname, std::string& port
  */
 void ssr::OscSender::send_to_server(std::string path, lo::Message message)
 {
-  if((_server.hostname().compare("none") != 0) &&
-      (_server.port().compare("50001") != 0))
+  if(!server_is_default())
   {
     _server.address().send_from(_handler.server(), path, message.types(), message);
     VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
@@ -179,28 +186,32 @@ void ssr::OscSender::send_to_server(std::string path, lo::Message message)
  */
 void ssr::OscSender::send_to_server(lo::Bundle bundle)
 {
-  _server.address().send_from(_handler.server(), bundle);
-  VERBOSE3("OscSender: Sending bundle (" << bundle.length() <<
-      " messages) to server " << _server.hostname() << ":" <<
-      _server.port() << ".");
+  if(!server_is_default())
+  {
+    _server.address().send_from(_handler.server(), bundle);
+    VERBOSE3("OscSender: Sending bundle (" << bundle.length() <<
+        " messages) to server " << _server.hostname() << ":" <<
+        _server.port() << ".");
+  }
 }
 
 /**
  * Function to send a lo::Message to a client.
  * @param address a lo:Address that will be sent to, when found in
- * _client_addresses.
+ * _clients.
  * @param path a std::string defining the path to send to
  * @param message a predefined lo::Messge object to be sent
  */
 void ssr::OscSender::send_to_client(lo::Address address, std::string path,
     lo::Message message)
 {
-  for (const auto& client: _client_addresses)
+  for (const auto& client: _clients)
   {
     if(client->hostname() == address.hostname() && client->port() ==
         address.port())
     {
-      client->send_from(_handler.server(), path, message.types(), message);
+      client->address().send_from(_handler.server(), path, message.types(),
+          message);
       VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
           "] to client " << address.hostname() << ":" << address.port() <<
           ".");
@@ -211,48 +222,49 @@ void ssr::OscSender::send_to_client(lo::Address address, std::string path,
 /**
  * Function to send a lo::Bundle to a client.
  * @param address a lo:Address that will be sent to, when found in
- * _client_addresses.
+ * _clients.
  * @param bundle a predefined lo::Bundle object to be sent
  */
 void ssr::OscSender::send_to_client(lo::Address address, lo::Bundle bundle)
 {
-  for (const auto& client: _client_addresses)
+  for (const auto& client: _clients)
   {
     if(client->hostname() == address.hostname() && client->port() ==
         address.port())
     {
-      client->send_from(_handler.server(), bundle);
+      client->address().send_from(_handler.server(), bundle);
       VERBOSE3("OscSender: Sending bundle to client " << address.hostname() <<
           ":" << address.port() << "."); }
   }
 }
 
 /**
- * Function to send a lo::Message to all clients setup in _client_addresses
+ * Function to send a lo::Message to all clients setup in _clients
  * vector.
  * @param path a std::string defining the path to send to
  * @param message a predefined lo::Messge object to be sent
  */
 void ssr::OscSender::send_to_all_clients(std::string path, lo::Message message)
 {
-  for (const auto& client_address: _client_addresses)
+  for (const auto& client: _clients)
   {
+    client->address().send_from(_handler.server(), path, message.types(),
+        message);
     VERBOSE3("OscSender: Sending ["<< path << ", " << message.types() <<
-        "] to client " << client_address->hostname() << ":" <<
-        client_address->port() << ".");
-    client_address->send_from(_handler.server(), path, message.types(), message);
+        "] to client " << client->hostname() << ":" <<
+        client->port() << ".");
   }
 }
 
 /**
- * Sends a lo::Bundle to all clients setup in _client_addresses vector.
+ * Sends a lo::Bundle to all clients setup in _clients vector.
  * @param bundle a predefined lo::Bundle object to be sent
  */
 void ssr::OscSender::send_to_all_clients(lo::Bundle bundle)
 {
-  for (const auto& client_address: _client_addresses)
+  for (const auto& client: _clients)
   {
-    client_address->send_from(_handler.server(), bundle);
+    client->address().send_from(_handler.server(), bundle);
     VERBOSE3("OscSender: Sending bundle to all clients.");
   }
 }
