@@ -62,6 +62,8 @@ class OscHandler
     // OscReceiver friend functions
     friend void OscReceiver::set_server_address(OscHandler& self,
         std::string& hostname, std::string& port);
+    friend void OscReceiver::set_server_message_level(OscHandler& self,
+        MessageLevel message_level);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
     friend bool OscReceiver::server_is_default(OscHandler& self);
     friend bool OscReceiver::server_is(OscHandler& self, std::string& hostname,

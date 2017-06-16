@@ -95,6 +95,19 @@ void ssr::OscReceiver::set_server_address(ssr::OscHandler& self,
 }
 
 /**
+ * OscHandler's friend function to set a the OscSender _server's message_level
+ * @param self reference to OscHandler holding OscSender
+ * @param hostname reference to std::string representing the client's hostname
+ * @param port reference to std::string representing the client's port
+ * @param message_level ssr::MessageLevel to be used for server
+ */
+void ssr::OscReceiver::set_server_message_level(OscHandler& self,
+    ssr::MessageLevel message_level)
+{
+  self._osc_sender.set_server_message_level(message_level);
+}
+
+/**
  * OscHandler's friend function to return OscSender's server_address
  * @param self reference to OscHandler holding the OscSender
  * @return lo::Address server_address of OscSender
