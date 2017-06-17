@@ -1280,9 +1280,9 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
   {
     _server.address().send_from(_handler.server(), "/update/source/length",
         "ii", message_id, message_length);
-    VERBOSE3("OscSender: Sent [/update/source/length, ii, " << message_id << ",
-        " << message_length << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+    VERBOSE3("OscSender: Sent [/update/source/length, ii, " << message_id <<
+        ", " << message_length << "] to server " << _server.hostname() << ":"
+        << _server.port() << ".");
   }
   return true;
 }
