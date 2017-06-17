@@ -19,7 +19,6 @@ ssr::OscSender::OscSender(Publisher& controller, OscHandler& handler)
   : _controller(controller)
   , _handler(handler)
   , _server("none", "50001", MessageLevel::SERVER)
-  , _message_level(MessageLevel::THIN_CLIENT)
 {
   VERBOSE("OscSender: Initialized.");
 }
@@ -131,15 +130,6 @@ void ssr::OscSender::poll_all_clients()
 lo::Address& ssr::OscSender::server_address()
 {
   return _server.address();
-}
-
-/**
- * Function to set OscSender's _message_level.
- * @param MessageLevel enum representing the new message level
- */
-void ssr::OscSender::set_message_level(const unsigned int& message_level)
-{
-  _message_level = static_cast<MessageLevel>(message_level);
 }
 
 /**
@@ -1576,8 +1566,8 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
       }
     }
   }
-  else if(_handler.is_client() && !server_is_default() && _message_level ==
-      MessageLevel::GUI_CLIENT)
+  else if(_handler.is_client() && !server_is_default() &&
+      _server.message_level() == MessageLevel::GUI_CLIENT)
   {
     _server.address().send_from(_handler.server(), "/update/transport/state",
         _handler.bool_to_message_type(state.first));
@@ -1644,7 +1634,7 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
  */
 void ssr::OscSender::set_cpu_load(float load)
 {
-  if(_handler.is_client() && !server_is_default() && _message_level ==
+  if(_handler.is_client() && !server_is_default() && _server.message_level() ==
       MessageLevel::GUI_CLIENT)
   {
     _server.address().send_from(_handler.server(), "/update/cpu_load", "f",
@@ -1722,8 +1712,8 @@ void ssr::OscSender::set_master_signal_level(float level)
       }
     }
   }
-  else if(_handler.is_client() && !server_is_default() && _message_level ==
-      MessageLevel::GUI_CLIENT)
+  else if(_handler.is_client() && !server_is_default() &&
+      _server.message_level() == MessageLevel::GUI_CLIENT)
   {
     _server.address().send_from(_handler.server(),
         "/update/scene/master_signal_level", "f", message_level);
@@ -1764,8 +1754,8 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
       }
     }
   }
-  else if(_handler.is_client() && !server_is_default() && _message_level ==
-      MessageLevel::GUI_CLIENT)
+  else if(_handler.is_client() && !server_is_default() &&
+      _server.message_level() == MessageLevel::GUI_CLIENT)
   {
     _server.address().send_from(_handler.server(), "/update/source/level",
         "if", message_id, message_level);

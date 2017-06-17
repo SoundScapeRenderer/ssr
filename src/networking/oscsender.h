@@ -39,11 +39,10 @@ class OscSender : public Subscriber
     Publisher& _controller;
     // reference to handler
     OscHandler& _handler;
-    bool _is_subscribed;
     // server object (client)
     OscClient _server;
-    // level of messages to send to server (client)
-    MessageLevel _message_level;
+    // bool, indicating if subscribed to _controller
+    bool _is_subscribed;
     // vector of pointers to OscClient objects (server)
     std::vector<OscClient*> _clients;
     // map of id/parameter_map pairs for new sources (server)
