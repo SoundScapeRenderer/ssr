@@ -84,7 +84,7 @@ class OscHandler
         std::string port, ssr::MessageLevel message_level);
     friend void OscReceiver::deactivate_client(OscHandler& self, std::string
         hostname, std::string port);
-    friend void OscReceiver::set_message_level(OscHandler& self, std::string
+    friend void OscReceiver::set_client_message_level(OscHandler& self, std::string
         hostname, std::string port, ssr::MessageLevel message_level);
 };
 
