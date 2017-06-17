@@ -39,7 +39,7 @@ class OscReceiver
     ssr::OscHandler& _handler;
     void add_client_to_server_methods();
     void add_update_notification_methods();
-    void add_poll_methods();
+    void add_server_to_client_methods();
     void add_source_methods();
     void add_reference_methods();
     void add_scene_methods();
@@ -74,8 +74,8 @@ class OscReceiver
         ssr::MessageLevel message_level);
     void deactivate_client(OscHandler& self, std::string hostname, std::string
         port);
-    void set_client_message_level(OscHandler& self, std::string hostname, std::string
-        port, ssr::MessageLevel message_level);
+    void set_client_message_level(OscHandler& self, std::string hostname,
+        std::string port, ssr::MessageLevel message_level);
 };
 
 } // namespace ssr

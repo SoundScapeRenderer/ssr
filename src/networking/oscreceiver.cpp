@@ -52,7 +52,7 @@ void ssr::OscReceiver::start()
   }
   else if (_handler.is_client())
   {
-    add_poll_methods();
+    add_server_to_client_methods();
     add_processing_methods();
     add_reference_methods();
     add_scene_methods();
@@ -591,20 +591,17 @@ i{F,T}.");
 }
 
 /**
- * Adds callback handlers (for clients) for poll messages received from a
- * server.
+ * Adds callback handlers (for clients) for /poll and /message_level messages
+ * received from a server.
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
- * @todo rename to add_client_to_server_methods() and add /message_level, i
- * callback, to set server's MessageLevel.
  */
-void ssr::OscReceiver::add_poll_methods()
+void ssr::OscReceiver::add_server_to_client_methods()
 {
 
   _handler.server().add_method("/message_level", "i", [this](lo_arg **argv,
         int, lo::Message message)
     {
-//      lo::Address from(message.source());
       std::string hostname(message.source().hostname());
       std::string port(message.source().port());
       if(is_server(_handler, hostname, port))
@@ -766,12 +763,6 @@ void ssr::OscReceiver::add_source_methods()
   _handler.server().add_method("/source/new", NULL, [this](lo_arg **argv, int,
         lo::Message message)
     {
-      std::string name(&(argv[0]->s));
-      std::string file_name_or_port_number(&(argv[2]->s));
-      std::string types(message.types());
-      float x(argv[3]->f);
-      float y(argv[4]->f);
-      float gain(argv[6]->f);
       int file_channel = 0;
       std::string properties_file = "";
       std::string channel_and_properties = "";
@@ -779,70 +770,63 @@ void ssr::OscReceiver::add_source_methods()
       bool orientation_fixed;
       bool muted;
       bool setup = false;
-      Source::model_t model = Source::model_t();
-      if (!apf::str::S2A(apf::str::A2S(argv[1]->s), model))
-      {
-        model = Source::point;
-      }
-      Position position(x, y);
-      Orientation orientation(argv[5]->f);
-      if (types.compare("sssffffTTT") == 0)
+      if (!message.types().compare("sssffffTTT"))
       {
         position_fixed = true;
         orientation_fixed = true;
         muted = true;
         setup = true;
       }
-      if (types.compare("sssffffTTF") == 0)
+      if (!message.types().compare("sssffffTTF"))
       {
         position_fixed = true;
         orientation_fixed = true;
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffTFF") == 0)
+      if (!message.types().compare("sssffffTFF"))
       {
         position_fixed = true;
         orientation_fixed = false;
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffFFF") == 0)
+      if (!message.types().compare("sssffffFFF"))
       {
         position_fixed = false;
         orientation_fixed = false;
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffTFT") == 0)
+      if (!message.types().compare("sssffffTFT"))
       {
         position_fixed = true;
         orientation_fixed = false;
         muted = true;
         setup = true;
       }
-      if (types.compare("sssffffFTF") == 0)
+      if (!message.types().compare("sssffffFTF"))
       {
         position_fixed = false;
         orientation_fixed = true;
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffFTT") == 0)
+      if (!message.types().compare("sssffffFTT"))
       {
         position_fixed = false;
         orientation_fixed = true;
         muted = true;
         setup = true;
       }
-      if (types.compare("sssffffFFT") == 0)
+      if (!message.types().compare("sssffffFFT"))
       {
         position_fixed = false;
         orientation_fixed = false;
         muted = true;
         setup = true;
       }
-      if (types.compare("sssffffisTTT") == 0)
+      if (!message.types().compare("sssffffisTTT"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -852,7 +836,7 @@ void ssr::OscReceiver::add_source_methods()
         muted = true;
         setup = true;
       }
-      if (types.compare("sssffffisTTF") == 0)
+      if (!message.types().compare("sssffffisTTF"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -862,7 +846,7 @@ void ssr::OscReceiver::add_source_methods()
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffisTFF") == 0)
+      if (!message.types().compare("sssffffisTFF"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -872,7 +856,7 @@ void ssr::OscReceiver::add_source_methods()
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffisFFF") == 0)
+      if (!message.types().compare("sssffffisFFF"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -882,7 +866,7 @@ void ssr::OscReceiver::add_source_methods()
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffisTFT") == 0)
+      if (!message.types().compare("sssffffisTFT"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -892,7 +876,7 @@ void ssr::OscReceiver::add_source_methods()
         muted = true;
         setup = true;
       }
-      if (types.compare("sssffffisFTF") == 0)
+      if (!message.types().compare("sssffffisFTF"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -902,7 +886,7 @@ void ssr::OscReceiver::add_source_methods()
         muted = false;
         setup = true;
       }
-      if (types.compare("sssffffisFTT") == 0)
+      if (!message.types().compare("sssffffisFTT"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -912,7 +896,7 @@ void ssr::OscReceiver::add_source_methods()
         muted = true;
         setup = true;
       }
-      if (types.compare("sssffffisFFT") == 0)
+      if (!message.types().compare("sssffffisFFT"))
       {
         file_channel = argv[7]->i;
         properties_file = &(argv[8]->s);
@@ -924,6 +908,18 @@ void ssr::OscReceiver::add_source_methods()
       }
       if (setup)
       {
+        std::string name(&(argv[0]->s));
+        std::string file_name_or_port_number(&(argv[2]->s));
+        float x(argv[3]->f);
+        float y(argv[4]->f);
+        float gain(argv[6]->f);
+        Source::model_t model = Source::model_t();
+        if (!apf::str::S2A(apf::str::A2S(argv[1]->s), model))
+        {
+          model = Source::point;
+        }
+        Position position(x, y);
+        Orientation orientation(argv[5]->f);
         VERBOSE3("OscReceiver: Got [/source/new, " << name << ", " << model <<
             ", " << file_name_or_port_number << ", " << x << ", " << y << ", "
             << orientation.azimuth << ", " << gain<< ", " <<
