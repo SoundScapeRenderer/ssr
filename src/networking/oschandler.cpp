@@ -43,7 +43,6 @@ ssr::OscHandler::OscHandler(Publisher& controller, int port, std::string mode,
 ssr::OscHandler::~OscHandler()
 {
   stop();
-  //TODO: delete members of _client_addresses
   VERBOSE("OscHandler: Destructing.");
 }
 
