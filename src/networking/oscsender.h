@@ -71,7 +71,7 @@ class OscSender : public Subscriber
     lo::Address& server_address();
     void set_server_message_level(MessageLevel message_level);
     bool server_is_default();
-    bool server_is(std::string& hostname, std::string& port);
+    bool is_server(std::string& hostname, std::string& port);
     void set_message_level(const unsigned int& message_level);
     void add_client(std::string hostname, std::string port, ssr::MessageLevel
         message_level);
