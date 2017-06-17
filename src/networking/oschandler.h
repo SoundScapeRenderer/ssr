@@ -66,7 +66,7 @@ class OscHandler
         MessageLevel message_level);
     friend lo::Address OscReceiver::server_address(OscHandler& self);
     friend bool OscReceiver::server_is_default(OscHandler& self);
-    friend bool OscReceiver::server_is(OscHandler& self, std::string& hostname,
+    friend bool OscReceiver::is_server(OscHandler& self, std::string& hostname,
         std::string& port);
     friend void OscReceiver::send_to_client(OscHandler& self, lo::Address
         client_address, std::string path, lo::Message message);

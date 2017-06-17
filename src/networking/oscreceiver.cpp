@@ -607,7 +607,7 @@ void ssr::OscReceiver::add_poll_methods()
 //      lo::Address from(message.source());
       std::string hostname(message.source().hostname());
       std::string port(message.source().port());
-      if(server_is(_handler, hostname, port))
+      if(is_server(_handler, hostname, port))
       {
         VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
             "] from client '" << message.source().hostname() << ":" <<
@@ -628,7 +628,7 @@ void ssr::OscReceiver::add_poll_methods()
       std::string hostname(from.hostname());
       std::string port(from.port());
       (void) argv;
-      if(!server_is(_handler, hostname, port))
+      if(!is_server(_handler, hostname, port))
       {
         VERBOSE2("OscReceiver: Got [/poll] from server " << from.hostname() <<
             ":" << from.port() << ". Subscribing...");

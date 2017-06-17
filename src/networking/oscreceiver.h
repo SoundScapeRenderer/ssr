@@ -58,7 +58,7 @@ class OscReceiver
     void set_server_message_level(OscHandler& handler, MessageLevel
         message_level);
     bool server_is_default(OscHandler& handler);
-    bool server_is(OscHandler& handler, std::string& hostname, std::string&
+    bool is_server(OscHandler& handler, std::string& hostname, std::string&
         port);
     void send_to_client(OscHandler& self, lo::Address client_address,
         std::string path, lo::Message message);

@@ -88,7 +88,7 @@ bool ssr::OscSender::server_is_default()
  * @return true, if _server.address() has the same hostname and port, false
  * otherwise.
  */
-bool ssr::OscSender::server_is(std::string& hostname, std::string& port)
+bool ssr::OscSender::is_server(std::string& hostname, std::string& port)
 {
   if((_server.hostname().compare(hostname) == 0) &&
       (_server.port().compare(port) == 0))

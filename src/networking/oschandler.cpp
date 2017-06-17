@@ -139,10 +139,10 @@ bool ssr::OscReceiver::server_is_default(ssr::OscHandler& self)
  * @return bool true, if OscSender's server address matches the provided
  * hostname and port
  */
-bool ssr::OscReceiver::server_is(ssr::OscHandler& self, std::string& hostname,
+bool ssr::OscReceiver::is_server(ssr::OscHandler& self, std::string& hostname,
     std::string& port)
 {
-  return self._osc_sender.server_is(hostname, port);
+  return self._osc_sender.is_server(hostname, port);
 }
 
 /**
