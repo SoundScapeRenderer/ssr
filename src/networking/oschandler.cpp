@@ -343,3 +343,20 @@ const std::string ssr::OscHandler::bool_to_string(const bool& message)
     return _string_false;
   }
 }
+
+/**
+ * Returns a std::string representing from where messages where received from
+ * on this instance. Depends on whether this instance is a server or a client.
+ * @return 'client' if _mode is "server", 'server' otherwise
+ */
+const std::string ssr::OscHandler::from_is()
+{
+  if(is_server())
+  {
+    return _string_client;
+  }
+  else
+  {
+    return _string_server;
+  }
+}

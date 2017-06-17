@@ -24,6 +24,8 @@ namespace
   const std::string _message_type_true{"T"};
   const std::string _string_false{"false"};
   const std::string _string_true{"true"};
+  const std::string _string_server{"server"};
+  const std::string _string_client{"client"};
 }
 
 namespace ssr
@@ -59,6 +61,7 @@ class OscHandler
     lo::ServerThread& server();
     const std::string bool_to_message_type(const bool& message);
     const std::string bool_to_string(const bool& message);
+    const std::string from_is();
     // OscReceiver friend functions
     friend void OscReceiver::set_server_address(OscHandler& self,
         std::string& hostname, std::string& port);
