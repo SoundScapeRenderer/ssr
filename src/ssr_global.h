@@ -54,9 +54,10 @@ extern unsigned int usleeptime;
 enum class MessageLevel : id_t
 {
   SERVER = 0,
-  THIN_CLIENT = 1,
-  CLIENT = 2,
-  GUI_CLIENT = 3
+  GUI_SERVER,
+  THIN_CLIENT,
+  CLIENT,
+  GUI_CLIENT
 };
 
 }  // namespace ssr
