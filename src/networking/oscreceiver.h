@@ -76,6 +76,8 @@ class OscReceiver
         port);
     void set_client_message_level(OscHandler& self, std::string hostname,
         std::string port, ssr::MessageLevel message_level);
+    bool client_has_message_level(OscHandler& self, std::string& hostname,
+        std::string& port, ssr::MessageLevel message_level);
 };
 
 } // namespace ssr

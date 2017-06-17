@@ -500,7 +500,7 @@ void ssr::OscSender::deactivate_client(std::string hostname, std::string port)
 }
 
 /**
- * Set message level of a client
+ * Set MessageLevel of a client
  * @param hostname std::string representing the hostname of a client
  * @param port std::string representing the port of a client
  * @param message_level ssr::MessageLevel enum representing the message level
@@ -520,6 +520,34 @@ void ssr::OscSender::set_client_message_level(std::string hostname, std::string
     }
   }
 }
+
+/**
+ * Compare MessageLevel of a client with one provided
+ * @param hostname std::string representing the hostname of a client
+ * @param port std::string representing the port of a client
+ * @param message_level ssr::MessageLevel enum representing the message level
+ * to use
+ * @return true, if @s message_level is equal or less of what the client,
+ * defined by @s hostname and @s port has set, false otherwise (also if client
+ * is not found).
+ */
+bool ssr::OscSender::client_has_message_level(std::string& hostname,
+    std::string& port, ssr::MessageLevel message_level)
+{
+  bool has_level = false;
+  for (auto& client: _clients)
+  {
+    if(!(client->hostname().compare(hostname)) &&
+        !(client->port().compare(port)) && client->message_level() >=
+        message_level)
+    {
+      has_level = true;
+      break;
+    }
+  }
+  return has_level;
+}
+
 
 /**
  * Removes all clients from the vector of clients.

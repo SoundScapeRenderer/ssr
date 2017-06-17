@@ -259,6 +259,22 @@ void ssr::OscReceiver::set_client_message_level(OscHandler& self, std::string
   self._osc_sender.set_client_message_level(hostname, port, message_level);
 }
 
+/**
+ * OscHandler's friend function to check if a client's message_level is greater
+ * or equal to one provided.
+ * @param self reference to OscHandler holding OscSender
+ * @param hostname std::string representing the client's hostname
+ * @param port std::string representing the client's port
+ * @param message_level ssr::MessageLevel to check for
+ * @return true, if the MessageLevel is equal or greater than the one
+ * requested, false otherwise
+ */
+bool ssr::OscReceiver::client_has_message_level(OscHandler& self, std::string&
+    hostname, std::string& port, ssr::MessageLevel message_level)
+{
+  self._osc_sender.client_has_message_level(hostname, port, message_level);
+}
+
 
 /**
  * This function returns the OscHandler's mode
