@@ -87,7 +87,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
         VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
             "] from client '" << message.source().hostname() << ":" <<
             message.source().port() << "'.");
-        set_message_level(_handler, message.source().hostname(),
+        set_client_message_level(_handler, message.source().hostname(),
             message.source().port(),
             static_cast<ssr::MessageLevel>(argv[0]->i));
       }
@@ -99,7 +99,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
             port << ", " << argv[2]->i << "] from client '" <<
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
-        set_message_level(_handler, hostname, port,
+        set_client_message_level(_handler, hostname, port,
             static_cast<ssr::MessageLevel>(argv[2]->i));
       }
     }
@@ -1116,7 +1116,7 @@ void ssr::OscReceiver::add_scene_methods()
         int, lo::Message message)
     {
       (void) argv;
-      VERBOSE2("OscReceiver: [/scene/clear] from client '" <<
+      VERBOSE2("OscReceiver: Got [/scene/clear] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
       _controller.delete_all_sources();
