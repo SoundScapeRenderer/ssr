@@ -272,7 +272,7 @@ void ssr::OscReceiver::set_client_message_level(OscHandler& self, std::string
 bool ssr::OscReceiver::client_has_message_level(OscHandler& self, std::string&
     hostname, std::string& port, ssr::MessageLevel message_level)
 {
-  self._osc_sender.client_has_message_level(hostname, port, message_level);
+  return self._osc_sender.client_has_message_level(hostname, port, message_level);
 }
 
 
