@@ -53,11 +53,10 @@ extern float c_inverse; ///< reciprocal value of c
 extern unsigned int usleeptime;
 enum class MessageLevel : id_t
 {
-  SERVER = 0,
-  GUI_SERVER,
-  THIN_CLIENT,
-  CLIENT,
-  GUI_CLIENT
+  CLIENT = 0,
+  GUI_CLIENT,
+  SERVER,
+  GUI_SERVER
 };
 
 }  // namespace ssr
