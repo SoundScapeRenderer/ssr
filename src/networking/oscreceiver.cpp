@@ -311,7 +311,7 @@ ff.");
           message.source().port() << "'.");
     }
   );
-  VERBOSE("OscReceiver: Added callback for /update/scene/decay_exponent.");
+  VERBOSE("OscReceiver: Added callback for /update/scene/decay_exponent f.");
 
   // update on scene master signal level: "/update/scene/master_signal_level,
   // f, master_signal_level"
@@ -597,6 +597,16 @@ i{F,T}.");
  */
 void ssr::OscReceiver::add_server_to_client_methods()
 {
+  // set cpu_load: "/cpu_load, f, load"
+  _handler.server().add_method("/cpu_load", "f", [](lo_arg **argv, int,
+        lo::Message message)
+    {
+      VERBOSE3("OscReceiver: Got [/cpu_load, " << argv[0]->f <<
+          "] from server '" << message.source().hostname() << ":" <<
+          message.source().port() << "'.");
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /cpu_load f.");
 
   // set OscSender's _server _message_level through OscHandler: /message_level, i
   _handler.server().add_method("/message_level", "i", [this](lo_arg **argv,
@@ -701,12 +711,36 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added callback for /source/file_channel ii.");
 
+  // set source file_name_or_port_number:
+  // "/source/file_name_or_port_number, is, id, file_name_or_port_number"
+  _handler.server().add_method("/source/file_name_or_port_number", "is",
+      [this](lo_arg **argv, int, lo::Message message)
+    {
+      std::string name(&argv[1]->s);
+      VERBOSE3("OscReceiver: Got [/source/file_name_or_port_number, " <<
+          argv[0]->i << ", " << name << "] from " << _handler.from_is()  <<
+          " '" << message.source().hostname() << ":" << message.source().port()
+          << "'.");
+      std::string hostname(message.source().hostname());
+      std::string port(message.source().port());
+      if ((_handler.is_client() && is_server(_handler, hostname, port)) ||
+          (_handler.is_server() && client_has_message_level(_handler, hostname,
+                                                            port,
+                                                            MessageLevel::SERVER)))
+      {
+        _controller.set_source_file_name(argv[0]->i, name);
+      }
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /source/file_name_or_port_number"
+      "is.");
+
   // set source gain: "/source/gain, if, id, gain"
   _handler.server().add_method("/source/gain", "if", [this](lo_arg **argv,
         int, lo::Message message)
     {
       VERBOSE2("OscReceiver: Got [/source/gain, " << argv[0]->i << ", " <<
-          argv[1]->f << "] from " << _handler.from_is()  << " '" <<
+          argv[1]->f << "] from " << _handler.from_is() << " '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
       std::string hostname(message.source().hostname());
@@ -722,6 +756,18 @@ void ssr::OscReceiver::add_source_methods()
     }
   );
   VERBOSE("OscReceiver: Added callback for /source/gain if.");
+
+  // set source signal level (GUI_CLIENT only): "/source/level, if, id, level"
+  _handler.server().add_method("/source/level", "if", [this](lo_arg **argv,
+        int, lo::Message message)
+    {
+      VERBOSE3("OscReceiver: Got [/source/level, " << argv[0]->i << ", "<<
+          argv[1]->f << "] from " << _handler.from_is() << " '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /source/level if.");
 
   // set source model: "/source/model, is, id, model"
   _handler.server().add_method("/source/model", "is", [this](lo_arg **argv,
@@ -1256,6 +1302,70 @@ void ssr::OscReceiver::add_scene_methods()
   //_add_loudspeakers(node);
   //_add_sources(node);
 
+  // set scene's amplitude reference distance:
+  // "/scene/amplitude_reference_distance, f, amplitude_reference_distance"
+  _handler.server().add_method("/scene/amplitude_reference_distance", "f",
+      [this](lo_arg **argv, int, lo::Message message)
+    {
+      VERBOSE3("OscReceiver: Got [/scene/amplitude_reference_distance, " <<
+          argv[0]->f << "] from client '" << message.source().hostname() <<
+          ":" << message.source().port() << "'.");
+      std::string hostname(message.source().hostname());
+      std::string port(message.source().port());
+      if ((_handler.is_client() && is_server(_handler, hostname, port)) ||
+          (_handler.is_server() && client_has_message_level(_handler, hostname,
+                                                            port,
+                                                            MessageLevel::SERVER)))
+      {
+        _controller.set_amplitude_reference_distance(argv[0]->f);
+      }
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for \
+/scene/amplitude_reference_distance f.");
+
+  // set scene source auto rotation: "/scene/auto_rotate_sources, {F,T},
+  // false|true"
+  _handler.server().add_method("/scene/auto_rotate_sources", NULL,
+      [this](lo_arg **argv, int, lo::Message message)
+    {
+      (void) argv;
+      if(!message.types().compare("T"))
+      {
+      VERBOSE3("OscReceiver: Got [/scene/auto_rotate_sources, " <<
+          _handler.bool_to_string(true) << "] from client '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
+        std::string hostname(message.source().hostname());
+        std::string port(message.source().port());
+        if ((_handler.is_client() && is_server(_handler, hostname, port)) ||
+            (_handler.is_server() && client_has_message_level(_handler,
+                                                              hostname, port,
+                                                              MessageLevel::SERVER)))
+        {
+          _controller.set_auto_rotation(true);
+        }
+      }
+      else if(!message.types().compare("F"))
+      {
+        VERBOSE3("OscReceiver: Got [/scene/auto_rotate_sources, " <<
+            _handler.bool_to_string(false) << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
+        std::string hostname(message.source().hostname());
+        std::string port(message.source().port());
+        if ((_handler.is_client() && is_server(_handler, hostname, port)) ||
+            (_handler.is_server() && client_has_message_level(_handler,
+                                                              hostname, port,
+                                                              MessageLevel::SERVER)))
+        {
+          _controller.set_auto_rotation(false);
+        }
+      }
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /scene/auto_rotate_sources {F,T}.");
+
   // clear scene: "/scene/clear"
   _handler.server().add_method("/scene/clear", NULL , [this](lo_arg **argv,
         int, lo::Message message)
@@ -1276,6 +1386,27 @@ void ssr::OscReceiver::add_scene_methods()
     }
   );
   VERBOSE("OscReceiver: Added callback for /scene/clear.");
+
+  // set scene decay exponent: "/scene/decay_exponent, f, decay_exponent"
+  _handler.server().add_method("/scene/decay_exponent", "f", [this](lo_arg
+        **argv, int, lo::Message message)
+    {
+      VERBOSE3("OscReceiver: Got [/scene/decay_exponent, " << argv[0]->f
+          << "] from " << _handler.from_is() << " '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
+      std::string hostname(message.source().hostname());
+      std::string port(message.source().port());
+      if ((_handler.is_client() && is_server(_handler, hostname, port)) ||
+          (_handler.is_server() && client_has_message_level(_handler, hostname,
+                                                            port,
+                                                            MessageLevel::SERVER)))
+      {
+        _controller.set_decay_exponent(argv[0]->f);
+      }
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /scene/decay_exponent f.");
 
   // load scene from file: "/scene/load, s, file"
   _handler.server().add_method("/scene/load", "s" , [this](lo_arg **argv, int,
@@ -1318,6 +1449,19 @@ void ssr::OscReceiver::add_scene_methods()
     }
   );
   VERBOSE("OscReceiver: Added callback for /scene/save s.");
+
+  // update on scene master signal level: "/update/scene/master_signal_level,
+  // f, master_signal_level"
+  _handler.server().add_method("/scene/master_signal_level", "f", [this](lo_arg
+        **argv, int, lo::Message message)
+    {
+      VERBOSE3("OscReceiver: Got [/scene/master_signal_level, " << argv[0]->f
+          << "] from " << _handler.from_is() << " '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /scene/master_signal_level f.");
 
   // set master volume: "/scene/volume, f, volume"
   _handler.server().add_method("/scene/volume", "f" , [this](lo_arg **argv,
