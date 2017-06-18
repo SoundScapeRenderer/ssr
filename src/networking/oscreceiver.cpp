@@ -15,7 +15,6 @@ using namespace apf::str;
  * Constructor
  * @param controller reference to a Publisher object
  * @param port_in integer representing a port to used for incoming OSC messages
- * @todo add error handler for ServerThread
  */
 ssr::OscReceiver::OscReceiver(Publisher& controller, OscHandler& handler)
   : _controller(controller)
@@ -649,9 +648,6 @@ void ssr::OscReceiver::add_server_to_client_methods()
  * received from a server or a client with MessageLevel::SERVER (respectively).
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
- * @todo add checks for client MessageLevel when this is used for a server
- * (only clients with message_level MessageLevel::SERVER ought to be able to
- * set source related settings).
  */
 void ssr::OscReceiver::add_source_methods()
 {
@@ -1155,9 +1151,6 @@ void ssr::OscReceiver::add_source_methods()
  * (respectively).
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
- * @todo add checks for client MessageLevel when this is used for a server
- * (only clients with message_level MessageLevel::SERVER ought to be able to
- * interact)
  */
 void ssr::OscReceiver::add_reference_methods()
 {
@@ -1253,9 +1246,6 @@ void ssr::OscReceiver::add_reference_methods()
  * received from a server or a client with MessageLevel::SERVER (respectively).
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
- * @todo add checks for client MessageLevel when this is used for a server
- * (only clients with message_level MessageLevel::SERVER ought to be able to
- * interact)
  */
 void ssr::OscReceiver::add_scene_methods()
 {
@@ -1356,9 +1346,6 @@ void ssr::OscReceiver::add_scene_methods()
  * (respectively).
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
- * @todo add checks for client MessageLevel when this is used for a server
- * (only clients with message_level MessageLevel::SERVER ought to be able to
- * interact)
  */
 void ssr::OscReceiver::add_processing_methods()
 {
@@ -1411,9 +1398,6 @@ void ssr::OscReceiver::add_processing_methods()
  * (respectively).
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
- * @todo add checks for client MessageLevel when this is used for a server
- * (only clients with message_level MessageLevel::SERVER ought to be able to
- * interact)
  */
 void ssr::OscReceiver::add_transport_methods()
 {
@@ -1516,9 +1500,6 @@ void ssr::OscReceiver::add_transport_methods()
  * received from a server or a client with MessageLevel::SERVER (respectively).
  * This function uses C++11 lambda functions to define the behavior for every
  * callback, that interface with the Publisher's functionality.
- * @todo add checks for client MessageLevel when this is used for a server
- * (only clients with message_level MessageLevel::SERVER ought to be able to
- * interact)
  */
 void ssr::OscReceiver::add_tracker_methods()
 {
