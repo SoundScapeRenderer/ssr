@@ -538,8 +538,8 @@ bool ssr::OscSender::client_has_message_level(std::string& hostname,
   for (auto& client: _clients)
   {
     if(!(client->hostname().compare(hostname)) &&
-        !(client->port().compare(port)) && client->message_level() >=
-        message_level)
+        !(client->port().compare(port)) && client->active() &&
+        client->message_level() >= message_level)
     {
       has_level = true;
       break;
@@ -1035,7 +1035,6 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
  * On client: Sends out OSC message to server about the updating of decay_exponent
  * @param exponentn float representing the decay exponent
  * @param name a std::string representing the properties_file of source
- * @todo implement receiving in OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_decay_exponent(float exponent)
 {
@@ -1071,7 +1070,6 @@ void ssr::OscSender::set_decay_exponent(float exponent)
  * On client: Sends out OSC message to server about the updating of the
  * amplitude reference distance.
  * @param distance a float representing the amplitude reference distance
- * @todo implement receiving in OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_amplitude_reference_distance(float distance)
 {
@@ -1083,9 +1081,9 @@ void ssr::OscSender::set_amplitude_reference_distance(float distance)
       {
         client->address().send_from(_handler.server(),
             "/scene/amplitude_reference_distance", "f", distance);
-        VERBOSE3("OscSender: Sent [/scene/decay_exponent, f, " << distance <<
-            "] to client " << client->address().hostname() << ":" <<
-            client->address().port() << ".");
+        VERBOSE3("OscSender: Sent [/scene/amplitude_reference_distance, f, " <<
+            distance << "] to client " << client->address().hostname() << ":"
+            << client->address().port() << ".");
       }
     }
   }
@@ -1190,8 +1188,6 @@ bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
  * @param file_name a std::string representing the file name or
  * port number of source
  * @return true
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
     file_name)
@@ -1246,8 +1242,6 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
  * @param id id_t representing the source
  * @param file_channel an int representing the channel in use for source
  * @return true
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
 {
@@ -1297,8 +1291,6 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
  * @param id id_t representing the source
  * @param length an int representing the source file's length
  * @return true
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
 {
@@ -1322,8 +1314,6 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
  * On client: Sends out OSC message to server about the updating of the
  * reference position.
  * @param position a Position representing the new reference position
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_reference_position(const Position& position)
 {
@@ -1358,8 +1348,6 @@ void ssr::OscSender::set_reference_position(const Position& position)
  * On client: Sends out OSC message to server about the updating of the
  * reference orientation.
  * @param orientation an Orientation representing the new reference orientation
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
 {
@@ -1396,8 +1384,6 @@ void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
  * On client: Sends out OSC message to server about the updating of the
  * reference offset position.
  * @param position a Position representing the new reference offset position
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_reference_offset_position(const Position& position)
 {
@@ -1435,8 +1421,6 @@ void ssr::OscSender::set_reference_offset_position(const Position& position)
  * reference offset orientation.
  * @param orientation an Orientation representing the new reference offset
  * orientation
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_reference_offset_orientation(const Orientation&
     orientation)
@@ -1473,8 +1457,6 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
  * On client: Sends out OSC message to server about the updating of the master
  * volume (submits in dB!).
  * @param volume float representing the new volume (linear scale)
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_master_volume(float volume)
 {
@@ -1526,8 +1508,6 @@ void ssr::OscSender::set_source_output_levels(id_t id, float* first , float*
  * On client: Sends out OSC message to server about the update of its
  * processing state.
  * @param state bool representing the processing state
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_processing_state(bool state)
 {
@@ -1564,8 +1544,6 @@ void ssr::OscSender::set_processing_state(bool state)
  * processing state.
  * @param state a std::pair of a bool representing the processing state and
  * jack_nframes_t, representing the current location in the transport
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_transport_state( const std::pair<bool,
     jack_nframes_t>& state)
@@ -1617,8 +1595,6 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
  * auto rotate settings.
  * @param auto_rotate_sources a bool representing the current
  * auto_rotate_sources setting.
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
 {
@@ -1654,13 +1630,25 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
  * On server: Does nothing.
  * On client: Sends out OSC message to server indicating the cpu_load.
  * @param load a float representing the current cpu load
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  * @todo implement pooling of cpu_load updates
  */
 void ssr::OscSender::set_cpu_load(float load)
 {
-  if(_handler.is_client() && !server_is_default() && _server.message_level() ==
+  if(_handler.is_server())
+  {
+    for (const auto& client: _clients)
+    {
+      if(client && client->active() && client->message_level() ==
+          MessageLevel::GUI_CLIENT)
+      {
+        client->address().send_from(_handler.server(), "/cpu_load", "f", load);
+        VERBOSE3("OscSender: Sent [/cpu_load, f, " << apf::str::A2S(load) <<
+            "] to client " << client->hostname() << ":" << client->port() <<
+            ".");
+      }
+    }
+  }
+  else if(_handler.is_client() && !server_is_default() && _server.message_level() ==
       MessageLevel::GUI_SERVER)
   {
     _server.address().send_from(_handler.server(), "/update/cpu_load", "f",
@@ -1672,33 +1660,16 @@ void ssr::OscSender::set_cpu_load(float load)
 
 /**
  * Subscriber function called, when Publisher set sample rate.
- * On server: Sends out OSC message to all clients to update their
- * sample rate.
- * On client: Sends out OSC message to server about the update of its
- * sample rate.
+ * On server: Does nothing, as the sample rate is set during SSR startup and
+ * can not be changed during runtime.
+ * On client: Sends out OSC message to server about the update of its sample
+ * rate.
  * @param sr an integer representing the current sample rate.
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_sample_rate(int sr)
 {
   int32_t message_sr = static_cast<int32_t>(sr);
-  if(_handler.is_server())
-  {
-    for (const auto& client: _clients)
-    {
-      if(client && client->active())
-      {
-        client->address().send_from(_handler.server(), "/scene/sample_rate",
-            "i", message_sr);
-        VERBOSE3("OscSender: Sent [/scene/sample_rate, i, " <<
-            apf::str::A2S(message_sr) << "] to client " <<
-            client->address().hostname() << ":" << client->address().port() <<
-            ".");
-      }
-    }
-  }
-  else if(_handler.is_client() && !server_is_default())
+  if(_handler.is_client() && !server_is_default())
   {
     _server.address().send_from(_handler.server(), "/update/scene/sample_rate",
         "i", message_sr);
@@ -1710,13 +1681,10 @@ void ssr::OscSender::set_sample_rate(int sr)
 
 /**
  * Subscriber function called, when Publisher set the master signal level.
- * On server: Sends out OSC message to all clients to update their master
- * signal level.
- * On client: Sends out OSC message to server about the update of its signal
- * level.
+ * On server: Sends out OSC message to clients with MessageLevel GUI_CLIENT
+ * On client: Sends out OSC message to server with MessageLevel GUI_SERVER
+ * about the update of its signal level.
  * @param level a float representing the current master signal level.
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 void ssr::OscSender::set_master_signal_level(float level)
 {
@@ -1725,8 +1693,8 @@ void ssr::OscSender::set_master_signal_level(float level)
   {
     for (const auto& client: _clients)
     {
-      if(client && client->active() && client->message_level() >=
-          MessageLevel::CLIENT)
+      if(client && client->active() && client->message_level() ==
+          MessageLevel::GUI_CLIENT)
       {
         client->address().send_from(_handler.server(),
             "/scene/master_signal_level", "f", message_level);
@@ -1757,8 +1725,6 @@ void ssr::OscSender::set_master_signal_level(float level)
  * @param id an id_t representing the source.
  * @param level a float representing the signal level of the source.
  * @return true
- * @todo implement receiver callback in
- * OscReceiver::add_server_to_client_methods()
  */
 bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
 {
@@ -1769,7 +1735,7 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
     for (const auto& client: _clients)
     {
       if(client && client->active() && client->message_level() >=
-          MessageLevel::CLIENT)
+          MessageLevel::GUI_CLIENT)
       {
         client->address().send_from(_handler.server(), "/source/level", "if",
             message_id, message_level);
