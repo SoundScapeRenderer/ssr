@@ -114,6 +114,7 @@ struct Publisher
   virtual void
   set_source_position_fixed(id_t id, const bool fix) = 0;
   virtual void set_source_file_channel(id_t id, const int& channel) = 0;
+  virtual void set_source_file_name(id_t id, const std::string& file_name) = 0;
 
   /// set position of the reference
   /// @param position well, the position
