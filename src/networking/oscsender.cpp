@@ -417,7 +417,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("gain", 0.0));
         VERBOSE2("OscSender: Sent [/source/new, sssffff" <<
             _handler.bool_to_message_type(
-              _new_sources.at(id).get<bool>( "position_fixed", false)) <<
+              _new_sources.at(id).get<bool>("position_fixed", false)) <<
             _handler.bool_to_message_type(
               _new_sources.at(id).get<bool>("orientation_fixed", false)) <<
             _handler.bool_to_message_type(
@@ -892,10 +892,11 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
   int32_t message_id = static_cast<int32_t>(id);
   if(_handler.is_server())
   {
-    if(is_new_source(id) &&
-        _new_sources.at(id).has_key("file_name_or_port_number"))
+    if(is_new_source(id))
     {
-      _new_sources.at(id).set<bool>("mute", mute);
+      if(_new_sources.at(id).has_key("file_name_or_port_number"))
+        _new_sources.at(id).set<bool>("mute", mute);
+
       if(is_complete_source(id))
         send_new_source_message_from_id(id);
     }
@@ -942,7 +943,6 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
 bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  const char * message_name = name.c_str();
   if(_handler.is_server())
   {
     if(is_new_source(id))
@@ -958,10 +958,10 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
         if(client && client->active())
         {
           client->address().send_from(_handler.server(), "/source/name", "is",
-              message_id, message_name);
+              message_id, name.c_str());
           VERBOSE3("OscSender: Sent [/source/name, is, " << message_id << ", "
-              << message_name << "] to client " << client->address().hostname()
-              << ":" << client->address().port() << ".");
+              << name << "] to client " << client->address().hostname() << ":"
+              << client->address().port() << ".");
         }
       }
     }
@@ -969,9 +969,9 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
   else if(_handler.is_client() && !server_is_default())
   {
     _server.address().send_from(_handler.server(), "/update/source/name", "is",
-        message_id, message_name);
+        message_id, name.c_str());
     VERBOSE3("OscSender: Sent [/update/source/name, is, " << message_id << ", "
-        << message_name << "] to server " << _server.hostname() << ":" <<
+        << name << "] to server " << _server.hostname() << ":" <<
         _server.port() << ".");
   }
   return true;
@@ -993,12 +993,13 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
     name)
 {
   int32_t message_id = static_cast<int32_t>(id);
-  const char * file_name = name.c_str();
   if(_handler.is_server())
   {
-    if(is_new_source(id) && !name.empty())
+    if(is_new_source(id))
     {
-      _new_sources.at(id).set<std::string>("properties_file", file_name);
+      if(name.compare("") && _new_sources.at(id).has_key("file_channel"))
+        _new_sources.at(id).set<std::string>("properties_file", name);
+
       if(is_complete_source(id))
         send_new_source_message_from_id(id);
     }
@@ -1009,11 +1010,11 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
         if(client && client->active())
         {
           client->address().send_from(_handler.server(),
-              "/source/properties_file", "is", message_id, file_name);
+              "/source/properties_file", "is", message_id, name.c_str());
           VERBOSE3("OscSender: Sent [/source/properties_file, is, " <<
-              message_id << ", " << file_name << "] to client " <<
-              client->address().hostname() << ":" <<
-              client->address().port() << ".");
+              message_id << ", " << name << "] to client " <<
+              client->address().hostname() << ":" << client->address().port()
+              << ".");
         }
       }
     }
@@ -1021,10 +1022,10 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
   else if(_handler.is_client() && !server_is_default())
   {
     _server.address().send_from(_handler.server(),
-        "/update/source/properties_file", "is", message_id, file_name);
+        "/update/source/properties_file", "is", message_id, name.c_str());
     VERBOSE3("OscSender: Sent [/update/source/properties_file, is, " <<
-        message_id << ", " << file_name << "] to server " << _server.hostname()
-        << ":" << _server.port() << ".");
+        message_id << ", " << name << "] to server " << _server.hostname() <<
+        ":" << _server.port() << ".");
   }
   return true;
 }
@@ -1150,8 +1151,8 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
 }
 
 /**
- * Subscriber function called, when Publisher set a source's port_name.
- * On server: Does nothing, as port_name is local and depends on prefix
+ * Subscriber function called, when Publisher set a source's port_name.  On
+ * server: Does nothing, as port_name is local and depends on prefix
  * On client: Sends out OSC message to server about the successful updating of
  * the source's port_name.
  * @param id id_t representing the source
@@ -1249,9 +1250,11 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
   int32_t message_file_channel = static_cast<int32_t>(file_channel);
   if(_handler.is_server())
   {
-    if(is_new_source(id) && file_channel > 0)
+    if(is_new_source(id))
     {
-      _new_sources.at(id).set<int>("file_channel", file_channel);
+      if(file_channel > 0)
+        _new_sources.at(id).set<int>("file_channel", file_channel);
+
       if(is_complete_source(id))
         send_new_source_message_from_id(id);
     }
@@ -1553,8 +1556,8 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
   {
     for (const auto& client: _clients)
     {
-      if(client && client->active() && client->message_level() >=
-          MessageLevel::CLIENT)
+      if(client && client->active() && client->message_level() <=
+          MessageLevel::GUI_CLIENT)
       {
         client->address().send_from(_handler.server(), "/transport/state",
             _handler.bool_to_message_type(state.first));
@@ -1734,7 +1737,7 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
   {
     for (const auto& client: _clients)
     {
-      if(client && client->active() && client->message_level() >=
+      if(client && client->active() && client->message_level() ==
           MessageLevel::GUI_CLIENT)
       {
         client->address().send_from(_handler.server(), "/source/level", "if",
