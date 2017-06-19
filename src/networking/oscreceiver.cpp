@@ -216,7 +216,7 @@ void ssr::OscReceiver::add_update_notification_methods()
   _handler.server().add_method("/update/reference/orientation", "f", [](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/reference/orientation, " <<
+      VERBOSE2("OscReceiver: Got [/update/reference/orientation, " <<
           argv[0]->f << "] from client '" << message.source().hostname() << ":"
           << message.source().port() << "'.");
     }
@@ -227,7 +227,7 @@ void ssr::OscReceiver::add_update_notification_methods()
   _handler.server().add_method("/update/reference/position", "ff", [](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/reference/position, " << argv[0]->f
+      VERBOSE2("OscReceiver: Got [/update/reference/position, " << argv[0]->f
           << ", " << argv[1]->f << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -240,7 +240,7 @@ void ssr::OscReceiver::add_update_notification_methods()
   _handler.server().add_method("/update/reference_offset/orientation", "f",
       [](lo_arg **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/reference_offset/orientation, " <<
+      VERBOSE2("OscReceiver: Got [/update/reference_offset/orientation, " <<
           argv[0]->f << "] from client '" << message.source().hostname() << ":"
           <<
           message.source().port() << "'.");
@@ -254,7 +254,7 @@ void ssr::OscReceiver::add_update_notification_methods()
   _handler.server().add_method("/update/reference_offset/position", "ff",
       [](lo_arg **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/reference_offset/position, " <<
+      VERBOSE2("OscReceiver: Got [/update/reference_offset/position, " <<
           argv[0]->f << ", " << argv[1]->f << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -269,7 +269,7 @@ ff.");
   _handler.server().add_method("/update/scene/amplitude_reference_distance",
       "f", [](lo_arg **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/scene/amplitude_reference_distance, "
+      VERBOSE2("OscReceiver: Got [/update/scene/amplitude_reference_distance, "
           << argv[0]->f << "] from client '" << message.source().hostname() <<
           ":" << message.source().port() << "'.");
     }
@@ -292,7 +292,7 @@ ff.");
       {
         state = false;
       }
-      VERBOSE3("OscReceiver: Got [/update/scene/auto_rotate_sources, " <<
+      VERBOSE2("OscReceiver: Got [/update/scene/auto_rotate_sources, " <<
           _handler.bool_to_string(state) << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -306,7 +306,7 @@ ff.");
   _handler.server().add_method("/update/scene/decay_exponent", "f", [](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/scene/decay_exponent, " << argv[0]->f
+      VERBOSE2("OscReceiver: Got [/update/scene/decay_exponent, " << argv[0]->f
           << "] from client '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
     }
@@ -330,7 +330,7 @@ f.");
   _handler.server().add_method("/update/scene/sample_rate", "i", [](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/scene/sample_rate, " << argv[0]->i <<
+      VERBOSE2("OscReceiver: Got [/update/scene/sample_rate, " << argv[0]->i <<
           "] from client '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
     }
@@ -341,7 +341,7 @@ f.");
   _handler.server().add_method("/update/scene/volume", "f", [](lo_arg **argv,
         int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/scene/volume, " << argv[0]->f <<
+      VERBOSE2("OscReceiver: Got [/update/scene/volume, " << argv[0]->f <<
           "] from client '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
     }
@@ -352,7 +352,7 @@ f.");
   _handler.server().add_method("/update/source/delete", "i", [](lo_arg **argv,
         int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/source/delete, " << argv[0]->i
+      VERBOSE2("OscReceiver: Got [/update/source/delete, " << argv[0]->i
           << "] from client '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
     }
@@ -364,7 +364,7 @@ f.");
   _handler.server().add_method("/update/source/file_channel", "ii", [](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/source/file_channel, " << argv[0]->i
+      VERBOSE2("OscReceiver: Got [/update/source/file_channel, " << argv[0]->i
           << ", " << argv[1]->i << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -378,7 +378,7 @@ f.");
       [](lo_arg **argv, int, lo::Message message)
     {
       std::string name(&argv[1]->s);
-      VERBOSE3("OscReceiver: Got [/update/source/file_name_or_port_number, " <<
+      VERBOSE2("OscReceiver: Got [/update/source/file_name_or_port_number, " <<
           argv[0]->i << ", " << name << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -391,7 +391,7 @@ f.");
   _handler.server().add_method("/update/source/gain", "if", [](lo_arg **argv,
         int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/source/gain, " << argv[0]->i
+      VERBOSE2("OscReceiver: Got [/update/source/gain, " << argv[0]->i
           << ", " << argv[1]->f << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -403,7 +403,7 @@ f.");
   _handler.server().add_method("/update/source/length", "ii", [](lo_arg **argv,
         int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/source/length, " << argv[0]->i
+      VERBOSE2("OscReceiver: Got [/update/source/length, " << argv[0]->i
           << ", " << argv[1]->i << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -427,7 +427,7 @@ f.");
         int, lo::Message message)
     {
       std::string name(&argv[1]->s);
-      VERBOSE3("OscReceiver: Got [/update/source/model, " << argv[0]->i << ", "
+      VERBOSE2("OscReceiver: Got [/update/source/model, " << argv[0]->i << ", "
           << name << "] from client '" << message.source().hostname() << ":" <<
           message.source().port() <<
           "'.");
@@ -439,19 +439,20 @@ f.");
   _handler.server().add_method("/update/source/mute", NULL, [this](lo_arg
         **argv, int, lo::Message message)
     {
-      bool state;
       if(!message.types().compare("iT"))
       {
-        state = true;
+        VERBOSE2("OscReceiver: Got [/update/source/mute, " << argv[0]->i <<
+            ", " << _handler.bool_to_string(true) << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
       }
       else if(!message.types().compare("iF"))
       {
-        state = false;
+        VERBOSE2("OscReceiver: Got [/update/source/mute, " << argv[0]->i <<
+            ", " << _handler.bool_to_string(false) << "] from client '" <<
+            message.source().hostname() << ":" << message.source().port() <<
+            "'.");
       }
-      VERBOSE3("OscReceiver: Got [/update/processing/state, " << argv[0]->i <<
-          ", " << _handler.bool_to_string(state) << "] from client '" <<
-          message.source().hostname() << ":" << message.source().port() <<
-          "'.");
     }
   );
   VERBOSE("OscReceiver: Added callback for /update/source/mute i{F,T}.");
@@ -461,7 +462,7 @@ f.");
         int, lo::Message message)
     {
       std::string name(&argv[1]->s);
-      VERBOSE3("OscReceiver: Got [/update/source/name, " << argv[0]->i << ", "
+      VERBOSE2("OscReceiver: Got [/update/source/name, " << argv[0]->i << ", "
           << name << "] from client '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
     }
@@ -473,7 +474,7 @@ f.");
   _handler.server().add_method("/update/source/orientation", "if", [](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/source/orientation, " << argv[0]->i
+      VERBOSE2("OscReceiver: Got [/update/source/orientation, " << argv[0]->i
           << ", " << argv[1]->f << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -485,7 +486,7 @@ f.");
   _handler.server().add_method("/update/source/new", "i", [](lo_arg **argv,
         int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/source/new, " << argv[0]->i
+      VERBOSE2("OscReceiver: Got [/update/source/new, " << argv[0]->i
           << "] from client '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
     }
@@ -497,7 +498,7 @@ f.");
         **argv, int, lo::Message message)
     {
       std::string name(&argv[1]->s);
-      VERBOSE3("OscReceiver: Got [/update/source/port_name, " <<
+      VERBOSE2("OscReceiver: Got [/update/source/port_name, " <<
           argv[0]->i << ", " << name << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -509,7 +510,7 @@ f.");
   _handler.server().add_method("/update/source/position", "iff", [](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/update/source/position, " << argv[0]->i <<
+      VERBOSE2("OscReceiver: Got [/update/source/position, " << argv[0]->i <<
           ", " << argv[1]->f << ", " << argv[2]->f << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -522,19 +523,20 @@ f.");
   _handler.server().add_method("/update/source/position_fixed", NULL,
       [this](lo_arg **argv, int, lo::Message message)
     {
-      bool state;
       if(!message.types().compare("iT"))
       {
-        state = true;
+        VERBOSE2("OscReceiver: Got [/update/source/position_fixed, " <<
+            argv[0]->i << ", " << _handler.bool_to_string(true) <<
+            "] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
       }
       else if(!message.types().compare("iF"))
       {
-        state = false;
+        VERBOSE2("OscReceiver: Got [/update/source/position_fixed, " <<
+            argv[0]->i << ", " << _handler.bool_to_string(false) <<
+            "] from client '" << message.source().hostname() << ":" <<
+            message.source().port() << "'.");
       }
-      VERBOSE3("OscReceiver: Got [/update/source/position_fixed, " <<
-          argv[0]->i << ", " << _handler.bool_to_string(state) <<
-          "] from client '" << message.source().hostname() << ":" <<
-          message.source().port() << "'.");
     }
   );
   VERBOSE("OscReceiver: Added callback for /update/source/position_fixed \
@@ -546,7 +548,7 @@ i{F,T}.");
       [](lo_arg **argv, int, lo::Message message)
     {
       std::string name(&argv[1]->s);
-      VERBOSE3("OscReceiver: Got [/update/source/properties_file, " <<
+      VERBOSE2("OscReceiver: Got [/update/source/properties_file, " <<
           argv[0]->i << ", " << name << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -644,7 +646,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
       }
       else
       {
-        VERBOSE3("OscReceiver: Got [/poll] from server " << from.hostname() <<
+        VERBOSE2("OscReceiver: Got [/poll] from server " << from.hostname() <<
             ":" << from.port() << ". Sending alive signal.");
         from.send_from(_handler.server(), "/alive", "");
       }
@@ -711,13 +713,13 @@ void ssr::OscReceiver::add_source_methods()
   );
   VERBOSE("OscReceiver: Added callback for /source/file_channel ii.");
 
-  // set source file_name_or_port_number:
-  // "/source/file_name_or_port_number, is, id, file_name_or_port_number"
+  // set source file_name_or_port_number: "/source/file_name_or_port_number,
+  // is, id, file_name_or_port_number"
   _handler.server().add_method("/source/file_name_or_port_number", "is",
       [this](lo_arg **argv, int, lo::Message message)
     {
       std::string name(&argv[1]->s);
-      VERBOSE3("OscReceiver: Got [/source/file_name_or_port_number, " <<
+      VERBOSE2("OscReceiver: Got [/source/file_name_or_port_number, " <<
           argv[0]->i << ", " << name << "] from " << _handler.from_is()  <<
           " '" << message.source().hostname() << ":" << message.source().port()
           << "'.");
@@ -732,7 +734,7 @@ void ssr::OscReceiver::add_source_methods()
       }
     }
   );
-  VERBOSE("OscReceiver: Added callback for /source/file_name_or_port_number"
+  VERBOSE("OscReceiver: Added callback for /source/file_name_or_port_number "
       "is.");
 
   // set source gain: "/source/gain, if, id, gain"
@@ -1031,9 +1033,9 @@ void ssr::OscReceiver::add_source_methods()
           }
           Position position(x, y);
           Orientation orientation(argv[5]->f);
-          VERBOSE3("OscReceiver: Got [/source/new, " << name << ", " << model
+          VERBOSE2("OscReceiver: Got [/source/new, " << name << ", " << model
               << ", " << file_name_or_port_number << ", " << x << ", " << y <<
-              ", " << orientation.azimuth << ", " << gain<< ", " <<
+              ", " << orientation.azimuth << ", " << gain <<
               channel_and_properties << ", " <<
               _handler.bool_to_string(position_fixed) << ", " <<
               _handler.bool_to_string(orientation_fixed) << ", " <<
@@ -1307,7 +1309,7 @@ void ssr::OscReceiver::add_scene_methods()
   _handler.server().add_method("/scene/amplitude_reference_distance", "f",
       [this](lo_arg **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/scene/amplitude_reference_distance, " <<
+      VERBOSE2("OscReceiver: Got [/scene/amplitude_reference_distance, " <<
           argv[0]->f << "] from client '" << message.source().hostname() <<
           ":" << message.source().port() << "'.");
       std::string hostname(message.source().hostname());
@@ -1332,7 +1334,7 @@ void ssr::OscReceiver::add_scene_methods()
       (void) argv;
       if(!message.types().compare("T"))
       {
-      VERBOSE3("OscReceiver: Got [/scene/auto_rotate_sources, " <<
+      VERBOSE2("OscReceiver: Got [/scene/auto_rotate_sources, " <<
           _handler.bool_to_string(true) << "] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -1348,7 +1350,7 @@ void ssr::OscReceiver::add_scene_methods()
       }
       else if(!message.types().compare("F"))
       {
-        VERBOSE3("OscReceiver: Got [/scene/auto_rotate_sources, " <<
+        VERBOSE2("OscReceiver: Got [/scene/auto_rotate_sources, " <<
             _handler.bool_to_string(false) << "] from client '" <<
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
@@ -1391,7 +1393,7 @@ void ssr::OscReceiver::add_scene_methods()
   _handler.server().add_method("/scene/decay_exponent", "f", [this](lo_arg
         **argv, int, lo::Message message)
     {
-      VERBOSE3("OscReceiver: Got [/scene/decay_exponent, " << argv[0]->f
+      VERBOSE2("OscReceiver: Got [/scene/decay_exponent, " << argv[0]->f
           << "] from " << _handler.from_is() << " '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
@@ -1450,8 +1452,8 @@ void ssr::OscReceiver::add_scene_methods()
   );
   VERBOSE("OscReceiver: Added callback for /scene/save s.");
 
-  // update on scene master signal level: "/update/scene/master_signal_level,
-  // f, master_signal_level"
+  // set scene master signal level: "/scene/master_signal_level, f,
+  // master_signal_level"
   _handler.server().add_method("/scene/master_signal_level", "f", [this](lo_arg
         **argv, int, lo::Message message)
     {
