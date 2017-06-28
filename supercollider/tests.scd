@@ -120,23 +120,23 @@
   100.do({address.sendMsg("/poll")});
 };
 
-~sourceTestMoving = { arg address = NetAddr("127.0.0.1", 50001), amountOfSources = 2;
+~sourceTestAdding = { arg address = NetAddr("127.0.0.1", 50001), amountOfSources = 2;
   amountOfSources.do({|item,i|
-    address.sendMsg("/source/new", ("source_"++(i+1).asString), ["unknown",
-      "point", "plane", "line", "directional", "extended"].choose,
-      (i+1).asString, 10.0.rand2, 10.0.rand2, rrand(-100.0, 40.0),
-      rrand(-100.0, 40.0), [$F, $T].choose, [$F, $T].choose, [$F,
-        $T].choose);
+    address.sendMsg("/source/new", ("source_"++(i+1).asString), "point",
+    (i+1).asString, 10.0.rand2, 10.0.rand2, -6.0, -6.0, $F, $T, $F);
   });
-  amountOfSources.do({ |item, i|
-    address.sendMsg("/source/position_fixed", i+1, $F);
-    address.sendMsg("/source/mute", i+1, $F);
-  });
-  100.do({
-    amountOfSources.do({|item, i|
-      address.sendMsg("/source/position", i+1, 10.0.rand2, 10.0.rand2);
+};
+
+~sourceTestMoving = { arg address = NetAddr("127.0.0.1", 50001), amountOfSources = 2;
+  Routine{
+    1.wait;
+    1000.do({
+      amountOfSources.do({|item, i|
+        address.sendMsg("/source/position", i+1, 10.0.rand2, 10.0.rand2);
+      });
+      0.1.wait;
     });
-  });
+  }.play;
 };
 
 )
@@ -221,6 +221,7 @@
   ~address = NetAddr("127.0.0.1", 50001);
   // poll client instance to make it subscribe
   ~address.sendMsg("/poll");
+  ~sourceTestAdding.value(amountOfSources: 20);
   ~sourceTestMoving.value(amountOfSources: 20);
 )
 
