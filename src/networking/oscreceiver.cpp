@@ -1025,7 +1025,7 @@ void ssr::OscReceiver::add_source_methods()
           std::string file_name_or_port_number(&(argv[2]->s));
           float x(argv[3]->f);
           float y(argv[4]->f);
-          float gain(argv[6]->f);
+          float gain(apf::math::dB2linear(argv[6]->f));
           Source::model_t model = Source::model_t();
           if (!apf::str::S2A(apf::str::A2S(argv[1]->s), model))
           {
