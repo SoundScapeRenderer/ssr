@@ -377,9 +377,9 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("gain", 0.0) << ", " <<
             _new_sources.at(id).get<int>("file_channel", 1) << ", " <<
             _new_sources.at(id).get<std::string>("properties_file", "")
-             << "] to client " <<
+             << "] to client '" <<
             client->address().hostname() << ":" <<
-            client->address().port() << ".");
+            client->address().port() << "'.");
       }
     }
     _new_sources.erase(id);
@@ -430,9 +430,9 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("y", 0.0) << ", " <<
             _new_sources.at(id).get<float>("orientation", 0.0) << ", " <<
             _new_sources.at(id).get<float>("gain", 0.0)
-             << "] to client " <<
+             << "] to client '" <<
             client->address().hostname() << ":" <<
-            client->address().port() << ".");
+            client->address().port() << "'.");
       }
     }
     _new_sources.erase(id);
@@ -597,8 +597,8 @@ void ssr::OscSender::new_source(id_t id)
     _server.address().send_from(_handler.server(), "/update/source/new", "i",
         message_id);
     VERBOSE3("OscSender: Sent [/update/source/new, i, " << message_id <<
-        "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
 }
 
@@ -621,8 +621,8 @@ void ssr::OscSender::delete_source(id_t id)
         client->address().send_from(_handler.server(), "/source/delete", "i",
             message_id);
         VERBOSE3("OscSender: Sent [/source/delete, i," << message_id <<
-            "] to client " << client->address().hostname() << ":" <<
-            client->address().port() << ".");
+            "] to client '" << client->address().hostname() << ":" <<
+            client->address().port() << "'.");
       }
     }
   }
@@ -632,8 +632,8 @@ void ssr::OscSender::delete_source(id_t id)
     _server.address().send_from(_handler.server(), "/update/source/delete",
         "i", message_id);
     VERBOSE3("OscSender: Sent [/update/source/delete, i, " << message_id <<
-        "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
 }
 
@@ -653,9 +653,9 @@ void ssr::OscSender::delete_all_sources()
       {
         client->address().send_from(_handler.server(), "/source/delete", "i",
             0);
-        VERBOSE3("OscSender: Sent [/source/delete, i, 0] to client " <<
+        VERBOSE3("OscSender: Sent [/source/delete, i, 0] to client '" <<
             client->address().hostname() << ":" << client->address().port() <<
-            ".");
+            "'.");
       }
     }
   }
@@ -663,8 +663,8 @@ void ssr::OscSender::delete_all_sources()
   {
     _server.address().send_from(_handler.server(), "/update/source/delete",
         "i", 0);
-    VERBOSE3("OscSender: Sent [/update/source/delete, i, 0] to server " <<
-        _server.hostname() << ":" << _server.port() << ".");
+    VERBOSE3("OscSender: Sent [/update/source/delete, i, 0] to server '" <<
+        _server.hostname() << ":" << _server.port() << "'.");
   }
   _source_levels.clear();
 }
@@ -702,9 +702,9 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
           client->address().send_from(_handler.server(), "/source/position",
               "iff", message_id, position.x, position.y);
           VERBOSE3("OscSender: Sent [/source/position, iff, " << message_id <<
-              position.x << ", " <<  position.y << "] to client " <<
+              position.x << ", " <<  position.y << "] to client '" <<
               client->address().hostname() << ":" <<
-              client->address().port() << ".");
+              client->address().port() << "'.");
         }
       }
     }
@@ -714,8 +714,8 @@ bool ssr::OscSender::set_source_position(id_t id, const Position& position)
     _server.address().send_from(_handler.server(), "/update/source/position",
         "iff", message_id, position.x, position.y);
     VERBOSE3("OscSender: Sent [/update/source/position, iff, " << message_id <<
-        ", " << position.x << ", " << position.y << "] to server " <<
-        _server.hostname() << ":" << _server.port() << ".");
+        ", " << position.x << ", " << position.y << "] to server '" <<
+        _server.hostname() << ":" << _server.port() << "'.");
   }
   return true;
 }
@@ -755,8 +755,8 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
               "i"+_handler.bool_to_message_type(fixed), message_id);
           VERBOSE3("OscSender: Sent [/source/position_fixed, i" <<
               _handler.bool_to_message_type(fixed) << ", " << message_id <<
-              "] to client " << client->address().hostname() << ":" <<
-              client->address().port() << ".");
+              "] to client '" << client->address().hostname() << ":" <<
+              client->address().port() << "'.");
         }
       }
     }
@@ -768,7 +768,8 @@ bool ssr::OscSender::set_source_position_fixed(id_t id, const bool& fixed)
         "i"+_handler.bool_to_message_type(fixed), message_id);
     VERBOSE3("OscSender: Sent [/update/source/position_fixed, i"
         +_handler.bool_to_message_type(fixed) << ", " << message_id <<
-        "] to server " << _server.hostname() << ":" << _server.port() << ".");
+        "] to server '" << _server.hostname() << ":" << _server.port() <<
+        "'.");
   }
   return true;
 }
@@ -807,9 +808,9 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
           client->address().send_from(_handler.server(), "/source/orientation",
               "if", message_id, message_orientation);
           VERBOSE3("OscSender: Sent [/source/orientation, if, " << message_id
-              << ", " << message_orientation << "] to client " <<
+              << ", " << message_orientation << "] to client '" <<
               client->address().hostname() << ":" <<
-              client->address().port() << ".");
+              client->address().port() << "'.");
         }
       }
     }
@@ -820,8 +821,8 @@ bool ssr::OscSender::set_source_orientation(id_t id , const Orientation&
         "/update/source/orientation", "if", message_id, message_orientation);
     VERBOSE3("OscSender: Sent [/update/source/orientation, if, " <<
         apf::str::A2S(message_id) << ", " << apf::str::A2S(message_orientation)
-        << "] to server " << _server.hostname() << ":" << _server.port() <<
-        ".");
+        << "] to server '" << _server.hostname() << ":" << _server.port() <<
+        "'.");
   }
   return true;
 }
@@ -858,8 +859,8 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
           client->address().send_from(_handler.server(), "/source/gain", "if",
               message_id, gain);
           VERBOSE3("OscSender: Sent [/source/gain, if, " << message_id << ", "
-              << gain << "] to client " << client->address().hostname() << ":"
-              << client->address().port() << ".");
+              << gain << "] to client '" << client->address().hostname() << ":"
+              << client->address().port() << "'.");
         }
       }
     }
@@ -870,7 +871,8 @@ bool ssr::OscSender::set_source_gain(id_t id, const float& gain)
         message_id, gain);
     VERBOSE3("OscSender: Sent [/update/source/gain, if, " <<
         apf::str::A2S(message_id) << ", " <<  apf::str::A2S(gain) <<
-        "] to server " << _server.hostname() << ":" << _server.port() << ".");
+        "] to server '" << _server.hostname() << ":" << _server.port() <<
+        "'.");
   }
   return true;
 }
@@ -910,8 +912,8 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
               "i"+_handler.bool_to_message_type(mute), message_id);
           VERBOSE3("OscSender: Sent [/source/mute, i" <<
               _handler.bool_to_message_type(mute) << ", " << message_id <<
-              "] to client " << client->address().hostname() << ":" <<
-              client->address().port() << ".");
+              "] to client '" << client->address().hostname() << ":" <<
+              client->address().port() << "'.");
         }
       }
     }
@@ -922,8 +924,8 @@ bool ssr::OscSender::set_source_mute(id_t id, const bool& mute)
         "i"+_handler.bool_to_message_type(mute), message_id);
     VERBOSE3("OscSender: Sent [/update/source/mute, i" <<
         _handler.bool_to_message_type(mute) << ", " <<
-        apf::str::A2S(message_id) << "] to server " << _server.hostname() <<
-        ":" << _server.port() << ".");
+        apf::str::A2S(message_id) << "] to server '" << _server.hostname() <<
+        ":" << _server.port() << "'.");
   }
   return true;
 }
@@ -960,8 +962,8 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
           client->address().send_from(_handler.server(), "/source/name", "is",
               message_id, name.c_str());
           VERBOSE3("OscSender: Sent [/source/name, is, " << message_id << ", "
-              << name << "] to client " << client->address().hostname() << ":"
-              << client->address().port() << ".");
+              << name << "] to client '" << client->address().hostname() << ":"
+              << client->address().port() << "'.");
         }
       }
     }
@@ -971,8 +973,8 @@ bool ssr::OscSender::set_source_name(id_t id, const std::string& name)
     _server.address().send_from(_handler.server(), "/update/source/name", "is",
         message_id, name.c_str());
     VERBOSE3("OscSender: Sent [/update/source/name, is, " << message_id << ", "
-        << name << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        << name << "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
   return true;
 }
@@ -1012,9 +1014,9 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
           client->address().send_from(_handler.server(),
               "/source/properties_file", "is", message_id, name.c_str());
           VERBOSE3("OscSender: Sent [/source/properties_file, is, " <<
-              message_id << ", " << name << "] to client " <<
+              message_id << ", " << name << "] to client '" <<
               client->address().hostname() << ":" << client->address().port()
-              << ".");
+              << "'.");
         }
       }
     }
@@ -1024,8 +1026,8 @@ bool ssr::OscSender::set_source_properties_file(id_t id, const std::string&
     _server.address().send_from(_handler.server(),
         "/update/source/properties_file", "is", message_id, name.c_str());
     VERBOSE3("OscSender: Sent [/update/source/properties_file, is, " <<
-        message_id << ", " << name << "] to server " << _server.hostname() <<
-        ":" << _server.port() << ".");
+        message_id << ", " << name << "] to server '" << _server.hostname() <<
+        ":" << _server.port() << "'.");
   }
   return true;
 }
@@ -1048,8 +1050,8 @@ void ssr::OscSender::set_decay_exponent(float exponent)
         client->address().send_from(_handler.server(), "/scene/decay_exponent",
             "f", exponent);
         VERBOSE3("OscSender: Sent [/scene/decay_exponent, f, " << exponent <<
-            "] to client " << client->address().hostname() << ":" <<
-            client->address().port() << ".");
+            "] to client '" << client->address().hostname() << ":" <<
+            client->address().port() << "'.");
       }
     }
   }
@@ -1058,8 +1060,8 @@ void ssr::OscSender::set_decay_exponent(float exponent)
     _server.address().send_from(_handler.server(),
         "/update/scene/decay_exponent", "f", exponent);
     VERBOSE3("OscSender: Sent [/update/scene/decay_exponent, f, " << exponent
-        << "] to server " << _server.hostname() << ":" << _server.port() <<
-        ".");
+        << "] to server '" << _server.hostname() << ":" << _server.port() <<
+        "'.");
   }
 }
 
@@ -1083,8 +1085,8 @@ void ssr::OscSender::set_amplitude_reference_distance(float distance)
         client->address().send_from(_handler.server(),
             "/scene/amplitude_reference_distance", "f", distance);
         VERBOSE3("OscSender: Sent [/scene/amplitude_reference_distance, f, " <<
-            distance << "] to client " << client->address().hostname() << ":"
-            << client->address().port() << ".");
+            distance << "] to client '" << client->address().hostname() << ":"
+            << client->address().port() << "'.");
       }
     }
   }
@@ -1093,8 +1095,8 @@ void ssr::OscSender::set_amplitude_reference_distance(float distance)
     _server.address().send_from(_handler.server(),
         "/update/scene/amplitude_reference_distance", "f", distance);
     VERBOSE3("OscSender: Sent [/update/scene/amplitude_reference_distance, f, "
-        << distance << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        << distance << "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
 }
 
@@ -1132,9 +1134,9 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
           client->address().send_from(_handler.server(), "/source/model", "is",
               message_id, message_model.c_str());
           VERBOSE3("OscSender: Sent [/source/model, is, " << message_id << ", "
-              << message_model << "] to client " <<
+              << message_model << "] to client '" <<
               client->address().hostname() << ":" << client->address().port()
-              << ".");
+              << "'.");
         }
       }
     }
@@ -1144,8 +1146,8 @@ bool ssr::OscSender::set_source_model(id_t id, const Source::model_t& model)
     _server.address().send_from(_handler.server(), "/update/source/model",
         "is", message_id, message_model.c_str());
     VERBOSE3("OscSender: Sent [/update/source/model, is, " << message_id <<
-        ", " << message_model << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        ", " << message_model << "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
   return true;
 }
@@ -1170,8 +1172,8 @@ bool ssr::OscSender::set_source_port_name(id_t id, const std::string&
     _server.address().send_from(_handler.server(), "/update/source/port_name",
         "is", message_id, port_name.c_str());
     VERBOSE3("OscSender: Sent [/update/source/port_name, is, " << message_id <<
-        ", " << port_name << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        ", " << port_name << "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
   return true;
 }
@@ -1213,9 +1215,9 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
               "/source/file_name_or_port_number", "is", message_id,
               file_name.c_str());
           VERBOSE3("OscSender: Sent [/source/file_name_or_port_number, is, " <<
-              message_id << ", " << file_name << "] to client " <<
+              message_id << ", " << file_name << "] to client '" <<
               client->address().hostname() << ":" << client->address().port()
-              << ".");
+              << "'.");
         }
       }
     }
@@ -1226,8 +1228,8 @@ bool ssr::OscSender::set_source_file_name(id_t id, const std::string&
         "/update/source/file_name_or_port_number", "is", message_id,
         file_name.c_str());
     VERBOSE3("OscSender: Sent [/update/source/file_name_or_port_number, is, "
-        << message_id << ", " << file_name << "] to server " <<
-        _server.hostname() << ":" << _server.port() << ".");
+        << message_id << ", " << file_name << "] to server '" <<
+        _server.hostname() << ":" << _server.port() << "'.");
   }
   return true;
 }
@@ -1267,9 +1269,9 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
           client->address().send_from(_handler.server(),
               "/source/file_channel", "ii", message_id, message_file_channel);
           VERBOSE3("OscSender: Sent [/source/file_channel, ii, " << message_id
-              << ", " << message_file_channel << "] to client " <<
+              << ", " << message_file_channel << "] to client '" <<
               client->address().hostname() << ":" << client->address().port()
-              << ".");
+              << "'.");
         }
       }
     }
@@ -1279,8 +1281,8 @@ bool ssr::OscSender::set_source_file_channel(id_t id, const int& file_channel)
     _server.address().send_from(_handler.server(),
         "/update/source/file_channel", "ii", message_id, message_file_channel);
     VERBOSE3("OscSender: Sent [/update/source/file_channel, ii, " << message_id
-        << ", " << message_file_channel << "] to server " << _server.hostname()
-        << ":" << _server.port() << ".");
+        << ", " << message_file_channel << "] to server '" << _server.hostname()
+        << ":" << _server.port() << "'.");
   }
   return true;
 }
@@ -1304,8 +1306,8 @@ bool ssr::OscSender::set_source_file_length(id_t id, const long int& length)
     _server.address().send_from(_handler.server(), "/update/source/length",
         "ii", message_id, message_length);
     VERBOSE3("OscSender: Sent [/update/source/length, ii, " << message_id <<
-        ", " << message_length << "] to server " << _server.hostname() << ":"
-        << _server.port() << ".");
+        ", " << message_length << "] to server '" << _server.hostname() << ":"
+        << _server.port() << "'.");
   }
   return true;
 }
@@ -1329,8 +1331,8 @@ void ssr::OscSender::set_reference_position(const Position& position)
       client->address().send_from(_handler.server(), "/reference/position",
           "ff", position.x, position.y);
       VERBOSE3("OscSender: Sent [/reference/position, ff, " << position.x <<
-          ", " << position.y << "] to client " << client->address().hostname()
-          << ":" << client->address().port() << ".");
+          ", " << position.y << "] to client '" << client->address().hostname()
+          << ":" << client->address().port() << "'.");
       }
     }
   }
@@ -1339,8 +1341,8 @@ void ssr::OscSender::set_reference_position(const Position& position)
     _server.address().send_from(_handler.server(),
         "/update/reference/position", "ff", position.x, position.y);
     VERBOSE3("OscSender: Sent [/update/reference/position, ff, " << position.x
-        << ", " << position.y << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        << ", " << position.y << "] to server '" << _server.hostname() << ":"
+        << _server.port() << "'.");
   }
 }
 
@@ -1363,9 +1365,9 @@ void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
         client->address().send_from(_handler.server(),
             "/reference/orientation", "f", orientation.azimuth);
         VERBOSE3("OscSender: Sent [/reference/orientation, f, " <<
-            orientation.azimuth << "] to client " <<
+            orientation.azimuth << "] to client '" <<
             client->address().hostname() << ":" << client->address().port() <<
-            ".");
+            "'.");
       }
     }
   }
@@ -1374,8 +1376,8 @@ void ssr::OscSender::set_reference_orientation(const Orientation& orientation)
     _server.address().send_from(_handler.server(),
         "/update/reference/orientation", "f", orientation.azimuth);
     VERBOSE3("OscSender: Sent [/update/reference/orientation, f, " <<
-        orientation.azimuth << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        orientation.azimuth << "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
 }
 
@@ -1399,9 +1401,9 @@ void ssr::OscSender::set_reference_offset_position(const Position& position)
         client->address().send_from(_handler.server(),
             "/reference_offset/position", "ff", position.x, position.y);
         VERBOSE3("OscSender: Sent [/reference_offset/position, ff, " <<
-            position.x << ", " << position.y << "] to client " <<
-            client->address().hostname() << ":" << client->address().port()
-            << ".");
+            position.x << ", " << position.y << "] to client '" <<
+            client->address().hostname() << ":" << client->address().port() <<
+            "'.");
       }
     }
   }
@@ -1410,8 +1412,8 @@ void ssr::OscSender::set_reference_offset_position(const Position& position)
     _server.address().send_from(_handler.server(),
         "/update/reference_offset/position", "ff", position.x, position.y);
     VERBOSE3("OscSender: Sent [/update/reference_offset/position, ff, " <<
-        position.x << ", " << position.y << "] to server " <<
-        _server.hostname() << ":" << _server.port() << ".");
+        position.x << ", " << position.y << "] to server '" <<
+        _server.hostname() << ":" << _server.port() << "'.");
   }
 }
 
@@ -1437,9 +1439,9 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
         client->address().send_from(_handler.server(),
             "/reference_offset/orientation", "f", orientation.azimuth);
         VERBOSE3("OscSender: Sent [/reference_offset/orientation, f, " <<
-            orientation.azimuth << "] to client " <<
+            orientation.azimuth << "] to client '" <<
             client->address().hostname() << ":" << client->address().port() <<
-            ".");
+            "'.");
       }
     }
   }
@@ -1448,8 +1450,8 @@ void ssr::OscSender::set_reference_offset_orientation(const Orientation&
     _server.address().send_from(_handler.server(),
         "/update/reference_offset/orientation", "f", orientation.azimuth);
     VERBOSE3("OscSender: Sent [/update/reference_offset/orientation, f, " <<
-        orientation.azimuth << "] to server " << _server.hostname() << ":" <<
-        _server.port() << ".");
+        orientation.azimuth << "] to server '" << _server.hostname() << ":" <<
+        _server.port() << "'.");
   }
 }
 
@@ -1473,8 +1475,8 @@ void ssr::OscSender::set_master_volume(float volume)
         client->address().send_from(_handler.server(), "/scene/volume", "f",
             message_volume);
         VERBOSE3("OscSender: Sent [/scene/volume, f, " << message_volume <<
-            "] to client " << client->address().hostname() << ":" <<
-            client->address().port() << ".");
+            "] to client '" << client->address().hostname() << ":" <<
+            client->address().port() << "'.");
       }
     }
   }
@@ -1483,7 +1485,8 @@ void ssr::OscSender::set_master_volume(float volume)
     _server.address().send_from(_handler.server(), "/update/scene/volume", "f",
         message_volume);
     VERBOSE3("OscSender: Sent [/update/scene/volume, f, " << message_volume <<
-        "] to server " << _server.hostname() << ":" << _server.port() << ".");
+        "] to server '" << _server.hostname() << ":" << _server.port() <<
+        "'.");
   }
 }
 
@@ -1523,9 +1526,9 @@ void ssr::OscSender::set_processing_state(bool state)
         client->address().send_from(_handler.server(), "/processing/state",
             _handler.bool_to_message_type(state));
         VERBOSE3("OscSender: Sent [/processing/state, " <<
-            _handler.bool_to_message_type(state) << "] to client " <<
+            _handler.bool_to_message_type(state) << "] to client '" <<
             client->address().hostname() << ":" << client->address().port() <<
-            ".");
+            "'.");
       }
     }
   }
@@ -1534,8 +1537,8 @@ void ssr::OscSender::set_processing_state(bool state)
     _server.address().send_from(_handler.server(), "/update/processing/state",
         _handler.bool_to_message_type(state));
     VERBOSE3("OscSender: Sent [/update/processing/state, " <<
-        _handler.bool_to_message_type(state) << "] to server " <<
-        _server.hostname() << ":" << _server.port() << ".");
+        _handler.bool_to_message_type(state) << "] to server '" <<
+        _server.hostname() << ":" << _server.port() << "'.");
   }
 }
 
@@ -1562,14 +1565,14 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
         client->address().send_from(_handler.server(), "/transport/state",
             _handler.bool_to_message_type(state.first));
         VERBOSE3("OscSender: Sent [/transport/state, " <<
-            _handler.bool_to_message_type(state.first) << "] to client " <<
+            _handler.bool_to_message_type(state.first) << "] to client '" <<
             client->address().hostname() << ":" << client->address().port() <<
-            ".");
+            "'.");
         client->address().send_from(_handler.server(), "/transport/seek", "i",
             message_nframes);
         VERBOSE3("OscSender: Sent [/transport/seek, i, " << message_nframes <<
-            "] to client " << client->address().hostname() << ":" <<
-            client->address().port() << ".");
+            "] to client '" << client->address().hostname() << ":" <<
+            client->address().port() << "'.");
       }
     }
   }
@@ -1579,13 +1582,13 @@ void ssr::OscSender::set_transport_state( const std::pair<bool,
     _server.address().send_from(_handler.server(), "/update/transport/state",
         _handler.bool_to_message_type(state.first));
     VERBOSE3("OscSender: Sent [/update/transport/state, " <<
-        _handler.bool_to_message_type(state.first) << "] to server " <<
-        _server.hostname() << ":" << _server.port() << ".");
+        _handler.bool_to_message_type(state.first) << "] to server '" <<
+        _server.hostname() << ":" << _server.port() << "'.");
     _server.address().send_from(_handler.server(), "/update/transport/seek",
         "i", message_nframes);
     VERBOSE3("OscSender: Sent [/update/transport/state, i, " << message_nframes
-        << "] to server " << _server.hostname() << ":" << _server.port() <<
-        ".");
+        << "] to server '" << _server.hostname() << ":" << _server.port() <<
+        "'.");
   }
 }
 
@@ -1612,8 +1615,8 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
             _handler.bool_to_message_type(auto_rotate_sources));
         VERBOSE3("OscSender: Sent [/scene/auto_rotate_sources, " <<
             _handler.bool_to_message_type(auto_rotate_sources) <<
-            "] to client " << client->address().hostname() << ":" <<
-            client->address().port() << ".");
+            "] to client '" << client->address().hostname() << ":" <<
+            client->address().port() << "'.");
       }
     }
   }
@@ -1623,8 +1626,8 @@ void ssr::OscSender::set_auto_rotation(bool auto_rotate_sources)
         "/update/scene/auto_rotate_sources",
         _handler.bool_to_message_type(auto_rotate_sources));
     VERBOSE3("OscSender: Sent [/update/scene/auto_rotate_sources, " <<
-        _handler.bool_to_message_type(auto_rotate_sources) << "] to server " <<
-        _server.hostname() << ":" << _server.port() << ".");
+        _handler.bool_to_message_type(auto_rotate_sources) << "] to server '"
+        << _server.hostname() << ":" << _server.port() << "'.");
   }
 }
 
@@ -1646,18 +1649,18 @@ void ssr::OscSender::set_cpu_load(float load)
       {
         client->address().send_from(_handler.server(), "/cpu_load", "f", load);
         VERBOSE3("OscSender: Sent [/cpu_load, f, " << apf::str::A2S(load) <<
-            "] to client " << client->hostname() << ":" << client->port() <<
-            ".");
+            "] to client '" << client->hostname() << ":" << client->port() <<
+            "'.");
       }
     }
   }
-  else if(_handler.is_client() && !server_is_default() && _server.message_level() ==
-      MessageLevel::GUI_SERVER)
+  else if(_handler.is_client() && !server_is_default() &&
+      _server.message_level() == MessageLevel::GUI_SERVER)
   {
     _server.address().send_from(_handler.server(), "/update/cpu_load", "f",
         load);
     VERBOSE3("OscSender: Sent [/update/cpu_load, f, " << apf::str::A2S(load) <<
-        "] to server " << _server.hostname() << ":" << _server.port() << ".");
+        "] to server '" << _server.hostname() << ":" << _server.port() << "'.");
   }
 }
 
@@ -1677,8 +1680,8 @@ void ssr::OscSender::set_sample_rate(int sr)
     _server.address().send_from(_handler.server(), "/update/scene/sample_rate",
         "i", message_sr);
     VERBOSE3("OscSender: Sent [/update/scene/sample_rate, i, " <<
-        apf::str::A2S(message_sr) << "] to server " << _server.hostname() <<
-        ":" << _server.port() << ".");
+        apf::str::A2S(message_sr) << "] to server '" << _server.hostname() <<
+        ":" << _server.port() << "'.");
   }
 }
 
@@ -1702,9 +1705,9 @@ void ssr::OscSender::set_master_signal_level(float level)
         client->address().send_from(_handler.server(),
             "/scene/master_signal_level", "f", message_level);
         VERBOSE3("OscSender: Sent [/scene/master_signal_level, f, " <<
-            apf::str::A2S(message_level) << "] to client " <<
+            apf::str::A2S(message_level) << "] to client '" <<
             client->address().hostname() << ":" << client->address().port() <<
-            ".");
+            "'.");
       }
     }
   }
@@ -1714,8 +1717,8 @@ void ssr::OscSender::set_master_signal_level(float level)
     _server.address().send_from(_handler.server(),
         "/update/scene/master_signal_level", "f", message_level);
     VERBOSE3("OscSender: Sent [/update/scene/master_signal_level, f, " <<
-        apf::str::A2S(message_level) << "] to server " << _server.hostname() <<
-        ":" << _server.port() << ".");
+        apf::str::A2S(message_level) << "] to server '" << _server.hostname() <<
+        ":" << _server.port() << "'.");
   }
 }
 
@@ -1743,8 +1746,8 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
         client->address().send_from(_handler.server(), "/source/level", "if",
             message_id, message_level);
         VERBOSE3("OscSender: Sent [/source/level, if, " << message_id << ", "
-            << message_level << "] to client " << client->address().hostname()
-            << ":" << client->address().port() << ".");
+            << message_level << "] to client '" << client->address().hostname()
+            << ":" << client->address().port() << "'.");
       }
     }
   }
@@ -1755,7 +1758,7 @@ bool ssr::OscSender::set_source_signal_level(const id_t id, const float& level)
         "if", message_id, message_level);
     VERBOSE3("OscSender: Sent [/update/source/level, if, " <<
         apf::str::A2S(message_id) << ", " << apf::str::A2S(message_level) <<
-        "] to server " << _server.hostname() << ":" << _server.port() << ".");
+        "] to server '" << _server.hostname() << ":" << _server.port() << "'.");
   }
   return true;
 }
