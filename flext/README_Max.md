@@ -20,6 +20,7 @@ In the following instructions GCC is used for everything.
 * Get flext from Github: https://github.com/grrrr/flext
 
 * Build flext:
+  Note: MACOSX_DEPLOYMENT_TARGET=10.6 doesn't work with XCode compiler
 
       cd flext
       export CC=gcc-6 CXX=g++-6
@@ -98,3 +99,9 @@ after uncommenting the following line in flext/source/flbuf.cpp
 
 but then, when connecting the external and switching on DSP processing:
 msp object need to be updated for msp64
+
+SDK 7.0.1 with XCode and command line tools:
+flex compilation works, many warnings but no errors
+make max CXXFLAGS=-stdlib=libc++
+but: clang: error: invalid deployment target for -stdlib=libc++ (requires OS X 10.7 or later)
+
