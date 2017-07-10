@@ -75,11 +75,13 @@ class OscSender : public Subscriber
     void set_message_level(const unsigned int& message_level);
     void add_client(std::string hostname, std::string port, ssr::MessageLevel
         message_level);
-    void set_client_message_level(std::string hostname, std::string port,
+    void set_client_message_level(std::string& hostname, std::string& port,
         ssr::MessageLevel message_level);
     bool client_has_message_level(std::string& hostname, std::string& port,
         ssr::MessageLevel message_level);
     void deactivate_client(std::string hostname, std::string port);
+    void increment_client_alive_counter(std::string& hostname, std::string&
+        port);
     void send_to_server(std::string path, lo::Message message);
     void send_to_server(lo::Bundle bundle);
     void send_to_client(lo::Address address, std::string path, lo::Message

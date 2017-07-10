@@ -19,6 +19,7 @@ class OscClient
     lo::Address _address;
     MessageLevel _message_level;
     bool _active = false;
+    int _alive_counter;
 
   public:
     OscClient(std::string hostname, std::string port, MessageLevel
@@ -34,6 +35,9 @@ class OscClient
     void set_message_level(MessageLevel message_level);
     const std::string hostname();
     const std::string port();
+    void increment_alive_counter();
+    void decrement_alive_counter();
+    void reset_alive_counter();
 };
 
 }

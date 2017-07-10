@@ -70,13 +70,27 @@ void ssr::OscReceiver::stop()
 }
 
 /**
- * Adds callback handlers (for server) for subscribe and message level messages
- * received from clients.
+ * Adds callback handlers (for server) for alive, subscribe and message level
+ * messages received from clients.
  * This function uses C++11 lambda functions to define the behavior for every
  * callback.
  */
 void ssr::OscReceiver::add_client_to_server_methods()
 {
+  // incrementing alive_counter of subscribed client: "/alive"
+  _handler.server().add_method("/alive", NULL, [this](lo_arg **argv,
+        int, lo::Message message)
+    {
+      std::string hostname = message.source().hostname();
+      std::string port = message.source().port();
+      VERBOSE2("OscReceiver: Got [/alive] from client '" <<
+          message.source().hostname() << ":" << message.source().port() <<
+          "'.");
+      increment_client_alive_counter(_handler, hostname, port);
+    }
+  );
+  VERBOSE("OscReceiver: Added callback for /alive.");
+
   // setting MessageLevel of subscribed client: "/message_level, {i,ssi}"
   _handler.server().add_method("/message_level", NULL, [this](lo_arg **argv,
         int, lo::Message message)
@@ -647,8 +661,10 @@ void ssr::OscReceiver::add_server_to_client_methods()
       else
       {
         VERBOSE2("OscReceiver: Got [/poll] from server " << from.hostname() <<
-            ":" << from.port() << ". Sending alive signal.");
+            ":" << from.port() << ".");
         from.send_from(_handler.server(), "/alive", "");
+        VERBOSE2("OscReceiver: Sent [/alive] to server " << from.hostname() <<
+            ":" << from.port() << ".");
       }
     }
   );
