@@ -15,10 +15,11 @@ ssr::OscClient::OscClient(std::string hostname, std::string port, MessageLevel
     message_level)
   : _address(hostname, port)
   , _message_level(message_level)
+  , _alive_counter(10)
 {
   _active = true;
-  VERBOSE("OscClient: Initialized as " << _address.hostname() << ":" <<
-      _address.port() << ".");
+  VERBOSE("OscClient: Initialized as '" << _address.hostname() << ":" <<
+      _address.port() << "'.");
 }
 
 /**
@@ -109,4 +110,35 @@ const std::string ssr::OscClient::hostname()
 const std::string ssr::OscClient::port()
 {
   return _address.port();
+}
+
+/**
+ * Function to increment the OscClient's _alive_counter
+ **/
+void ssr::OscClient::increment_alive_counter()
+{
+  _alive_counter++;
+}
+
+/**
+ * Function to decrement the OscClient's _alive_counter.
+ * Deactivates the OscClient, in the case where _alive_counter <= 0
+ **/
+void ssr::OscClient::decrement_alive_counter()
+{
+  _alive_counter--;
+  if(_alive_counter < 0)
+  {
+    deactivate();
+    VERBOSE("OscClient: Deactivated '" << _address.hostname() << ":" <<
+        _address.port() << "' due to inactivity.");
+  }
+}
+
+/**
+ * Function to reset the OscClient's _alive counter
+ **/
+void ssr::OscClient::reset_alive_counter()
+{
+  _alive_counter=10;
 }

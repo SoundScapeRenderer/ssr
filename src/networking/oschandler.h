@@ -87,10 +87,14 @@ class OscHandler
         std::string port, ssr::MessageLevel message_level);
     friend void OscReceiver::deactivate_client(OscHandler& self, std::string
         hostname, std::string port);
-    friend void OscReceiver::set_client_message_level(OscHandler& self, std::string
-        hostname, std::string port, ssr::MessageLevel message_level);
-    friend bool OscReceiver::client_has_message_level(OscHandler& self, std::string&
-        hostname, std::string& port, ssr::MessageLevel message_level);
+    friend void OscReceiver::set_client_message_level(OscHandler& self,
+        std::string hostname, std::string port, ssr::MessageLevel
+        message_level);
+    friend bool OscReceiver::client_has_message_level(OscHandler& self,
+        std::string& hostname, std::string& port, ssr::MessageLevel
+        message_level);
+    friend void OscReceiver::increment_client_alive_counter(OscHandler& self,
+        std::string& hostname, std::string& port);
 };
 
 } // namespace ssr

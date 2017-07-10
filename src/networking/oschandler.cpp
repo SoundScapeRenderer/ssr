@@ -275,6 +275,18 @@ bool ssr::OscReceiver::client_has_message_level(OscHandler& self, std::string&
   return self._osc_sender.client_has_message_level(hostname, port, message_level);
 }
 
+/**
+ * OscHandler's friend function to increment an active client's alive counter.
+ * @param self reference to OscHandler holding OscSender
+ * @param hostname std::string representing the client's hostname
+ * @param port std::string representing the client's port
+ */
+void ssr::OscReceiver::increment_client_alive_counter(OscHandler& self,
+    std::string& hostname, std::string& port)
+{
+  self._osc_sender.increment_client_alive_counter(hostname, port);
+}
+
 
 /**
  * This function returns the OscHandler's mode

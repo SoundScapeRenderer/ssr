@@ -115,6 +115,7 @@ void ssr::OscSender::poll_all_clients()
       if(client && client->active())
       {
         client->address().send_from(_handler.server(), "/poll", "");
+        client->decrement_alive_counter();
       }
     }
     //TODO find better solution to compensate for execution time
@@ -457,6 +458,7 @@ void ssr::OscSender::add_client(std::string hostname, std::string port,
       if(client->message_level() != message_level)
         client->set_message_level(message_level);
       client->activate();
+      client->reset_alive_counter();
       setup = true;
       VERBOSE2("OscSender: Recycled client " << hostname << ":" << port <<
           ".");
@@ -474,8 +476,8 @@ void ssr::OscSender::add_client(std::string hostname, std::string port,
   if (!setup)
   {
     _clients.push_back(new OscClient(hostname, port, message_level));
-    VERBOSE2("OscSender: Added new client " << hostname << ":" << port <<
-        " using message level " << static_cast<unsigned int>(message_level) <<
+    VERBOSE2("OscSender: Added new client '" << hostname << ":" << port <<
+        "' using message level " << static_cast<unsigned int>(message_level) <<
         ".");
   }
 }
@@ -506,8 +508,8 @@ void ssr::OscSender::deactivate_client(std::string hostname, std::string port)
  * @param message_level ssr::MessageLevel enum representing the message level
  * to use
  */
-void ssr::OscSender::set_client_message_level(std::string hostname, std::string
-    port, ssr::MessageLevel message_level)
+void ssr::OscSender::set_client_message_level(std::string& hostname,
+    std::string& port, ssr::MessageLevel message_level)
 {
   for (auto& client: _clients)
   {
@@ -517,6 +519,25 @@ void ssr::OscSender::set_client_message_level(std::string hostname, std::string
       client->set_message_level(message_level);
       VERBOSE2("OscSender: Set message level of client '" << hostname << ":" <<
           port << "' to: " << static_cast<unsigned int>(message_level) << ".");
+    }
+  }
+}
+
+/**
+ * Increment the _alive_counter of an active client
+ * @param hostname std::string representing the hostname of a client
+ * @param port std::string representing the port of a client
+ */
+void ssr::OscSender::increment_client_alive_counter(std::string& hostname,
+    std::string& port)
+{
+  for (auto& client: _clients)
+  {
+    if(!(client->hostname().compare(hostname)) &&
+        !(client->port().compare(port)) && client->active())
+    {
+      client->increment_alive_counter();
+      break;
     }
   }
 }
