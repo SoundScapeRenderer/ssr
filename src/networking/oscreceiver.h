@@ -45,6 +45,7 @@ class OscReceiver
     void add_processing_methods();
     void add_transport_methods();
     void add_tracker_methods();
+    ssr::MessageLevel get_sane_message_level(int32_t message_level);
 
   public:
     OscReceiver(Publisher& controller, OscHandler& handler);

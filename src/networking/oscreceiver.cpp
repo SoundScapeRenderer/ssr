@@ -94,14 +94,14 @@ void ssr::OscReceiver::add_client_to_server_methods()
   _handler.server().add_method("/message_level", NULL, [this](lo_arg **argv,
         int, lo::Message message)
     {
+      (void) argv;
       if(!message.types().compare("i"))
       {
         VERBOSE2("OscReceiver: Got [/message_level, " << argv[0]->i <<
             "] from client '" << message.source().hostname() << ":" <<
             message.source().port() << "'.");
         set_client_message_level(_handler, message.source().hostname(),
-            message.source().port(),
-            static_cast<ssr::MessageLevel>(argv[0]->i));
+            message.source().port(), get_sane_message_level(argv[0]->i));
       }
       else if(!message.types().compare("ssi"))
       {
@@ -112,7 +112,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
         set_client_message_level(_handler, hostname, port,
-            static_cast<ssr::MessageLevel>(argv[2]->i));
+            get_sane_message_level(argv[2]->i));
       }
     }
   );
@@ -164,7 +164,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
             message.source().hostname() << ":" << message.source().port() <<
             "'.");
         add_client(_handler, hostname, port,
-            static_cast<ssr::MessageLevel>(argv[3]->i));
+            get_sane_message_level(argv[3]->i));
       }
       // subscribing client: "/subscribe, Ti, message_level"
       else if(!message.types().compare("Ti"))
@@ -174,8 +174,7 @@ void ssr::OscReceiver::add_client_to_server_methods()
             "] from client '" << message.source().hostname() << ":" <<
             message.source().port() << "'.");
         add_client(_handler, message.source().hostname(),
-            message.source().port(),
-            static_cast<ssr::MessageLevel>(argv[1]->i));
+            message.source().port(), get_sane_message_level(argv[1]->i));
       }
     }
   );
@@ -623,7 +622,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
   );
   VERBOSE("OscReceiver: Added callback for /cpu_load f.");
 
-  // set OscSender's _server _message_level through OscHandler: /message_level, i
+  // set OscSender's _server _message_level: /message_level, i
   _handler.server().add_method("/message_level", "i", [this](lo_arg **argv,
         int, lo::Message message)
     {
@@ -633,10 +632,7 @@ void ssr::OscReceiver::add_server_to_client_methods()
           "] from server '" << message.source().hostname() << ":" <<
           message.source().port() << "'.");
       if(is_server(_handler, hostname, port))
-      {
-        set_server_message_level(_handler,
-            static_cast<ssr::MessageLevel>(argv[0]->i));
-      }
+        set_server_message_level(_handler, get_sane_message_level(argv[0]->i));
     }
   );
   VERBOSE("OscReceiver: Added callback for /message_level i.");
@@ -1686,3 +1682,23 @@ void ssr::OscReceiver::add_tracker_methods()
   VERBOSE("OscReceiver: Added callback for /tracker/reset.");
 }
 
+/**
+ * Creates a sane MessageLevel from an int32_t
+ * @param message_level An int32_t
+ * @return a MessageLevel
+ */
+ssr::MessageLevel ssr::OscReceiver::get_sane_message_level(int32_t message_level)
+{
+  if(message_level <= 0){
+    return ssr::MessageLevel::CLIENT;
+  }
+  else if(ssr::MessageLevel::MAX_VALUE <
+      static_cast<ssr::MessageLevel>(message_level))
+  {
+    return ssr::MessageLevel::GUI_SERVER;
+  }
+  else
+  {
+    return static_cast<ssr::MessageLevel>(message_level);
+  }
+}
