@@ -282,7 +282,7 @@ bool ssr::OscReceiver::client_has_message_level(OscHandler& self, std::string&
  * @param port std::string representing the client's port
  */
 void ssr::OscReceiver::increment_client_alive_counter(OscHandler& self,
-    std::string& hostname, std::string& port)
+    std::string hostname, std::string port)
 {
   self._osc_sender.increment_client_alive_counter(hostname, port);
 }

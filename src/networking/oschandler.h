@@ -94,7 +94,7 @@ class OscHandler
         std::string& hostname, std::string& port, ssr::MessageLevel
         message_level);
     friend void OscReceiver::increment_client_alive_counter(OscHandler& self,
-        std::string& hostname, std::string& port);
+        std::string hostname, std::string port);
 };
 
 } // namespace ssr

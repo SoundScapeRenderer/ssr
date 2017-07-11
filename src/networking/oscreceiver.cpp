@@ -81,12 +81,11 @@ void ssr::OscReceiver::add_client_to_server_methods()
   _handler.server().add_method("/alive", NULL, [this](lo_arg **argv,
         int, lo::Message message)
     {
-      std::string hostname = message.source().hostname();
-      std::string port = message.source().port();
       VERBOSE2("OscReceiver: Got [/alive] from client '" <<
           message.source().hostname() << ":" << message.source().port() <<
           "'.");
-      increment_client_alive_counter(_handler, hostname, port);
+      increment_client_alive_counter(_handler, message.source().hostname(),
+          message.source().port());
     }
   );
   VERBOSE("OscReceiver: Added callback for /alive.");
