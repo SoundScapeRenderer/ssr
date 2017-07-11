@@ -92,6 +92,9 @@ void ssr::OscClient::set_address(std::string& hostname, std::string& port)
 void ssr::OscClient::set_message_level(MessageLevel message_level)
 {
   _message_level = message_level;
+  VERBOSE("OscClient: Message level of '" << _address.hostname() << ":" <<
+      _address.port() << "' changed to " << static_cast<id_t>(_message_level)
+      << ".");
 }
 
 /**

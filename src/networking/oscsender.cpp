@@ -477,8 +477,7 @@ void ssr::OscSender::add_client(std::string hostname, std::string port,
   {
     _clients.push_back(new OscClient(hostname, port, message_level));
     VERBOSE2("OscSender: Added new client '" << hostname << ":" << port <<
-        "' using message level " << static_cast<unsigned int>(message_level) <<
-        ".");
+        "' using message level " << static_cast<id_t>(message_level) << ".");
   }
 }
 

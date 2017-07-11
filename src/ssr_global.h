@@ -56,7 +56,8 @@ enum class MessageLevel : id_t
   CLIENT = 0,
   GUI_CLIENT,
   SERVER,
-  GUI_SERVER
+  GUI_SERVER,
+  MAX_VALUE = GUI_SERVER
 };
 
 }  // namespace ssr
