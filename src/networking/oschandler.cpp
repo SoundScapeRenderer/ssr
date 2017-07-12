@@ -64,7 +64,9 @@ void ssr::OscHandler::start()
   VERBOSE("OscHandler: Starting");
   // check if lo::ServerThread is valid
   if (!_server.is_valid()) {
-    ERROR("OscHandler: ServerThread could not be started!");
+    ERROR("OscHandler: The liblo ServerThread could not be started!" <<
+        " Is the port already in use?");
+    exit(EXIT_FAILURE);
   }
   _server.set_callbacks([this]()
     {
