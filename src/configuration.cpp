@@ -109,8 +109,43 @@ namespace // anonymous
   }
 }
 
-/* This function removes all whitespaces from a string.
+/**
+ * Function to retrieve a valid port from a char.
+ * Returns an ephemeral port according to IANA suggestions
+ * @param port a const char* holding a number
+ * @return An ephemeral port according to IANA suggestions
+ */
+int ssr::get_valid_network_port(const char* port)
+{
+  int port_number = atoi(port);
+  bool valid_port = true;
+  if (port_number < 1024 && port_number > 0)
+  {
+    ERROR("Port number is in the range of well-known ports!");
+    valid_port = false;
+  }
+  else if(port_number < 0)
+  {
+    ERROR("Port number must not be negative!");
+    valid_port = false;
+  }
+  else if (port_number < 49152 || port_number > 65535)
+  {
+    ERROR("Port number is not in the range of ephemeral ports suggested by IANA!");
+    valid_port = false;
+  }
+  if (!valid_port)
+  {
+    WARNING("Using standard port.");
+    port_number = 50001;
+  }
+  return port_number;
+}
+
+/* Function to remove all whitespaces from a string.
  * If the string is " " it will return an empty string.
+ * @param str a reference to a std::string
+ * @return a std::string without whitespaces
  */
 std::string ssr::remove_whitespace(const std::string& str)
 {
@@ -124,10 +159,17 @@ std::string ssr::remove_whitespace(const std::string& str)
   return str.substr(first, (last - first + 1));
 }
 
-/* This function retrieves tuples of key value pairs from a comma-separated
- * string and stores it in a multimap.
+/**
+ * Function to retrieves tuples of key value pairs from a comma-separated
+ * string and stores it in a multimap. The tuples should be of the form
+ * client:port, client2:port2, etc..
+ * @param input a const char* holding a comma-separated list of clients:port
+ * tuples
+ * @param clients reference to a std::multimap<std::string, int> to store
+ * information on client and port in.
+ * @return CONFIG_SUCCESS on successful completion
  */
-static int parse_network_clients(const char *input,
+static int parse_network_clients(const char* input,
     std::multimap<std::string, int>& clients)
 {
   std::istringstream iss(input);
@@ -145,7 +187,7 @@ static int parse_network_clients(const char *input,
       // if no port supplied, insert standard
       if ( port_temp.empty() || port_temp == name )
       {
-        port = 50002;
+        port = 50001;
       }
       else
       {
@@ -156,7 +198,7 @@ static int parse_network_clients(const char *input,
   }
   VERBOSE("Read the following clients:");
   for (const auto& client: clients) {
-    VERBOSE2(client.first << ":" << client.second);
+    VERBOSE(client.first << ":" << client.second);
   }
   return CONFIG_SUCCESS;
 }
@@ -566,11 +608,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         conf.renderer_params.set("ambisonics_order", atoi(optarg));
         break;
       case 'p':
-        //TODO: check if in port range
-        if (!S2A(optarg, conf.osc_port))
-        {
-          ERROR("Invalid port for network receive specified!");
-        }
+        conf.osc_port = get_valid_network_port(optarg);
         break;
 
       case 'r':
@@ -894,7 +932,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     }
     else if (!strcmp(key, "OSC_PORT"))
     {
-      conf.osc_port = atoi(value);
+      conf.osc_port = get_valid_network_port(value);
     }
     else if (!strcmp(key, "NETWORK_INTERFACE"))
     {
