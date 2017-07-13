@@ -694,7 +694,7 @@ void ssr::OscReceiver::add_source_methods()
         {
           _controller.delete_all_sources();
         }
-        else
+        else if (argv[0]->i > 0)
         {
           _controller.delete_source(argv[0]->i);
         }
@@ -718,7 +718,8 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_file_channel(argv[0]->i, argv[1]->i);
+        if (argv[0]->i > 0)
+          _controller.set_source_file_channel(argv[0]->i, argv[1]->i);
       }
     }
   );
@@ -741,7 +742,8 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_file_name(argv[0]->i, name);
+        if (argv[0]->i > 0)
+          _controller.set_source_file_name(argv[0]->i, name);
       }
     }
   );
@@ -763,8 +765,9 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_gain(argv[0]->i,
-            apf::math::dB2linear(argv[1]->f));
+        if (argv[0]->i > 0)
+          _controller.set_source_gain(argv[0]->i,
+              apf::math::dB2linear(argv[1]->f));
       }
     }
   );
@@ -803,7 +806,8 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_model(argv[0]->i, model);
+        if (argv[0]->i > 0)
+          _controller.set_source_model(argv[0]->i, model);
       }
     }
   );
@@ -826,7 +830,8 @@ void ssr::OscReceiver::add_source_methods()
                                                               hostname, port,
                                                               MessageLevel::SERVER)))
         {
-          _controller.set_source_mute(argv[0]->i, true);
+          if (argv[0]->i > 0)
+            _controller.set_source_mute(argv[0]->i, true);
         }
       }
       else if(!message.types().compare("iF"))
@@ -842,7 +847,8 @@ void ssr::OscReceiver::add_source_methods()
                                                               hostname, port,
                                                               MessageLevel::SERVER)))
         {
-          _controller.set_source_mute(argv[0]->i, false);
+          if (argv[0]->i > 0)
+            _controller.set_source_mute(argv[0]->i, false);
         }
       }
     }
@@ -865,7 +871,8 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_name(argv[0]->i, name);
+        if (argv[0]->i > 0)
+          _controller.set_source_name(argv[0]->i, name);
       }
     }
   );
@@ -1090,7 +1097,9 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_orientation(argv[0]->i, Orientation(argv[1]->f));
+        if (argv[0]->i > 0)
+          _controller.set_source_orientation(argv[0]->i,
+              Orientation(argv[1]->f));
       }
     }
   );
@@ -1112,7 +1121,8 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_port_name(argv[0]->i, name);
+        if (argv[0]->i > 0)
+          _controller.set_source_port_name(argv[0]->i, name);
       }
     }
   );
@@ -1133,8 +1143,9 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_position(argv[0]->i, Position(argv[1]->f,
-              argv[2]->f));
+        if (argv[0]->i > 0)
+          _controller.set_source_position(argv[0]->i, Position(argv[1]->f,
+                argv[2]->f));
       }
     }
   );
@@ -1157,7 +1168,8 @@ void ssr::OscReceiver::add_source_methods()
                                                               hostname, port,
                                                               MessageLevel::SERVER)))
         {
-          _controller.set_source_position_fixed(argv[0]->i, true);
+          if (argv[0]->i > 0)
+            _controller.set_source_position_fixed(argv[0]->i, true);
         }
       }
       else if (!message.types().compare("iF"))
@@ -1173,7 +1185,8 @@ void ssr::OscReceiver::add_source_methods()
                                                               hostname, port,
                                                               MessageLevel::SERVER)))
         {
-          _controller.set_source_position_fixed(argv[0]->i, false);
+          if (argv[0]->i > 0)
+            _controller.set_source_position_fixed(argv[0]->i, false);
         }
       }
     }
@@ -1196,7 +1209,8 @@ void ssr::OscReceiver::add_source_methods()
                                                             port,
                                                             MessageLevel::SERVER)))
       {
-        _controller.set_source_properties_file(argv[0]->i, name);
+        if (argv[0]->i > 0)
+          _controller.set_source_properties_file(argv[0]->i, name);
       }
     }
   );
