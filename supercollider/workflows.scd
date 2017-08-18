@@ -66,19 +66,14 @@
   // set address of the client instance
   ~address = NetAddr("localhost", 50001);
   // print all OSC messages sent to sclang
-//  OSCFunc.trace(true, true);
   // subscribe to server with MessageLevel::SERVER
   ~address.sendMsg("/subscribe", $T, 2);
   // add new source with standard input at -1.0/1.0
-  ~address.sendMsg("/source/new", "in_1", "point", "1",
-    -1.0, 1.0, 0.1, 0.1, 0, "1", $F, $F, $T);
+  ~address.sendMsg("/source/new", "in_1", "point", "1", -1.0, 1.0, 0.0, 0.99,
+    $F, $F, $F);
   // add new source with standard input at 1.0/1.0
-  ~address.sendMsg("/source/new", "in_2", "point", "2",
-    1.0, 1.0, 0.1, 0.1, 0, "1", $F, $F, $T);
-  // unmute source 1
-  ~address.sendMsg("/source/mute", 1, $F);
-  // unmute source 2
-  ~address.sendMsg("/source/mute", 2, $F);
+  ~address.sendMsg("/source/new", "in_2", "point", "2", 1.0, 1.0, 0.0, 0.99,
+    $F, $F, $F);
   // vectors for holding source position
   ~source1 = [-1.0, -1.0];
   ~source2 = [-1.0, -1.0];
@@ -86,8 +81,14 @@
   OSCFunc(
     {
       arg msg, time, addr, recvPort;
-      [msg, time, addr, recvPort].postln;
-      ~address.sendMsg("/reference/orientation", msg[1]);
+      ~address.sendMsg("/alive");
+    },
+    '/poll'
+  );
+  OSCFunc(
+    {
+      arg msg, time, addr, recvPort;
+      ~address.sendMsg("/reference/orientation", msg[1]+90);
     },
     '/orientation/X'
   );
@@ -96,7 +97,6 @@
       arg msg, time, addr, recvPort;
       if(msg[1]>=0.0, {
         ~source1[0] = msg[1];
-        [msg, time, addr, recvPort].postln;
       });
       if(msg[0] != (-1.0) && msg[1] != (-1.0), {
         ~address.sendMsg("/source/position", 1,
@@ -112,7 +112,6 @@
       arg msg, time, addr, recvPort;
       if(msg[1]>=0.0, {
         ~source1[1] = msg[1];
-        [msg, time, addr, recvPort].postln;
       });
       if(msg[0] != (-1.0) && msg[1] != (-1.0), {
         ~address.sendMsg("/source/position", 1,
@@ -128,7 +127,6 @@
       arg msg, time, addr, recvPort;
       if(msg[1]>=0.0, {
         ~source2[0] = msg[1];
-        [msg, time, addr, recvPort].postln;
       });
       if(msg[0] != (-1.0) && msg[1] != (-1.0), {
         ~address.sendMsg("/source/position", 2,
@@ -144,7 +142,6 @@
       arg msg, time, addr, recvPort;
       if(msg[1]>=0.0, {
         ~source2[1] = msg[1];
-        [msg, time, addr, recvPort].postln;
       });
       if(msg[0] != (-1.0) && msg[1] != (-1.0), {
         ~address.sendMsg("/source/position", 2,
