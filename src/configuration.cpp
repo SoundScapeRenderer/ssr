@@ -154,8 +154,8 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   conf.path_to_scene_menu = "./scene_menu.conf";
   conf.end_of_message_character = 0; // default: binary zero
 
-  conf.renderer_params.set("decay_exponent", 1);  // 1 / r^1
-  conf.renderer_params.set("amplitude_reference_distance", 3);  // meters
+  conf.renderer_params.set("decay_exponent", 1.0f);  // 1 / r^1
+  conf.renderer_params.set("amplitude_reference_distance", 3.0f);  // meters
 
   conf.auto_rotate_sources = true;
 

@@ -157,7 +157,7 @@ BinauralRenderer::_load_hrtfs(const std::string& filename, size_t size)
     = std::max_element(transpose.slices.begin()->begin()
       , transpose.slices.begin()->end(), _cmp_abs);
 
-  int index = std::distance(transpose.slices.begin()->begin(), maximum);
+  int index = static_cast<int>(std::distance(transpose.slices.begin()->begin(), maximum));
 
   auto impulse = apf::fixed_vector<sample_type>(index + 1);
   impulse.back() = 1;
@@ -286,7 +286,7 @@ void BinauralRenderer::Source::_process()
   _interp_factor = interp_factor;  // Assign (once!) to BlockParameter
   _weight = this->weighting_factor;  // ... same here
 
-  float angles = _input.parent._angles;
+  auto angles = static_cast<float>(_input.parent._angles);
 
   // calculate relative orientation of sound source
   auto rel_ori = -ref_ori;

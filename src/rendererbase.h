@@ -120,9 +120,9 @@ class RendererBase : public apf::MimoProcessor<Derived
         , reference_offset_orientation(fifo)
         , master_volume(fifo, 1)
         , processing(fifo, true)
-        , decay_exponent(fifo, params.get("decay_exponent", 1))
+        , decay_exponent(fifo, params.get<sample_type>("decay_exponent", 1))
         , amplitude_reference_distance(fifo
-            , params.get("amplitude_reference_distance", 3))
+            , params.get<sample_type>("amplitude_reference_distance", 3))
       {}
 
       apf::SharedData<Position> reference_position;
