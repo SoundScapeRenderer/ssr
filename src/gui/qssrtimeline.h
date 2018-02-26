@@ -57,7 +57,7 @@ class QSSRTimeLine : public QLabel
     float        _progress_at_mouse_click;
     QString      _previous_time;
 
-    QTimeEdit*   _time_edit;
+    QSSRTimeEdit*   _time_edit;
 
   protected:
     virtual void mousePressEvent(QMouseEvent *event);
