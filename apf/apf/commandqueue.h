@@ -30,7 +30,8 @@
 #ifndef APF_COMMANDQUEUE_H
 #define APF_COMMANDQUEUE_H
 
-#include <unistd.h> // for usleep()
+#include <thread>   // std::this_thread::sleep_for
+#include <chrono>   // std::chrono::microseconds
 #include <cassert>  // for assert()
 
 #include "apf/lockfreefifo.h"
@@ -207,8 +208,8 @@ void CommandQueue::push(Command* cmd)
   {
     // We don't really know if that ever happens, so we abort in debug-mode:
     assert(false && "Error in _in_fifo.push()!");
-    // TODO: avoid this usleep()?
-    usleep(50);
+    // TODO: avoid this sleep?
+    std::this_thread::sleep_for(std::chrono::microseconds(50));
   }
 }
 
@@ -223,8 +224,8 @@ void CommandQueue::wait()
   this->cleanup_commands();
   while (!done)
   {
-    // TODO: avoid this usleep()?
-    usleep(50);
+    // TODO: avoid this sleep?
+    std::this_thread::sleep_for(std::chrono::microseconds(50));
     this->cleanup_commands();
   }
 }
