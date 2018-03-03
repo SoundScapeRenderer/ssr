@@ -27,10 +27,6 @@
 #ifndef APF_CXX_THREAD_POLICY_H
 #define APF_CXX_THREAD_POLICY_H
 
-#ifndef _REENTRANT
-#error You need to compile with _REENTRANT defined since this uses threads!
-#endif
-
 #ifndef APF_MIMOPROCESSOR_THREAD_POLICY
 #define APF_MIMOPROCESSOR_THREAD_POLICY apf::cxx_thread_policy
 #endif
