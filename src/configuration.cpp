@@ -30,16 +30,15 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h> // for ENABLE_*, HAVE_*, WITH_*
 #endif
-#ifdef ENABLE_ISATTY
-#include <thread>   // std::this_thread::sleep_for
-#include <chrono>   // std::chrono::seconds
-#endif
 
 #include <cassert>      // for assert()
 #include <getopt.h>     // for getopt_long()
 #include <cstdlib>      // for getenv(), ...
 #include <cstring>
 #include <stdio.h>
+#include <thread>   // std::this_thread::sleep_for
+#include <chrono>   // std::chrono::seconds
+
 #include "configuration.h"
 #include "posixpathtools.h"
 #include "apf/stringtools.h"
