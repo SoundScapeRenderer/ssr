@@ -27,7 +27,8 @@
 /// @file
 /// Audio recorder using ecasound (implementation).
 
-#include <unistd.h>  // for usleep()
+#include <thread>   // std::this_thread::sleep_for
+#include <chrono>   // std::chrono::microseconds
 
 #include "audiorecorder.h"
 #include "ssr_global.h"
@@ -102,7 +103,7 @@ AudioRecorder::AudioRecorder(const std::string& audio_file_name,
   // It takes a little time until the client is available
   // This is a little ugly, but I don't know a better way to do it.
   // If you know one, tell me, please!
-  usleep(ssr::usleeptime);
+  std::this_thread::sleep_for(std::chrono::microseconds(ssr::usleeptime));
 }
 
 /// disconnects from ecasound

@@ -31,7 +31,8 @@
 #include <config.h> // for ENABLE_*, HAVE_*, WITH_*
 #endif
 #ifdef ENABLE_ISATTY
-#include <unistd.h>
+#include <thread>   // std::this_thread::sleep_for
+#include <chrono>   // std::chrono::seconds
 #endif
 
 #include <cassert>      // for assert()
@@ -64,7 +65,7 @@ namespace // anonymous
     {
       std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
         "It's ... " << std::flush;
-      sleep(3);
+      std::this_thread::sleep_for(std::chrono::seconds(3));
       std::cout << "the ";
     }
     std::cout << PACKAGE_STRING "\n" SSR_COPYRIGHT << std::endl;

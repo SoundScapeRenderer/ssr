@@ -33,6 +33,8 @@
 #include <sstream>   // for std::stringstream
 #include <poll.h>    // for poll(), pollfd, ...
 #include <cassert>   // for assert()
+#include <thread>    // std::this_thread::sleep_for
+#include <chrono>    // std::chrono::milliseconds
 
 #include "trackerpolhemus.h"
 #include "publisher.h"
@@ -138,7 +140,7 @@ ssr::TrackerPolhemus::TrackerPolhemus(Publisher& controller
   _start();
 
   // wait until tracker has started
-  usleep(50000);
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
   this->calibrate();
 }

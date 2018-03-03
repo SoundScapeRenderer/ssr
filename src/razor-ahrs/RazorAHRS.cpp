@@ -12,6 +12,9 @@
 *     https://github.com/ptrbrtz/razor-9dof-ahrs
 ******************************************************************************************/
 
+#include <thread>   // std::this_thread::sleep_for
+#include <chrono>   // std::chrono::milliseconds
+
 #include "RazorAHRS.h"
 #include <cassert>
 
@@ -149,7 +152,7 @@ RazorAHRS::_init_razor()
     }
     // no data available
     else if (result == 0)
-      usleep(1000); // sleep 1ms
+      std::this_thread::sleep_for(std::chrono::milliseconds(1)); // sleep 1ms
     // error?
     else
     {

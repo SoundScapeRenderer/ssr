@@ -31,7 +31,8 @@
 #include <config.h>  // for ENABLE_*, HAVE_*, WITH_*
 #endif
 
-#include <unistd.h>
+#include <thread>   // std::this_thread::sleep_for
+#include <chrono>   // std::chrono::milliseconds
 #include <fstream>
 
 #include "trackerintersense.h"
@@ -122,7 +123,7 @@ ssr::TrackerInterSense::TrackerInterSense(Publisher& controller
     _start();
 
     // wait 100ms to make sure that tracker gives reliable values
-    usleep(100000u);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     // and then calibrate it
     calibrate();
   }
@@ -200,7 +201,7 @@ void* ssr::TrackerInterSense::thread(void *arg)
 #endif
 
     // wait a bit
-    usleep(_read_interval*1000u);
+    std::this_thread::sleep_for(std::chrono::microseconds(_read_interval*1000u));
   };
 
   return arg;
