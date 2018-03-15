@@ -11,7 +11,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   cd ..
 fi
 
-if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+if [ "$TRAVIS_OS_NAME" == "osx" ]; then
   # help2man requires perl's Locale::gettext
   cpanm Locale:gettext
 fi

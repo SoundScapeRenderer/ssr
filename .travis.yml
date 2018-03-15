@@ -35,7 +35,7 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make && sudo make install; fi
 
 after_failure:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] -a [[ -f config.log ]]; then cat config.log; fi
+  - if [[ -f config.log ]]; then cat config.log; fi
 
 branches:
   only:
