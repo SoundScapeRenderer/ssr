@@ -13,6 +13,7 @@ matrix:
       osx_image: xcode9.2
       env:
         - PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+        - PATH=/usr/local/opt/gettext/bin:$PATH
           #  allow_failures:
           #    - compiler: clang
 
