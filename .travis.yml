@@ -1,0 +1,41 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+    - os: osx
+      osx_image: xcode9.2
+      env:
+        - PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+compiler:
+  - clang
+  - gcc
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update; fi
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install asio --c++11 autoconf doxygen ecasound fftw help2man jack libsndfile qt; fi
+  # autotools, automake, make are present in the trusty image
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y g++ libasio-dev libqt4-dev libqt5-opengl-dev libecasoundc-dev ecasound libxml2-dev libfftw3-dev libsndfile1-dev libjack-dev jackd pkg-config libtool; fi
+
+before_script:
+  - ci/install-deps.sh
+  - autoreconf -vfi
+
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure --enable-app-bundle; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure --prefix='/usr'; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make && sudo make install; fi
+
+branches:
+  only:
+    - master
+    - networking-with-osc
+
+# vim:set ts=2 sw=2 et:
