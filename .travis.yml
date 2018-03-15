@@ -1,5 +1,9 @@
 language: cpp
 
+compiler:
+  - clang
+  - gcc
+
 matrix:
   include:
     - os: linux
@@ -9,17 +13,16 @@ matrix:
       osx_image: xcode9.2
       env:
         - PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-
-compiler:
-  - clang
-  - gcc
+  allow_failures:
+    - compiler: clang
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo rm /usr/local/include/c++; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update; fi
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install asio --c++11 autoconf doxygen ecasound fftw help2man jack libsndfile qt; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install --c++11 asio autoconf doxygen ecasound fftw help2man jack libsndfile qt4; fi
   # autotools, automake, make are present in the trusty image
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y g++ libasio-dev libqt4-dev libqt4-opengl-dev libecasoundc-dev ecasound libxml2-dev libfftw3-dev libsndfile1-dev libjack-dev libjack0 jackd1 pkg-config libtool; fi
 
