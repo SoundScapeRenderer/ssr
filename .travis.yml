@@ -1,7 +1,7 @@
 language: cpp
 
 compiler:
-  - clang
+  #  - clang
   - gcc
 
 matrix:
@@ -13,8 +13,8 @@ matrix:
       osx_image: xcode9.2
       env:
         - PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-  allow_failures:
-    - compiler: clang
+          #  allow_failures:
+          #    - compiler: clang
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
