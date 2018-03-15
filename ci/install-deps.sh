@@ -14,6 +14,7 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     doxygen \
     ecasound \
     fftw \
+    gettext \
     help2man \
     jack \
     libsndfile \
