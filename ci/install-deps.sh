@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-
-
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
   # brew rightfully abandoned qt4
   # https://github.com/cartr/homebrew-qt4
@@ -11,12 +9,13 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
   brew tap-pin cartr/qt4
   brew install --c++11 asio \
     autoconf \
+    cpanminus \
     doxygen \
     ecasound \
     fftw \
-    gettext \
     help2man \
     jack \
+    liblo \
     libsndfile \
     qt@4
 fi

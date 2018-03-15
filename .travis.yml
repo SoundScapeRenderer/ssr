@@ -1,7 +1,7 @@
 language: cpp
 
 compiler:
-  #  - clang
+  - clang
   - gcc
 
 matrix:
@@ -13,7 +13,6 @@ matrix:
       osx_image: xcode9.2
       env:
         - PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-        - PATH=/usr/local/opt/gettext/bin:$PATH
           #  allow_failures:
           #    - compiler: clang
 
@@ -34,6 +33,9 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure --prefix='/usr'; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make && sudo make install; fi
+
+after_failure:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] -a [[ -f config.log ]]; then cat config.log; fi
 
 branches:
   only:

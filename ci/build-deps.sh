@@ -10,4 +10,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   sudo ldconfig
   cd ..
 fi
+
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+  # help2man requires perl's Locale::gettext
+  cpanm Locale:gettext
+fi
 exit 0
