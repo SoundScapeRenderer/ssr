@@ -21,7 +21,7 @@ before_install:
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install asio --c++11 autoconf doxygen ecasound fftw help2man jack libsndfile qt; fi
   # autotools, automake, make are present in the trusty image
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y g++ libasio-dev libqt4-dev libqt4-opengl-dev libecasoundc-dev ecasound libxml2-dev libfftw3-dev libsndfile1-dev libjack-dev jackd pkg-config libtool; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y g++ libasio-dev libqt4-dev libqt4-opengl-dev libecasoundc-dev ecasound libxml2-dev libfftw3-dev libsndfile1-dev libjack-dev libjack0 jackd1 pkg-config libtool; fi
 
 before_script:
   - ci/install-deps.sh
