@@ -1,6 +1,7 @@
 language: cpp
 
-env:
+git:
+  depth: 3
 
 compiler:
   - clang
@@ -13,10 +14,6 @@ matrix:
       sudo: required
     - os: osx
       osx_image: xcode9.2
-      env:
-        - PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-          #  allow_failures:
-          #    - compiler: clang
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
@@ -28,6 +25,7 @@ install:
 
 before_script:
   - ci/build-deps.sh
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig; fi
   - autoreconf -vfi
 
 script:
