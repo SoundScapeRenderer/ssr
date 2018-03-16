@@ -7,13 +7,15 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
   # https://github.com/cartr/homebrew-qt4
   brew tap cartr/qt4
   brew tap-pin cartr/qt4
-  brew install --c++11 asio \
+  brew install --c++11 \
+    asio \
     autoconf \
     ecasound \
     fftw \
     jack \
     liblo \
     libsndfile \
+    libxml2 \
     qt@4
   # using brew, it's not possible to install needed perl dependencies for
   # help2man (Locale::gettext), therefore best disabled for now
