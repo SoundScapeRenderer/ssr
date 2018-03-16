@@ -9,15 +9,16 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
   brew tap-pin cartr/qt4
   brew install --c++11 asio \
     autoconf \
-    cpanminus \
-    doxygen \
     ecasound \
     fftw \
-    help2man \
     jack \
     liblo \
     libsndfile \
     qt@4
+  # using brew, it's not possible to install needed perl dependencies for
+  # help2man (Locale::gettext), therefore best disabled for now
+#    doxygen \
+#    help2man \
 fi
 
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
