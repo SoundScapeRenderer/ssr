@@ -29,12 +29,14 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     libqt4-dev \
     libqt4-opengl-dev \
     libecasoundc-dev \
+    doxygen \
     ecasound \
     libxml2-dev \
     libfftw3-dev \
     libsndfile1-dev \
     libjack-dev \
     libjack0 \
+    help2man \
     jackd1 \
     pkg-config \
     libtool
