@@ -11,7 +11,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   cd ..
   if [ $COMPILE_ASIO -eq 1 ]; then
     # remove previously installed asio, as we're trying a newer version
-    sudo apt-get remove asio
+    sudo apt-get remove libasio-dev
     # compile and install asio 1.12.0
     wget https://github.com/chriskohlhoff/asio/archive/asio-1-12-0.tar.gz
     tar xvf asio-1-12-0.tar.gz
