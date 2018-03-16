@@ -42,11 +42,11 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     libtool
   # force installation of gcc-6 if required
   if [ "${CC}" == "gcc-6" ]; then
-    sudo apt-get install gcc-6
+    sudo apt-get install gcc-6 g++-6
   fi
   # force installation of gcc-7 if required
   if [ "${CC}" == "gcc-7" ]; then
-    sudo apt-get install gcc-7
+    sudo apt-get install gcc-7 g++-7
   fi
   # force installation of clang-3.8 if required
   if [ "${CC}" == "clang-3.8" ]; then
