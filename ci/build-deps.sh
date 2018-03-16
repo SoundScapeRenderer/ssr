@@ -16,6 +16,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     wget https://github.com/chriskohlhoff/asio/archive/asio-1-12-0.tar.gz
     tar xvf asio-1-12-0.tar.gz
     cd asio-asio-1-12-0/asio
+    autoreconf -vfi
     ./configure --with-boost=no --prefix=/usr
     make
     sudo make install

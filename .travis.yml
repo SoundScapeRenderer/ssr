@@ -17,7 +17,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           install:
-            - g++-6
+            - gcc-6
       dist: trusty
       env:
         - MATRIX_EVAL="CC=gcc-6 CXX=g++-6"
