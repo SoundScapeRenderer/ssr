@@ -94,7 +94,7 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make && sudo make install; fi
 
 after_failure:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ls -alhv /usr/bin/ |grep -E "(clang|gcc|g++)"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ls -alhv /usr/bin/ |grep -E "(clang|gcc|g\+\+)"; fi
   - if [[ -f config.log ]]; then cat config.log; fi
 
 branches:
