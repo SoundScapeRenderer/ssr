@@ -1,19 +1,59 @@
 language: cpp
+sudo: required
 
 git:
   depth: 3
 
-dist: trusty
-sudo: required
-osx_image: xcode9.2
-
-compiler:
-  - clang
-  - gcc
-
-os:
-  - osx
-  - linux
+matrix: 
+  include:
+    # linux with gcc 6
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          install:
+            - g++-6
+      dist: trusty
+      env:
+        - MATRIX_EVAL="CC=gcc-6 CXX=g++-6"
+      compiler: gcc
+    # linux with gcc (current)
+    - os: linux
+      dist: trusty
+      compiler: gcc
+    # linux with clang (current)
+    - os: linux
+      dist: trusty
+      compiler: clang
+    # linux with clang 3.8
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          install:
+            - clang-3.8
+      dist: trusty
+      env:
+        - MATRIX_EVAL="CC=clang-3.8 CXX=clang++-3.8"
+      compiler: clang
+    # osx with xcode9.2/gcc
+    - os: osx
+      osx_image: xcode9.2
+      compiler: gcc
+    # osx with xcode9.2/clang
+    - os: osx
+      osx_image: xcode9.2
+      compiler: clang
+    # osx with xcode8/gcc
+    - os: osx
+      osx_image: xcode8
+      compiler: gcc
+    # osx with xcode8/clang
+    - os: osx
+      osx_image: xcode8
+      compiler: clang
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
@@ -43,4 +83,6 @@ branches:
     - networking-with-osc
     - travis-integration
 
+notifications:
+  email: false
 # vim:set ts=2 sw=2 et:
