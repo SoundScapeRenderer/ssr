@@ -4,7 +4,11 @@ sudo: required
 git:
   depth: 3
 
-matrix: 
+env:
+  global:
+    - COMPILE_ASIO=0
+
+matrix:
   include:
     # linux with gcc 6
     - os: linux
