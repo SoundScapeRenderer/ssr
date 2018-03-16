@@ -11,9 +11,4 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   cd ..
 fi
 
-if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-  # help2man requires perl's Locale::gettext
-  # don't test the installation
-  sudo cpanm -n Locale:gettext
-fi
 exit 0
