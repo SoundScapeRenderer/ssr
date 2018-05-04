@@ -108,7 +108,8 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
     _direction_handle_selected(false),
     _allow_displaying_text(true),
     _glu_quadric(gluNewQuadric()),
-    _plot_listener(false)
+    _plot_listener(false),
+    m_scale(2)
 {
   _set_zoom(100); // 100%
 
@@ -247,11 +248,11 @@ ssr::QOpenGLPlotter::initializeGL()
 void 
 ssr::QOpenGLPlotter::resizeGL(int width, int height)
 {
-  glViewport(0, 0, width, height);
+  glViewport(0, 0, width * m_scale, height * m_scale);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-(float)width/_zoom_factor, (float)width/_zoom_factor,
-          -(float)height/_zoom_factor, (float)height/_zoom_factor, 1.0, 15.0);
+  glOrtho(-(float)width/_zoom_factor / m_scale, (float)width/_zoom_factor / m_scale,
+          -(float)height/_zoom_factor / m_scale, (float)height/_zoom_factor / m_scale, 1.0, 15.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 	
@@ -909,7 +910,7 @@ int ssr::QOpenGLPlotter::_find_selected_object(const QPoint &pos)
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluPickMatrix((GLdouble)pos.x(),(GLdouble)(viewport[3] - pos.y()),5.0, 5.0, viewport);
+    gluPickMatrix((GLdouble)pos.x() * m_scale,(GLdouble)(viewport[3] - pos.y() * m_scale),5.0, 5.0, viewport);
     glOrtho(-(float)width()/_zoom_factor, (float)width()/_zoom_factor,
             -(float)height()/_zoom_factor, (float)height()/_zoom_factor, 1.0f, 15.0f);
 
@@ -948,8 +949,8 @@ void ssr::QOpenGLPlotter::_get_openGL_pos(int x, int y,
   glGetDoublev(GL_PROJECTION_MATRIX, projection);
   glGetIntegerv(GL_VIEWPORT, viewport );
 
-  win_x = static_cast<GLfloat>(x);
-  win_y = static_cast<GLfloat>(viewport[3]) - static_cast<GLfloat>(y);
+  win_x = m_scale * static_cast<GLfloat>(x);
+  win_y = static_cast<GLfloat>(viewport[3]) - m_scale * static_cast<GLfloat>(y);
 
   glReadPixels(x, static_cast<int>(win_y), 1,
                1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
@@ -975,8 +976,8 @@ void ssr::QOpenGLPlotter::_get_pixel_pos(GLdouble pos_x,
   gluProject(pos_x, pos_y, pos_z, modelview,
                projection, viewport, &win_x, &win_y, &win_z);
 
-  *x = static_cast<int>(win_x + 0.5);
-  *y = static_cast<int>(viewport[3] - win_y + 0.5);
+  *x = static_cast<int>(win_x + 0.5) / m_scale;
+  *y = static_cast<int>(viewport[3] - (win_y) / m_scale);
 
 }
 
