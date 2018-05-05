@@ -18,8 +18,9 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
 #    doxygen \
 #    help2man \
 
-  # Add qt5 to pkg config path
-  export PKG_CONFIG_PATH=/usr/local/opt/qt/lib/pkgconfig:$PKG_CONFIG_PATH
+  # Add qt5 and openssl (asio dependency) to pkg config path
+  if [ -z ${PKG_CONFIG_PATH+x} ]; then export PKG_CONFIG_PATH=''; fi  # creates empty $PKG_CONFIG_PATH if not set
+  export PKG_CONFIG_PATH=/usr/local/opt/openssl/lib/pkgconfig:/usr/local/opt/qt/lib/pkgconfig:$PKG_CONFIG_PATH
 fi
 
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
