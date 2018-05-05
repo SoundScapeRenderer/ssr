@@ -54,6 +54,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   if [ "${CC}" == "clang-3.8" ]; then
     sudo apt-get install clang-3.8
   fi
+
+  # force qt 5
+  export QT_SELECT=qt5
 fi
 
 exit 0
