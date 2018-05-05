@@ -30,10 +30,10 @@
 #ifndef SSR_QZOOMLABEL_H
 #define SSR_QZOOMLABEL_H
 
-#include <QLabel>
-#include <QMouseEvent>
-#include <QPaintEvent>
-#include <QPoint>
+#include <QtCore/QPoint>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QPaintEvent>
+#include <QtWidgets/QLabel>
 
 /// QZoomLabel
 class QZoomLabel : public QLabel

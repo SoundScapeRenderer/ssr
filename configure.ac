@@ -464,7 +464,7 @@ dnl enable/disable GUI, default: enabled
 ENABLE_FORCED([gui], [graphical user interface (using Qt)],
 [
   # Checking for Qt
-  PKG_CHECK_MODULES([QT], [QtCore >= 4.2.2 QtGui >= 4.2.2 QtOpenGL >= 4.2.2]
+  PKG_CHECK_MODULES([QT], [Qt5Core >= 5.0.0 Qt5Gui >= 5.0.0 Qt5OpenGL >= 5.0.0]
     ,
     , [have_gui=no])
 
@@ -488,33 +488,34 @@ AS_IF([test x$have_gui = xyes],
   # settings for Qt
   LIBS="$LIBS $QT_LIBS"
   PKG_FLAGS="$PKG_FLAGS $QT_CFLAGS"
+  AC_MSG_CHECKING([if we have to add -fPIC to make Qt happy])
+  CPPFLAGS_backup="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $QT_CFLAGS"
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+  [
+    #include <QtCore/QObject>
+  ], [])], AC_MSG_RESULT([no]),
+  [
+    AC_MSG_RESULT([yes])
+    PKG_FLAGS="$PKG_FLAGS -fPIC"
+  ])
+  CPPFLAGS="$CPPFLAGS_backup"
   MOCFLAGS="$QT_CFLAGS"
   AS_IF([which moc 2>&1 >/dev/null],
   [
     QTMOC="moc"
   ],
   [
-    QTMOC=`$PKG_CONFIG --variable=moc_location QtCore`
+    QTMOC=`$PKG_CONFIG --variable=moc_location Qt5Core`
   ])
-  QTLIBDIR=`$PKG_CONFIG --variable=libdir QtGui`
+  QTLIBDIR=`$PKG_CONFIG --variable=libdir Qt5Gui`
 
   AC_SUBST(QTMOC)
   AC_SUBST(QTLIBDIR)
   AC_SUBST(MOCFLAGS)
 
-  # check if floating control panel has to be forced
-  PKG_CHECK_MODULES([QtGui_4_7_or_higher], [QtGui >= 4.7.0],
-  [
-    AS_IF([test x$enable_floating_control_panel = xno],
-    [
-      AC_MSG_ERROR([With Qt >= 4.7 the floating control panel is obligatory!])
-    ],
-    [test x$enable_floating_control_panel = x],
-    [
-      AC_MSG_WARN([Found Qt >= 4.7, forcing --enable-floating-control-panel!])
-      enable_floating_control_panel=yes
-    ])
-  ], [true])
+  # enable floating control panel, as it is the only option on qt5
+  enable_floating_control_panel=yes
 ])
 
 ENABLE_EXPLICIT([floating-control-panel], [separate control window],

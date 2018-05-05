@@ -27,10 +27,11 @@
 /// @file
 /// TODO: add description
 
-#include <QPainter>
-#include <QTimer>
 #include <algorithm>
 #include <cmath>
+
+#include <QtCore/QTimer>
+#include <QtGui/QPainter>
 
 #include "qssrtimeline.h"
 #include "ssr_global.h"
@@ -50,7 +51,7 @@ QSSRTimeLine::QSSRTimeLine(QWidget* parent, unsigned int update_interval)
 {
   (void)update_interval;
 
-   _time_edit = new  QTimeEdit(this);
+   _time_edit = new  QSSRTimeEdit(this);
    connect(_time_edit, SIGNAL(returnPressed()), this, SLOT(_interpret_time_edit()));
    _time_edit->setVisible(false);
 

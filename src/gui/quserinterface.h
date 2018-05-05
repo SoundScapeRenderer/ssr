@@ -34,9 +34,9 @@
 #include <config.h>  // for ENABLE_FLOATING_CONTROL_PANEL
 #endif
 
-#include <QObject>
-#include <QLabel>
-#include <QPushButton>
+#include <QtCore/QObject>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
 
 #include "qopenglplotter.h"
 #include "qclicktextlabel.h"
