@@ -109,7 +109,7 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
     _allow_displaying_text(true),
     _glu_quadric(gluNewQuadric()),
     _plot_listener(false),
-    m_scale(2)
+    m_scale(1)
 {
   _set_zoom(100); // 100%
 
@@ -123,6 +123,8 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
   _color_vector.push_back(QColor(173, 54, 35));
   //_color_vector.push_back(QColor(242,226, 22));  // yellow is too hard to read
 
+  // Read pixelRatio of device to correctly support hi-res displays
+  m_scale = this->devicePixelRatio();
 }
 
 ssr::QOpenGLPlotter::~QOpenGLPlotter()
