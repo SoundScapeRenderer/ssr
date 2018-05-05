@@ -3,10 +3,6 @@
 set -euo pipefail
 
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-  # brew rightfully abandoned qt4
-  # https://github.com/cartr/homebrew-qt4
-  brew tap cartr/qt4
-  brew tap-pin cartr/qt4
   brew install --c++11 \
     asio \
     autoconf \
@@ -16,11 +12,14 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     liblo \
     libsndfile \
     libxml2 \
-    qt@4
+    qt5
   # using brew, it's not possible to install needed perl dependencies for
   # help2man (Locale::gettext), therefore best disabled for now
 #    doxygen \
 #    help2man \
+
+  # Add qt5 to pkg config path
+  export PKG_CONFIG_PATH=/usr/local/opt/qt/lib/pkgconfig:$PKG_CONFIG_PATH
 fi
 
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
@@ -28,8 +27,8 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   sudo apt-get install -y \
     g++ \
     libasio-dev \
-    libqt4-dev \
-    libqt4-opengl-dev \
+    libqt5-dev \
+    libqt5-opengl-dev \
     libecasoundc-dev \
     doxygen \
     ecasound \
