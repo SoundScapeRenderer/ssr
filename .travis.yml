@@ -82,7 +82,6 @@ install:
 
 before_script:
   - ci/build-deps.sh
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig; fi
   - autoreconf -vfi
 
 script:
