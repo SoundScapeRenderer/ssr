@@ -122,6 +122,9 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
   _color_vector.push_back(QColor(173, 54, 35));
   //_color_vector.push_back(QColor(242,226, 22));  // yellow is too hard to read
 
+  // detect HDPI display
+  m_scale = this->devicePixelRatio();
+
 }
 
 ssr::QOpenGLPlotter::~QOpenGLPlotter()
