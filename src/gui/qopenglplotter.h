@@ -181,7 +181,7 @@ class QOpenGLPlotter : public QGLWidget
     void _deselect_all_sources();
 
   private:
-    qreal m_scale;
+    qreal _devicePixelRatio;
     GLuint _ssr_logo_texture;
     GLuint _source_shadow_texture;
     GLuint _listener_texture;
