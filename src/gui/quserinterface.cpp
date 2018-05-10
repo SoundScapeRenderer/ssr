@@ -861,15 +861,22 @@ void ssr::QUserInterface::mousePressEvent(QMouseEvent *event)
   _x_offset = source_position->x - pos_x;
   _y_offset = source_position->y - pos_y;
 
-  // right click on source
-  if (event->button() == Qt::RightButton && selected_object % NAMESTACKSTEP == 1)
+  // click on source
+  if (selected_object % NAMESTACKSTEP == 1)
   {
-    if (_source_properties->isVisible() && _id_of_last_clicked_source == _id_of_lastlast_clicked_source)
-      _source_properties->hide();
-    else
+    // right click on source -> either hide source properties or show properties of new source
+    if (event->button() == Qt::RightButton)
     {
-      _update_source_properties_position();
-      _source_properties->show();
+      if (_source_properties->isVisible() && _id_of_last_clicked_source == _id_of_lastlast_clicked_source)
+        _source_properties->hide();
+      else
+      {
+        _update_source_properties_position();
+        _source_properties->show();
+      }
+    } else if (event->button() == Qt::LeftButton) // left click on source -> source properties stay on top
+    {
+      _source_properties->raise();
     }
   }
 }
