@@ -123,6 +123,7 @@ ssr::QUserInterface::QUserInterface(Publisher& controller, const Scene& scene
   _controlsParent->setWindowTitle("Controls");
   _controlsParent->installEventFilter(this);
   _controlsParent->show();
+  _controlsParent->raise();
 
   _source_properties = new QSourceProperties(this);
   connect(_source_properties, SIGNAL(signal_set_source_mute(bool)), this, SLOT(_set_source_mute(bool)));
