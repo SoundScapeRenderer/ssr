@@ -12,7 +12,7 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     liblo \
     libsndfile \
     libxml2 \
-    qt5
+    qt
   # using brew, it's not possible to install needed perl dependencies for
   # help2man (Locale::gettext), therefore best disabled for now
 #    doxygen \
