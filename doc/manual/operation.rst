@@ -594,6 +594,15 @@ sort of adds applications placed in the ``/Applications`` folder to the
 environment, so lets assume you put the SSR there (This also works for
 ``$HOME/Applications``).
 
+Under new versions of Mac OS (Sierra and up) the SoundScapeRenderer executable might be stuck in quarantine resulting in files not being loaded properly. The corresponding error message might look like this::
+
+/private/var/folders/_t/67rf88lx507btn91x6g_vfk40000gp/T/AppTranslocation/42F7F94E-AED9-4F39-8647-41D898CCE032/d/SoundScapeRenderer.app/Contents/MacOS/ssr: line 48: 36804 Abort trap: 6           $SSR_EXECUTABLE "${OPTIONS[@]}"
+
+You can allow the SoundScapeRender to run from its original location by running::
+
+  xattr -d com.apple.quarantine SoundScapeRenderer.app
+
+
 Building from Source
 ~~~~~~~~~~~~~~~~~~~~
 
