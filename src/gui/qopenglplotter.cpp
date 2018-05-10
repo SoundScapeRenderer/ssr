@@ -979,7 +979,7 @@ void ssr::QOpenGLPlotter::_get_pixel_pos(GLdouble pos_x,
                projection, viewport, &win_x, &win_y, &win_z);
 
   *x = static_cast<int>(win_x + 0.5) / _devicePixelRatio;
-  *y = static_cast<int>(viewport[3] - (win_y) / _devicePixelRatio);
+  *y = static_cast<int>((viewport[3] - win_y) / _devicePixelRatio);
 
 }
 
