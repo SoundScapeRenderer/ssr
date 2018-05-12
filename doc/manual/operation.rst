@@ -28,9 +28,7 @@ Compiling and Running the SSR
 =============================
 
 The following sections describe how to build and/or install the SSR on your
-computer. The SSR can be used on GNU/Linux  and Mac OS X.
-There is no MS Windows version of the SSR (yet?). If you feel inclined to port
-the SSR to Windows, let us know!
+computer. The SSR can be used on GNU/Linux and Mac OS X. The MS Windows version of SSR is experimental at this stage.
 
 Choosing the Operating System
 -----------------------------
@@ -1024,6 +1022,11 @@ Add these lines to a config file::
 
 It's recommended to use the config file approach - best use a global
 :ref:`config file<ssr_configuration_file>`.
+
+MS Windows
+----------
+
+The MS Windows version of SSR is experimental at this stage. Find the pre-release of the executables at https://github.com/chris-hld/ssr/releases. Note that this SSR version only works with live inputs currently (it cannot play audio files). It has no limitation otherwise. 
 
 Using the SSR with DAWs
 -----------------------

@@ -32,13 +32,17 @@ Introduction
 
 The SoundScape Renderer (SSR) is a software framework for real-time
 spatial audio reproduction running under GNU/Linux, Mac OS X and
-possibly some other UNIX variants. The current implementation provides
-Wave Field Synthesis (WFS), binaural (HRTF-based) reproduction, binaural
-room (re-)synthesis (BRTF-based reproduction), head-tracked binaural
-playback, Ambisonics Amplitude Panning (AAP), and Vector Base Amplitude
-Panning (VBAP). There are also the slightly exotic Generic Renderer. For
-each rendering algorithm there is a separate executable file. For more
-details see section :ref:`Renderers <renderers>`.
+possibly some other UNIX variants. The MS Windows version is experimental. 
+
+The current implementation provides:
+
+- :ref:`Binaural (HRTF-based) reproduction <binaural_renderer>`
+- :ref:`Binaural room (re-)synthesis (BRTF-based reproduction) <brs>`
+- :ref:`Vector Base Amplitude Panning (VBAP) <vbap>`
+- :ref:`Wave Field Synthesis (WFS) <wfs>`
+- :ref:`Ambisonics Amplitude Panning (AAP) <aap>`
+
+There are also the slightly exotic :ref:`Generic Renderer <genren>`, which is essentially a MIMO convolution engine. For each rendering algorithm, there is a separate executable file.
 
 The SSR is intended as versatile framework for the state-of-the-art
 implementation of various spatial audio reproduction techniques. You may
@@ -285,6 +289,8 @@ Contributors
 ------------
 
 .. include:: ../../AUTHORS
+
+See also the Github repository https://github.com/soundscaperenderer/ssr for more contributors. 
 
 Your Own Contributions
 ----------------------

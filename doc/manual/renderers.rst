@@ -455,6 +455,8 @@ them in the release. You can obtain the data from [BRIRs]_.
 
 .. [BRIRs] The Sputnik BRIRs can be obtained from here: https://dev.qu.tu-berlin.de/projects/measurements/wiki/Impulse_Response_Measurements.
     More BRIR repositories are compiled here: http://www.soundfieldsynthesis.org/other-resources/#impulse-responses. 
+    
+.. _vbap:
 
 Vector Base Amplitude Panning Renderer
 --------------------------------------
@@ -525,6 +527,8 @@ setups.
     Base Amplitude Panning. In Journal of the Audio Engineering Society (JAES),
     Vol.45(6), June 1997.
 
+.. _wfs:
+
 Wave Field Synthesis Renderer
 -----------------------------
 
@@ -587,8 +591,7 @@ are part of an array of loudspeakers need to be corrected. The lower
 limit is typically around 100 Hz. The upper limit is given by the
 spatial aliasing frequency. The spatial aliasing is dependent on the
 mutual distance of the loudspeakers, the distance of the considered
-listening position to the loudspeakers, and the array geometry. See [Spors2006]
-_ for
+listening position to the loudspeakers, and the array geometry. See [Spors2006]_ for
 detailed information on how to determine the spatial aliasing frequency
 of a given loudspeaker setup. The spatial aliasing frequency is
 typically between 1000 Hz and 2000 Hz. For a theoretical treatment of
@@ -622,6 +625,8 @@ In order to taper, you can assign the optional attribute ``weight`` to
 each loudspeaker in ASDF format (refer to Section [sec:asdf]). The
 ``weight`` determines the linear (!) weight to be applied to the
 respective loudspeaker. It defaults to 1 if it is not specified.
+
+.. _aap:
 
 Ambisonics Amplitude Panning Renderer
 -------------------------------------
@@ -710,6 +715,8 @@ section :ref:`Configuration File <ssr_configuration_file>`) to be
 
 .. [Neukom2007] Martin Neukom. Ambisonic panning. In 123th Convention of the
     AES, New York, NY, USA, Oct. 5–8, 2007.
+
+.. _genren:
 
 Generic Renderer
 ----------------
