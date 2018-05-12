@@ -7,11 +7,12 @@ installation instructions can be found in the file INSTALL.
 
 For questions, bug reports and feature requests:
 
-Contact: ssr@spatialaudio.net
-Website: http://spatialaudio.net/ssr/
+Contact:       ssr@spatialaudio.net
+Website:       http://spatialaudio.net/ssr/
+Documentation: http://ssr.readthedocs.io/en/latest/
 
-Copyright (c) 2016 Division of Applied Acoustics
-                   Chalmers University of Technology
+Copyright (c) 2016-2018 Division of Applied Acoustics
+                        Chalmers University of Technology
                         
 Copyright (c) 2012-2014 Institut für Nachrichtentechnik, Universität Rostock
 
