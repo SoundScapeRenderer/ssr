@@ -124,13 +124,20 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
   //_color_vector.push_back(QColor(242,226, 22));  // yellow is too hard to read
 
   // Read pixelRatio of device to correctly support hi-res displays
-  _devicePixelRatio = this->devicePixelRatio();
+   this->set_device_pixel_ratio();
 }
 
 ssr::QOpenGLPlotter::~QOpenGLPlotter()
 {
   // delete source_properties;
 }
+
+void ssr::QOpenGLPlotter::set_device_pixel_ratio()
+{
+ // Read pixelRatio of device to correctly support hi-res displays
+ _devicePixelRatio = this->devicePixelRatio();
+}
+
 
 void ssr::QOpenGLPlotter::_load_background_textures()
 {

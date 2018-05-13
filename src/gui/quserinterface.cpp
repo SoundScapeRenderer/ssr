@@ -646,6 +646,8 @@ void ssr::QUserInterface::_load_scene(const QString& path_to_scene)
 /** Updates all widgets on the screen including OpenGL stuff.*/
 void ssr::QUserInterface::_update_screen()
 {
+    this->set_device_pixel_ratio();
+
     // update time line
     _time_line->set_progress(static_cast<float>(_scene.get_transport_position())/
                             static_cast<float>(_scene.get_sample_rate()));
