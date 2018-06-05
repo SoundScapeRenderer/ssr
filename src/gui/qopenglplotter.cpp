@@ -29,19 +29,20 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <QAction>
-#include <QDialog>
-#include <QLineEdit>
-#include <QSlider>
-#include <QSize>
-#include <QPushButton>
-#include <QRect>
-#include <QImage>
-#include <QMouseEvent>
-#include <QCloseEvent>
-#include <QPoint>
-#include <QMenu>
 #include <cmath>
+
+#include <QtCore/QPoint>
+#include <QtCore/QRect>
+#include <QtCore/QSize>
+#include <QtGui/QCloseEvent>
+#include <QtGui/QImage>
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 
 #include "qopenglplotter.h"
 #include "qclicktextlabel.h"
@@ -107,7 +108,8 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
     _direction_handle_selected(false),
     _allow_displaying_text(true),
     _glu_quadric(gluNewQuadric()),
-    _plot_listener(false)
+    _plot_listener(false),
+    _devicePixelRatio(1)
 {
   _set_zoom(100); // 100%
 
@@ -121,12 +123,21 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
   _color_vector.push_back(QColor(173, 54, 35));
   //_color_vector.push_back(QColor(242,226, 22));  // yellow is too hard to read
 
+  // Read pixelRatio of device to correctly support hi-res displays
+   this->set_device_pixel_ratio();
 }
 
 ssr::QOpenGLPlotter::~QOpenGLPlotter()
 {
   // delete source_properties;
 }
+
+void ssr::QOpenGLPlotter::set_device_pixel_ratio()
+{
+ // Read pixelRatio of device to correctly support hi-res displays
+ _devicePixelRatio = this->devicePixelRatio();
+}
+
 
 void ssr::QOpenGLPlotter::_load_background_textures()
 {
@@ -142,7 +153,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 
   if (!image_buffer.isNull()) _ssr_logo_texture = bindTexture(image_buffer);
   else 
-    ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+    ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   image_buffer = QImage(); 
 
@@ -157,7 +168,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
     _source_shadow_texture = bindTexture(image_buffer);
   }
   else 
-    ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+    ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   if (_controller.show_head())
   {
@@ -173,7 +184,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 
     if (!image_buffer.isNull()) _listener_texture = bindTexture(image_buffer);
     else 
-     ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
     // load listener shadow texture
     image_buffer = QImage();
@@ -188,7 +199,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
       _listener_shadow_texture = bindTexture(image_buffer);
     }
     else 
-     ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
     // load listener background texture
     image_buffer = QImage();
@@ -203,7 +214,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
       _listener_background_texture = bindTexture(image_buffer);
     }
     else 
-     ERROR("Texture \"" << path_to_image.toAscii().data() << "\" not loaded.");
+     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   }
 
@@ -246,11 +257,11 @@ ssr::QOpenGLPlotter::initializeGL()
 void 
 ssr::QOpenGLPlotter::resizeGL(int width, int height)
 {
-  glViewport(0, 0, width, height);
+  glViewport(0, 0, width * _devicePixelRatio, height * _devicePixelRatio);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-(float)width/_zoom_factor, (float)width/_zoom_factor,
-          -(float)height/_zoom_factor, (float)height/_zoom_factor, 1.0, 15.0);
+  glOrtho(-(float)width/_zoom_factor / _devicePixelRatio, (float)width/_zoom_factor / _devicePixelRatio,
+          -(float)height/_zoom_factor / _devicePixelRatio, (float)height/_zoom_factor / _devicePixelRatio, 1.0, 15.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 	
@@ -915,7 +926,7 @@ int ssr::QOpenGLPlotter::_find_selected_object(const QPoint &pos)
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluPickMatrix((GLdouble)pos.x(),(GLdouble)(viewport[3] - pos.y()),5.0, 5.0, viewport);
+    gluPickMatrix((GLdouble)pos.x() * _devicePixelRatio,(GLdouble)(viewport[3] - pos.y() * _devicePixelRatio),5.0, 5.0, viewport);
     glOrtho(-(float)width()/_zoom_factor, (float)width()/_zoom_factor,
             -(float)height()/_zoom_factor, (float)height()/_zoom_factor, 1.0f, 15.0f);
 
@@ -954,8 +965,8 @@ void ssr::QOpenGLPlotter::_get_openGL_pos(int x, int y,
   glGetDoublev(GL_PROJECTION_MATRIX, projection);
   glGetIntegerv(GL_VIEWPORT, viewport );
 
-  win_x = static_cast<GLfloat>(x);
-  win_y = static_cast<GLfloat>(viewport[3]) - static_cast<GLfloat>(y);
+  win_x = _devicePixelRatio * static_cast<GLfloat>(x);
+  win_y = static_cast<GLfloat>(viewport[3]) - _devicePixelRatio * static_cast<GLfloat>(y);
 
   glReadPixels(x, static_cast<int>(win_y), 1,
                1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
@@ -981,8 +992,8 @@ void ssr::QOpenGLPlotter::_get_pixel_pos(GLdouble pos_x,
   gluProject(pos_x, pos_y, pos_z, modelview,
                projection, viewport, &win_x, &win_y, &win_z);
 
-  *x = static_cast<int>(win_x + 0.5);
-  *y = static_cast<int>(viewport[3] - win_y + 0.5);
+  *x = static_cast<int>(win_x + 0.5) / _devicePixelRatio;
+  *y = static_cast<int>((viewport[3] - win_y) / _devicePixelRatio);
 
 }
 

@@ -30,13 +30,14 @@
 #ifndef SSR_QSOURCEPROPERTIES_H
 #define SSR_QSOURCEPROPERTIES_H
 
-#include <QFrame>
-#include <QGridLayout>
-#include <QCheckBox>
-#include <QMouseEvent>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QRadioButton>
+
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QRadioButton>
 
 #include "qclicktextlabel.h"
 #include "source.h"
@@ -81,7 +82,6 @@ class QSourceProperties : public QFrame
     bool _create_new_source;
 
     virtual void mousePressEvent(QMouseEvent *event);
-    virtual bool event(QEvent *e);
 
   private slots:
       void _set_source_mute(bool flag);

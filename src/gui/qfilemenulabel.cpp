@@ -27,7 +27,7 @@
 /// @file
 /// TODO: add description
 
-#include <QPainter>
+#include <QtGui/QPainter>
 
 #include "qfilemenulabel.h"
 

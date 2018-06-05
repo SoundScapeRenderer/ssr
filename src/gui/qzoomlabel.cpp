@@ -26,9 +26,9 @@
 
 /// @file
 /// TODO: add description
-
-#include <QPainter>
 #include <algorithm>
+
+#include <QtGui/QPainter>
 
 #include "qzoomlabel.h"
 

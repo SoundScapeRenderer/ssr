@@ -27,8 +27,8 @@
 /// @file
 /// TODO: add description
 
-#include <QPalette> 
-#include <QSizePolicy>
+#include <QtGui/QPalette> 
+#include <QtWidgets/QSizePolicy>
 
 #include "qsourceproperties.h"
 
@@ -43,11 +43,7 @@ using namespace apf::math;
 //#define ROWHEIGHT 40
 
 QSourceProperties::QSourceProperties(QWidget* parent)
-#ifdef __APPLE__
 : QFrame(parent, Qt::Window | Qt::CustomizeWindowHint),
-#else
-    : QFrame(parent),
-#endif
     _create_new_source(false)
 {
   this->setAutoFillBackground(true);
@@ -347,7 +343,6 @@ void QSourceProperties::update_displays(const Source& source,
   {
     _properties_display->setText(source.properties_file.c_str());
   }
-
 }
 
 void QSourceProperties::_expand()
@@ -417,19 +412,6 @@ void QSourceProperties::_set_doppler(bool flag)
   //emit signal_set_source_property( );
 }
 
-bool QSourceProperties::event(QEvent *e)
-{
-  // catch mouse events
-  if (e->type() == QEvent::MouseButtonDblClick ||
-      e->type() == QEvent::MouseButtonPress ||
-      e->type() == QEvent::MouseButtonRelease ||
-      e->type() == QEvent::MouseMove)
-  {
-    e->accept();
-    return true;
-  }
-  else return false;
 
-}
 // Settings for Vim (http://www.vim.org/), please do not remove:
 // vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

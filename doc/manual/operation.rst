@@ -149,7 +149,7 @@ code and compile each program yourself.
 - **make**
 - **g++** (at least version 4.7.3) or **clang**
 - **libasio-dev**
-- **libqt4-dev** and **libqt4-opengl-dev** (at least version 4.2.2)
+- **qtbase5-dev** and **libqt5opengl5-dev** (To build the GUI)
 - **libecasoundc2.2-dev** or **libecasoundc-dev**
 - **ecasound**
 - **libxml2-dev**
@@ -182,6 +182,11 @@ If you encounter problems configuring the SSR these hints could help:
 -  Ensure that you really installed all libraries (``lib``) with
    devel-package (``devel`` or ``dev``, where available) mentioned in
    Section :ref:`Dependencies <dependencies>`.
+
+-  If your QT5 library cannot be found during configuration,
+   try running ``export QT_SELECT=qt5``.
+   If there are problems with qt5's ``moc`` during the build, you might need to add
+   the corresponding folder (like ``/usr/local/opt/qt/bin``) to your ``PATH``.
 
 -  It may be necessary to run ``ldconfig`` after installing new
    libraries.
@@ -661,7 +666,7 @@ These ports have to be installed (dependencies are installed automatically)
 - libsndfile
 - libsamplerate
 - fftw-3-single
-- qt4-mac
+- qt5-mac
 - libxml2
 
 If you want, you can also use clang instead of GCC to compile the SSR.
@@ -679,7 +684,7 @@ Ports are installed using ::
 Because ports are compiled locally, it may take a long time to install all
 ports. Issuing one command to install all ports might be more convenient::
 
-  sudo sh -c "port install gcc49 && port install pkgconfig && port install libsndfile && port install libsamplerate && port install fftw-3-single && port install qt4-mac && port install libxml2"
+  sudo sh -c "port install gcc49 && port install pkgconfig && port install libsndfile && port install libsamplerate && port install fftw-3-single && port install qt5-mac && port install libxml2"
 
 Lastly, you need to install the asio library if you want to compile with the network
 interface. You can download it from: http://think-async.com
@@ -1255,10 +1260,10 @@ similar, depending on the exact Qt installation).
 
   install_name_tool -id /opt/local/lib/libQtCore.dylib /opt/local/Library/Frameworks/QtCore.framework/QtCore
   install_name_tool -id /opt/local/lib/libQtGui.dylib /opt/local/Library/Frameworks/QtGui.framework/QtGui
-  install_name_tool -change /opt/local/Library/Frameworks/QtCore.framework/Versions/4/QtCore /opt/local/lib/libQtCore.dylib /opt/local/Library/Frameworks/QtGui.framework/QtGui
+  install_name_tool -change /opt/local/Library/Frameworks/QtCore.framework/Versions/5/QtCore /opt/local/lib/libQtCore.dylib /opt/local/Library/Frameworks/QtGui.framework/QtGui
   install_name_tool -id /opt/local/lib/libQtOpenGL.dylib /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
-  install_name_tool -change /opt/local/Library/Frameworks/QtCore.framework/Versions/4/QtCore /opt/local/lib/libQtCore.dylib /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
-  install_name_tool -change /opt/local/Library/Frameworks/QtGui.framework/Versions/4/QtGui /opt/local/lib/libQtGui.dylib /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
+  install_name_tool -change /opt/local/Library/Frameworks/QtCore.framework/Versions/5/QtCore /opt/local/lib/libQtCore.dylib /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
+  install_name_tool -change /opt/local/Library/Frameworks/QtGui.framework/Versions/5/QtGui /opt/local/lib/libQtGui.dylib /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
 
 You need the appropriate rights to change the library files, so you probably
 need to use ``sudo`` before the commands.
@@ -1274,8 +1279,8 @@ To get some information about a library, you can try something like those::
 SSR for Mac OS X: qt_menu.nib not found
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This was fixed in MacPorts, see https://trac.macports.org/ticket/37662. Thanks
-to Chris Pike!
+This was fixed in MacPorts, see https://trac.macports.org/ticket/37662. Thanks to Chris Pike!
+Since version 0.5 (switching to qt5), qt_menu.nib is not needed any more.
 
 Compilation Error on Ubuntu and Archlinux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1316,6 +1321,7 @@ Missing GUI Buttons and Timeline
 
 This issue was resolved in version 0.3.2, the default setting for ``--enable-
 floating-control-panel`` is chosen depending on the installed Qt version.
+As of version 0.5 (switching to qt5), the floating control panel is always enabled.
 
 Different versions of Qt show different behaviour regarding OpenGL Overlays
 and as a result, the GUI buttons are not shown in newer Qt versions.
@@ -1323,7 +1329,7 @@ and as a result, the GUI buttons are not shown in newer Qt versions.
 To overcome this limitation, we provide two GUI variants:
 
 - Traditional GUI, can be used up to Qt 4.6.x
-- Floating control panel, should be used with Qt 4.7 and above
+- Floating control panel, which is used with Qt 4.7 and above
 
 The floating control panel is the default setting on Mac OS X, for Linux it
 can be activated with::
