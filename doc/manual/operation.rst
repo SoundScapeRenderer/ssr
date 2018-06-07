@@ -37,10 +37,10 @@ Well, first you'll need a proper operating system.
 We recommend Debian GNU/Linux (http://www.debian.org/) or something Debian-based
 like Ubuntu (http://www.ubuntu.com/).
 The SSR should work on most modern Linux-distributions, though.
-You can also try Arch Linux (http://www.archlinux.org/), if you want.
+You can also try Arch Linux (https://www.archlinux.org/), if you want.
 If you are reluctant to install a new operating system on your computer, you can
 also install any of the above-mentioned operating systems virtually, for example
-using http://www.virtualbox.org/.
+using https://www.virtualbox.org/.
 
 If you happen to have Mac OS X installed on your computer, that's OK, too.
 
@@ -67,7 +67,7 @@ http://packages.debian.org/soundscaperenderer
   .. _stable:  http://www.debian.org/releases/stable/
   .. _testing: http://www.debian.org/releases/testing/
   .. _sid:     http://www.debian.org/releases/sid/
-  .. _Debian Sources List Generator: http://debgen.simplylinux.ch/
+  .. _Debian Sources List Generator: https://debgen.simplylinux.ch/
 
 You can install the *soundscaperenderer* package using your favorite package
 manager (*apt-get*, *aptitude*, *synaptic*, ...), all dependencies should be
@@ -362,8 +362,7 @@ named ``FILE``. The order of channels corresponds to the order of loudspeakers
 specifed in the reproduction setup (see Sections
 :ref:`Reproduction Setups <reproduction_setups>` and
 :ref:`ASDF <asdf>`). The recording can then be used to analyze the SSR output or
-to replay it without the SSR using a software player like "ecaplay" (http://
-eca.cx/ecasound/).
+to replay it without the SSR using a software player like "ecaplay" (http://eca.cx/ecasound/).
 
 .. _ssr_configuration_file:
 
@@ -630,7 +629,7 @@ The following is an overview on how to set up the build environment for SSR on M
 What to install first?
 ::::::::::::::::::::::
 
-You can make your life much easier with a decent package manager, name Homebrew (http://brew.sh/) or MacPorts (http://www.macports.org/). Both greatly simplify the process of installing and managing dependencies.
+You can make your life much easier with a decent package manager, name Homebrew (https://brew.sh/) or MacPorts (https://www.macports.org/). Both greatly simplify the process of installing and managing dependencies.
 
 .. _Homebrew:
 
@@ -659,7 +658,7 @@ MacPorts (not recommended)
 
 Tested with version 1.9.2
 
-Download here: http://www.macports.org/
+Download here: https://www.macports.org/
 
 Then open a terminal and do an initial ports tree update ::
 
@@ -725,7 +724,7 @@ http://www.eca.cx/ecasound/. (If you choose to use Homebrew and you're experienc
 problems, then you might want to take a look at :ref:`ecasound_cannot_open_a_jack_port`).
 
 It didn't work with 2.9.0 for us, older versions can be found there:
-http://ecasound.seul.org/download/.
+https://ecasound.seul.org/download/.
 
 In Terminal go into the unpacked ecasound folder and do::
 
@@ -767,7 +766,7 @@ Ecasound -- git version
 Note: if you successfully installed Ecasound 2.7.2, you *don't* need this!
 
 If you want to use the newest Ecasound version from their git repository
-(http://ecasound.seul.org/ecasound.git) with OS X 10.9 (Mavericks),
+(https://ecasound.seul.org/ecasound.git) with OS X 10.9 (Mavericks),
 you can try this::
 
   ./configure CXX="clang++ -stdlib=libc++" CPPFLAGS=-D_DARWIN_C_SOURCE
@@ -1096,7 +1095,7 @@ Only ``WAVE_FORMAT_PCM`` and ``WAVE_FORMAT_IEEE_FLOAT`` are supported.
 
 Multi-channel WAV files would normally use the format
 ``WAVE_FORMAT_EXTENSIBLE``, see
-http://www-mmsp.ece.mcgill.ca/documents/audioformats/wave/wave.html .
+http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html.
 
 However, Ecasound doesn't know this format, that's why we have to use one of
 the above mentioned formats, although for files with more than 2 channels this
