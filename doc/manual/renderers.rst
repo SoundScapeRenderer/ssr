@@ -391,7 +391,7 @@ expects. See the script for further information and how to obtain the raw HRIRs.
 the KEMAR (CIPIC) HRIRs are not identical to the KEMAR (QU) ones.
 
 .. [AlgaziCIPIC] V. Ralph Algazi. The CIPIC HRTF database.
-    http://interface.cipic.ucdavis.edu/CIL_html/CIL_HRTF_database.htm.
+    https://www.ece.ucdavis.edu/cipic/spatial-sound/hrtf-data/.
 
 .. _brs:
 
