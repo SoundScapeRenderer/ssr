@@ -29,8 +29,6 @@
 
 #include <functional>
 #include <memory>
-#include <thread>   // std::this_thread::sleep_for
-#include <chrono>   // std::chrono::microseconds
 #include "connection.h"
 #include "publisher.h"
 
@@ -62,7 +60,6 @@ ssr::Connection::pointer
 ssr::Connection::create(asio::io_service &io_service
     , Publisher& controller, char end_of_message_character)
 {
-  std::this_thread::sleep_for(std::chrono::seconds(3));
   return pointer(new Connection(io_service, controller
       , end_of_message_character));
 }
