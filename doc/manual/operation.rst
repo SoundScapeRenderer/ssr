@@ -625,13 +625,18 @@ After installing homebrew, you can simply run the following line to update homeb
 internal repository, upgrade itself and install all necessary dependencies::
 
   brew update && brew upgrade && brew install autoconf fftw libsndfile jack ecasound qt asio --c++11
+  
+If Qt is not found by the build system, i.e., if the build system proposes to compile without GUI, then run the following commands (using the according paths on your system) or add them to your ``~/.bash_profile`` file::
+
+  export PATH="/usr/local/opt/qt/bin:$PATH"
+  export PKG_CONFIG_PATH=/usr/local/opt/qt/lib/pkgconfig
 
 To build the manual and documentation, you can also install help2man and doxygen::
 
   brew install help2man doxygen
 
-MacPorts
-********
+MacPorts (not recommended)
+**************************
 
 Tested with version 1.9.2
 
