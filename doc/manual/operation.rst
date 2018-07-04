@@ -574,6 +574,22 @@ TODO
 Mac OS X
 --------
 
+JACK on Mac OS X
+~~~~~~~~~~~~~~~~
+
+Tested with version 0.87 (64 bit) which includes:
+
+- Jackdmp 1.9.6
+- JackRouter 0.9.3
+- JackPilot 1.7.0
+
+Note that the site http://www.jackosx.com/ is outdated. The latest version of JACK is 
+available from http://jackaudio.org/downloads/. 
+
+Or, you can install JACK using Homebrew_.
+
+If you are using OS X El Capitan or new, make sure that you are installing the version "jackOSX 0.92_b3" from http://jackaudio.org/downloads/. JACK versions installed from other sources tend not to work on these versions of OS X. 
+
 Application Bundle
 ~~~~~~~~~~~~~~~~~~
 
@@ -628,12 +644,15 @@ internal repository, upgrade itself and install all necessary dependencies::
   
 If Qt is not found by the build system, i.e., if the build system proposes to compile without GUI, then run the following commands (using the according paths on your system) or add them to your ``~/.bash_profile`` file::
 
-  export PATH="/usr/local/opt/qt/bin:$PATH"
+  export PATH=/usr/local/opt/qt/bin:$PATH
   export PKG_CONFIG_PATH=/usr/local/opt/qt/lib/pkgconfig
 
 To build the manual and documentation, you can also install help2man and doxygen::
 
   brew install help2man doxygen
+  export LC_CTYPE=en_US.UTF-8
+  
+On El Capitan and newer OS X versions, it has happened that only the help2man version installed through MacPorts worked properly.
 
 MacPorts (not recommended)
 **************************
@@ -693,28 +712,6 @@ ports. Issuing one command to install all ports might be more convenient::
 
 Lastly, you need to install the asio library if you want to compile with the network
 interface. You can download it from: http://think-async.com
-
-JACK on Mac OS X
-****************
-
-Tested with version 0.87 (64 bit) which includes:
-
-- Jackdmp 1.9.6
-- JackRouter 0.9.3
-- JackPilot 1.7.0
-
-Note that the site http://www.jackosx.com/ is outdated. The latest version of JACK is 
-available from http://jackaudio.org/downloads/. 
-
-Or, you can install JACK using Homebrew_.
-
-OS X El Capitan is a little trickier as there is no official JACK version for it. When
-scrolling down `this thread`_ you'll find a link to a beta version of JACK that works on 
-El Capitan. Here's the direct link to this beta version of JACK: 
-https://dl.dropboxusercontent.com/u/28869550/JackOSX.0.92_b3.zip
-
-.. _`this thread`:
-  https://github.com/jackaudio/jack2/issues/144
 
 .. _ecasound:
 
@@ -1318,14 +1315,12 @@ fully understood goes wrong and the Pohlemus data can not be read. In this
 case you can either rename the file isports.ini or change its content.
 
 It might be necessary to execute ``echo C > /dev/ttyS0`` several times in
-order to make the Polhemus tracker operational again. You can check with ``cat
-/dev/ttyS0`` if it delivers data.
+order to make Polhemus Fastrak operational again. Use ``echo -e "C\r" > /dev/ttyS0`` for Polhemus Patriot. You can check with ``cat /dev/ttyS0`` if it delivers data.
 
 Missing GUI Buttons and Timeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This issue was resolved in version 0.3.2, the default setting for ``--enable-
-floating-control-panel`` is chosen depending on the installed Qt version.
+This issue was resolved in version 0.3.2, the default setting for ``--enable-floating-control-panel`` is chosen depending on the installed Qt version.
 As of version 0.5 (switching to qt5), the floating control panel is always enabled.
 
 Different versions of Qt show different behaviour regarding OpenGL Overlays
