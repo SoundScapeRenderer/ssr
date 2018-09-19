@@ -111,8 +111,6 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
     _plot_listener(false),
     _devicePixelRatio(1)
 {
-  _set_zoom(100); // 100%
-
   _soloed_sources.clear();
 
   // define possible colors for sources

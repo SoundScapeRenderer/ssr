@@ -242,6 +242,8 @@ ssr::QUserInterface::QUserInterface(Publisher& controller, const Scene& scene
   connect(timer, SIGNAL(timeout()), this, SLOT(_update_screen()));
   timer->start(static_cast<unsigned int>(1.0f/static_cast<float>(update_frequency) * 1000.0f));
 
+  _set_zoom(100);
+
   _resizeControls(_controlsParent->width());
 }
 
