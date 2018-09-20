@@ -588,7 +588,7 @@ available from http://jackaudio.org/downloads/.
 
 Or, you can install JACK using Homebrew_.
 
-If you are using OS X El Capitan or new, make sure that you are installing the version "jackOSX 0.92_b3" from http://jackaudio.org/downloads/. JACK versions installed from other sources tend not to work on these versions of OS X. 
+If you are using OS X El Capitan or newer, make sure that you are installing the version "jackOSX 0.92_b3" from http://jackaudio.org/downloads/. JACK versions installed from other sources tend not to work on these versions of OS X. 
 
 Application Bundle
 ~~~~~~~~~~~~~~~~~~
@@ -1002,7 +1002,7 @@ If you happen not to own a Polhemus or InterSense tracker to do your head-
 tracking, an alternative would be to use our DIY low-cost `Razor AHRS tracker`_.
 
 .. _`Razor AHRS tracker`:
-  https://dev.qu.tu-berlin.de/projects/sf-razor-9dof-ahrs
+  https://github.com/Razor-AHRS/razor-9dof-ahrs/wiki/Tutorial
 
 If you have Arduino installed on you machine, FTDI drivers will be there too.
 Otherwise get the driver from http://www.ftdichip.com/Drivers/VCP.htm .
