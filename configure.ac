@@ -515,7 +515,7 @@ AS_IF([test x$have_gui = xyes],
   AC_SUBST(MOCFLAGS)
 ])
 
-ENABLE_FORCED([ip-interface], [network (TCP/IP) interface (needs libasio, https://think-async.com/)],
+ENABLE_FORCED([ip-interface], [network (TCP/IP) interface (needs Asio, https://think-async.com/)],
 [
   CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
   AC_CHECK_HEADER([asio.hpp], , [have_ip_interface=no])
@@ -761,7 +761,7 @@ echo "|    Razor AHRS .......................... : $have_razor"
 echo "|    VRPN ................................ : $have_vrpn"
 echo "|"
 echo "| Build with Ecasound support ............ : $have_ecasound"
-echo "| Build with libasio IP interface ........ : $have_ip_interface"
+echo "| Build with IP interface ................ : $have_ip_interface"
 echo "| Build with GUI ......................... : $gui_string"
 echo "|"
 echo "| Enable debugging/optimization .......... : $have_debugging/$have_optimization"
