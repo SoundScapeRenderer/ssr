@@ -250,7 +250,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 ])
 
 dnl NOTE: -pthread works on GCC, other compilers may need differnt flags!
-AS_IF([test x$GCC = xyes -a x$usercxxflags = xno],
+AS_IF([test x$GCC = xyes],
       [CXXFLAGS="$CXXFLAGS -pthread"])
 
 ENABLE_AUTO([optimization], [code optimization],
