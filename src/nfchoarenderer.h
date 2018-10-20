@@ -131,7 +131,7 @@ class NfcHoaRenderer::Source : public _base::Source
           break;
       }
 
-      this->angle = apf::math::deg2rad(90 + (source_orientation
+      this->angle = apf::math::deg2rad(180 + (source_orientation
             - this->parent.state.reference_orientation).azimuth);
 
       // TODO: calculate delay
@@ -365,11 +365,13 @@ class NfcHoaRenderer::RenderFunction
 
     result_type operator()(sample_type in)
     {
+      in *= _volume_correction;
       return std::make_pair(in * _rotation1, in * _rotation2);
     }
 
     result_type operator()(sample_type in, sample_type index)
     {
+      in *= _volume_correction;
       return std::make_pair(in * _interpolator1(index)
                           , in * _interpolator2(index));
     }
@@ -377,6 +379,9 @@ class NfcHoaRenderer::RenderFunction
   private:
     sample_type _rotation1, _rotation2;
     apf::math::linear_interpolator<sample_type> _interpolator1, _interpolator2;
+
+    // TODO: Come up with a less arbitrary factor
+    sample_type _volume_correction = 0.1;
 };
 
 // Template-free base class to be used in Source::connect()
@@ -501,7 +506,7 @@ class NfcHoaRenderer::FftProcessor : public ProcessItem<FftProcessor>
   public:
     FftProcessor(size_t block_size, sample_type* first)
       : _fft_plan(apf::fftw<sample_type>::plan_r2r_1d, block_size, first, first
-            , FFTW_R2HC, FFTW_PATIENT)
+            , FFTW_HC2R, FFTW_PATIENT)
     {}
 
     APF_PROCESS(FftProcessor, ProcessItem<FftProcessor>)
