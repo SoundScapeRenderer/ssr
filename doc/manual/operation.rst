@@ -391,7 +391,7 @@ which a given setting is specified.
 3. ``$HOME/Library/SoundScapeRenderer/ssr.conf``
 4. ``$HOME/.ssr/ssr.conf``
 5. the path(s) specified with the ``--config``/``-c`` option(s) (e.g.,
-    ``ssr -c my_config.file``)
+   ``ssr -c my_config.file``)
 
 We explicitly mention one parameter here that might be of immediate
 interest for you: ``MASTER_VOLUME_CORRECTION``. This a correction in
@@ -861,7 +861,7 @@ Using the GUI
 
 1. Run the JackPilot and hit start.
 2. Double-click the SoundScape Renderer icon |icon|, select the renderer type,
-    and off you go!
+   and off you go!
 
 .. |icon| image:: images/ssr_logo_mac_30px.png
 
