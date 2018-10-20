@@ -81,6 +81,8 @@ dist_noinst_SCRIPTS = flext/startpd.sh
 MAINTAINERCLEANFILES = aclocal.m4 stamp-h.in \
                        config.log config.cache config.status
 
+DISTCLEANFILES = $(SSR_MANUAL_DIST)
+
 ## TODO: find a way to actually use this location (see autogen.sh)
 ## # where we keep local rules for automake
 ## ACLOCAL_M4 = autotools/aclocal.m4
