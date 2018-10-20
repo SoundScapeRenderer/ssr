@@ -69,7 +69,11 @@ dist_noinst_DATA = \
 	flext/hrirs_fabian_min_phase_eq.wav \
 	flext/hrirs_kemar.wav \
 	flext/hrirs_kemar_min_phase_eq.wav \
-	flext/wfs_prefilter_120_1500_44100.wav
+	flext/wfs_prefilter_120_1500_44100.wav \
+	pd/README.md \
+	pd/slaxml.lua \
+	pd/ssrclient-help.pd \
+	pd/ssrclient.pd_lua
 
 dist_noinst_SCRIPTS = flext/startpd.sh
 
