@@ -87,9 +87,9 @@ before_script:
   - autoreconf -vfi
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure --enable-app-bundle; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure --prefix='/usr'; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make dmg; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make && sudo make install; fi
 
 after_failure:
