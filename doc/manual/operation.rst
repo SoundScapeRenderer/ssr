@@ -620,6 +620,11 @@ You can allow the SoundScapeRender to run from its original location by running:
 
   xattr -d com.apple.quarantine SoundScapeRenderer.app
 
+The following warning can occur on High Sierra when using the file dialog::
+
+  objc[50474]: Class FIFinderSyncExtensionHost is implemented in both /System/Library/PrivateFrameworks/FinderKit.framework/Versions/A/FinderKit (0x7fffa1883c90) and /System/Library/PrivateFrameworks/FileProvider.framework/OverrideBundles/FinderSyncCollaborationFileProviderOverride.bundle/Contents/MacOS/FinderSyncCollaborationFileProviderOverride (0x11f84ccd8). One of the two will be used. Which one is undefined.
+
+It is a bug outside of SSR.
 
 Building from Source
 ~~~~~~~~~~~~~~~~~~~~
