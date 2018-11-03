@@ -582,6 +582,7 @@ ENABLE_AUTO([vrpn], [VRPN tracker support],
   AC_MSG_RESULT([see below])
   AC_CHECK_HEADER([vrpn_Tracker.h],   , [have_vrpn=no])
   AC_SEARCH_LIBS([vrpn_MAGIC], [vrpn], , [have_vrpn=no])
+  AC_SEARCH_LIBS([q_from_axis_angle], [quat], , [have_vrpn=no])
   AC_MSG_CHECKING([VRPN tracker support])
   AC_MSG_RESULT([$have_vrpn])
 ])
