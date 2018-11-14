@@ -266,6 +266,8 @@ approach which is computationally significantly more costly.
 Binaural Renderer
 -----------------
 
+Executable: ``ssr-binaural``
+
 Binaural rendering is an approach where the acoustical influence of the
 human head is electronically simulated to position virtual sound sources
 in space. **Be sure that you are using headphones to listen.**
@@ -398,6 +400,8 @@ the KEMAR (CIPIC) HRIRs are not identical to the KEMAR (QU) ones.
 Binaural Room Synthesis Renderer
 --------------------------------
 
+Executable: ``ssr-brs``
+
 The Binaural Room Synthesis (BRS) renderer is a binaural renderer (refer
 to Section :ref:`Binaural Renderer <binaural_renderer>`) which uses one
 dedicated
@@ -460,6 +464,8 @@ them in the release. You can obtain the data from [BRIRs]_.
 
 Vector Base Amplitude Panning Renderer
 --------------------------------------
+
+Executable: ``ssr-vbap``
 
 The Vector Base Amplitude Panning (VBAP) renderer uses the algorithm
 described in [Pulkki1997]_. It tries to find a loudspeaker pair between which
@@ -531,6 +537,8 @@ setups.
 
 Wave Field Synthesis Renderer
 -----------------------------
+
+Executable: ``ssr-wfs``
 
 The Wave Field Synthesis (WFS) renderer is the only renderer so far
 that discriminates between virtual point sources and plane waves. It
@@ -631,6 +639,8 @@ respective loudspeaker. It defaults to 1 if it is not specified.
 Ambisonics Amplitude Panning Renderer
 -------------------------------------
 
+Executable: ``ssr-aap``
+
 The Ambisonics Amplitude Panning (AAP) renderer does very simple
 Ambisonics rendering. It does amplitude panning by simultaneously using
 all loudspeakers that are not subwoofers to reproduce a virtual source
@@ -716,10 +726,28 @@ section :ref:`Configuration File <ssr_configuration_file>`) to be
 .. [Neukom2007] Martin Neukom. Ambisonic panning. In 123th Convention of the
     AES, New York, NY, USA, Oct. 5–8, 2007.
 
+.. _dca:
+
+Distance-coded Ambisonics Renderer
+----------------------------------
+
+Executable: ``ssr-dca``
+
+
+Distance-coded Ambisonics (DCA) is sometimes also termed "Nearfield Compensated Higher-Order Ambisonics". This renderer implements the driving functions from [Spors2011]_. The difference to the AAP renderer is a long story, which we will elaborate on at a later point.
+
+Note that the DCA renderer is experimental at this stage. It currently supports orders of up to 28. There are some complications regarding how the user specifies the locations of the loudspeakers and how the renderer handles them. The rendered scene might appear mirrored or rotated. If you are experiencing this, you might want to play around with the assignment of the outputs and the loudspeakers to fix it temporarily. Or contact us.
+
+Please bear with us. We are going to take care of this soon.
+
+.. [Spors2011] S. Spors, V. Kuscher, and J. Ahrens. Efficient Realization of Model-Based Rendering for 2.5-dimensional Near-Field Compensated Higher Order Ambisonics. In IEEE WASPAA, New Paltz, NY, USA, 2011.
+
 .. _genren:
 
 Generic Renderer
 ----------------
+
+Executable: ``ssr-generic``
 
 The generic renderer turns the SSR into a multiple-input-multiple-output
 convolution engine. You have to use an ASDF file in which the attribute

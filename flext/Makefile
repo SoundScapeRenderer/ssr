@@ -5,7 +5,7 @@
 # The flext build system doesn't support compiling multiple externals at once,
 # so we work around this with PD_TARGETS and specify NAME here.
 
-EXTERNALS ?= ssr_binaural ssr_nfc_hoa ssr_aap ssr_wfs ssr_vbap
+EXTERNALS ?= ssr_binaural ssr_dca ssr_aap ssr_wfs ssr_vbap
 
 PD_TARGETS := $(EXTERNALS:%=%_pd)
 

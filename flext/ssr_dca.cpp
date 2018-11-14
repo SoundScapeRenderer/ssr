@@ -24,17 +24,12 @@
  * http://spatialaudio.net/ssr                           ssr@spatialaudio.net *
  ******************************************************************************/
 
-// NFC-HOA renderer as MEX file for GNU Octave and MATLAB.
+// DCA renderer as Puredata/Max external.
 
-#include "ssr_mex.h"
-#include "nfchoarenderer.h"
+#include "ssr_flext.h"
+#include "dcarenderer.h"
 
-SsrMex<ssr::NfcHoaRenderer> mexobj;
-
-void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
-{
-  mexobj.mexFunction(nlhs, plhs, nrhs, prhs);
-}
+SSR_FLEXT_INSTANCE(dca, ssr::DcaRenderer)
 
 // Settings for Vim (http://www.vim.org/), please do not remove:
 // vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -280,9 +280,9 @@ an overview of the command line options and various renderers:
         --brs              Binaural Room Synthesis (using BRIRs)
         --wfs              Wave Field Synthesis
         --aap              Ambisonics Amplitude Panning
+        --dca              Distance-coded Ambisonics (experimental!)
         --vbap             Stereophonic (Vector Base Amplitude Panning)
         --generic          Generic Renderer
-        --nfc-hoa          Near-field-corrected Higher Order Ambisonics (experimental!)
 
     Renderer-specific options:
         --hrirs=FILE       Load the HRIRs for binaural renderer from FILE

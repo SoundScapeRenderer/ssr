@@ -175,10 +175,10 @@ ENABLE_AUTO([generic], [generic renderer],
     [SSR_executables="$SSR_executables ssr-generic"])
 ])
 
-ENABLE_AUTO([nfc-hoa],[Near-Field-Compensated Higher-Order-Ambisonics renderer],
+ENABLE_AUTO([dca],[Distance-coded Ambisonics renderer],
 [
-  AS_IF([test x$enable_nfc_hoa = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-nfc-hoa"])
+  AS_IF([test x$enable_dca = xyes -o x$have_all = xyes],
+    [SSR_executables="$SSR_executables ssr-dca"])
 ])
 
 dnl Note: For what happens with SSR_executables see src/Makefile.am

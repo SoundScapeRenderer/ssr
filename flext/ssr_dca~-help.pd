@@ -6,7 +6,7 @@
 #X obj 165 51 noise~;
 #X obj 30 71 *~ 0.01;
 #X obj 165 73 *~ 0.01;
-#X obj 18 100 ssr_nfc_hoa~ 2 circle.asd;
+#X obj 18 100 ssr_dca~ 2 circle.asd;
 #X text 104 14 <-- open this!;
 #X obj 19 15 ssr_messages;
 #X connect 1 0 3 0;

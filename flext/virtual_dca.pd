@@ -36,7 +36,7 @@ src 49 pos 0.781832 0.62349 \, src 50 pos 0.707107 0.707107 \, src
 51 pos 0.62349 0.781831 \, src 52 pos 0.532032 0.846724 \, src 53 pos
 0.433884 0.900969 \, src 54 pos 0.330279 0.943883 \, src 55 pos 0.222521
 0.974928 \, src 56 pos 0.111964 0.993712;
-#X obj 18 115 ssr_nfc_hoa~ 2 circle.asd;
+#X obj 18 115 ssr_dca~ 2 circle.asd;
 #X obj 30 71 *~ 0.002;
 #X obj 340 70 *~ 0.001;
 #X connect 0 0 13 0;

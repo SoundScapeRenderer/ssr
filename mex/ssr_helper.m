@@ -1,6 +1,6 @@
 function out = ssr_helper(in, func)
 % Run the SSR block-wise on an input signal
-% 'func' is the SSR function, e.g. @ssr_nfc_hoa
+% 'func' is the SSR function, e.g. @ssr_dca
 % 'func' must be initialized already
 
 block_size = func('block_size');

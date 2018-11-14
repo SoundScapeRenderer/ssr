@@ -8,8 +8,8 @@ on run argv
 	set argv to rest of argv
 
 	-- Make list of renderer type names and their parameter equivalents
-	set rendererNames to {"Binaural (using HRIRs)", "Binaural Room Synthesis (using BRIRs)", "Wave Field Synthesis", "Ambisonics Amplitude Panning", "Stereophonic (Vector Base Amplitude Panning)", "Generic Renderer"}
-	set rendererOptions to {"--binaural", "--brs", "--wfs", "--aap", "--vbap", "--generic"}
+	set rendererNames to {"Binaural (using HRIRs)", "Binaural Room Synthesis (using BRIRs)", "Stereophonic (Vector Base Amplitude Panning)", "Wave Field Synthesis", "Ambisonics Amplitude Panning", "Distance-Coded Ambisonics (experimental)", "Generic Renderer"}
+	set rendererOptions to {"--binaural", "--brs", "--vbap", "--wfs", "--aap", "--dca", "--generic"}
 
 	-- Process other given command line options
 	set pickRendererType to true

@@ -15,7 +15,7 @@ Source positions and other parameters can be controlled by sending messages to
 the leftmost inlet of the external.
 
 Each renderer is available as a separate external, namely
-`ssr_binaural~`, `ssr_nfc_hoa~`, `ssr_aap~`, `ssr_wfs~` and `ssr_vbap~`.
+`ssr_binaural~`, `ssr_dca~`, `ssr_aap~`, `ssr_wfs~` and `ssr_vbap~`.
 
 Requirements
 ------------

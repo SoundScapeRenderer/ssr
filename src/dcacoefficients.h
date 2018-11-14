@@ -25,10 +25,10 @@
  ******************************************************************************/
 
 /// @file
-/// Coefficients for the IIR filters in NfcHoaRenderer
+/// Coefficients for the IIR filters in DcaRenderer
 
-#ifndef SSR_HOACASCADE_H
-#define SSR_HOACASCADE_H
+#ifndef SSR_DCACASCADE_H
+#define SSR_DCACASCADE_H
 
 #include <cmath>  // for std::pow()
 
@@ -56,9 +56,9 @@ const float LaplaceCoeffsBase<float>::laplace_coeffs[][2] = {
 
 }  // namespace internal
 
-/// Coefficients for the IIR filters in NfcHoaRenderer
+/// Coefficients for the IIR filters in DcaRenderer
 template<typename T>
-class HoaCoefficients : public std::vector<apf::SosCoefficients<T>>
+class DcaCoefficients : public std::vector<apf::SosCoefficients<T>>
                       , private internal::LaplaceCoeffsBase<T>
 {
   private:
@@ -69,7 +69,7 @@ class HoaCoefficients : public std::vector<apf::SosCoefficients<T>>
 
     /// Constructor.
     /// @throw std::logic_error if desired order is not supported.
-    HoaCoefficients(size_t order, size_t sample_rate, float array_radius
+    DcaCoefficients(size_t order, size_t sample_rate, float array_radius
         , float speed_of_sound)
       : _base(order == 0 ? 1 : (order + 1) / 2)  // round up
       // calculate starting index to read Laplace-domain coefficients
@@ -83,7 +83,7 @@ class HoaCoefficients : public std::vector<apf::SosCoefficients<T>>
       if (_coeffs_begin
           >= sizeof(this->laplace_coeffs) / sizeof(*this->laplace_coeffs))
       {
-        throw std::logic_error("HoaCoefficients: Order " + apf::str::A2S(order)
+        throw std::logic_error("DcaCoefficients: Order " + apf::str::A2S(order)
             + " is not supported!");
       }
     }
@@ -98,7 +98,7 @@ class HoaCoefficients : public std::vector<apf::SosCoefficients<T>>
       std::copy(iter, iter + this->size(), this->begin());
     }
 
-    void swap(HoaCoefficients& other)
+    void swap(DcaCoefficients& other)
     {
       // TODO: actually swap this stuff?
       assert(_coeffs_begin == other._coeffs_begin);
@@ -110,7 +110,7 @@ class HoaCoefficients : public std::vector<apf::SosCoefficients<T>>
     }
 
     friend std::ostream&
-    operator<<(std::ostream& stream, const HoaCoefficients& c)
+    operator<<(std::ostream& stream, const DcaCoefficients& c)
     {
       std::copy(c.begin(), c.end()
           , std::ostream_iterator<typename _base::value_type>(stream, "\n"));

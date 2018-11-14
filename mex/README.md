@@ -33,25 +33,25 @@ params.sample_rate = 44100;
 params.reproduction_setup = '../data/reproduction_setups/circle.asd';
 params.threads = 4;
 
-ssr_nfc_hoa('init', sources, params)
+ssr_dca('init', sources, params)
 
 positions = [0; 2];  % one column for each source
 
-ssr_nfc_hoa('source_position', positions)
+ssr_dca('source_position', positions)
 
 % for more parameters see test_ssr.m
 
 % process (and discard) one block for interpolation:
-outputblock = ssr_nfc_hoa('process', single(zeros(params.block_size, sources)));
+outputblock = ssr_dca('process', single(zeros(params.block_size, sources)));
 
 % now the source parameters have reached their desired values
-outputblock = ssr_nfc_hoa('process', inputblock);
+outputblock = ssr_dca('process', inputblock);
 
 % do something with 'outputblock' ...
 % repeat for each block ...
 
-ssr_nfc_hoa out_channels
-ssr_nfc_hoa clear
-ssr_nfc_hoa help
+ssr_dca out_channels
+ssr_dca clear
+ssr_dca help
 
 ```

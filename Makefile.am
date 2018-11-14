@@ -42,7 +42,7 @@ dist_noinst_DATA = \
 	mex/ssr_mex.h \
 	mex/ssr_aap.cpp \
 	mex/ssr_binaural.cpp \
-	mex/ssr_nfc_hoa.cpp \
+	mex/ssr_dca.cpp \
 	mex/ssr_vbap.cpp \
 	mex/ssr_wfs.cpp \
 	mex/ssr_helper.m \
@@ -52,13 +52,13 @@ dist_noinst_DATA = \
 	flext/ssr_flext.h \
 	flext/ssr_aap.cpp \
 	flext/ssr_binaural.cpp \
-	flext/ssr_nfc_hoa.cpp \
+	flext/ssr_dca.cpp \
 	flext/ssr_vbap.cpp \
 	flext/ssr_wfs.cpp \
 	flext/ssr_messages.pd \
 	flext/ssr_aap~-help.pd \
 	flext/ssr_binaural~-help.pd \
-	flext/ssr_nfc_hoa~-help.pd \
+	flext/ssr_dca~-help.pd \
 	flext/ssr_vbap~-help.pd \
 	flext/ssr_wfs~-help.pd \
 	flext/virtual_vbap.pd \

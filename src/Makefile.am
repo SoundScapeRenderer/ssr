@@ -9,7 +9,7 @@
 bin_PROGRAMS = $(SSR_executables)
 
 ## All possible optional programs must be listed here
-EXTRA_PROGRAMS = ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-nfc-hoa ssr-vbap ssr-aap
+EXTRA_PROGRAMS = ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-dca ssr-vbap ssr-aap
 
 ## CPPFLAGS: preprocessor flags, e.g. -I and -D
 ## -I., -I$(srcdir), and a -I pointing to the directory holding config.h
@@ -75,14 +75,14 @@ ssr_brs_SOURCES = ssr_brs.cpp brsrenderer.h \
 
 nodist_ssr_brs_SOURCES = $(SSRMOCFILES)
 
-ssr_nfc_hoa_SOURCES = ssr_nfc_hoa.cpp nfchoarenderer.h \
-	hoacoefficients.h laplace_coeffs_double.h laplace_coeffs_float.h \
+ssr_dca_SOURCES = ssr_dca.cpp dcarenderer.h \
+	dcacoefficients.h laplace_coeffs_double.h laplace_coeffs_float.h \
 	../apf/apf/biquad.h \
 	../apf/apf/denormalprevention.h \
 	$(LOUDSPEAKERSOURCES) \
 	$(SSRSOURCES)
 
-nodist_ssr_nfc_hoa_SOURCES = $(SSRMOCFILES)
+nodist_ssr_dca_SOURCES = $(SSRMOCFILES)
 
 LOUDSPEAKERSOURCES = \
 	loudspeakerrenderer.h \

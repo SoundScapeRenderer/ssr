@@ -25,14 +25,14 @@
  ******************************************************************************/
 
 /// @file
-/// Main file for NFC HOA renderer.
+/// Main file for DCA renderer.
 
 #include "controller.h"
-#include "nfchoarenderer.h"
+#include "dcarenderer.h"
 
 int main(int argc, char* argv[])
 {
-  ssr::Controller<ssr::NfcHoaRenderer> controller(argc, argv);
+  ssr::Controller<ssr::DcaRenderer> controller(argc, argv);
 
   controller.run();
 }

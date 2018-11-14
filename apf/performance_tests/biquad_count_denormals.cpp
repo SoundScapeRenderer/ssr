@@ -74,7 +74,7 @@ int main()
   benign_flt.a1 = 0.5f;        benign_dbl.a1 = 0.5;
   benign_flt.a2 = 0.2f;        benign_dbl.a2 = 0.2;
 
-  // HPF similar to the one used in HOA algorithm
+  // HPF similar to the one used in DCA algorithm
   malignant_flt.b0 =  0.98f;   malignant_dbl.b0 =  0.98;
   malignant_flt.b1 = -1.9f;    malignant_dbl.b1 = -1.9;
   malignant_flt.b2 =  0.93f;   malignant_dbl.b2 =  0.93;
