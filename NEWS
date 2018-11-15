@@ -1,5 +1,21 @@
 User-visible changes in the SoundScape Renderer. Recent changes on top.
 
+0.5.0 (16 November 2018)
+
+ - GUI now uses Qt5
+ 
+ - the exponent that determines distance attenuation of the amplitude in the
+   virtual space can be set by the user
+
+ - significant extensions of the documentation
+
+ - the former NFC-HOA renderer is back in an experimental version now called
+   distance-coded Ambisonics (DCA)
+
+ - headphone-compensated HRTFs are included
+
+ - the end-of-message character in TCP messages can be selected by the user
+
 0.4.2 (24 July 2014)
 
  - the default number of threads is now obtained automatically (but can still be
