@@ -31,6 +31,7 @@
 #define SSR_RENDERERBASE_H
 
 #include <string>
+#include <cstring>  // for std::strcmp()
 
 #include "apf/mimoprocessor.h"
 #include "apf/shareddata.h"
