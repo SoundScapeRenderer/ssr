@@ -47,6 +47,7 @@ dist_noinst_DATA = \
 	mex/ssr_wfs.cpp \
 	mex/ssr_helper.m \
 	mex/test_ssr.m \
+	flext/README.md \
 	flext/Makefile \
 	flext/package.txt \
 	flext/ssr_flext.h \
@@ -61,6 +62,8 @@ dist_noinst_DATA = \
 	flext/ssr_dca~-help.pd \
 	flext/ssr_vbap~-help.pd \
 	flext/ssr_wfs~-help.pd \
+	flext/virtual_aap.pd \
+	flext/virtual_dca.pd \
 	flext/virtual_vbap.pd \
 	flext/virtual_wfs.pd \
 	flext/8channels.asd \
