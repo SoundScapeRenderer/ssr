@@ -39,7 +39,9 @@ AM_CXXFLAGS = $(WARNING_FLAGS) $(PKG_FLAGS) $(OPT_FLAGS) $(DEBUGGING_FLAGS)
 DOXYGEN_DOC_DIR = ../doc/doxygen
 
 # files which should be distributed but not installed
-dist_noinst_DATA = Doxyfile coding_style.txt
+dist_noinst_DATA = Doxyfile coding_style.txt \
+	../apf/misc/Makefile.dependencies \
+	../apf/apf/mextools.h
 
 ssr_binaural_SOURCES = ssr_binaural.cpp binauralrenderer.h \
 	$(SSRSOURCES)
@@ -89,27 +91,29 @@ LOUDSPEAKERSOURCES = \
 	loudspeaker.h
 
 SSRSOURCES = \
-	../apf/apf/misc.h \
-	../apf/apf/jackclient.h \
-	../apf/apf/lockfreefifo.h \
-	../apf/apf/math.h \
-	../apf/apf/parameter_map.h \
-	../apf/apf/stringtools.h \
-	../apf/apf/posix_thread_policy.h \
-	../apf/apf/cxx_thread_policy.h \
-	../apf/apf/jack_policy.h \
-	../apf/apf/pointer_policy.h \
-	../apf/apf/iterator.h \
-	../apf/apf/mimoprocessor.h \
+	../apf/apf/blockdelayline.h \
+	../apf/apf/combine_channels.h \
 	../apf/apf/commandqueue.h \
-	../apf/apf/rtlist.h \
-	../apf/apf/shareddata.h \
 	../apf/apf/container.h \
 	../apf/apf/convolver.h \
-	../apf/apf/blockdelayline.h \
+	../apf/apf/cxx_thread_policy.h \
+	../apf/apf/dummy_thread_policy.h \
 	../apf/apf/fftwtools.h \
+	../apf/apf/iterator.h \
+	../apf/apf/jackclient.h \
+	../apf/apf/jack_policy.h \
+	../apf/apf/lockfreefifo.h \
+	../apf/apf/math.h \
+	../apf/apf/mimoprocessor_file_io.h \
+	../apf/apf/mimoprocessor.h \
+	../apf/apf/misc.h \
+	../apf/apf/parameter_map.h \
+	../apf/apf/pointer_policy.h \
+	../apf/apf/posix_thread_policy.h \
+	../apf/apf/rtlist.h \
+	../apf/apf/shareddata.h \
 	../apf/apf/sndfiletools.h \
-	../apf/apf/combine_channels.h \
+	../apf/apf/stringtools.h \
 	configuration.cpp \
 	configuration.h \
 	controller.h \
