@@ -39,7 +39,8 @@ CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -pedantic
 # warnings are errors
 CXXFLAGS += -pedantic-errors
-CXXFLAGS += -Werror
+# TODO: re-enable when deprecated dynamic exception specifications are removed:
+#CXXFLAGS += -Werror
 # even more warnings:
 CXXFLAGS += -Wpointer-arith
 CXXFLAGS += -Wcast-align

@@ -140,6 +140,17 @@ bool convert(const mxArray* in, int& out)
   return true;
 }
 
+/// Convert @c mxArray to <tt>long int</tt>
+bool convert(const mxArray* in, long int& out)
+{
+  if (!mxIsDouble(in) || mxIsComplex(in)) return false;
+  if (mxGetNumberOfElements(in) != 1) return false;
+  double temp = mxGetScalar(in);
+  if (temp != std::floor(temp)) return false;
+  out = temp;
+  return true;
+}
+
 /// Convert @c mxArray to @c bool
 bool convert(const mxArray* in, bool& out)
 {
