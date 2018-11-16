@@ -35,6 +35,8 @@ dist_noinst_DATA = \
 	doc/manual/images/ssr_logo_mac_30px.png \
 	doc/manual/images/screenshot_spd.png \
 	doc/manual/images/screenshot.png \
+	doc/manual/images/distance_attenuation.png \
+	doc/manual/images/hrir_comp_filters.png \
 	mex/README.md \
 	mex/COPYING \
 	mex/DESCRIPTION \
@@ -42,7 +44,9 @@ dist_noinst_DATA = \
 	mex/ssr_mex.h \
 	mex/ssr_aap.cpp \
 	mex/ssr_binaural.cpp \
+	mex/ssr_brs.cpp \
 	mex/ssr_dca.cpp \
+	mex/ssr_generic.cpp \
 	mex/ssr_vbap.cpp \
 	mex/ssr_wfs.cpp \
 	mex/ssr_helper.m \
