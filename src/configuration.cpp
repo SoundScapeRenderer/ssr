@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <thread>   // std::this_thread::sleep_for
 #include <chrono>   // std::chrono::seconds
+#include <sstream>  // for parse_network_clients
 
 #include "configuration.h"
 #include "posixpathtools.h"
@@ -108,6 +109,100 @@ namespace // anonymous
   }
 }
 
+/**
+ * Function to retrieve a valid port from a char.
+ * Returns an ephemeral port according to IANA suggestions
+ * @param port a const char* holding a number
+ * @return An ephemeral port according to IANA suggestions
+ */
+int ssr::get_valid_network_port(const char* port)
+{
+  int port_number = atoi(port);
+  bool valid_port = true;
+  if (port_number < 1024 && port_number > 0)
+  {
+    ERROR("Port number is in the range of well-known ports!");
+    valid_port = false;
+  }
+  else if(port_number < 0)
+  {
+    ERROR("Port number must not be negative!");
+    valid_port = false;
+  }
+  else if (port_number < 49152 || port_number > 65535)
+  {
+    ERROR("Port number is not in the range of ephemeral ports suggested by IANA!");
+    valid_port = false;
+  }
+  if (!valid_port)
+  {
+    WARNING("Using standard port.");
+    port_number = 50001;
+  }
+  return port_number;
+}
+
+/* Function to remove all whitespaces from a string.
+ * If the string is " " it will return an empty string.
+ * @param str a reference to a std::string
+ * @return a std::string without whitespaces
+ */
+std::string ssr::remove_whitespace(const std::string& str)
+{
+  if (str == " ") return "";
+  size_t first = str.find_first_not_of(' ');
+  if (std::string::npos == first)
+  {
+    return str;
+  }
+  size_t last = str.find_last_not_of(' ');
+  return str.substr(first, (last - first + 1));
+}
+
+/**
+ * Function to retrieves tuples of key value pairs from a comma-separated
+ * string and stores it in a multimap. The tuples should be of the form
+ * client:port, client2:port2, etc..
+ * @param input a const char* holding a comma-separated list of clients:port
+ * tuples
+ * @param clients reference to a std::multimap<std::string, int> to store
+ * information on client and port in.
+ * @return CONFIG_SUCCESS on successful completion
+ */
+static int parse_network_clients(const char* input,
+    std::multimap<std::string, int>& clients)
+{
+  std::istringstream iss(input);
+  std::string name;
+  int port;
+  std::string token;
+
+  while (std::getline(iss, token, ',')) {
+    size_t pos = token.find(':');
+    std::string port_temp = ssr::remove_whitespace(token.substr(pos+1));
+    name = ssr::remove_whitespace(token.substr(0, pos));
+
+    if (!name.empty())
+    {
+      // if no port supplied, insert standard
+      if ( port_temp.empty() || port_temp == name )
+      {
+        port = 50001;
+      }
+      else
+      {
+        port = std::stoi(port_temp);
+      }
+      clients.insert(make_pair(name, port));
+    }
+  }
+  VERBOSE("Read the following clients:");
+  for (const auto& client: clients) {
+    VERBOSE(client.first << ":" << client.second);
+  }
+  return CONFIG_SUCCESS;
+}
+
 /** parse command line options and configuration file(s)
  * @param argc number of command line arguments.
  * @param argv the arguments themselves.
@@ -156,6 +251,10 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
   conf.renderer_params.set("decay_exponent", 1.0f);  // 1 / r^1
   conf.renderer_params.set("amplitude_reference_distance", 3.0f);  // meters
+
+  // default network settings, also stated in data/ssr.conf.example
+  conf.network_mode = "client";
+  conf.osc_port = 50001;
 
   conf.auto_rotate_sources = true;
 
@@ -240,6 +339,14 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "      --no-auto-rotation\n"
 "                      Don't auto-rotate sound sources' orientation toward "
                                                                "the reference\n"
+"  -N  --network-mode=VALUE\n"
+"                      Which network mode to use: client or server "
+                                                           "(default: client)\n"
+"  -C  --network-clients=VALUE\n"
+"                      List of network clients and their ports (e.g. "
+                                               "client1:50001, client2:50001)\n"
+"  -p  --osc-port=VALUE\n"
+"                      Port to use for OSC communication (default: 50001)\n"
 
 #ifdef ENABLE_IP_INTERFACE
 "  -i, --ip-server[=PORT]\n"
@@ -323,6 +430,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     {"master-volume-correction", required_argument, nullptr, 0},
     {"auto-rotation", no_argument,      nullptr,  0 },
     {"no-auto-rotation", no_argument,   nullptr,  0 },
+    {"network-mode", required_argument, nullptr, 'N'},
+    {"network-clients", required_argument, nullptr, 'C'},
+    {"osc-port", required_argument, nullptr, 'p'},
     {"ip-server",    optional_argument, nullptr, 'i'},
     {"no-ip-server", no_argument,       nullptr, 'I'},
     {"end-of-message-character", required_argument, nullptr, 0},
@@ -341,7 +451,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   };
   // one colon: required argument; two colons: optional argument
   // if first character is '-', non-option arguments return 1 (see case 1 below)
-  const char *optstring = "-c:fgGhi::In:o:r:s:t:TvV?";
+  const char *optstring = "-c:C:fgGhi::IN:n:o:p:r:s:t:TvV?";
 
   int opt;
   int longindex = 0;
@@ -441,6 +551,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
               + std::string(optarg) + "\"!");
         }
         break;
+      case 'C':
+        parse_network_clients(optarg, conf.network_clients);
+        break;
 
       case 'f':
         conf.freewheeling = true;
@@ -478,12 +591,25 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         conf.ip_server = false;
         break;
 
+      case 'N':
+        //TODO: check if correct string
+        if (!strcasecmp(optarg, "client") || !strcasecmp(optarg, "server"))
+        {
+          conf.network_mode = optarg;
+        }
+        else {
+          ERROR("'"<< optarg << "' is not understood as option for network-mode.");
+        }
+        break;
       case 'n':
         conf.renderer_params.set("name", optarg);
         break;
 
       case 'o':
         conf.renderer_params.set("ambisonics_order", atoi(optarg));
+        break;
+      case 'p':
+        conf.osc_port = get_valid_network_port(optarg);
         break;
 
       case 'r':
@@ -557,6 +683,7 @@ static int is_comment_or_empty(const char *line){
 
   return (*line == '#') || (!*line);
 }
+
 
 /******************************************************************************/
 
@@ -789,6 +916,24 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       if (!strcasecmp(value, "on")) conf.gui = true;
       else conf.gui = false;
+    }
+    else if (!strcmp(key, "NETWORK_MODE"))
+    {
+      if (!strcasecmp(value, "client") || !strcasecmp(value, "server"))
+      {
+        conf.network_mode = value;
+      }
+      else {
+        ERROR("'"<< value << "' is not understood as option for network-mode.");
+      }
+    }
+    else if (!strcmp(key, "NETWORK_CLIENTS"))
+    {
+      parse_network_clients(value, conf.network_clients);
+    }
+    else if (!strcmp(key, "OSC_PORT"))
+    {
+      conf.osc_port = get_valid_network_port(value);
     }
     else if (!strcmp(key, "NETWORK_INTERFACE"))
     {
