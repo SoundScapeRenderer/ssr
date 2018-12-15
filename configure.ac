@@ -536,6 +536,13 @@ ENABLE_FORCED([osc-interface], [network OSC interface],
   AC_MSG_RESULT([$have_osc_interface])
 ])
 
+ENABLE_FORCED([osc-interface], [network OSC interface],
+[
+  AC_CHECK_HEADER([lo/lo.h], , [have_osc_interface=no])
+  AC_CHECK_HEADER([lo/lo_cpp.h], , [have_osc_interface=no])
+  AC_MSG_RESULT([$have_osc_interface])
+])
+
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
 [
   dnl Checking for libecasoundc. It does not provide pkg-config and installs
