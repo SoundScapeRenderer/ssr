@@ -251,6 +251,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
   conf.renderer_params.set("decay_exponent", 1.0f);  // 1 / r^1
   conf.renderer_params.set("amplitude_reference_distance", 3.0f);  // meters
+
   // default network settings, also stated in data/ssr.conf.example
   conf.network_mode = "client";
   conf.osc_port = 50001;
