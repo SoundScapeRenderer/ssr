@@ -254,7 +254,7 @@ void ssr::OscSender::send_new_source_message_from_id(id_t id)
             _new_sources.at(id).get<float>("orientation", 0.0),
             _new_sources.at(id).get<float>("gain", 0.0),
             _new_sources.at(id).get<int>("file_channel", 1),
-            _new_sources.at(id).get<std::string>("properties_file", ""));
+            _new_sources.at(id).get<std::string>("properties_file", "").c_str());
         VERBOSE2("OscSender: Sent [/source/new, sssffffis" <<
             _handler.bool_to_message_type(_new_sources.at(id).get<bool>(
                 "position_fixed", false)) <<
