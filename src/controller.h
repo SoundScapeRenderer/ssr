@@ -61,6 +61,10 @@
 #include "server.h"
 #endif
 
+#ifdef ENABLE_OSC_INTERFACE
+#include "oschandler.h"
+#endif
+
 #include "tracker.h"
 #ifdef ENABLE_INTERSENSE
 #include "trackerintersense.h"
@@ -253,6 +257,11 @@ class Controller : public Publisher
 #ifdef ENABLE_IP_INTERFACE
     std::unique_ptr<Server> _network_interface;
 #endif
+
+#ifdef ENABLE_OSC_INTERFACE
+    std::unique_ptr<OscHandler> _osc_interface;
+#endif
+
     std::unique_ptr<Tracker> _tracker;
 
     /// check if audio player is running and start it if necessary
@@ -331,6 +340,16 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   }
 #endif
 
+// throw error, if OSC interface is about to be used, but not compiled in
+#ifndef ENABLE_OSC_INTERFACE
+  if (_conf.network_mode == "client" || _conf.network_mode == "server")
+  {
+    throw std::logic_error(_conf.exec_name
+        + " was compiled without OSC support!\n"
+        "Type '" + _conf.exec_name + " --help' for more information.");
+  }
+#endif
+
 #ifndef ENABLE_GUI
   if (_conf.gui)
   {
@@ -403,6 +422,19 @@ Controller<Renderer>::Controller(int argc, char* argv[])
     _network_interface->start();
   }
 #endif // ENABLE_IP_INTERFACE
+
+// if OSC is compiled in and network-mode set, start OSC handler
+#ifdef ENABLE_OSC_INTERFACE
+  if (_conf.network_mode == "client" || _conf.network_mode == "server")
+  {
+    VERBOSE2("Starting OSC interface as "<< _conf.network_mode <<
+        " on port " <<
+        std::to_string(_conf.osc_port) << ".");
+    _osc_interface.reset(new OscHandler(*this, _conf.osc_port,
+          _conf.network_mode, _conf.network_clients));
+    _osc_interface->start();
+  }
+#endif
 }
 
 template<typename Renderer>

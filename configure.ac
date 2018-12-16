@@ -212,6 +212,14 @@ PKG_CHECK_MODULES([LIBXML], [libxml-2.0 >= 2.0],
   LIBS="$LIBS $LIBXML_LIBS"
 ])
 
+dnl Checking for liblo
+PKG_CHECK_MODULES([LIBLO], [liblo >= 0.28],
+  [
+  PKG_FLAGS="$PKG_FLAGS $LIBLO_CFLAGS"
+  LIBS="$LIBS $LIBLO_LIBS"
+  ]
+)
+
 dnl by the way, AC_HELP_STRING is deprecated, use AS_HELP_STRING instead!
 
 ENABLE_EXPLICIT([debugging],[debugging symbols, asserts, ...])
@@ -521,6 +529,20 @@ ENABLE_FORCED([ip-interface], [network (TCP/IP) interface (needs Asio, https://t
   AC_CHECK_HEADER([asio.hpp], , [have_ip_interface=no])
 ])
 
+ENABLE_FORCED([osc-interface], [network OSC interface],
+[
+  AC_CHECK_HEADER([lo/lo.h], , [have_osc_interface=no])
+  AC_CHECK_HEADER([lo/lo_cpp.h], , [have_osc_interface=no])
+  AC_MSG_RESULT([$have_osc_interface])
+])
+
+ENABLE_FORCED([osc-interface], [network OSC interface],
+[
+  AC_CHECK_HEADER([lo/lo.h], , [have_osc_interface=no])
+  AC_CHECK_HEADER([lo/lo_cpp.h], , [have_osc_interface=no])
+  AC_MSG_RESULT([$have_osc_interface])
+])
+
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
 [
   dnl Checking for libecasoundc. It does not provide pkg-config and installs
@@ -763,6 +785,7 @@ echo "|    VRPN ................................ : $have_vrpn"
 echo "|"
 echo "| Build with Ecasound support ............ : $have_ecasound"
 echo "| Build with IP interface ................ : $have_ip_interface"
+echo "| Build with OSC interface ............... : $have_osc_interface"
 echo "| Build with GUI ......................... : $gui_string"
 echo "|"
 echo "| Enable debugging/optimization .......... : $have_debugging/$have_optimization"

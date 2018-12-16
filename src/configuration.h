@@ -30,6 +30,7 @@
 #ifndef SSR_CONFIGURATION_H
 #define SSR_CONFIGURATION_H
 
+#include <map>
 #include <string>
 
 #include "apf/parameter_map.h"
@@ -57,6 +58,10 @@ struct conf_struct
   std::string output_port_prefix;       ///< e.g. "alsa_pcm:playback"
   std::string path_to_gui_images;       ///< dto.
   std::string path_to_scene_menu;       ///< path to scene_menu.conf
+  std::string network_mode;             ///< network mode (client or server)
+  ///< list of network clients and ports
+  std::multimap<std::string, int> network_clients;
+  int osc_port;                         ///< osc communication port
   int end_of_message_character;         ///< ASCII
   bool auto_rotate_sources;             ///< Automatic orientation of sources
 
@@ -79,6 +84,8 @@ conf_struct configuration(int& argc, char* argv[]);
 // static int parse(const char *line, char *key, char *value);
 // static int is_comment_or_empty(const char *line);
 int load_config_file(const char *filename, conf_struct& conf);
+std::string remove_whitespace(const std::string& str);
+int get_valid_network_port(const char* port);
 
 }  // namespace ssr
 
