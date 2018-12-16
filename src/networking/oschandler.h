@@ -71,18 +71,6 @@ class OscHandler
     friend bool OscReceiver::server_is_default(OscHandler& self);
     friend bool OscReceiver::is_server(OscHandler& self, std::string& hostname,
         std::string& port);
-    friend void OscReceiver::send_to_client(OscHandler& self, lo::Address
-        client_address, std::string path, lo::Message message);
-    friend void OscReceiver::send_to_client(OscHandler& self, lo::Address
-        client_address, lo::Bundle bundle);
-    friend void OscReceiver::send_to_all_clients(OscHandler& self, std::string
-        path, lo::Message message);
-    friend void OscReceiver::send_to_all_clients(OscHandler& self, lo::Bundle
-        bundle);
-    friend void OscReceiver::send_to_server(OscHandler& self, std::string path,
-        lo::Message message);
-    friend void OscReceiver::send_to_server(OscHandler& self, lo::Bundle
-        bundle);
     friend void OscReceiver::add_client(OscHandler& self, std::string hostname,
         std::string port, ssr::MessageLevel message_level);
     friend void OscReceiver::deactivate_client(OscHandler& self, std::string

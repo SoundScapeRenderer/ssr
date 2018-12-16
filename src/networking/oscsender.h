@@ -82,14 +82,6 @@ class OscSender : public Subscriber
     void deactivate_client(std::string hostname, std::string port);
     void increment_client_alive_counter(std::string& hostname, std::string&
         port);
-    void send_to_server(std::string path, lo::Message message);
-    void send_to_server(lo::Bundle bundle);
-    void send_to_client(lo::Address address, std::string path, lo::Message
-        message);
-    void send_to_client(lo::Address address, lo::Bundle bundle);
-    void send_to_all_clients(std::string path, lo::Message message);
-    void send_to_all_clients(lo::Bundle bundle);
-
     void send_levels();
 
     // Subscriber Interface

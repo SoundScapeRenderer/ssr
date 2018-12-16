@@ -60,16 +60,6 @@ class OscReceiver
     bool server_is_default(OscHandler& handler);
     bool is_server(OscHandler& handler, std::string& hostname, std::string&
         port);
-    void send_to_client(OscHandler& self, lo::Address client_address,
-        std::string path, lo::Message message);
-    void send_to_client(OscHandler& self, lo::Address client_address,
-        lo::Bundle bundle);
-    void send_to_all_clients(OscHandler& self, std::string path, lo::Message
-        message);
-    void send_to_all_clients(OscHandler& self, lo::Bundle bundle);
-    void send_to_server(OscHandler& self, std::string path, lo::Message
-        message);
-    void send_to_server(OscHandler& self, lo::Bundle bundle);
     void add_client(OscHandler& self, std::string hostname, std::string port,
         ssr::MessageLevel message_level);
     void deactivate_client(OscHandler& self, std::string hostname, std::string
