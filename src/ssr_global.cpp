@@ -34,6 +34,3 @@ float ssr::c = 340.0f;                    // meters/second
 float ssr::c_inverse = 1.0f/c;
 unsigned int ssr::usleeptime = 1000000; // micro-seconds
 //unsigned int ssr::usleeptime = 350000; // micro-seconds
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

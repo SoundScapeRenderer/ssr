@@ -407,6 +407,3 @@ std::string ssr::Scene::get_source_properties_file(id_t id) const
   if (_get_source_member(id, &Source::properties_file, name)) return name;
   return std::string("");
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -63,7 +63,7 @@ http://packages.debian.org/soundscaperenderer
   If it still doesn't work, you should consider upgrading your whole system to
   "testing" or, if that's not feasible, you can still compile and install the
   SSR from its source (see below for instructions).
-  
+
   .. _stable:  http://www.debian.org/releases/stable/
   .. _testing: http://www.debian.org/releases/testing/
   .. _sid:     http://www.debian.org/releases/sid/
@@ -473,11 +473,11 @@ Preparing Polhemus Fastrak/Patriot
 For incorporation of the *Polhemus Fastrak/Patriot*
 with serial connection, no additional libraries are required. Make sure that
 you have the required access rights to the tracker before starting SSR by
-typing something like :: 
+typing something like ::
 
   sudo chmod a+rw /dev/ttyS0
 
-or :: 
+or ::
 
   sudo chmod a+rw /dev/ttyS1
 
@@ -582,12 +582,12 @@ Tested with version 0.87 (64 bit) which includes:
 - JackRouter 0.9.3
 - JackPilot 1.7.0
 
-Note that the site http://www.jackosx.com/ is outdated. The latest version of JACK is 
-available from http://jackaudio.org/downloads/. 
+Note that the site http://www.jackosx.com/ is outdated. The latest version of JACK is
+available from http://jackaudio.org/downloads/.
 
 Or, you can install JACK using Homebrew_.
 
-If you are using OS X El Capitan or newer, make sure that you are installing the version "jackOSX 0.92_b3" from http://jackaudio.org/downloads/. JACK versions installed from other sources tend not to work on these versions of OS X. 
+If you are using OS X El Capitan or newer, make sure that you are installing the version "jackOSX 0.92_b3" from http://jackaudio.org/downloads/. JACK versions installed from other sources tend not to work on these versions of OS X.
 
 Application Bundle
 ~~~~~~~~~~~~~~~~~~
@@ -595,9 +595,9 @@ Application Bundle
 This assumes that you are using the precompiled SSR application bundle for Mac OS
 X. If you want to build the SSR yourself, have a look at `Building from Source`_.
 
-You can download the application bundle from http://spatialaudio.net/ssr. You will need 
+You can download the application bundle from http://spatialaudio.net/ssr. You will need
 JACK as prerequisite. Refer to `JACK on Mac OS X`_ for instructions how to obtain and
-install it. 
+install it.
 
 The installation should be straightforward. Just double-click on the ``.dmg`` file and
 drag the ``SoundScapeRenderer-x.x.x`` folder to your ``Applications`` folder. Done. When
@@ -645,7 +645,7 @@ After installing homebrew, you can simply run the following line to update homeb
 internal repository, upgrade itself and install all necessary dependencies::
 
   brew update && brew upgrade && brew install autoconf fftw libsndfile jack ecasound qt asio --c++11
-  
+
 If Qt is not found by the build system, i.e., if the build system proposes to compile without GUI, then run the following commands (using the according paths on your system) or add them to your ``~/.bash_profile`` file::
 
   export PATH=/usr/local/opt/qt/bin:$PATH
@@ -655,7 +655,7 @@ To build the manual and documentation, you can also install help2man and doxygen
 
   brew install help2man doxygen
   export LC_CTYPE=en_US.UTF-8
-  
+
 On El Capitan and newer OS X versions, it has happened that only the help2man version installed through MacPorts worked properly.
 
 MacPorts (not recommended)
@@ -724,7 +724,7 @@ Ecasound
 
 Tested with version 2.7.2
 
-If you don't want to get Ecasound from Homebrew_, then download the source code from 
+If you don't want to get Ecasound from Homebrew_, then download the source code from
 http://www.eca.cx/ecasound/. (If you choose to use Homebrew and you're experiencing
 problems, then you might want to take a look at :ref:`ecasound_cannot_open_a_jack_port`).
 
@@ -923,7 +923,7 @@ selection)::
 
 .. note:: The arguments other than the renderer selection have to be enclosed in
         quotation marks (``""``)!
-        
+
 To load a scene do::
 
     open -a SoundScapeRenderer --args --binaural "/absolute/path/to/scene.asd"
@@ -1022,7 +1022,7 @@ To make the SSR use this Razor AHRS tracker, you have two options:
 Using the command line::
 
     open -a SoundScapeRenderer --args --binaural "--tracker=razor
-    --tracker-port=/dev/tty.usbserial-XXXXXXXX" 
+    --tracker-port=/dev/tty.usbserial-XXXXXXXX"
 
 ... or using config files:
 
@@ -1037,7 +1037,7 @@ It's recommended to use the config file approach - best use a global
 MS Windows
 ----------
 
-The MS Windows version of SSR is experimental at this stage. Find the pre-release of the executables at https://github.com/chris-hld/ssr/releases. Note that this SSR version only works with live inputs currently (it cannot play audio files). It has no limitation otherwise. 
+The MS Windows version of SSR is experimental at this stage. Find the pre-release of the executables at https://github.com/chris-hld/ssr/releases. Note that this SSR version only works with live inputs currently (it cannot play audio files). It has no limitation otherwise.
 
 Using the SSR with DAWs
 -----------------------
@@ -1112,8 +1112,8 @@ example, sox (Debian package sox) with the wavpcm option::
 
   sox old.wav new.wavpcm
   mv new.wavpcm new.wav
-  
-SSR crashes with a segmentation fault on Max OS X 
+
+SSR crashes with a segmentation fault on Max OS X
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If this happens whenever you are opening an audio file or loading a scene that involves opening an audio file, then this might be due to Ecasound. We've seen this with the app bundle. Try the following:
@@ -1128,7 +1128,7 @@ Refer also to :ref:`ecasound` for instructions on how to compile Ecasound. The e
 Finally, replace the Ecasound executable in the SSR bundle with something like this::
 
   sudo cp ecasound/ecasound /Applications/SoundScapeRenderer-0.4.2-74-gb99f8b2/SoundScapeRenderer.app/Contents/MacOS/
-  
+
 You might have to modify the name of the SSR folder in the above command as you're likely to use a different version.
 
 A file that can't be loaded results in a connection to a live input
@@ -1172,7 +1172,7 @@ You may have seen this message::
 
   ***********************************************************************
   * Message from libecasoundc:
-  * 
+  *
   * 'ECASOUND' environment variable not set. Using the default value
   * value 'ECASOUND=ecasound'.
   ***********************************************************************
@@ -1183,7 +1183,7 @@ or, if you prefer, you can put it into your ``$HOME/.bashrc``
 (just for your user account)::
 
   export ECASOUND=ecasound
-  
+
 .. _ecasound_cannot_open_a_jack_port:
 
 Ecasound cannot open a JACK port
@@ -1193,26 +1193,26 @@ Sometimes, when Ecasound is installed via Homebrew_, it can have trouble finding
 a result SSR displays the sound source symbols in the GUI, but they don't play audio, and
 an according error message is posted in the SSR terminal.
 
-Type ``ecasound -c`` in a terminal to start Ecasound in interactive mode. 
+Type ``ecasound -c`` in a terminal to start Ecasound in interactive mode.
 Then type ``aio-register`` to list all available outputs that Ecasound has recognized. If
 JACK is not listed, then download the Ecasound source code from
 http://nosignal.fi/ecasound/download.php, and ::
 
   ./configure --enable-jack
-  make 
+  make
   make install
-  
+
 The last line might have to be ::
 
-  sudo make install 
-  
+  sudo make install
+
 Refer also to :ref:`ecasound` for instructions on how to compile Ecasound.
 
 Using SSR on Mac OS X El Capitan
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SSR works well on El Capitan. JACK is what can cause headache. See `JACK on Mac OS X`_ .
-  
+
 Long paths to audio files on Mac OS X
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1223,7 +1223,7 @@ It can happen that SSR displays this error message when loading audio files dire
 
 Opening such a file would result in a JACK port name that is too long. You can resolve
 this limitation by moving the audio file to a location that produces a shorter (full) path
-name or by wrapping the audio file in an asd-file. 
+name or by wrapping the audio file in an asd-file.
 
 Segmentation Fault when Opening a Scene
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1383,5 +1383,5 @@ create) the file ``.bash_profile`` and add the following to this file::
   export LANG=en_US.UTF-8
   export LANGUAGE=en_US.UTF-8
   export LC_CTYPE=en_US.UTF-8
-  
+
 You might have to re-open the terminal or log out and in again to see the effect.

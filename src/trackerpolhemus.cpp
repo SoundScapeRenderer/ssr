@@ -288,7 +288,7 @@ ssr::TrackerPolhemus::thread(void *arg)
 //
 // The data coming from the Polhemus Patriot is similar, except that only two
 // sockets are available and each of the 6 degrees of freedom are represented by
-// 9 bytes, leading to a total of 60 ASCII bytes.  
+// 9 bytes, leading to a total of 60 ASCII bytes.
 
     // extract data
     lineparse >> _current_data.header
@@ -304,6 +304,3 @@ ssr::TrackerPolhemus::thread(void *arg)
   };
   return arg;
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

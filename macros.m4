@@ -107,7 +107,7 @@ dnl Usage: ENABLE_EXPLICIT([name of feature], [description], [test for feature])
 dnl
 dnl The macro provides several things:
 dnl 1) a configure switch --enable-bla including help text (second parameter)
-dnl 
+dnl
 dnl For the rest of the features see ENABLE_AUTO() above.
 
 dnl ENABLE_FORCED(): autoconf macro for configure options (default=yes)

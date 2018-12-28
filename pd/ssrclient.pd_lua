@@ -212,5 +212,3 @@ end
 function SsrClient:in_2_list(atoms)
     for _, f in ipairs(atoms) do self:in_2_float(f) end
 end
-
--- vim:filetype=lua:shiftwidth=4:softtabstop=-1:expandtab:textwidth=80

@@ -80,7 +80,7 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
         , QWidget *parent)
   : QGLWidget(parent),
     _controller(controller),
-    _scene(scene), 
+    _scene(scene),
     _active_source(-1),
     _path_to_gui_images(path_to_gui_images),
     _id_of_last_clicked_source(0),
@@ -141,7 +141,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 {
   QImage image_buffer;
 
-  image_buffer = QImage(); 
+  image_buffer = QImage();
 
   // load SSR logo
   QString path_to_image( _path_to_gui_images.c_str() );
@@ -150,22 +150,22 @@ void ssr::QOpenGLPlotter::_load_background_textures()
   image_buffer.load(path_to_image, "PNG");
 
   if (!image_buffer.isNull()) _ssr_logo_texture = bindTexture(image_buffer);
-  else 
+  else
     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
-  image_buffer = QImage(); 
+  image_buffer = QImage();
 
   // load source shadow texture
-  path_to_image = 
+  path_to_image =
         QString( _path_to_gui_images.c_str() ).append("/source_shadow.png");
 
   image_buffer.load(path_to_image, "PNG");
 
-  if (!image_buffer.isNull()) 
+  if (!image_buffer.isNull())
   {
     _source_shadow_texture = bindTexture(image_buffer);
   }
-  else 
+  else
     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   if (_controller.show_head())
@@ -175,43 +175,43 @@ void ssr::QOpenGLPlotter::_load_background_textures()
     // load listener texture
     image_buffer = QImage();
 
-    path_to_image = 
+    path_to_image =
         QString( _path_to_gui_images.c_str() ).append("/listener.png");
 
     image_buffer.load(path_to_image, "PNG");
 
     if (!image_buffer.isNull()) _listener_texture = bindTexture(image_buffer);
-    else 
+    else
      ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
     // load listener shadow texture
     image_buffer = QImage();
 
-    path_to_image = 
+    path_to_image =
         QString( _path_to_gui_images.c_str() ).append("/listener_shadow.png");
 
     image_buffer.load(path_to_image, "PNG");
 
     if (!image_buffer.isNull())
-    { 
+    {
       _listener_shadow_texture = bindTexture(image_buffer);
     }
-    else 
+    else
      ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
     // load listener background texture
     image_buffer = QImage();
 
-    path_to_image = 
+    path_to_image =
      QString( _path_to_gui_images.c_str() ).append("/listener_background.png");
 
     image_buffer.load(path_to_image, "PNG");
 
-    if (!image_buffer.isNull()) 
+    if (!image_buffer.isNull())
     {
       _listener_background_texture = bindTexture(image_buffer);
     }
-    else 
+    else
      ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   }
@@ -219,14 +219,14 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 
 }
 
-void 
+void
 ssr::QOpenGLPlotter::initializeGL()
 {
   glClearColor(1.0,1.0,1.0,1.0);
 
   // done using Qt now:
   // glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
-  
+
   glEnable(GL_CULL_FACE);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_FASTEST);
 
@@ -239,11 +239,11 @@ ssr::QOpenGLPlotter::initializeGL()
 
   //glPolygonOffset(-0.2, -1.0); // TODO: necessary ???
 
-  glTexParameteri(GL_TEXTURE_2D, 
-		  GL_TEXTURE_MAG_FILTER, 
+  glTexParameteri(GL_TEXTURE_2D,
+		  GL_TEXTURE_MAG_FILTER,
 		  GL_LINEAR_MIPMAP_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, 
-		  GL_TEXTURE_MIN_FILTER, 
+  glTexParameteri(GL_TEXTURE_2D,
+		  GL_TEXTURE_MIN_FILTER,
 		  GL_LINEAR_MIPMAP_NEAREST);
 
   // load TLabs logo and SSR logo
@@ -252,7 +252,7 @@ ssr::QOpenGLPlotter::initializeGL()
   update();
 }
 
-void 
+void
 ssr::QOpenGLPlotter::resizeGL(int width, int height)
 {
   glViewport(0, 0, width * _devicePixelRatio, height * _devicePixelRatio);
@@ -262,11 +262,11 @@ ssr::QOpenGLPlotter::resizeGL(int width, int height)
           -(float)height/_zoom_factor / _devicePixelRatio, (float)height/_zoom_factor / _devicePixelRatio, 1.0, 15.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-	
+
   _glu_quadric = gluNewQuadric();
 }
 
-void 
+void
 ssr::QOpenGLPlotter::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -290,7 +290,7 @@ ssr::QOpenGLPlotter::paintGL()
   _draw_rubber_band();
 }
 
-void 
+void
 ssr::QOpenGLPlotter::_draw_background()
 {
   // background color
@@ -335,7 +335,7 @@ ssr::QOpenGLPlotter::_draw_background()
   glBindTexture(GL_TEXTURE_2D, _ssr_logo_texture);
 
   glLoadName(SSRLOGOINDEX); // ID of logo
-  
+
   glColor3f(1.0f,1.0f,1.0f);
 
   glBegin(GL_QUADS);
@@ -344,7 +344,7 @@ ssr::QOpenGLPlotter::_draw_background()
   glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f*STDZOOMFACTOR/_zoom_factor, 0.5f*STDZOOMFACTOR/_zoom_factor, 0.0f);
   glTexCoord2f(0.0f, 1.0f); glVertex3f(0.0f, 0.5f*STDZOOMFACTOR/_zoom_factor, 0.0f);
   glEnd();
-  
+
   glDisable(GL_TEXTURE_2D);
 
   glPopMatrix();
@@ -358,11 +358,11 @@ void ssr::QOpenGLPlotter::_draw_reference()
   glPushMatrix();
 
   // translate according to reference position
-  glTranslatef(_scene.get_reference().position.x, 
+  glTranslatef(_scene.get_reference().position.x,
                                  _scene.get_reference().position.y, 0.0f);
 
   glPushMatrix();
-  
+
   glLoadName(REFERENCEINDEX1); // ID of handle to rotate listener
 
   float scale = 1.0f;
@@ -371,13 +371,13 @@ void ssr::QOpenGLPlotter::_draw_reference()
   {
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
-    
+
     glBindTexture(GL_TEXTURE_2D, _listener_background_texture);
     gluQuadricTexture(_glu_quadric, GL_TRUE );
     gluDisk(_glu_quadric, 0.0f, 0.7f, LEVELOFDETAIL,1);
-    
+
     glTranslatef(0.03f, -0.03f, 0.0f);
-   
+
     // rotate according to reference position
     glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
 
@@ -389,12 +389,12 @@ void ssr::QOpenGLPlotter::_draw_reference()
       glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.35f,  0.35f, 0.0f);
       glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.35f,  0.35f, 0.0f);
     glEnd();
-    
+
     glPopMatrix();
 
     // rotate according to reference position
     glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
-    
+
     glBindTexture(GL_TEXTURE_2D, _listener_texture);
 
     glBegin(GL_QUADS);
@@ -403,7 +403,7 @@ void ssr::QOpenGLPlotter::_draw_reference()
       glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.3f,  0.3f, 0.0f);
       glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.3f,  0.3f, 0.0f);
     glEnd();
-    
+
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
   }
@@ -454,7 +454,7 @@ void ssr::QOpenGLPlotter::_draw_reference()
       glVertex3f( 0.0f, -0.02f * scale, 0.0f);
       glVertex3f( 0.0f,  0.03f * scale, 0.0f);
     glEnd();
-  } 
+  }
 
   glPopMatrix();
   glPopMatrix();
@@ -523,7 +523,7 @@ void ssr::QOpenGLPlotter::_draw_objects()
 
   for (source_buffer_list_t::const_iterator i = source_buffer_list.begin(); i != source_buffer_list.end(); i++)
   {
-   
+
     glPushMatrix();
 
     // go to source position
@@ -544,7 +544,7 @@ void ssr::QOpenGLPlotter::_draw_objects()
   glDisable(GL_MULTISAMPLE);
 }
 
-void 
+void
 ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
 			     unsigned int index)
 {
@@ -553,7 +553,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
   bool selected = false;
   bool soloed = false;
 
-  if (_selected_sources_map.find(index) != _selected_sources_map.end()) 
+  if (_selected_sources_map.find(index) != _selected_sources_map.end())
   {
     selected = true;
   }
@@ -562,7 +562,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
   {
     soloed = true;
   }
-  
+
   // check if source is selected
   if (selected) scale = 2.0f;
 
@@ -588,7 +588,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
 
   // make sure that source is drawn on top
   //if (selected) glTranslatef(0.0f, 0.0f, 0.2f);
-  //else          
+  //else
   glTranslatef(0.0f, 0.0f, 0.1f);
   // TODO: make it more elegant
 
@@ -617,7 +617,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
   if (soloed)
   {
     gluPartialDisk(_glu_quadric, 0.2f * scale, 0.22f * scale,
-		   LEVELOFDETAIL, 1, 55.0f, 70.0f);  
+		   LEVELOFDETAIL, 1, 55.0f, 70.0f);
     gluPartialDisk(_glu_quadric, 0.2f * scale, 0.22f * scale,
 		   LEVELOFDETAIL, 1, 235.0f, 70.0f);
   }
@@ -625,7 +625,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
   // choose color
   if (source->mute) glColor3f(0.5f, 0.5f, 0.5f);
   else qglColor(_color_vector[source->id%_color_vector.size()]);
-    
+
   // draw ring around source
   gluDisk(_glu_quadric, 0.14f * scale, 0.15f * scale, LEVELOFDETAIL, 1);
 
@@ -727,7 +727,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
 
     if (source->mute) glColor3f(0.5f, 0.5f, 0.5f);
       else qglColor(_color_vector[source->id%_color_vector.size()]);
-      
+
     // plot ring segments
     gluPartialDisk(_glu_quadric, 0.18f * scale, 0.19f * scale, LEVELOFDETAIL, 1, 105.0f, 75.0f);
     gluPartialDisk(_glu_quadric, 0.18f * scale, 0.19f * scale, LEVELOFDETAIL, 1,   0.0f, 90.0f);
@@ -949,9 +949,9 @@ int ssr::QOpenGLPlotter::_find_selected_object(const QPoint &pos)
 }
 
 
-void ssr::QOpenGLPlotter::_get_openGL_pos(int x, int y, 
+void ssr::QOpenGLPlotter::_get_openGL_pos(int x, int y,
 				     GLdouble* pos_x,
-                                     GLdouble* pos_y, 
+                                     GLdouble* pos_y,
 				     GLdouble* pos_z)
 {
   GLint viewport[4];
@@ -973,8 +973,8 @@ void ssr::QOpenGLPlotter::_get_openGL_pos(int x, int y,
                projection, viewport, pos_x, pos_y, pos_z);
 }
 
-void ssr::QOpenGLPlotter::_get_pixel_pos(GLdouble pos_x, 
-				    GLdouble pos_y, 
+void ssr::QOpenGLPlotter::_get_pixel_pos(GLdouble pos_x,
+				    GLdouble pos_y,
 				    GLdouble pos_z,
 				    int* x, int* y)
 {
@@ -1103,6 +1103,3 @@ void ssr::QOpenGLPlotter::_deselect_all_sources()
   _selected_sources_map.clear();
   _id_of_last_clicked_source = 0;
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

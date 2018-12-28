@@ -3,7 +3,7 @@ User-visible changes in the SoundScape Renderer. Recent changes on top.
 0.5.0 (16 November 2018)
 
  - GUI now uses Qt5
- 
+
  - the exponent that determines distance attenuation of the amplitude in the
    virtual space can be set by the user
 

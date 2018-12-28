@@ -43,7 +43,7 @@ namespace ssr
 
 struct Publisher; // forward declaration
 
-/// VRPN tracker 
+/// VRPN tracker
 class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
 {
   public:
@@ -85,6 +85,3 @@ class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

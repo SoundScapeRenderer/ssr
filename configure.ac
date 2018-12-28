@@ -8,8 +8,8 @@ dnl see http://www.gnu.org/software/autoconf/manual/ for further information
 
 dnl Ensure that a recent enough version of Autoconf is being used.
 dnl Only from version 2.65 PACKAGE_URL will be set in config.h.
-dnl see http://www.mail-archive.com/autoconf@gnu.org/msg19725.html 
-dnl see http://www.gnu.org/software/autoconf/manual/autoconf.html#Versioning 
+dnl see http://www.mail-archive.com/autoconf@gnu.org/msg19725.html
+dnl see http://www.gnu.org/software/autoconf/manual/autoconf.html#Versioning
 AC_PREREQ([2.65])
 
 dnl initialize autoconf, this should be the first thing in configure.ac
@@ -53,10 +53,10 @@ dnl Compute the canonical host-system type variable, 'host', and its three
 dnl individual parts 'host_cpu', 'host_vendor', and 'host_os'.
 dnl AC_CANONICAL_HOST
 
-dnl Runs many macros required for proper operation of the generated Makefiles. 
+dnl Runs many macros required for proper operation of the generated Makefiles.
 dnl see http://sources.redhat.com/automake/automake.html#Options for options
 dnl
-dnl We use the option "foreign" because we do not provide a ChangeLog-file. 
+dnl We use the option "foreign" because we do not provide a ChangeLog-file.
 dnl Major changes are documented in the NEWS file.
 AM_INIT_AUTOMAKE([foreign std-options subdir-objects -Wall])
 
@@ -71,9 +71,9 @@ PKG_PROG_PKG_CONFIG
 dnl Create header file(s) with C preprocessor #define statements (e.g. ENABLE_*)
 AC_CONFIG_HEADERS(src/config.h)
 
-dnl AM_MAINTAINER_MODE enables automatic rebuild rules only using 
+dnl AM_MAINTAINER_MODE enables automatic rebuild rules only using
 dnl ./configure --enable-maintainer-mode. This can lead to insecurity.
-dnl We avoid using this Macro. 
+dnl We avoid using this Macro.
 dnl see: http://www.gnu.org/software/hello/manual/automake/maintainer_002dmode.html#maintainer_002dmode
 dnl see: https://cims.nyu.edu/cgi-systems/info2html?(automake)Rebuilding
 
@@ -114,13 +114,13 @@ dnl TODO: check if we need AM_PROG_CC_C_O!
 dnl AM_PROG_CC_C_O
 
 dnl Macro AC_PROG_LD is obsolete.
-dnl Please use LT_PATH_LD when necessity is discovered. 
+dnl Please use LT_PATH_LD when necessity is discovered.
 dnl see: http://lists.gnu.org/archive/html/autoconf/2010-05/msg00016.html
 dnl AC_PROG_LD
 
 dnl Check how the architecture deals with big-endian.
 dnl The default for action-if-true is to define ‘WORDS_BIGENDIAN’. The default
-dnl for action-if-false is to do nothing. 
+dnl for action-if-false is to do nothing.
 dnl AC_C_BIGENDIAN
 
 dnl AC_DEFINE writes values in config.h
@@ -266,9 +266,9 @@ ENABLE_AUTO([optimization], [code optimization],
 
     dnl OPT_FLAGS="$OPT_FLAGS -fexpensive-optimizations"
 
-    dnl its a little sad that OS X doesn't make it possible to identify 
+    dnl its a little sad that OS X doesn't make it possible to identify
     dnl the target_cpu a little more precisely. on os x we always get "i386"
-    dnl as the CPU type. we miss out on some possible optimizations as 
+    dnl as the CPU type. we miss out on some possible optimizations as
     dnl a result. oh well.
     dnl anyway, the user can specify -march with CXXFLAGS, if desired
     AS_IF([test $target_cpu = i586],   [OPT_FLAGS="$OPT_FLAGS -march=i586"],
@@ -524,7 +524,7 @@ ENABLE_FORCED([ip-interface], [network (TCP/IP) interface (needs Asio, https://t
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
 [
   dnl Checking for libecasoundc. It does not provide pkg-config and installs
-  dnl on some systems to non-standard path /usr/include/libecasoundc. 
+  dnl on some systems to non-standard path /usr/include/libecasoundc.
   AC_MSG_CHECKING([for non-default libecasoundc include directory])
   for incdir in /{usr,opt}/{,local/}include/libecasoundc; do
     AS_IF([test -d $incdir], [ECASOUND_INCLUDE="$incdir"])
@@ -595,7 +595,7 @@ ENABLE_AUTO([intersense], [InterSense tracker support],
 
   dnl the InterSense people changed the API with version 4.04!
 
-  dnl Checking for InterSense header 
+  dnl Checking for InterSense header
   AC_CHECK_HEADER([isense.h], , [have_intersense=no])
   AC_CHECK_HEADER([types.h],  , [have_intersense=no])
 
@@ -797,6 +797,3 @@ echo 'If everything looks OK, continue with "make" and "make dmg".'
 echo 'If everything looks OK, continue with "make" and "make install".'
 ])
 echo
-
-dnl Settings for Vim (http://www.vim.org/), please do not remove:
-dnl vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:comments+=bO\:dnl

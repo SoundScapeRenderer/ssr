@@ -23,7 +23,7 @@
 # Switch off auto-rotation of sound sources toward the reference
 #AUTO_ROTATION = off
 
-# Default Scene file name 
+# Default Scene file name
 #SCENE_FILE_NAME = my_scene.asd
 
 # GUI scene shortcuts
@@ -91,7 +91,7 @@
 # Listening server port
 #SERVER_PORT = 8443
 
-# ASCII code of character to end messages with (binary zero: 0; new line: 10; 
+# ASCII code of character to end messages with (binary zero: 0; new line: 10;
 # carriage return: 13)
 #END_OF_MESSAGE_CHARACTER = 10
 

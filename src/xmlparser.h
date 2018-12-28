@@ -161,6 +161,3 @@ std::string get_content(const xmlNodePtr& node);      ///< get node content
 std::string get_content(const XMLParser::Node& node); ///< get node content
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

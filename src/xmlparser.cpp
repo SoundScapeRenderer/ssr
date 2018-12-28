@@ -446,6 +446,3 @@ std::ostream& operator<<(std::ostream& stream, const XMLParser::Node& node)
   stream << (char*)node.get()->name;
   return stream;
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -9,10 +9,10 @@
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,7 +39,7 @@ namespace apf
 
 template<typename T> class LockFreeFifo;  // undefined, use LockFreeFifo<T*>!
 
-/** Lock-free first-in-first-out (FIFO) queue. 
+/** Lock-free first-in-first-out (FIFO) queue.
  * It is thread-safe for single reader/single writer access.
  * One thread may use push() to en-queue items and another thread may use pop()
  * to de-queue items.
@@ -78,7 +78,7 @@ LockFreeFifo<T*>::LockFreeFifo(size_t size)
 {}
 
 /** Add an item to the queue.
- * @param item pointer to an item to be added. 
+ * @param item pointer to an item to be added.
  * @return @b true on success, @b false if queue is full.
  * @attention You have to check the return value to be sure the item has
  *   actually been added.
@@ -90,18 +90,18 @@ LockFreeFifo<T*>::push(T* item)
   if (item == nullptr) return false;
 
   // Concurrent reading and writing is safe for one reader and writer. Once
-  // the _read_index is read the _write_index won't change before reading 
+  // the _read_index is read the _write_index won't change before reading
   // it, because it is modified only in this function. This won't work for
-  // multiple readers/writers.  
+  // multiple readers/writers.
   auto r = _read_index;
   auto w = _write_index;
 
-  // Move write pointer by FIFO-size in order to compute the distance to 
-  // the read pointer in next step. 
+  // Move write pointer by FIFO-size in order to compute the distance to
+  // the read pointer in next step.
   if (w < r) w += _size;
 
   // Check if FIFO is full and return false instead of waiting until space is
-  // freed. (Prevent read pointer to overtake write pointer.) 
+  // freed. (Prevent read pointer to overtake write pointer.)
   if (w-r > _size-2) return false;
 
   _data[w & _size_mask] = item;
@@ -112,7 +112,7 @@ LockFreeFifo<T*>::push(T* item)
 }
 
 /** Get an item and remove it from the queue.
- * @return Pointer to the item, @b 0 if queue is empty. 
+ * @return Pointer to the item, @b 0 if queue is empty.
  **/
 template<typename T>
 T*
@@ -144,6 +144,3 @@ LockFreeFifo<T*>::empty() const
 }  // namespace apf
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

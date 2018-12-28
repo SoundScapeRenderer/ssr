@@ -78,7 +78,7 @@ struct Publisher
       const std::string& file_or_port_name, int channel = 0,
       const Position& position = Position(), const bool pos_fix = false,
       const Orientation& orientation = Orientation(), const bool or_fix = false,
-      const float gain = 1.0f, const bool mute_state = false, 
+      const float gain = 1.0f, const bool mute_state = false,
       const std::string& properties_file = "") = 0;
 
   /// delete a source
@@ -168,6 +168,3 @@ struct Publisher
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

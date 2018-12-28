@@ -87,4 +87,4 @@ New policies can be provided in user code!
 /// @namespace apf
 /// Audio Processing Framework
 
-// vim:textwidth=80
+// vim:filetype=cpp

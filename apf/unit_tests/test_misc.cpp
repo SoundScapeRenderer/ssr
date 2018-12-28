@@ -155,6 +155,3 @@ SECTION("check if move ctor and move assignment is used", "")
 }
 
 } // TEST_CASE
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

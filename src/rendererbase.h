@@ -475,24 +475,24 @@ void RendererBase<Derived>::Source::_process()
     // apply distance attenuation
     if (std::strcmp(this->parent.name(), "BrsRenderer") != 0
          && std::strcmp(this->parent.name(), "GenericRenderer") != 0)
-    {    
+    {
       if (this->model != ::Source::plane)
       {
         float source_distance = (this->position
           - (_input.parent.state.reference_position
             + _input.parent.state.reference_offset_position)).length();
-      
+
         // no volume increase for sources closer than 0.5 m
         source_distance = std::max(source_distance, 0.5f);
 
        // standard 1/r: weight *= 1.0f / source_distance;
-       this->weighting_factor *= 1.0f 
+       this->weighting_factor *= 1.0f
          / pow(source_distance, _input.parent.state.decay_exponent); // 1/r^e
 
        // plane wave always have the same amplitude independent of the amplitude
        // reference distance and the decay exponent; normalize all other sources
-       // accordingly 
-       this->weighting_factor *= 
+       // accordingly
+       this->weighting_factor *=
          pow(_input.parent.state.amplitude_reference_distance,
            _input.parent.state.decay_exponent);
       } // if model::plane
@@ -600,6 +600,3 @@ struct SourceToOutput : Base<Derived>
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

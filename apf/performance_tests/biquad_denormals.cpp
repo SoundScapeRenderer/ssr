@@ -145,6 +145,3 @@ int main()
 
   TEST_BIQUAD(malignant_flt, malignant_dbl, apf::dp::none)
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

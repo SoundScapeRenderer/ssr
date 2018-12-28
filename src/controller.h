@@ -296,7 +296,7 @@ class Controller : public Publisher
         , int channel) const;
     bool _create_spontaneous_scene(const std::string& audio_file_name);
 
-    bool _loop; ///< part of a quick-hack. should be removed some time.  
+    bool _loop; ///< part of a quick-hack. should be removed some time.
 
     std::unique_ptr<typename Renderer::template ScopedThread<
       typename Renderer::QueryThread>> _query_thread;
@@ -395,7 +395,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   {
 
     VERBOSE("Starting IP Server with port " << _conf.server_port
-        << " and with end-of-message character with ASCII code " << 
+        << " and with end-of-message character with ASCII code " <<
         _conf.end_of_message_character << ".");
 
     _network_interface.reset(new Server(*this, _conf.server_port
@@ -905,7 +905,7 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
     this->set_reference_orientation(*dir_ptr);
     this->set_reference_offset_position(Position());
     this->set_reference_offset_orientation(Orientation());
-   
+
     // LOAD SOURCES
 
     xpath_result = scene_file->eval_xpath("//scene_setup/source");
@@ -1315,7 +1315,7 @@ Controller<Renderer>::set_auto_rotation(bool auto_rotate_sources)
 {
   _publish(&Subscriber::set_auto_rotation, auto_rotate_sources);
 
-  if (auto_rotate_sources) 
+  if (auto_rotate_sources)
   {
     orient_all_sources_toward_reference();
 
@@ -1342,7 +1342,7 @@ Controller<Renderer>::transport_stop()
 }
 
 /** Skips the scene to a specified instant of time
- * @ param frame instant of time in sec to locate 
+ * @ param frame instant of time in sec to locate
  **/
 template<typename Renderer>
 bool
@@ -1430,15 +1430,15 @@ Controller<Renderer>::new_source(const std::string& name
   // mute while transmitting data
   _publish(&Subscriber::set_source_mute, id, true);
   _publish(&Subscriber::set_source_gain, id, gain);
- 
+
   // make sure that source orientation is handled correctly
   this->set_source_position(id, position);
 
   _publish(&Subscriber::set_source_position_fixed, id, pos_fixed);
-  
+
   // make sure that source orientation is handled correctly
   this->set_source_orientation(id, orientation);
-    
+
   // _publish(&Subscriber::set_source_orientation_fix, id, or_fix);
   _publish(&Subscriber::set_source_name, id, name);
   _publish(&Subscriber::set_source_model, id, model);
@@ -1491,7 +1491,7 @@ Controller<Renderer>::set_source_position(const id_t id, const Position& positio
 
     // make source face the reference
     if (_scene.get_auto_rotation())
-    { 
+    {
       // new orientation will be published automatically
       orient_source_toward_reference(id);
     }
@@ -1512,25 +1512,25 @@ Controller<Renderer>::set_source_orientation(const id_t id
   // check if source may be rotated
   if (!_scene.get_source_position_fixed(id))
   {
-    if (_scene.get_auto_rotation()) 
+    if (_scene.get_auto_rotation())
     {
       VERBOSE2("Ignoring update of source orientation."
         << " Auto-rotation is enabled.");
     }
-    else 
+    else
     {
       _publish(&Subscriber::set_source_orientation, id, orientation);
     }
   }
   else
   {
-    WARNING("Source \'" << _scene.get_source_name(id) 
+    WARNING("Source \'" << _scene.get_source_name(id)
       << "\' cannot be rotated.");
   }
 }
 
 template<typename Renderer>
-void 
+void
 Controller<Renderer>::orient_source_toward_reference(const id_t id)
 {
   // take reference offset into account?
@@ -1542,7 +1542,7 @@ Controller<Renderer>::orient_source_toward_reference(const id_t id)
 }
 
 template<typename Renderer>
-void 
+void
 Controller<Renderer>::orient_all_sources_toward_reference()
 {
   typename SourceCopy::container_t sources;
@@ -1652,7 +1652,7 @@ void
 Controller<Renderer>::set_reference_offset_position(const Position& position)
 {
   _publish(&Subscriber::set_reference_offset_position, position);
-  
+
   // make sources face the reference // has no effect currently
   //if (_scene.get_auto_rotation()) orient_all_sources_toward_reference();
 }
@@ -1951,6 +1951,3 @@ Controller<Renderer>::_add_audio_file_name(Node& node, const std::string& name
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

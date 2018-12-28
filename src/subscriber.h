@@ -92,7 +92,7 @@ struct Subscriber
   /// @param mute mute if @b true, unmute if @b false
   /// @attention 2nd argument is given by const reference to facilitate the
   /// _publish() function in the Controller class.
-  virtual bool set_source_mute(id_t id, const bool& mute)  = 0; 
+  virtual bool set_source_mute(id_t id, const bool& mute)  = 0;
 
   /// Set source name.
   /// @param id ID of the source
@@ -177,6 +177,3 @@ struct Subscriber
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

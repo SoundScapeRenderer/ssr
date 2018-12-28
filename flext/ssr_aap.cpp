@@ -33,6 +33,3 @@
 #include "aaprenderer.h"
 
 SSR_FLEXT_INSTANCE(aap, ssr::AapRenderer)
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

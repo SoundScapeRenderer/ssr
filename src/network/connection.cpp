@@ -25,7 +25,7 @@
  ******************************************************************************/
 
 /// @file
-/// Connection class (implementation). 
+/// Connection class (implementation).
 
 #include <functional>
 #include <memory>
@@ -52,7 +52,7 @@ ssr::Connection::~Connection()
 }
 
 /** Get an instance of Connection.
- * @param io_service 
+ * @param io_service
  * @param controller used to (un)subscribe and get the actual Scene
  * @return ptr to Connection
  **/
@@ -80,7 +80,7 @@ ssr::Connection::start()
   _is_subscribed = true;
   // this stuff should perhaps get refactored.
   // need to think about this. not sure if i like this mixed into
-  // the Connection code. 
+  // the Connection code.
   std::string whole_scene = _controller.get_scene_as_XML();
   this->write(whole_scene);
   // And we can also start_read ing.
@@ -111,7 +111,7 @@ ssr::Connection::timeout_handler(const asio::error_code &e)
         , std::placeholders::_1));
 }
 
-/// Start reading from socket. 
+/// Start reading from socket.
 void
 ssr::Connection::start_read()
 {
@@ -146,7 +146,7 @@ ssr::Connection::read_handler(const asio::error_code &error
 }
 
 /** Write to socket.
- * @param writestring: String to be send over the network. 
+ * @param writestring: String to be send over the network.
  **/
 void
 ssr::Connection::write(std::string &writestring)
@@ -156,7 +156,7 @@ ssr::Connection::write(std::string &writestring)
   // handler. This is sufficient to make it
   // be destroyed on exit.
 
-  std::shared_ptr<std::string> str_ptr(new std::string(writestring 
+  std::shared_ptr<std::string> str_ptr(new std::string(writestring
       + _end_of_message_character));
 
   asio::async_write(_socket, asio::buffer(*str_ptr)
@@ -165,11 +165,11 @@ ssr::Connection::write(std::string &writestring)
         , std::placeholders::_2));
 }
 
-/** Empty callback handler.  
+/** Empty callback handler.
  *
- * @param str_ptr String passed to Connection::write 
+ * @param str_ptr String passed to Connection::write
  * @param error error code
- * @param bytes_transferred self explanatory 
+ * @param bytes_transferred self explanatory
  *
  * @todo Check if we can delete this function.
  **/
@@ -184,6 +184,3 @@ ssr::Connection::write_handler(std::shared_ptr<std::string> str_ptr
   // the shared_ptr was just used to keep the string alive and
   // destroy it now.
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

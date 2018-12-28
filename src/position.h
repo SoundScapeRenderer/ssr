@@ -37,7 +37,7 @@
  * If you want to speak in design patterns, you could call this a "Messenger"
  * patter. It's the most trivial of all patterns. So maybe it's not even worth
  * mentioning. But I did it anyway ...
- * @warning For now, it only uses 2 dimensions (x,y) but a z coordinate can be 
+ * @warning For now, it only uses 2 dimensions (x,y) but a z coordinate can be
  * added later, if needed.
  **/
 struct Position
@@ -96,6 +96,3 @@ float angle(const Position& point, const Orientation& orientation);
 // TODO: declare angle() also as friend of Position?
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

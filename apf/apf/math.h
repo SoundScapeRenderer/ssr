@@ -9,10 +9,10 @@
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -189,7 +189,7 @@ inline T wrap_two_pi(T x)
 
 /** Find a power of 2 which is >= a given number.
  * @param number number for which to find next power of 2
- * @return power of 2 above (or equal to) \b number 
+ * @return power of 2 above (or equal to) \b number
  * @note For all @p number%s <= 1 the result is 1;
  **/
 template<typename T>
@@ -336,6 +336,3 @@ struct identity { const T& operator()(const T& in) { return in; } };
 }  // namespace apf
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

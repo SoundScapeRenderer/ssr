@@ -45,7 +45,3 @@ interface).
 
 For documentation about the SSR's network protocol, have a look at the
 [SSR manual](http://ssr.rtfd.org/en/latest/network.html).
-
-<!--
-vim:textwidth=80
--->

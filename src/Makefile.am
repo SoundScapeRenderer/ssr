@@ -238,7 +238,7 @@ SUFFIXES = _moc.cpp
 endif
 
 doc:
-	@echo "Running doxygen..." 
+	@echo "Running doxygen..."
 	@test -f Doxyfile || (echo \"Doxyfile\" not found! && false)
 	@( cat Doxyfile \
 		; echo PROJECT_NUMBER = '"Version @PACKAGE_VERSION@"'\
@@ -257,6 +257,3 @@ clean-local:
 	$(RM) gui/*_moc.cpp
 	$(RM) -r $(DOXYGEN_DOC_DIR)
 	cd ../data && for prog in $(bin_PROGRAMS) ; do $(RM) $$prog ; done
-
-## Settings for Vim (http://www.vim.org/), please do not remove:
-## vim:textwidth=80:comments+=bO\:##

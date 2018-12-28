@@ -152,6 +152,3 @@ void QZoomLabel::paintEvent( QPaintEvent * event)
   painter.drawLine(line_down_2);
   painter.drawLine(line_up_2);
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

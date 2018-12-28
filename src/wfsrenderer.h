@@ -342,7 +342,7 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
         float_delay = (src_pos - ref_off.position).length()
           - reference_distance;
 
-        // setting the subwoofer amplitude to 1 is the unwritten standard 
+        // setting the subwoofer amplitude to 1 is the unwritten standard
         // (cf. AAP renderer)
         weighting_factor = 1.0f;
 
@@ -489,14 +489,14 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
     // exclude subwoofers as there is no inherent amplitude decay
     if (ls.model != Loudspeaker::subwoofer)
     {
-      weighting_factor *= 
-        std::sqrt(std::max((src_pos - ref_off.position).length(), 0.5f)); 
+      weighting_factor *=
+        std::sqrt(std::max((src_pos - ref_off.position).length(), 0.5f));
     }
   }
 #elif defined(WEIGHTING_DELFT)
 // TODO: Undo default distance attenuation
 #endif
-  
+
   // apply the gain factor of the current source
   weighting_factor *= in.source.weighting_factor;
 
@@ -575,6 +575,3 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

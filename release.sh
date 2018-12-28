@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# This script automates the necessary steps for releasing the SSR. 
+# This script automates the necessary steps for releasing the SSR.
 
 run_command()
 {
@@ -43,6 +43,3 @@ run_command make $MAKE_OPTIONS
 run_command make distcheck $MAKE_OPTIONS
 
 echo $0: Done!
-
-# Settings for Vim (http://www.vim.org/), please do not remove:
-# vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80

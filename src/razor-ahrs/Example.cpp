@@ -20,7 +20,7 @@ using namespace std;
 
 
 // Set your serial port here!
-//const string serial_port_name = "/dev/tty.FireFly-6162-SPP"; 
+//const string serial_port_name = "/dev/tty.FireFly-6162-SPP";
 const string serial_port_name = "/dev/tty.usbserial-A700eEhN";
 //const string serial_port_name = "/dev/ttyUSB0"; // a good guess on linux
 
@@ -30,9 +30,9 @@ const string serial_port_name = "/dev/tty.usbserial-A700eEhN";
 void on_error(const string &msg)
 {
   cout << "  " << "ERROR: " << msg << endl;
-  
+
   // NOTE: make a copy of the message if you want to save it or send it to another thread. do not
-  // save or pass the reference itself, it will not be valid after this function returns! 
+  // save or pass the reference itself, it will not be valid after this function returns!
 }
 
 // Razor data callback handler
@@ -43,7 +43,7 @@ void on_data(const float ypr[])
 
   // NOTE: make a copy of the yaw/pitch/roll data if you want to save it or send it to another
   // thread. do not save or pass the pointer itself, it will not be valid after this function
-  // returns! 
+  // returns!
 }
 
 RazorAHRS *razor;
@@ -54,29 +54,29 @@ int main()
   cout << "  " << "Press RETURN to connect to tracker. When you're done press RETURN again to quit." << endl;
   getchar();  // wait RETURN
   cout << "  " << "Connecting..." << endl << endl;
-  
+
   try
   {
     // Create Razor AHRS object. Serial I/O will run in background thread and report
     // errors and data updates using the callbacks on_data() and on_error().
     razor = new RazorAHRS(serial_port_name, on_data, on_error);
-    
+
     // NOTE: If these callback functions were members of a class and not global
     // functions, you would have to bind them before passing. Like this:
-    
+
     // class Callback
     // {
     //   public:
     //     void on_data(const float ypr[]) { }
     //     void on_error(const string &msg) { }
     // };
-    
+
     // Callback c;
-    
+
     // razor = new RazorAHRS(serial_port_name,
     //    bind(&Callback::on_data, &c, placeholders::_1),
     //    bind(&Callback::on_error, &c, placeholders::_1));
-    
+
     // If you're calling from inside of "c" you would of course use "this" instead of "&c".
   }
   catch(runtime_error &e)
@@ -85,7 +85,7 @@ int main()
     cout << "  " << "Did you set your serial port in Example.cpp?" << endl;
     return 0;
   }
-  
+
   getchar();  // wait RETURN
   return 0;
 }

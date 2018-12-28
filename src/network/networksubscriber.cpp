@@ -25,7 +25,7 @@
  ******************************************************************************/
 
 /// @file
-/// NetworkSubscriber class (implementation). 
+/// NetworkSubscriber class (implementation).
 
 #include "networksubscriber.h"
 #include "apf/stringtools.h"
@@ -315,7 +315,7 @@ ssr::NetworkSubscriber::set_transport_state(
   }
 }
 
-void 
+void
 ssr::NetworkSubscriber::set_auto_rotation(bool auto_rotate_sources)
 {
   (void) auto_rotate_sources;
@@ -356,6 +356,3 @@ ssr::NetworkSubscriber::set_source_signal_level(const id_t id, const float& leve
   //update_all_clients(ms);
   return true;
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

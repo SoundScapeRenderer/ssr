@@ -199,7 +199,7 @@ Code can also be deactivated by surrounding it with #if 0 ... #endif
 // DOXYGEN COMMENTS
 //
 // everything should be documented, doxygen should run without warnings.
-// 
+//
 // the abovementioned rules for C and C++-style comments apply.
 // especially, there should be an empty line before multi-line comments.
 // C-style comments should only be used for class and function documentation and
@@ -224,12 +224,4 @@ T example_function(const T& x, T& y, T& z)
   return x * y;
 }
 
-// MODELINES
-//
-// all source files should include a modeline for Vim as shown in the last two
-// lines of this file.
-
-// Only necessary for this textfile: vim:syntax=cpp.doxygen
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent
+// vim:filetype=cpp

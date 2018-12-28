@@ -18,4 +18,4 @@ And run it:
   ./example
 
 
-Sorry, no support for Windows. But you could try to compile using cygwin. 
+Sorry, no support for Windows. But you could try to compile using cygwin.

@@ -99,7 +99,7 @@ void QSSRTimeLine::mousePressEvent(QMouseEvent *event)
     emit signal_transport_locate(_progress + 5.0f);
   }
   else if (event->buttons() == Qt::RightButton)
-  { 
+  {
     show_time_edit();
   }
 
@@ -118,7 +118,7 @@ void QSSRTimeLine::mouseMoveEvent(QMouseEvent *event)
     emit signal_transport_locate(current_progress);
   }
   else emit signal_transport_locate(0.0f);
- 
+
 }
 
 void QSSRTimeLine::mouseDoubleClickEvent(QMouseEvent *event)
@@ -214,7 +214,7 @@ void QSSRTimeLine::paintEvent( QPaintEvent * event)
   // set seconds
   QString time = QString().setNum(sec);
 
-  if (sec < 10) time.prepend("0"); 
+  if (sec < 10) time.prepend("0");
 
   // set minutes
   time.prepend(QString().setNum(min) + ":");
@@ -229,7 +229,7 @@ void QSSRTimeLine::paintEvent( QPaintEvent * event)
 
  // enable anti-aliasing
   painter.setRenderHint(QPainter::TextAntialiasing);
-  
+
   painter.drawText(QPointF(handle_position - 7.0f, 35.0f), time);
 }
 
@@ -251,14 +251,14 @@ void QSSRTimeLine::_interpret_time_edit()
       new_time += text.section(':',-2,-2).toFloat(&conversion_ok) * 60;
     }
 
-    if (conversion_ok && (text.size() > 6) && 
+    if (conversion_ok && (text.size() > 6) &&
 	(QString(text.at(text.size() - 6)) == ":"))
     {
       // hours
       new_time += text.section(':',0,-3).toFloat(&conversion_ok) * 3600;
     }
-  }    
-  else 
+  }
+  else
   {
     // interpret all as seconds
     new_time = text.toFloat(&conversion_ok);
@@ -283,6 +283,3 @@ void QSSRTimeLine::hide_time_edit()
   _time_edit->clearFocus();
   _time_edit->setVisible(false);
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

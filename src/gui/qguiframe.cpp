@@ -65,15 +65,15 @@ void QGUIFrame::mouseMoveEvent(QMouseEvent *event)
   event->accept();
 }
 
-void QGUIFrame::resize(const int top, const int bottom, 
+void QGUIFrame::resize(const int top, const int bottom,
 		       const int left, const int right)
 {
   _top->setGeometry( 0, 0, parentWidget()->width(), top );
-  _bottom->setGeometry( 0, parentWidget()->height()-bottom, 
+  _bottom->setGeometry( 0, parentWidget()->height()-bottom,
 			parentWidget()->width(), bottom );
-  _left->setGeometry( 0, top, 
+  _left->setGeometry( 0, top,
 		      left, parentWidget()->height()-top-bottom);
-  _right->setGeometry( parentWidget()->width()-right, top, 
+  _right->setGeometry( parentWidget()->width()-right, top,
 		       right, parentWidget()->height()-top-bottom );
 
   _bottom->setIndent(left + 5);
@@ -87,7 +87,7 @@ void QGUIFrame::set_text(const QString text)
   {
     _clear_text_timer->stop();
   }
-      
+
   _clear_text_timer->start(5000); // 5 seconds
 }
 
@@ -95,6 +95,3 @@ void QGUIFrame::_clear_text()
 {
   _bottom->clear();
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -398,7 +398,7 @@ inline std::string make_path_relative_to_file(const std::string& path
  * @param path A path given relative to @p filename.
  *   If @p path is absolute or empty, it is not changed. If @p path has a
  *   trailing slash, the result will also have a trailing slash.
- *   If @p path is relative, the result is also relative. 
+ *   If @p path is relative, the result is also relative.
  * @param filename The directory part of @p filename is prepended to @p path.
  * @return @p path prepended with the directory name of @p filename.
  * @warning This function expects UNIX-style paths!
@@ -472,6 +472,3 @@ inline std::string get_escaped_filename(const std::string& filename)
 }  // namespace posixpathtools
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -143,7 +143,7 @@ void QVolumeSlider::paintEvent(QPaintEvent * event)
   {
     painter.setPen(QPen(QColor(58,239,58)));
     painter.setBrush(QBrush(QColor(58,239,58))); // green
-   
+
     // draw green part of level bar
     painter.drawRect(SIDEMARGIN+1, 1, static_cast<int>((-6.0f-LOWERLIMIT)/(UPPERLIMIT-LOWERLIMIT)
 		     * (width()-2*SIDEMARGIN - 1)), height()-BOTTOMMARGIN-2);
@@ -153,10 +153,10 @@ void QVolumeSlider::paintEvent(QPaintEvent * event)
 
     // draw yellow part of level bar
     painter.drawRect(static_cast<int>((-6.0f-LOWERLIMIT)/(UPPERLIMIT-LOWERLIMIT)
-				      * (width()-2*SIDEMARGIN - 1)) + SIDEMARGIN + 2, 
-		     1, 
+				      * (width()-2*SIDEMARGIN - 1)) + SIDEMARGIN + 2,
+		     1,
 		     static_cast<int>((level+6.0f)/(UPPERLIMIT-LOWERLIMIT)
-				      * (width()-2*SIDEMARGIN - 1)), 
+				      * (width()-2*SIDEMARGIN - 1)),
 		     height()-BOTTOMMARGIN-2);
   }
 
@@ -198,12 +198,9 @@ void QVolumeSlider::paintEvent(QPaintEvent * event)
   // draw QLabel stuff (i.e. text) on top
   //QLabel::paintEvent(event);
 
-  // this is a quick-hack to avoid error messages 
+  // this is a quick-hack to avoid error messages
   //this->setText(this->text());
   painter.setPen(QPen(QColor(0, 0, 0)));
   painter.drawText(QRect(0, -3, width(), height()), Qt::AlignCenter, text());
 
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

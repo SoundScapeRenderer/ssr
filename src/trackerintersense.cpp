@@ -106,8 +106,8 @@ ssr::TrackerInterSense::TrackerInterSense(Publisher& controller
   }
 
   // restore stdout and stderr
-  //dup2(stdout_handle, stdout_fileno);  
-  //dup2(stderr_handle, stderr_fileno); 
+  //dup2(stdout_handle, stdout_fileno);
+  //dup2(stderr_handle, stderr_fileno);
 
   // no tracker found
   if (_tracker_h <= 0)
@@ -206,6 +206,3 @@ void* ssr::TrackerInterSense::thread(void *arg)
 
   return arg;
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

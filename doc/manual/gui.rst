@@ -215,7 +215,7 @@ Click on the SSR logo and you'll see the *About the SSR* information.
 .. [1]
    On a touchpad on Mac OS, swipe up and down with two finger to zoom in and out (don't
    click!).
-   
+
 .. [2]
    On a touchpad on Mac OS, click with two fingers simultaneously.
 
@@ -223,7 +223,7 @@ Click on the SSR logo and you'll see the *About the SSR* information.
    On a touchpad on Mac OS, click with two fingers simultaneously, hold the click and move
    one finger, or both fingers simultaneously, or use a third finger to operate the rubber
    band.
-   
+
 .. _source_property_dialog:
 
 Source Properties Dialog
@@ -288,7 +288,7 @@ Sec. :ref:`Running SSR <running_ssr>`).
 -  ``p``: toggles the source model between *plane wave* and *point
    source*
 
--  ``r``: toggles whether or not all sources are always automatically oriented 
+-  ``r``: toggles whether or not all sources are always automatically oriented
    toward the reference.
 
 -  ``s``: if no source selected: unsolos all potentially soloed sources,

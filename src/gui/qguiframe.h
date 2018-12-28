@@ -47,7 +47,7 @@ class QGUIFrame : public QWidget
         int right = 0);
     ~QGUIFrame();
 
-    void resize(const int top, const int bottom, 
+    void resize(const int top, const int bottom,
 		const int left, const int right);
     void set_text(const QString text);
 
@@ -59,7 +59,7 @@ class QGUIFrame : public QWidget
     QLabel* _left;
     QLabel* _right;
 
-    QTimer* _clear_text_timer; 
+    QTimer* _clear_text_timer;
 
   private slots:
     void _clear_text();
@@ -70,6 +70,3 @@ class QGUIFrame : public QWidget
 };
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

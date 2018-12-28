@@ -26,6 +26,3 @@ else
   echo $0: Error: $SSR not found. Did you forget to \"make\" it?
   exit 1
 fi
-
-# Settings for Vim (http://www.vim.org/), please do not remove:
-# vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80

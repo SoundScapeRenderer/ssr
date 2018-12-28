@@ -32,7 +32,7 @@ Introduction
 
 The SoundScape Renderer (SSR) is a software framework for real-time
 spatial audio reproduction running under GNU/Linux, Mac OS X and
-possibly some other UNIX variants. The MS Windows version is experimental. 
+possibly some other UNIX variants. The MS Windows version is experimental.
 
 The current implementation provides:
 
@@ -290,7 +290,7 @@ Contributors
 
 .. include:: ../../AUTHORS
 
-See also the Github repository https://github.com/soundscaperenderer/ssr for more contributors. 
+See also the Github repository https://github.com/soundscaperenderer/ssr for more contributors.
 
 Your Own Contributions
 ----------------------

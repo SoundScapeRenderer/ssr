@@ -39,7 +39,7 @@
 using namespace apf::str;
 
 /** ctor.
- * @param controller 
+ * @param controller
  **/
 ssr::CommandParser::CommandParser(Publisher& controller)
   : _controller(controller)
@@ -49,7 +49,7 @@ ssr::CommandParser::CommandParser(Publisher& controller)
 ssr::CommandParser::~CommandParser() {}
 
 /** Parse a XML string and map to Controller.
- * @param cmd XML string. 
+ * @param cmd XML string.
  **/
 void
 ssr::CommandParser::parse_cmd(std::string& cmd)
@@ -743,6 +743,3 @@ ssr::CommandParser::parse_string2(std::string cmd)
 }
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

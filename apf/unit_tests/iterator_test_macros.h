@@ -126,6 +126,3 @@ SECTION("less et al.", "a < b; a > b; a <= b; a >= b") { \
   CHECK(iter2 >= iter1); \
   CHECK(iter2 >= iter3); \
   CHECK_FALSE(iter1 >= iter2); }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

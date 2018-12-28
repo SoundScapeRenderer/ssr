@@ -253,7 +253,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "  -i, --ip-server     Start IP server (not enabled at compile time!)\n"
 "  -I, --no-ip-server  Don't start IP server (default)\n"
 #endif
-#ifdef ENABLE_GUI      
+#ifdef ENABLE_GUI
 "  -g, --gui           Start GUI (default)\n"
 "  -G, --no-gui        Don't start GUI\n"
 #else
@@ -805,7 +805,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     }
     else if (!strcmp(key, "END_OF_MESSAGE_CHARACTER"))
     {
-      #ifdef ENABLE_IP_INTERFACE     
+      #ifdef ENABLE_IP_INTERFACE
       if (!S2A(value, conf.end_of_message_character))
       {
         ERROR("Invalid end-of-message character specified!");
@@ -837,6 +837,3 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
   }//while
   return EXIT_SUCCESS;
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

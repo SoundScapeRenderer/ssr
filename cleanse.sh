@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Shell-Script for removing all files that don't belong into the Git repo. 
+# Shell-Script for removing all files that don't belong into the Git repo.
 # See also http://www.gnu.org/software/hello/manual/automake/Clean.html
 
 # always exit on error
@@ -15,7 +15,7 @@ then
   echo $0: Running \"make maintainer-clean\" ...
   make maintainer-clean
 elif test -x configure
-then 
+then
   echo $0: Error: Run the configure script first, then \"$0\"!
   exit 1
 fi
@@ -48,6 +48,3 @@ echo $0: Cleansing user manual ...
 
 # this is only shown if everything went smoothly
 echo $0: Done!
-
-# Settings for Vim (http://www.vim.org/), please do not remove:
-# vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80

@@ -38,7 +38,7 @@
 namespace ssr
 {
 
-/// Razor AHRS tracker 
+/// Razor AHRS tracker
 class TrackerRazor : public Tracker
 {
   public:
@@ -83,6 +83,3 @@ class TrackerRazor : public Tracker
 }  // namespace ssr
 
 #endif // TRACKERRAZOR_H
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

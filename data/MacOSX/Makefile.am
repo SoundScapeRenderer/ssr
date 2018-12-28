@@ -93,7 +93,7 @@ install-data-hook:
 # code sign app
 	codesign --force --deep --sign "Developer ID Application: Jens Ahrens" $(dmgrootdir)/SoundScapeRenderer-@PACKAGE_VERSION@/SoundScapeRenderer.app
 
-	
+
 # create a DMG image
 dmg:
 	@test -d "$(dmgrootdir)" || ( echo; echo; \

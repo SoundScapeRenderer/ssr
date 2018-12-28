@@ -37,16 +37,16 @@ namespace ssr
 {
 
 /** Vector Base Amplitude Panning Renderer.
- * The loudspeaker weights are calculated according the the vector base 
+ * The loudspeaker weights are calculated according the the vector base
  * formulation proposed by Ville Pulkki in "Virtual Sound Source Positioning
  * Using Vector Base Amplitude Panning", Journal of the Audio Engineering
  * Society (JAES), Vol.45(6), June 1997.\par
  * The speaker weights are calculated as follows:
- * \f$ \displaystyle g_{left} = \frac{\cos \phi \sin \phi_0 + 
+ * \f$ \displaystyle g_{left} = \frac{\cos \phi \sin \phi_0 +
  * \sin \phi \cos \phi_0}{2 \cos \phi_0 \sin \phi_0} \f$
- * \f$ \displaystyle g_{right} = \frac{\cos \phi \sin \phi_0 - 
+ * \f$ \displaystyle g_{right} = \frac{\cos \phi \sin \phi_0 -
  * \sin \phi \cos \phi_0}{2 \cos \phi_0 \sin \phi_0} \f$
- * \par 
+ * \par
  * whereby \f$ \displaystyle \phi\f$ denotes blah, blah
  **/
 class VbapRenderer : public LoudspeakerRenderer<VbapRenderer>
@@ -441,6 +441,3 @@ VbapRenderer::Source::_calculate_loudspeaker_weights(float source_angle
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -1,6 +1,6 @@
 This is the source distribution of SoundScape Renderer (SSR) licensed under the
 GPLv3+. Please consult the file COPYING for more information about this license.
- 
+
 The user manual in the doc/ directory contains relevant informations about the
 SSR, including installation instructions. Additional (very detailed)
 installation instructions can be found in the file INSTALL.
@@ -13,7 +13,7 @@ Documentation: http://ssr.readthedocs.io/en/latest/
 
 Copyright (c) 2016-2018 Division of Applied Acoustics
                         Chalmers University of Technology
-                        
+
 Copyright (c) 2012-2014 Institut für Nachrichtentechnik, Universität Rostock
 
 Copyright (c) 2006-2012 Quality & Usability Lab

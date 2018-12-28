@@ -38,10 +38,10 @@ namespace ssr
 
 class Connection;
 
-/** NetworkSubscriber.  
- * This Subscriber turns function calls to the Subscriber interface into 
+/** NetworkSubscriber.
+ * This Subscriber turns function calls to the Subscriber interface into
  * strings (XML-messages in ASDF format) and sends it over a Connection to
- * connected clients.  
+ * connected clients.
  *
  * @todo There will be a set of flags, which can filter certain
  * events. But this will be done by deriving.
@@ -105,6 +105,3 @@ class NetworkSubscriber : public Subscriber
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -57,6 +57,3 @@ class QClickTextLabel : public QLabel
 };
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

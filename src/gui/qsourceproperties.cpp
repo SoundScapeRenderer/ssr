@@ -27,7 +27,7 @@
 /// @file
 /// TODO: add description
 
-#include <QtGui/QPalette> 
+#include <QtGui/QPalette>
 #include <QtWidgets/QSizePolicy>
 
 #include "qsourceproperties.h"
@@ -71,13 +71,13 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   _name_display->setFrame(false);
   _name_display->setReadOnly(true);
   _name_display->setFocusPolicy(Qt::NoFocus);
-  
+
   _grid->addWidget(_name_display, current_row, 1, 1, 1);
 
   current_row++;
 
   // coordinates
-  
+
   _grid->addWidget(_create_text_label("<font color=\"#888888\">x, y</font>"), current_row, 0);
 
   _coordinates_display = new QLabel();
@@ -88,7 +88,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   _grid->addWidget(_create_text_label(" mtrs"), current_row, 2);
 
   current_row++;
-  
+
   // distance
 
   _grid->addWidget(_create_text_label("<font color=\"#888888\">distance</font>"), current_row, 0);
@@ -112,7 +112,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
 
   _grid->addWidget(_azimuth_display, current_row, 1);
   _grid->addWidget(_create_text_label(" degs"), current_row, 2);
-  
+
   current_row++;
 
   // position fix
@@ -124,7 +124,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   connect(_position_fix_box, SIGNAL( toggled(bool) ), this, SLOT( _set_source_position_fixed(bool) ));
 
   _grid->addWidget(_position_fix_box, current_row, 2, Qt::AlignLeft);
- 
+
   current_row++;
 
   // doppler effect enabled
@@ -136,7 +136,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   //connect(_doppler_box, SIGNAL( toggled(bool) ), this, SLOT( _set_doppler(bool) ));
 
   //_grid->addWidget(_doppler_box, current_row, 2, Qt::AlignLeft);
- 
+
   //current_row++;
 
   // volume
@@ -149,7 +149,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
 
   _grid->addWidget(_volume_display, current_row, 1);
   _grid->addWidget(_create_text_label(" dB"), current_row, 2);
-  
+
   current_row++;
 
   // mute state
@@ -161,7 +161,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   connect(_muted_check_box, SIGNAL( toggled(bool) ), this, SLOT( _set_source_mute(bool) ));
 
   _grid->addWidget(_muted_check_box, current_row, 2, Qt::AlignLeft);
- 
+
   current_row++;
 
   // solo state
@@ -173,7 +173,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   //connect(_soloed_check_box, SIGNAL( toggled(bool) ), this, SLOT( _set_source_solo(bool) ));
 
   //_grid->addWidget(_soloed_check_box, current_row, 2, Qt::AlignLeft);
-  
+
   //current_row++;
 
   // source model
@@ -201,7 +201,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   _audio_source_display->setFrame(false);
   _audio_source_display->setAlignment(Qt::AlignRight);
   _audio_source_display->setReadOnly(true);
-  
+
   _grid->addWidget(_audio_source_display, current_row, 1, 1, 2);
 
   current_row++;
@@ -247,7 +247,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
   _create_source_button->setObjectName("item");
   //connect(_less_button, SIGNAL( clicked() ), this, SLOT( _collapse() ));
   //_grid->addWidget(_create_source_button, current_row, 1, 1, 2);
- 
+
   current_row++;
 
 
@@ -269,7 +269,7 @@ QSourceProperties::QSourceProperties(QWidget* parent)
 
   // _collapse();
   _expand();
-  
+
 }
 
 QSourceProperties::~QSourceProperties()
@@ -288,26 +288,26 @@ QLabel* QSourceProperties::_create_text_label(const QString& text)
   return buffer;
 }
 
-void QSourceProperties::update_displays(const Source& source, 
+void QSourceProperties::update_displays(const Source& source,
 					const DirectionalPoint& reference)
 {
   // do not update display if dialog is used to create a new sound source
   if ( _create_new_source ) return;
- 
+
   if (!_name_display->hasFocus())
      _name_display->setText( QString::fromStdString( source.name.c_str() ) );
 
   if (!_audio_source_display->hasFocus())
-     _audio_source_display->setText( 
+     _audio_source_display->setText(
                         QString::fromStdString( source.port_name.c_str() ) );
 
-  _coordinates_display->setText(QString().setNum(source.position.x,'f',2) + 
+  _coordinates_display->setText(QString().setNum(source.position.x,'f',2) +
 				", " + QString().setNum(source.position.y,'f',2));
 
   // calculate distance between reference point and source
   const float dist = sqrt(square(source.position.x - reference.position.x) +
 			  square(source.position.y - reference.position.y));
-  
+
   _distance_display->setText(QString().setNum(dist,'f',2));
 
   // calculate angle from which the source is seen
@@ -317,7 +317,7 @@ void QSourceProperties::update_displays(const Source& source,
   ang = std::fmod(ang, 360.0f);
   if (ang > 180.0f) ang -= 360.0f;
   else if (ang <= -180.0f) ang += 360.0f;
-  
+
   _azimuth_display->setText(QString().setNum(ang,'f',2));
   _position_fix_box->setChecked(source.fixed_position);
   // set source model
@@ -411,7 +411,3 @@ void QSourceProperties::_set_doppler(bool flag)
   (void)flag;
   //emit signal_set_source_property( );
 }
-
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

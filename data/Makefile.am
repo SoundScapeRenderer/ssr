@@ -128,6 +128,3 @@ uninstall-hook:
 		&& for dir in $(UNINSTALL_PKGDATA) ; do rmdir $$dir ; done
 	-cd $(DESTDIR)$(extrasdir) \
 		&& for dir in $(UNINSTALL_EXTRASDATA) ; do rmdir $$dir ; done
-
-## Settings for Vim (http://www.vim.org/), please do not remove:
-## vim:textwidth=80:comments+=bO\:##

@@ -66,7 +66,3 @@ With minor adjustments in the Makefile they should also work for Pd on Mac OS X.
 Theoretically they could also work on Windows, but probably some further
 modifications are necessary.
 With a bit of luck, the externals might even work on Max.
-
-<!--
-vim:textwidth=80
--->

@@ -139,6 +139,3 @@ endif
 uninstall-hook:
 	-rmdir $(DESTDIR)$(pkgdatadir)
 	-rmdir $(DESTDIR)$(docdir)
-
-## Settings for Vim (http://www.vim.org/), please do not remove:
-## vim:textwidth=80:comments+=bO\:##

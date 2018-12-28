@@ -58,6 +58,3 @@ void QClickTextLabel::mouseDoubleClickEvent(QMouseEvent *event)
   emit signal_double_clicked();
   event->ignore();
 }
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

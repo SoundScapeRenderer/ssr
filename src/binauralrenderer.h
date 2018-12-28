@@ -277,7 +277,7 @@ void BinauralRenderer::Source::_process()
 
   float source_distance = (this->position - ref_pos).length();
 
-  if (this->weighting_factor != 0 && source_distance < 0.5f 
+  if (this->weighting_factor != 0 && source_distance < 0.5f
         && this->model != ::Source::plane)
   {
     interp_factor = 1.0f - 2 * source_distance;
@@ -383,6 +383,3 @@ void BinauralRenderer::Source::_process()
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

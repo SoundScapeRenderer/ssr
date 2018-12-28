@@ -251,6 +251,3 @@ TEST_CASE("iterators/circular_iterator/3"
   CHECK(*it == 0);
 
 } // TEST_CASE
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

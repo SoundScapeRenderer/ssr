@@ -74,12 +74,12 @@
  * reference handle for translation: 2
  * reference handle for rotation:    3
  * SSR logo:                         4
- * 
+ *
  * source:                          NAMESTACKOFFSET + index_of_source      * NAMESTACKSTEP + 1
- * source volume slider:            NAMESTACKOFFSET + index_of_source      * NAMESTACKSTEP + 2 
+ * source volume slider:            NAMESTACKOFFSET + index_of_source      * NAMESTACKSTEP + 2
  * source direction handle:         NAMESTACKOFFSET + index_of_source      * NAMESTACKSTEP + 3
  * loudspeaker:                     NAMESTACKOFFSET + index_of_loudspeaker * NAMESTACKSTEP + 4
- * 
+ *
  */
 
 namespace ssr
@@ -112,7 +112,7 @@ class QOpenGLPlotter : public QGLWidget
 
       ssr::id_t id;       ///< identifier
       Source::model_t model; ///< source model
-      bool mute;           ///< mute state 
+      bool mute;           ///< mute state
       float gain;            ///< source gain
       float signal_level;   ///< level of audio stream (linear, between 0 and 1)
       std::vector<float> output_levels;
@@ -154,13 +154,13 @@ class QOpenGLPlotter : public QGLWidget
     bool   _alt_pressed;
 
     int    _find_selected_object(const QPoint &pos);
-    void   _get_openGL_pos(int x, int y, 
+    void   _get_openGL_pos(int x, int y,
 			   GLdouble* posX,
 			   GLdouble* posY,
 			   GLdouble* posZ);
-    void   _get_pixel_pos(GLdouble pos_x, 
-			  GLdouble pos_y, 
-			  GLdouble pos_z, 
+    void   _get_pixel_pos(GLdouble pos_x,
+			  GLdouble pos_y,
+			  GLdouble pos_z,
 			  int* x, int* y);
 
     Position _rubber_band_starting_point;
@@ -195,7 +195,7 @@ class QOpenGLPlotter : public QGLWidget
     color_vector_t _color_vector;
 
     bool _allow_displaying_text;
-    /// Quadric necessary to plot spheres and disks 
+    /// Quadric necessary to plot spheres and disks
     GLUquadricObj *_glu_quadric;
 
     bool _plot_listener;
@@ -208,7 +208,7 @@ class QOpenGLPlotter : public QGLWidget
     // drawing functions
     void _draw_background();
     void _draw_objects();
-    void _draw_source(source_buffer_list_t::const_iterator& source, 
+    void _draw_source(source_buffer_list_t::const_iterator& source,
 		      unsigned int index);
     void _draw_loudspeaker(bool muted = false, bool active = false);
     void _draw_rubber_band();
@@ -226,6 +226,3 @@ class QOpenGLPlotter : public QGLWidget
 }  // namespace ssr
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

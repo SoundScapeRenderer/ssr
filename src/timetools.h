@@ -38,7 +38,7 @@ namespace timetools
 /** Returns time interval in seconds between two time instances
  * @param start time instance where interval started
  * @param stop time instance where interval started
- * @return time interval in seconds 
+ * @return time interval in seconds
  **/
 inline float get_time_interval(struct timeval start, struct timeval stop)
 {
@@ -55,6 +55,3 @@ inline bool is_time_stamp_valid(struct timeval time_stamp)
 }  // namespace timetools
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

@@ -9,10 +9,10 @@
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -173,7 +173,7 @@ class jack_policy::Xput
     Xput(const Xput&); Xput& operator=(const Xput&);  // deactivated
 
     jack_policy& _parent;
-    JackClient::port_t* _port;  // JACK port corresponding to this object. 
+    JackClient::port_t* _port;  // JACK port corresponding to this object.
 
     JackClient::port_t* _init_port(const parameter_map& p, jack_policy& parent);
 
@@ -261,6 +261,3 @@ class jack_policy::Output : public Xput<i_am_out>
 }  // namespace apf
 
 #endif
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent

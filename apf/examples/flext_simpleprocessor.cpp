@@ -112,6 +112,3 @@ class simpleprocessor: public flext_dsp
 
 // DSP external with 3 creation args:
 FLEXT_NEW_DSP_3("simpleprocessor~", simpleprocessor, int, int, int)
-
-// Settings for Vim (http://www.vim.org/), please do not remove:
-// vim:softtabstop=2:shiftwidth=2:expandtab:textwidth=80:cindent
