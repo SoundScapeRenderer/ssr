@@ -199,7 +199,7 @@ AudioPlayer::Soundfile::_get_jack_sample_rate()
  * don't have that many ...
  **/
 AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
-    const std::string& prefix) throw (soundfile_error) :
+    const std::string& prefix) :
   output_prefix(prefix),
   _filename(filename),
   _client_name(""),

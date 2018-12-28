@@ -80,7 +80,7 @@ class AudioPlayer::Soundfile : apf::NonCopyable
     };
 
     Soundfile(const std::string& filename, bool loop,
-        const std::string& prefix = "channel") throw (soundfile_error);
+        const std::string& prefix = "channel");
 
     /// "named constructor" for %Soundfile objects
     static ptr_t create(const std::string& filename, bool loop = false);
