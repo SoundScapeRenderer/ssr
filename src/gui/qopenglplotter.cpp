@@ -106,10 +106,10 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
     _reference_selected(false),
     _volume_slider_selected(false),
     _direction_handle_selected(false),
+    _devicePixelRatio(1),
     _allow_displaying_text(true),
     _glu_quadric(gluNewQuadric()),
-    _plot_listener(false),
-    _devicePixelRatio(1)
+    _plot_listener(false)
 {
   _soloed_sources.clear();
 
