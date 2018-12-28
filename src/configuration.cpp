@@ -235,11 +235,12 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "      --master-volume-correction=VALUE\n"
 "                      Correction of the master volume in dB "
                                                          "(default: 0 dB)\n"
-"      --auto-rotation Auto-rotate sound sources' orientation toward "
-                                                               "the reference\n"
+"      --auto-rotation Auto-rotate sound sources' orientation toward the\n"
+"                      reference\n"
 "      --no-auto-rotation\n"
-"                      Don't auto-rotate sound sources' orientation toward "
-                                                               "the reference\n"
+"                      Don't auto-rotate sound sources' orientation "
+                                                                  "toward the\n"
+"                      reference\n"
 
 #ifdef ENABLE_IP_INTERFACE
 "  -i, --ip-server[=PORT]\n"
