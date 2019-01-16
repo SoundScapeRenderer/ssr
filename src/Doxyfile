@@ -564,13 +564,13 @@ RECURSIVE              = YES
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = netgui \
-			 tests \
+                         tests \
                          blockdelayline/test \
                          boost_test \
                          spare \
                          examples \
                          jack_status jack_transport \
-			 vim_help bash_completion \
+                         vim_help bash_completion \
                          _template.cpp _template.h \
                          config.h
 
