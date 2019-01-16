@@ -123,9 +123,11 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
   conf_struct conf;
 
+  conf.exec_name = argv[0];
+
 #ifndef NDEBUG
   // Because of this warning, "make check" fails for debug builds (on purpose).
-  WARNING(argv[0] << " was compiled for debugging!");
+  WARNING(conf.exec_name << " was compiled for debugging!");
 #endif
 
   // hard coded default values:
@@ -193,7 +195,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   load_config_file(filename.c_str(),conf);
 
   const std::string usage_string =
-"Usage: " + std::string(argv[0]) + " [OPTIONS] <scene-file>\n";
+"Usage: " + std::string(conf.exec_name) + " [OPTIONS] <scene-file>\n";
 
   const std::string help_string =
 "\nThe SoundScape Renderer (SSR) is a tool for real-time "
@@ -514,7 +516,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         // here we deal with unknown/invalid options
         // getopt() already prints an error message for unknown options
         std::cout << usage_string;
-        std::cout << "Type '" << argv[0] << " --help' "
+        std::cout << "Type '" << conf.exec_name << " --help' "
           "for more information.\n\n";
         exit(EXIT_FAILURE);
         break;
