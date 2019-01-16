@@ -43,12 +43,12 @@ namespace math
 
 /// \f$\pi\f$.
 /// Undefined general case.
-template<typename T> inline T pi();
+template<typename T> constexpr T pi();
 
 /// \f$\pi\f$.
 /// Specialization for float.
 template<>
-inline float pi<float>()
+constexpr float pi<float>()
 {
   // 9 digits are needed for float, 17 digits for double, 21 for long double
   // TODO: But this may be different on other hardware platforms ...?
@@ -58,7 +58,7 @@ inline float pi<float>()
 /// \f$\pi\f$.
 /// Specialization for double.
 template<>
-inline double pi<double>()
+constexpr double pi<double>()
 {
   return 3.1415926535897932384626433832795;
 }
@@ -66,7 +66,7 @@ inline double pi<double>()
 /// \f$\pi\f$.
 /// Specialization for long double.
 template<>
-inline long double pi<long double>()
+constexpr long double pi<long double>()
 {
   return 3.1415926535897932384626433832795l;
 }
