@@ -192,6 +192,8 @@ class VbapRenderer::Source : public _base::Source
 
     bool get_output_levels(sample_type* first, sample_type* last) const
     {
+      assert(size_t(std::distance(first, last))
+          == parent.get_output_list().size());
       auto current = first;
 
       for (const auto& out: rtlist_proxy<Output>(parent.get_output_list()))
