@@ -23,6 +23,9 @@ AM_CPPFLAGS =
 ## Add Audio Processing Framework (APF) path
 AM_CPPFLAGS += -I$(srcdir)/../apf
 
+## Add GML path
+AM_CPPFLAGS += -I$(srcdir)/../gml/include
+
 if ENABLE_APP_BUNDLE
 AM_CPPFLAGS += -DSSR_DATA_DIR=\"SoundScapeRenderer.app/Contents/Resources\"
 else
@@ -41,7 +44,9 @@ DOXYGEN_DOC_DIR = ../doc/doxygen
 # files which should be distributed but not installed
 dist_noinst_DATA = Doxyfile coding_style.txt \
 	../apf/misc/Makefile.dependencies \
-	../apf/apf/mextools.h
+	../apf/apf/mextools.h \
+	../gml/README.md \
+	../gml/LICENSE.txt
 
 ssr_binaural_SOURCES = ssr_binaural.cpp binauralrenderer.h \
 	$(SSRSOURCES)
@@ -114,6 +119,8 @@ SSRSOURCES = \
 	../apf/apf/shareddata.h \
 	../apf/apf/sndfiletools.h \
 	../apf/apf/stringtools.h \
+	../gml/include/gml/vec.hpp \
+	../gml/include/gml/quaternion.hpp \
 	configuration.cpp \
 	configuration.h \
 	controller.h \
