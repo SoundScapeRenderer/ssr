@@ -61,6 +61,15 @@ class SharedData
       _fifo.push(new SetCommand(&_data, rhs));
     }
 
+    friend bool
+    operator==(const SharedData& lhs, const X& rhs) { return lhs._data == rhs; }
+    friend bool
+    operator==(const X& lhs, const SharedData& rhs) { return lhs == rhs._data; }
+    friend bool
+    operator!=(const SharedData& lhs, const X& rhs) { return lhs._data != rhs; }
+    friend bool
+    operator!=(const X& lhs, const SharedData& rhs) { return lhs != rhs._data; }
+
   private:
     CommandQueue& _fifo;
     X _data;
