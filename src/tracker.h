@@ -33,8 +33,7 @@
 /// Class definition
 struct Tracker
 {
-  Tracker() {} ///< constructor
-  virtual ~Tracker() {} ///< destructor
+  virtual ~Tracker() = default;  ///< destructor
 
   /// calibrate tracker; set the instantaneous position to be the reference
   virtual void calibrate() = 0;
