@@ -93,7 +93,7 @@ nodist_ssr_dca_SOURCES = $(SSRMOCFILES)
 
 LOUDSPEAKERSOURCES = \
 	loudspeakerrenderer.h \
-	loudspeaker.h
+	legacy_loudspeaker.h
 
 SSRSOURCES = \
 	../apf/apf/blockdelayline.h \
@@ -124,22 +124,24 @@ SSRSOURCES = \
 	configuration.cpp \
 	configuration.h \
 	controller.h \
-	directionalpoint.cpp \
-	directionalpoint.h \
+	legacy_directionalpoint.cpp \
+	legacy_directionalpoint.h \
 	maptools.h \
-	orientation.cpp \
-	orientation.h \
-	position.cpp \
-	position.h \
+	legacy_orientation.cpp \
+	legacy_orientation.h \
+	legacy_position.cpp \
+	legacy_position.h \
 	posixpathtools.h \
-	publisher.h \
+	api.h \
+	geometry.h \
 	rendererbase.h \
-	scene.cpp \
+	legacy_scene.cpp \
+	legacy_scene.h \
+	legacy_xmlsceneprovider.h \
 	scene.h \
-	source.h \
+	legacy_source.h \
 	ssr_global.cpp \
 	ssr_global.h \
-	subscriber.h \
 	timetools.h \
 	tracker.h \
 	xmlparser.cpp \

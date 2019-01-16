@@ -44,7 +44,7 @@
 #include "apf/cxx_thread_policy.h"
 #include "loudspeakerrenderer.h"
 
-#include "../src/source.h"
+#include "../src/legacy_source.h"
 
 template<typename Renderer>
 class SsrMex
@@ -208,6 +208,7 @@ class SsrMex
 
       _out_channels = _engine->get_output_list().size();
 
+      assert(_source_ids.size() == 0);
       for (mwSize i = 0; i < _in_channels; ++i)
       {
         apf::parameter_map source_params;
@@ -216,8 +217,7 @@ class SsrMex
         {
           source_params.set("properties_file", filename_list[i]);
         }
-        // TODO: specify ID?
-        _engine->add_source(source_params);
+        _source_ids.push_back(_engine->add_source("", source_params));
       }
 
       _inputs.resize(_in_channels);
@@ -367,7 +367,7 @@ class SsrMex
       APF_MEX_ERROR_NO_FURTHER_INPUTS(command);
       APF_MEX_ERROR_ONE_OPTIONAL_OUTPUT(command);
 
-      std::vector<Loudspeaker> ls_list;
+      std::vector<LegacyLoudspeaker> ls_list;
       _engine->get_loudspeakers(ls_list);
 
       if (command == "loudspeaker_position")
@@ -395,6 +395,16 @@ class SsrMex
       }
     }
 
+    // zero-based index
+    std::string _get_source_id(mwSize index)
+    {
+      if (index < 0 || static_cast<mwSize>(_source_ids.size()) <= index)
+      {
+        return {};
+      }
+      return _source_ids[index];
+    }
+
     void _source_position(int& nrhs, const mxArray**& prhs)
     {
       APF_MEX_ERROR_FURTHER_INPUT_NEEDED("'source_position'");
@@ -419,7 +429,7 @@ class SsrMex
       {
         // TODO: handle 3D coordinates
 
-        auto* source = _engine->get_source(i + 1);
+        auto* source = _engine->get_source(_get_source_id(i));
         // TODO: check if source == nullptr
         source->position = Position(coordinates[i*2], coordinates[i*2+1]);
       }
@@ -443,7 +453,7 @@ class SsrMex
 
       for (mwSize i = 0; i < _in_channels; ++i)
       {
-        auto* source = _engine->get_source(i + 1);
+        auto* source = _engine->get_source(_get_source_id(i));
         // TODO: check if source == nullptr
         source->orientation = Orientation(angles[i]);  // degree
       }
@@ -470,7 +480,7 @@ class SsrMex
 
       for (mwSize i = 0; i < _in_channels; ++i)
       {
-        auto* source = _engine->get_source(i + 1);
+        auto* source = _engine->get_source(_get_source_id(i));
         source->mute = mute[i];  // logical
       }
     }
@@ -493,13 +503,14 @@ class SsrMex
 
       for (int i = 0; i < _in_channels; ++i)
       {
-        Source::model_t model = Source::unknown;
+        LegacySource::model_t model = LegacySource::unknown;
         if (!apf::str::S2A(model_list[i], model))
         {
           mexPrintf("Model string '%s':", model_list[i].c_str());
           mexErrMsgTxt("Couldn't convert source model string!");
         }
-        _engine->get_source(i + 1)->model = model;
+        _engine->get_source(_get_source_id(i))->model
+          = model == LegacySource::plane ? "plane" : "point";
       }
     }
 
@@ -549,6 +560,7 @@ class SsrMex
     std::unique_ptr<Renderer> _engine;
     mwSize _in_channels, _out_channels, _block_size;
     std::vector<sample_type*> _inputs, _outputs;
+    std::vector<std::string> _source_ids;
 };
 
 #endif

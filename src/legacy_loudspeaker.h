@@ -25,20 +25,21 @@
  ******************************************************************************/
 
 /// @file
-/// %Loudspeaker class (definition).
+/// Legacy loudspeaker class (definition).  Superseded by Loudspeaker.
 
-#ifndef SSR_LOUDSPEAKER_H
-#define SSR_LOUDSPEAKER_H
+#ifndef SSR_LEGACY_LOUDSPEAKER_H
+#define SSR_LEGACY_LOUDSPEAKER_H
 
 #include <string>
 #include <vector>
 
-#include "directionalpoint.h"
+#include "api.h"  // for Loudspeaker
+#include "legacy_directionalpoint.h"
 
 /// Class for saving loudspeaker information.
-struct Loudspeaker : DirectionalPoint
+struct LegacyLoudspeaker : DirectionalPoint
 {
-  typedef std::vector<Loudspeaker> container_t;
+  typedef std::vector<LegacyLoudspeaker> container_t;
 
   /// %Loudspeaker type.
   enum model_t
@@ -50,29 +51,31 @@ struct Loudspeaker : DirectionalPoint
   };
 
   /// ctor
-  explicit Loudspeaker(
+  explicit LegacyLoudspeaker(
       const DirectionalPoint& point = DirectionalPoint(),
       model_t model = normal, float weight = 1.0f, float delay = 0.0f) :
     DirectionalPoint(point), // base class copy ctor
     model(model),
     weight(weight),
-    delay(delay),
-    mute(false),
-    active(false)
+    delay(delay)
   {}
 
-  // auto-generated copy ctor and assignment operator are OK.
+  /// Constructor from "modern" Loudspeaker.
+  LegacyLoudspeaker(const ssr::Loudspeaker& other)
+    : LegacyLoudspeaker{{other.position, other.rotation}
+        , other.model == "subwoofer" ? subwoofer : normal}
+  {}
 
-  //std::string name;
-  //std::string audio_file_name;
-  //std::string audio_file_channel;
-  //std::string port_name;
+  operator ssr::Loudspeaker()
+  {
+    return {this->position, this->orientation
+      , this->model == subwoofer ? "subwoofer" : ""};
+  }
+
   model_t model; ///< type of loudspeaker
   float weight;   /// linear!
   float delay;   /// in seconds
-  bool mute;     ///< mute/unmute
-  bool active;   ///< active/inactive for a given source
-  //float gain;    ///< gain
+  bool mute{false};     ///< mute/unmute
 
   friend std::istream& operator>>(std::istream& input, model_t& model)
   {

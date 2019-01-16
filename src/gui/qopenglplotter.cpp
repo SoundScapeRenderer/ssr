@@ -47,6 +47,9 @@
 #include "qopenglplotter.h"
 #include "qclicktextlabel.h"
 //#include "mathtools.h"
+#include "ssr_global.h"  // for ERROR()
+#include "api.h"  // for Publisher
+#include "legacy_scene.h"  // for LegacyScene
 
 #define BACKGROUNDCOLOR 0.9294f,0.9294f,0.9020f
 // Define how detailedly circles are plotted
@@ -60,8 +63,7 @@
  * @param other reference to an element of the source map
  **/
 ssr::QOpenGLPlotter::SourceCopy::SourceCopy(
-    const Scene::source_map_t::value_type& other) :
-  //const std::pair<Source::id_t, Source*>& other) :
+    const std::pair<unsigned int, LegacySource>& other) :
   DirectionalPoint(other.second),
   id(other.first),
   model(other.second.model),
@@ -75,7 +77,8 @@ ssr::QOpenGLPlotter::SourceCopy::SourceCopy(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ssr::QOpenGLPlotter::QOpenGLPlotter(Publisher& controller, const Scene& scene
+ssr::QOpenGLPlotter::QOpenGLPlotter(api::Publisher& controller
+        , const LegacyScene& scene
         , const std::string& path_to_gui_images
         , QWidget *parent)
   : QGLWidget(parent),
@@ -168,7 +171,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
   else
     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
-  if (_controller.show_head())
+  if (_scene.show_head())
   {
     _plot_listener = true;
 
@@ -499,7 +502,7 @@ void ssr::QOpenGLPlotter::_draw_objects()
 
   glLoadName(NAMESTACKOFFSET + source_buffer_list.size() * NAMESTACKSTEP + 4);
 
-  for (Loudspeaker::container_t::size_type i = 0; i < _loudspeakers.size(); ++i)
+  for (LegacyLoudspeaker::container_t::size_type i = 0; i < _loudspeakers.size(); ++i)
   {
     glPushMatrix();
 
@@ -720,7 +723,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
   glLoadName(DUMMYINDEX);
 
   // plot orientation of plane wave
-  if (source->model == Source::plane)
+  if (source->model == LegacySource::plane)
   {
     // rotate
     glRotatef(static_cast<GLfloat>(source->orientation.azimuth), 0.0f, 0.0f, 1.0f);
@@ -758,7 +761,7 @@ ssr::QOpenGLPlotter::_draw_source(source_buffer_list_t::const_iterator& source,
       glVertex3f( 0.285f * scale, -0.005f * scale, 0.0f); glVertex3f( 0.285f * scale,  0.005f * scale, 0.0f);
     glEnd();
   }
-  else if (source->model == Source::directional)
+  else if (source->model == LegacySource::directional)
   {
     // rotate
     glRotatef((GLfloat)(source->orientation.azimuth), 0.0f, 0.0f, 1.0f);

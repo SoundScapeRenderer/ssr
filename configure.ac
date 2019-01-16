@@ -227,13 +227,13 @@ AS_IF([test x$have_debugging = xyes],
 dnl overwrite default CXXFLAGS set by AC_PROG_CXX
 AS_IF([test x$usercxxflags = xno], [CXXFLAGS="-g"])
 
-dnl select C++11 (unconditionally)
-CXXFLAGS="$CXXFLAGS -std=c++11"
-AC_MSG_CHECKING([if $CXX supports "-std=c++11"])
+dnl select C++17 (unconditionally)
+CXXFLAGS="$CXXFLAGS -std=c++17"
+AC_MSG_CHECKING([if $CXX supports "-std=c++17"])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], AC_MSG_RESULT([yes]),
 [
   AC_MSG_RESULT([no])
-  AC_MSG_ERROR([C++11 not supported! Please upgrade.])
+  AC_MSG_ERROR([C++17 not supported! Please upgrade.])
 ])
 
 dnl JACK1 problem with C++17: https://github.com/jackaudio/jack1/issues/84

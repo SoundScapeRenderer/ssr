@@ -278,7 +278,7 @@ void BinauralRenderer::Source::_process()
   float source_distance = (this->position - ref_pos).length();
 
   if (this->weighting_factor != 0 && source_distance < 0.5f
-        && this->model != ::Source::plane)
+        && this->model != "plane")
   {
     interp_factor = 1.0f - 2 * source_distance;
   }
@@ -291,7 +291,7 @@ void BinauralRenderer::Source::_process()
   // calculate relative orientation of sound source
   auto rel_ori = -ref_ori;
 
-  if (this->model == ::Source::plane)
+  if (this->model == "plane")
   {
     // plane wave orientation points into direction of propagation
     // +180 degree has to be applied to select the hrtf correctly

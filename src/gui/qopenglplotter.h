@@ -50,9 +50,8 @@
 #include <map>
 #include <set>
 
-#include "publisher.h"
-#include "scene.h"
 #include "qsourceproperties.h"
+#include "legacy_loudspeaker.h"  // for LegacyLoudspeaker
 
 #define STDZOOMFACTOR 280.0f
 #define STDWINDOWYOFFSET -1.0f
@@ -85,6 +84,9 @@
 namespace ssr
 {
 
+namespace api { struct Publisher; }
+class LegacyScene;
+
 /// open GL plotter
 class QOpenGLPlotter : public QGLWidget
 {
@@ -93,7 +95,6 @@ class QOpenGLPlotter : public QGLWidget
     // TODO: Discriminate between GLfloat and float etc.
 
   protected:
-    struct SourceCopy;      // nested class, defined later
 
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration of the nested class SourceCopy
@@ -101,17 +102,17 @@ class QOpenGLPlotter : public QGLWidget
 
     /** Temporary buffer for source information.
      * This class is used to extract certain information for each source from
-     * the Scene. There is no use in copying data which are not used afterwards.
+     * the scene. There is no use in copying data which are not used afterwards.
      **/
     struct SourceCopy : DirectionalPoint
     {
       /// SourceCopies want to be stored in such a list
       typedef std::list<SourceCopy> list_t;
       /// type conversion constructor
-      SourceCopy(const Scene::source_map_t::value_type& other);
+      SourceCopy(const std::pair<unsigned int, LegacySource>& other);
 
-      ssr::id_t id;       ///< identifier
-      Source::model_t model; ///< source model
+      unsigned int id;       ///< identifier
+      LegacySource::model_t model; ///< source model
       bool mute;           ///< mute state
       float gain;            ///< source gain
       float signal_level;   ///< level of audio stream (linear, between 0 and 1)
@@ -121,7 +122,7 @@ class QOpenGLPlotter : public QGLWidget
     };
 
   public:
-    QOpenGLPlotter(Publisher& controller, const Scene& scene
+    QOpenGLPlotter(api::Publisher& controller, const LegacyScene& scene
         , const std::string& path_to_gui_images
         , QWidget *parent = 0);
     virtual ~QOpenGLPlotter();
@@ -134,19 +135,19 @@ class QOpenGLPlotter : public QGLWidget
     void set_device_pixel_ratio();
 
   protected:
-    Publisher& _controller;
-    const Scene& _scene;
+    api::Publisher& _controller;
+    const LegacyScene& _scene;
     int _active_source;
     const std::string _path_to_gui_images;
 
-    ssr::id_t _id_of_last_clicked_source;
+    unsigned int _id_of_last_clicked_source;
 
-    typedef std::map<int, ssr::id_t> selected_sources_map_t;
+    typedef std::map<int, unsigned int> selected_sources_map_t;
     selected_sources_map_t _selected_sources_map;
 
     float _zoom_factor;
 
-    std::set<ssr::id_t> _soloed_sources;
+    std::set<unsigned int> _soloed_sources;
 
     //  void  mousePressEvent(QMouseEvent *event);
     QMouseEvent _previous_mouse_event;
@@ -190,7 +191,7 @@ class QOpenGLPlotter : public QGLWidget
     GLuint _listener_shadow_texture;
     GLuint _listener_background_texture;
 
-    Loudspeaker::container_t _loudspeakers;
+    LegacyLoudspeaker::container_t _loudspeakers;
 
     color_vector_t _color_vector;
 

@@ -35,7 +35,6 @@
 #include <QtWidgets/QApplication>
 
 #include "quserinterface.h"
-#include "publisher.h"
 #include "scene.h"
 
 namespace ssr
@@ -50,7 +49,7 @@ class QGUI : public QObject
   Q_OBJECT
 
   public:
-    QGUI(Publisher& controller, const Scene& scene, int &argc
+    QGUI(api::Publisher& controller, const LegacyScene& scene, int &argc
         , char *argv[], const std::string& path_to_gui_images
         , const std::string& path_to_scene_menu);
 

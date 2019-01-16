@@ -288,7 +288,7 @@ QLabel* QSourceProperties::_create_text_label(const QString& text)
   return buffer;
 }
 
-void QSourceProperties::update_displays(const Source& source,
+void QSourceProperties::update_displays(const LegacySource& source,
 					const DirectionalPoint& reference)
 {
   // do not update display if dialog is used to create a new sound source
@@ -322,10 +322,10 @@ void QSourceProperties::update_displays(const Source& source,
   _position_fix_box->setChecked(source.fixed_position);
   // set source model
   switch(source.model){
-    case Source::point:
+    case LegacySource::point:
       _source_model_display->setCurrentIndex(1);
       break;
-    case Source::plane:
+    case LegacySource::plane:
       _source_model_display->setCurrentIndex(0);
       break;
     default:

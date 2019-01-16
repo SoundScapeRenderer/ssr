@@ -250,7 +250,7 @@ class WfsRenderer::Source : public _base::Source
 
 void WfsRenderer::Source::_process()
 {
-  if (this->model == ::Source::plane)
+  if (this->model == "plane")
   {
     // do nothing, focused-ness is irrelevant for plane waves
     _focused = false;
@@ -261,7 +261,7 @@ void WfsRenderer::Source::_process()
     for (const auto& out: rtlist_proxy<Output>(_input.parent.get_output_list()))
     {
       // subwoofers have to be ignored!
-      if (out.model == Loudspeaker::subwoofer) continue;
+      if (out.model == LegacyLoudspeaker::subwoofer) continue;
 
       // TODO: calculate with inner product
 
@@ -320,7 +320,7 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
   sample_type weighting_factor = 1;
   float float_delay = 0;
 
-  auto ls = Loudspeaker(_out);
+  auto ls = LegacyLoudspeaker(_out);
   auto src_pos = in.source.position;
 
   // TODO: shortcut if in.source.weighting_factor == 0
@@ -332,23 +332,22 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
 
   float source_ls_distance = (ls.position - src_pos).length();
 
-  switch (in.source.model) // check if point source or plane wave or ...
+  const std::string& model = in.source.model;
+  if (model == "point")
   {
-    case ::Source::point:
-      if (ls.model == Loudspeaker::subwoofer)
-      {
-        // the delay is calculated to be correct on the reference position
-        // delay can be negative!
-        float_delay = (src_pos - ref_off.position).length()
-          - reference_distance;
+    if (ls.model == LegacyLoudspeaker::subwoofer)
+    {
+      // the delay is calculated to be correct on the reference position
+      // delay can be negative!
+      float_delay = (src_pos - ref_off.position).length()
+        - reference_distance;
 
-        // setting the subwoofer amplitude to 1 is the unwritten standard
-        // (cf. AAP renderer)
-        weighting_factor = 1.0f;
-
-        break; // step out of switch
-      }
-
+      // setting the subwoofer amplitude to 1 is the unwritten standard
+      // (cf. AAP renderer)
+      weighting_factor = 1.0f;
+    }
+    else
+    {
       float_delay = source_ls_distance;
       assert(float_delay >= 0);
 
@@ -403,14 +402,12 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
           {
             // ignored focused point source
             weighting_factor = 0;
-            break;
           }
         }
         else // non-focused and weighting_factor < 0
         {
           // ignored non-focused point source
           weighting_factor = 0;
-          break;
         }
       }
       else if(weighting_factor > 0.0f) // positive weighting factor
@@ -429,28 +426,28 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
         else // focused
         {
           // ignored focused point source
-          break;
+          weighting_factor = 0;
         }
       }
       else
       {
-        // this should never happen: Weighting factor is 0 or +-Inf or NaN!
-        break;
+        // Weighting factor is 0 (or +-Inf or NaN)
       }
-      break;
-
-    case ::Source::plane:
-      if (ls.model == Loudspeaker::subwoofer)
-      {
-        weighting_factor = 1.0f; // TODO: is this correct?
-        // the delay is calculated to be correct on the reference position
-        // delay can be negative!
-        float_delay
-          = DirectionalPoint(in.source.position, in.source.orientation)
-          .plane_to_point_distance(ref_off.position) - reference_distance;
-        break; // step out of switch
-      }
-
+    }
+  }
+  else if (model == "plane")
+  {
+    if (ls.model == LegacyLoudspeaker::subwoofer)
+    {
+      weighting_factor = 1.0f; // TODO: is this correct?
+      // the delay is calculated to be correct on the reference position
+      // delay can be negative!
+      float_delay
+        = DirectionalPoint(in.source.position, in.source.orientation)
+        .plane_to_point_distance(ref_off.position) - reference_distance;
+    }
+    else
+    {
       // weighting factor is determined by the cosine of the angle
       // difference between plane wave direction and loudspeaker direction
       weighting_factor = cos(angle(in.source.orientation, ls.orientation));
@@ -459,35 +456,37 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
       {
         // ignored plane wave
         weighting_factor = 0;
-        break;
       }
-
-      float_delay = DirectionalPoint(in.source.position, in.source.orientation)
-        .plane_to_point_distance(ls.position);
-
-      if (float_delay < 0.0)
+      else
       {
-        // "focused" plane wave
-      }
-      else // positive delay
-      {
-        // plane wave
-      }
-      break;
+        float_delay = DirectionalPoint(in.source.position
+                                     , in.source.orientation)
+          .plane_to_point_distance(ls.position);
 
-    default:
-      //WARNING("Unknown source model");
-      break;
-  } // switch source model
+        if (float_delay < 0.0)
+        {
+          // "focused" plane wave
+        }
+        else // positive delay
+        {
+          // plane wave
+        }
+      }
+    }
+  }
+  else
+  {
+    //WARNING("Unknown source model");
+  }
 
 #if defined(WEIGHTING_OLD)
-  if (in.source.model == ::Source::point)
+  if (model == "point")
   {
     // compensate for inherent distance decay (approx. 1/sqrt(r))
     // no compensation closer to 0.5 m to the reference
     // this is the same operation for focused and non-focused sources
     // exclude subwoofers as there is no inherent amplitude decay
-    if (ls.model != Loudspeaker::subwoofer)
+    if (ls.model != LegacyLoudspeaker::subwoofer)
     {
       weighting_factor *=
         std::sqrt(std::max((src_pos - ref_off.position).length(), 0.5f));

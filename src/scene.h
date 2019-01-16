@@ -30,315 +30,258 @@
 #ifndef SSR_SCENE_H
 #define SSR_SCENE_H
 
+#include <cassert> // for assert()
 #include <map>
 #include <vector>
-#include <cassert> // for assert()
-#include <memory>
 
-#include "subscriber.h"
-#include "maptools.h" // for get_item()
-#include "source.h"
-#include "loudspeaker.h"
+#include "api.h"
+#include "ssr_global.h"  // for VERBOSE()
 
 namespace ssr
 {
 
 /// %Scene. Contains current location and other data about sources, the
-// reference point and other things.
-class Scene : public Subscriber
+/// reference point and other things.
+class Scene : public api::SceneControlEvents
+            , public api::SceneInformationEvents
 {
-  public:
-    /// A map of sources.
-    using source_map_t = std::map<id_t, Source>;
-    /// A vector of loudspeakers.
-    using loudspeakers_t = std::vector<Loudspeaker>;
+public:
+  struct Source
+  {
+    Pos position{};
+    Rot rotation{};
+    bool fixed{false};  ///< Static position/rotation or not
 
-    Scene();  ///< ctor
-    ~Scene(); ///< dtor
+    std::string name;
+    float volume{1};
+    bool mute{false};
+    /// Source model (=type).  Most renderers support "point" and "plane".
+    /// Theoretically, other models could be supported, like "line",
+    /// "directional", "extended", ...
+    std::string model{"point"};
 
-    // from Subscriber
-    virtual void set_loudspeakers(const Loudspeaker::container_t& container);
-    virtual void new_source(id_t id);
-    virtual void delete_source(id_t id);
-    virtual void delete_all_sources();
-    virtual bool set_source_position(id_t id, const Position& position);
-    virtual bool set_source_orientation(id_t id
-        , const Orientation& orientation);
-    virtual bool set_source_gain(id_t id, const float& gain);
+    std::map<std::string, std::string, std::less<>> properties;
+  };
 
-    virtual bool set_source_signal_level(id_t id, const float& level);
+  template<typename F>
+  void for_each_source(F f) const
+  {
+    for (const auto& [id, source]: _source_map) { f(id, source); }
+  }
 
-    virtual bool set_source_mute(id_t id, const bool& mute);
-    virtual bool set_source_name(id_t id, const std::string& name);
-    virtual bool set_source_properties_file(id_t id, const std::string& name);
-    virtual bool set_source_model(id_t id, const Source::model_t& model);
-    virtual bool set_source_port_name(id_t id, const std::string& port_name);
-    virtual bool set_source_file_name(id_t id, const std::string& file_name);
-    virtual bool set_source_file_channel(id_t id, const int& file_channel);
-    virtual bool set_source_position_fixed(id_t id, const bool& fixed);
-    virtual bool set_source_file_length(id_t id, const long int& length);
+  const Source* get_source(id_t id) const
+  {
+    auto item = _source_map.find(id);
+    if (item == _source_map.end()) { return nullptr; }
+    return &(item->second);
+  }
 
-    virtual void set_reference_position(const Position& position);
-    virtual void set_reference_orientation(const Orientation& orientation);
+  /// Get string ID given one-based source number.
+  /// @see api::Controller::get_source_id()
+  std::string get_source_id(unsigned source_number) const
+  {
+    if (!source_number || source_number > _source_ids.size()) { return {}; }
+    return _source_ids[source_number - 1];
+  }
 
-    virtual void set_reference_offset_position(const Position& position);
-    virtual void set_reference_offset_orientation(const Orientation& orientation);
-
-    virtual void set_master_volume(float volume);
-
-    virtual void set_decay_exponent(float exponent);
-
-    virtual void set_amplitude_reference_distance(float dist);
-
-    virtual void set_master_signal_level(float level);
-
-    virtual void set_cpu_load(float load);
-
-    virtual void set_sample_rate(int sample_rate);
-
-    virtual void set_source_output_levels(id_t id, float* first, float* last);
-
-    virtual void set_processing_state(bool state);
-    //virtual void set_transport_state(JackClient::State state);
-    virtual void set_transport_state(
-        const std::pair<bool, jack_nframes_t>& state);
-
-    virtual void set_auto_rotation(bool auto_rotate_sources);
-
-    loudspeakers_t::size_type get_number_of_loudspeakers() const;
-
-    //    std::pair<bool, jack_nframes_t> get_transport_state() const;
-
-    /// get master volume
-    float get_master_volume() const;
-
-    /// get master volume with amplitude correction considered
-    float get_corrected_master_volume() const;
-
-    /// get amplitude decay exponent
-    float get_decay_exponent() const;
-
-    /// get amplitude reference distance
-    float get_amplitude_reference_distance() const;
-
-    /// get master audio level
-    float get_master_signal_level() const;
-
-    /// get CPU load in percent estimated by JACK
-    float get_cpu_load() const;
-
-    /// get current sample rate
-    int get_sample_rate() const;
-
-    /// get source
-    Source get_source(id_t id) const;
-    /// get source position
-    std::unique_ptr<Position> get_source_position(id_t id) const;
-    /// get source orientation
-    std::unique_ptr<Orientation> get_source_orientation(id_t id) const;
-    /// get source model (=type)
-    Source::model_t get_source_model(id_t id) const;
-    /// get source gain
-    float get_source_gain(id_t id) const;
-    /// get source mute state
-    bool get_source_mute_state(id_t id) const;
-    /// get source name
-    std::string get_source_name(id_t id) const;
-
-    bool get_source_position_fixed(id_t id) const;
-
-    std::string get_source_properties_file(id_t id) const;
-
-    /// check if renderer is processing
-    bool get_processing_state() const;
-    bool is_playing() const;
-    jack_nframes_t get_transport_position() const;
-
-    bool get_auto_rotation() const;
-
-    // temporarily with inline implementation
-    // should return 0 in case of doubt.
-    // will be removed in the near future
-    /// deprecated!
-    inline virtual int get_max_no_of_sources() const
+  /// Get the one-based source number given a string ID.
+  /// @see api::Controller::get_source_number()
+  unsigned int get_source_number(id_t source_id) const
+  {
+    auto result = std::find(_source_ids.begin(), _source_ids.end(), source_id);
+    if (result == _source_ids.end())
     {
-      return 100;
+      return 0;
     }
+    return result - _source_ids.begin() + 1;
+  }
 
-    /// get a list of all sources.
-    /// @param container (initially empty) list of sources.
-    /// @pre
-    /// For the template argument @a T you can use any type which has a
-    /// conversion constructor for the Source type. Speaking more exactly, you
-    /// need a constructor of the following form:
-    /// <code>T::T(const pair<id_t,Source>&)</code>
-    /// @par
-    /// Your type @a T can include any of the members of Source, this way you
-    /// can obtain any subset of data you desire. If you want all available
-    /// data, just use the Source type itself.
-    /// @warning if a std::vector is used as container, the function
-    /// <code>get_number_of_sources()</code> is called to reserve the
-    /// necessary memory to avoid memory re-allocation.
-    ///
-    /// Because a fancy template template is used, any container type with one
-    /// template argument can be used, like std::list, std::vector, ...
-    /// as long as it has the following member functions: .begin(), .end(),
-    /// .push_back().
-    template<template<typename, typename...> class Container, typename T,
-    typename... Args>
-    void get_sources(Container<T, Args...>& container) const
-    {
-      assert(container.empty());
+  Pos get_reference_position() const { return _reference_position; }
+  Rot get_reference_rotation() const { return _reference_rotation; }
 
-      // the following struct container_traits is declared in the private part
-      // of the Scene class and defined further down this file.
+  bool get_auto_rotation() const
+  {
+    return _auto_rotate_sources;
+  }
 
-      if (container_traits<Container<T, Args...>>::has_reserve)
-      {
-        container_traits<Container<T, Args...>>::reserve(container,
-            _source_map.size());
-      }
-      for (const auto& source: _source_map)
-      {
-        // type conversion constructor T::T(const pair<id_t,Source>&) needed!
-        container.push_back(T(source));
-      }
-    }
+  void get_data(SceneControlEvents* subscriber)
+  {
+    assert(subscriber);
+    subscriber->auto_rotate_sources(_auto_rotate_sources);
+    subscriber->reference_position(_reference_position);
+    subscriber->reference_rotation(_reference_rotation);
+    subscriber->master_volume(_master_volume);
+    // TODO: master volume correction?
+    subscriber->decay_exponent(_decay_exponent);
+    subscriber->amplitude_reference_distance(_amplitude_reference_distance);
 
-    /// get a list of all loudspeakers.
-    /// @warning This doesn't return a valid value for the "active" field! (if
-    /// your type T has it)
-    ///
-    /// ID of the loudspeaker == its position in the container
-    /// container[0] has ID 1, container[1] has ID 2, ...
-    template<template<typename, typename> class Container, typename T,
-    typename Allocator>
-    void get_loudspeakers(Container<T, Allocator>& container,
-        bool absolute_position = true) const
-    {
-      assert(container.empty());
+    this->for_each_source([subscriber](auto id, auto& source) {
+        subscriber->source_position(id, source.position);
+        subscriber->source_rotation(id, source.rotation);
+        subscriber->source_volume(id, source.volume);
+        subscriber->source_mute(id, source.mute);
+        subscriber->source_name(id, source.name);
+        subscriber->source_model(id, source.model);
+        subscriber->source_fixed(id, source.fixed);
+    });
+  }
 
-      if (container_traits<Container<T, Allocator>>::has_reserve)
-      {
-        container_traits<Container<T, Allocator>>::reserve(container,
-            _loudspeakers.size());
-      }
-
-      for (loudspeakers_t::const_iterator i = _loudspeakers.begin();
-          i != _loudspeakers.end(); ++i)
-      {
-        T temp(*i);                // copy ctor. is called
-        if (absolute_position)
+  void get_data(SceneInformationEvents* subscriber)
+  {
+    this->for_each_source([subscriber](auto id, auto& source) {
+        // Sources have to be created first, then they can be updated
+        subscriber->new_source(id);
+        for (const auto& item: source.properties)
         {
-          // T has to be derived from DirectionalPoint
-          temp.DirectionalPoint::operator=(temp.transform(_reference));
+          subscriber->source_property(id, item.first, item.second);
         }
-        container.push_back(temp); // copy ctor. is called again
-      }
-    }
-
-    /// get current reference position/orientation.
-    /// @return position/orientation of the reference point.
-    DirectionalPoint get_reference() const
-    {
-      return _reference;
-    }
-
-    DirectionalPoint get_reference_offset() const
-    {
-      return _reference_offset;
-    }
-
-  protected:
-    source_map_t _source_map;     ///< container for sources
-
-  private:
-    loudspeakers_t _loudspeakers;
-    DirectionalPoint _reference;  ///< position/orientation of the reference
-    DirectionalPoint _reference_offset;
-    float _master_volume;         ///< master volume (linear)
-    float _master_volume_correction; ///< dito (linear scale)
-    float _decay_exponent; ///< dito
-    float _amplitude_reference_distance; ///< distance where plane sources are
-                                         ///< as loud as the other source types
-    float _master_signal_level; ///< instantaneous overall signal level (linear)
-    float _cpu_load;              ///< CPU load in percent
-    int _sample_rate;  ///< sample rate
-    /// order of mirror sources. if 0, mirror sources are deactivated
-    int mirror_order;
-    bool _processing_state;  ///< is renderer processing?
-    bool           _transport_playing;
-    jack_nframes_t _transport_position; ///< current position in the audio file in samples
-    bool _auto_rotate_sources;
-
-    template<typename T, typename PointerToMember> bool _set_source_member(
-        id_t id, PointerToMember member, const T& arg)
-    {
-      auto source_ptr = maptools::get_item(_source_map, id);
-      if (!source_ptr)
-      {
-        VERBOSE("Source " << id << " doesn't exist!");
-        return false;
-      }
-      source_ptr->*member = arg;
-      return true;
-    }
-
-    /// helper function template for get_*()
-    template<typename T, typename PointerToMember> bool _get_source_member(
-        id_t id, PointerToMember member, T& arg) const
-    {
-      const Source* const source_ptr = maptools::get_item(_source_map, id);
-      if (!source_ptr)
-      {
-        VERBOSE("Source " << id << " doesn't exist!");
-        return false;
-      }
-      arg = source_ptr->*member;
-      return true;
-    }
-
-    // forward declaration of the container traits class
-    template<typename Container> struct container_traits; // nested
-    // partial specialization:
-    template<typename T>         struct container_traits<std::vector<T>>;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// Definition of the nested struct container_traits
-////////////////////////////////////////////////////////////////////////////////
-
-/// traits class to check if a container has a reserve() member function
-// default template for any type of container
-template<typename Container> struct Scene::container_traits
-{
-  static const bool has_reserve = false;
-  template<typename U> static void reserve(Container&, const U&)
-  {
-    // does nothing, because generally, there is no reserve() member
-    // function an we will never call it anyway.
-    // We only declare it to get no errors from the compiler.
+    });
   }
-};
 
-/// traits class to check if a container has a reserve() member function
-// partial specialization of the above template.
-template<typename T>
-struct Scene::container_traits<std::vector<T>>
-{
-  static const bool has_reserve = true;
-  template<typename U> static void reserve(std::vector<T>& v, const U& space)
+private:
+  template<typename PTM, typename T>
+  void _set_source_member(id_t id, PTM member, T&& arg)
   {
-    v.reserve(space);
+    auto src = _source_map.find(id);
+    if (src == _source_map.end())
+    {
+      WARNING("Source \"" << id << "\" doesn't exist!");
+    }
+    else
+    {
+      src->second.*member = std::forward<T>(arg);
+    }
   }
-};
-// if any other STL container has a reserve() member function it should be
-// added here as a specialization.
 
-// TODO: allow Allocator template argument with default std::allocator<T>
-// but: default template arguments may not be used in partial specializations
-// introducing this argument into the default template as well would make this
-// already quite complicated template thingy even more complicated!
+  // SceneControlEvents
+
+  void auto_rotate_sources(bool auto_rotate) override
+  {
+    _auto_rotate_sources = auto_rotate;
+  }
+
+  void delete_source(id_t id) override
+  {
+    auto erased = _source_map.erase(id);
+    assert(erased < 2);
+    if (erased == 0)
+    {
+      WARNING("Source \"" << id << "\" not available, couldn't delete");
+    }
+    else
+    {
+      std::remove(_source_ids.begin(), _source_ids.end(), id);
+    }
+  }
+
+  void source_position(id_t id, const Pos& position) override
+  {
+    _set_source_member(id, &Source::position, position);
+  }
+
+  void source_rotation(id_t id, const Rot& rotation) override
+  {
+    _set_source_member(id, &Source::rotation, rotation);
+  }
+
+  void source_volume(id_t id, float volume) override
+  {
+    _set_source_member(id, &Source::volume, volume);
+  }
+
+  void source_mute(id_t id, bool mute) override
+  {
+    _set_source_member(id, &Source::mute, mute);
+  }
+
+  void source_name(id_t id, const std::string& name) override
+  {
+    _set_source_member(id, &Source::name, name);
+  }
+
+  void source_model(id_t id, const std::string& model) override
+  {
+    _set_source_member(id, &Source::model, model);
+  }
+
+  void source_fixed(id_t id, bool fixed) override
+  {
+    _set_source_member(id, &Source::fixed, fixed);
+  }
+
+  void reference_position(const Pos& position) override
+  {
+    _reference_position = position;
+  }
+
+  void reference_rotation(const Rot& rotation) override
+  {
+    _reference_rotation = rotation;
+  }
+
+  void master_volume(float volume) override
+  {
+    _master_volume = volume;
+  }
+
+  void decay_exponent(float exponent) override
+  {
+    _decay_exponent = exponent;
+  }
+
+  void amplitude_reference_distance(float distance) override
+  {
+    _amplitude_reference_distance = distance;
+  }
+
+  // SceneInformationEvents
+
+  void new_source(id_t id) override
+  {
+    VERBOSE("Adding source \"" << id << "\" to source map");
+    auto [iter, inserted] = _source_map.try_emplace(id);
+    if (inserted)
+    {
+      _source_ids.push_back(id);
+    }
+    else
+    {
+      ERROR("Source \"" << id << "\" already existed in the source map");
+    }
+  }
+
+  void source_property(id_t id, const std::string& key
+      , const std::string& value) override
+  {
+    auto src = _source_map.find(id);
+    if (src == _source_map.end())
+    {
+      ERROR("Source \"" << id << "\" doesn't exist!");
+    }
+    else
+    {
+      src->second.properties[key] = value;
+    }
+  }
+
+  std::map<std::string, Source, std::less<>> _source_map;
+  /// List of source IDs, ordered by creation time.
+  std::vector<std::string> _source_ids;
+
+  Pos _reference_position{};
+  Rot _reference_rotation{};
+
+  float _master_volume{1};  ///< master volume (linear)
+  float _master_volume_correction{1};  ///< dito (linear scale)
+  float _decay_exponent{1};  ///< dito
+  /// distance where plane sources are as loud as the other source types
+  float _amplitude_reference_distance{3};
+
+  bool _auto_rotate_sources{true};
+
+  // TODO: this should be removed at some point:
+  friend class LegacySceneWrapper;
+};
 
 }  // namespace ssr
 

@@ -34,7 +34,10 @@
 #include <config.h> // for ENABLE_*, HAVE_*, WITH_*
 #endif
 
-// TODO: move these includes to a more suitable location?
+#include <functional>  // for std::function
+#include <type_traits>  // for std::is_same_v
+#include <unordered_set>
+
 #include "apf/jack_policy.h"
 #include "apf/cxx_thread_policy.h"
 
@@ -43,7 +46,7 @@
 #include <libxml/xmlsave.h> // temporary hack!
 
 #include "ssr_global.h"
-#include "publisher.h"
+#include "api.h"
 
 #ifdef ENABLE_ECASOUND
 #include "audioplayer.h"
@@ -59,6 +62,7 @@
 
 #ifdef ENABLE_IP_INTERFACE
 #include "server.h"
+#include "legacy_xmlsceneprovider.h"  // for LegacyXmlSceneProvider
 #endif
 
 #include "tracker.h"
@@ -75,9 +79,11 @@
 #include "trackerrazor.h"
 #endif
 
+#include "legacy_scene.h"  // for LegacyScene
 #include "scene.h"  // for Scene
-#include "rendersubscriber.h"
+#include "rendersubscriber.h"  // for RenderSubscriber
 
+#include "geometry.h"  // for look_at()
 #include "posixpathtools.h"
 #include "apf/math.h"
 #include "apf/stringtools.h"
@@ -110,109 +116,262 @@ inline void print_about_message()
 
 }  // namespace internal
 
-/** %Controller class.
- * Has a list of objects which receive messages on events like position change
- * etc. With this list a kind of Publisher/Subscriber pattern is realized.
- **/
+
+/// %Controller class.  Implements the Publisher interface.
+/// The Controller can be either a "leader" or a "follower".
 template<typename Renderer>
-class Controller : public Publisher
+class Controller : public api::Publisher
+#ifdef ENABLE_IP_INTERFACE
+                 , public LegacyXmlSceneProvider
+#endif
 {
   public:
-    using loudspeaker_id_t = Loudspeaker::container_t::size_type;
-
     /// ctor
     Controller(int argc, char *argv[]);
     virtual ~Controller(); ///< dtor
 
     bool run();
 
-    void set_source_output_levels(id_t id, float* first, float* last);
-
-    virtual bool load_scene(const std::string& scene_file_name);
-    virtual bool save_scene_as_XML(const std::string& filename) const;
-
-    virtual void start_processing();
-    virtual void stop_processing();
-
-    virtual void new_source(const std::string& name, Source::model_t model
-        , const std::string& file_name_or_port_number, int channel = 0
-        , const Position& position = Position(), const bool pos_fix = false
-        , const Orientation& orientation = Orientation()
-        , const bool or_fix = false
-        , const float gain = 1.0f, const bool muted = false
-        , const std::string& properties_file = "");
-
-    virtual void delete_source(id_t id);
-    /// delete all sources in all subscribers
-    virtual void delete_all_sources();
-
-    virtual void set_source_position(id_t id, const Position& position);
-    virtual void set_source_orientation(id_t id
-        , const Orientation& orientation);
-    void orient_source_toward_reference(const id_t id);
-    void orient_all_sources_toward_reference();
-    virtual void set_source_gain(id_t id, float gain);
-    virtual void set_source_signal_level(const id_t id
-        , const float level);
-    virtual void set_source_mute(id_t id, bool mute);
-    virtual void set_source_name(id_t id, const std::string& name);
-    virtual void set_source_properties_file(id_t id, const std::string& name);
-    virtual void set_source_model(id_t id, Source::model_t model);
-    virtual void set_source_port_name(id_t id, const std::string& port_name);
-    virtual void set_source_file_name(id_t id, const std::string& file_name);
-    virtual void set_source_file_channel(id_t id, const int& channel);
-    virtual void set_source_position_fixed(id_t id, const bool fixed);
-
-    virtual void set_reference_position(const Position& position);
-    virtual void set_reference_orientation(const Orientation& orientation);
-
-    virtual void set_reference_offset_position(const Position& position);
-    virtual void set_reference_offset_orientation(const Orientation& orientation);
-
-    virtual void set_master_volume(float volume);
-
-    virtual void set_decay_exponent(const float exponent);
-
-    virtual void set_amplitude_reference_distance(const float dist);
-
-    virtual void set_master_signal_level(float level);
-
-    virtual void set_cpu_load(const float load);
-
-    virtual void publish_sample_rate(const int sample_rate);
-
-    virtual std::string get_renderer_name() const;
-
-    virtual bool show_head() const;
-
-    virtual void transport_start();
-    virtual void transport_stop();
-    virtual bool transport_locate(float time);
-
-    virtual void calibrate_client();
-
-    /// update JACK transport state
-    void set_transport_state(const std::pair<bool, jack_nframes_t>& state);
-    /// send processing state of the renderer to all subscribers.
-    virtual void set_processing_state(bool state);
-
-    virtual void set_auto_rotation(bool auto_rotate_sources);
-
-    virtual std::string get_scene_as_XML() const;
-
-    virtual void subscribe(Subscriber* subscriber);
-    virtual void unsubscribe(Subscriber* subscriber);
-
-    void set_loop_mode(bool loop) { _loop = loop; } ///< temporary solution!
-
-    // temporary solution!
-    void deactivate() { _renderer.deactivate(); }
-
   private:
     using output_list_t
       = typename Renderer::template rtlist_proxy<typename Renderer::Output>;
 
+    template<typename X = api::SceneControlEvents> class CommonInterface;
+    template<typename X> class ControlInterface;
+    class FollowerInterface;
+
     class query_state;
+
+    // Ordered list, keeps subscription order
+    template<typename Events> using Subscribers = std::vector<Events*>;
+
+    class Subscription : public api::Subscription
+    {
+    public:
+      explicit Subscription(std::function<void()> f) : _f(std::move(f)) {}
+      ~Subscription() { _f(); }
+
+    private:
+      std::function<void()> _f;
+    };
+
+    struct _noop { void operator()() {} };
+
+    template<typename Events, typename F = _noop>
+    std::unique_ptr<api::Subscription>
+    _subscribe_helper(Events* subscriber, F&& init_func = F{})
+    {
+      std::lock_guard lock{_m};
+      std::forward<F>(init_func)();
+      _subscribe<Events>(subscriber);
+      return std::make_unique<Subscription>([this, subscriber]() {
+          std::lock_guard lock{_m};
+          _unsubscribe<Events>(subscriber);
+      });
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_bundle(api::BundleEvents* subscriber) override
+    {
+      return _subscribe_helper(subscriber);
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_scene_control(api::SceneControlEvents* subscriber) override
+    {
+      return _subscribe_helper(subscriber, [this, subscriber]() {
+          _scene.get_data(subscriber);
+      });
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_scene_information(api::SceneInformationEvents* subscriber) override
+    {
+      return _subscribe_helper(subscriber, [this, subscriber]() {
+          _scene.get_data(subscriber);
+      });
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_renderer_control(api::RendererControlEvents* subscriber) override
+    {
+      return _subscribe_helper(subscriber, [this, subscriber]() {
+          _rendersubscriber.get_data(subscriber);
+      });
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_renderer_information(
+        api::RendererInformationEvents* subscriber) override
+    {
+      return _subscribe_helper(subscriber, [this, subscriber]() {
+          _rendersubscriber.get_data(subscriber);
+      });
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_transport(api::TransportEvents* subscriber) override
+    {
+      return _subscribe_helper(subscriber);
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_source_metering(api::SourceMetering* subscriber) override
+    {
+      return _subscribe_helper(subscriber);
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_master_metering(api::MasterMetering* subscriber) override
+    {
+      return _subscribe_helper(subscriber);
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_output_activity(api::OutputActivity* subscriber) override
+    {
+      return _subscribe_helper(subscriber);
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_cpu_load(api::CpuLoad* subscriber) override
+    {
+      return _subscribe_helper(subscriber);
+    }
+
+    std::unique_ptr<api::Subscription>
+    subscribe_leader(api::Controller*) override;
+
+    std::unique_ptr<api::Controller> take_control(api::SceneControlEvents*) override;
+    std::unique_ptr<api::Controller> take_control() override;
+    std::unique_ptr<api::Follower> update_follower() override;
+
+    unsigned int get_source_number(id_t source_id) const override;
+
+#ifdef ENABLE_IP_INTERFACE
+    std::string get_scene_as_XML() const override;
+#endif
+
+    bool _load_scene(const std::string& filename);
+    bool _save_scene(const std::string& filename) const;
+
+    void _new_source(const std::string& id, const std::string& name
+      , const std::string& model, const std::string& file_name_or_port_number
+      , int channel, const Pos& position, const Rot& rotation, bool fixed
+      , float volume, bool mute, const std::string& properties_file);
+
+    void _delete_all_sources();
+
+    void _orient_source_toward_reference(id_t id);
+    void _orient_all_sources_toward_reference();
+
+    void _calibrate_client();
+
+    void _transport_locate(float time);
+
+    template<typename Events>
+    void _subscribe(Events* subscriber)
+    {
+      assert(subscriber);
+      auto& list = std::get<Subscribers<Events>>(_subscribers);
+      if (std::find(list.begin(), list.end(), subscriber) == list.end())
+      {
+        list.push_back(subscriber);
+      }
+    }
+
+    template<typename Events>
+    void _unsubscribe(Events* subscriber)
+    {
+      assert(subscriber);
+      auto& list = std::get<Subscribers<Events>>(_subscribers);
+      auto iter = std::find(list.begin(), list.end(), subscriber);
+      if (iter != list.end())
+      {
+        list.erase(iter);
+      }
+    }
+
+    template<typename PTMF, typename... Args>
+    void _call_leader(PTMF member_function, Args&&... args)
+    {
+      if (_leader)
+      {
+        try { (_leader->*member_function)(std::forward<Args>(args)...); }
+        catch (std::exception& e) { ERROR(e.what()); }
+      }
+      else
+      {
+        WARNING("Instance is configured as \"follower\", "
+            "but no \"leader\" is connected");
+      }
+    }
+
+    /// Dummy class to select relevant _publish() overload.
+    struct ToLeaderTag {};
+
+    /// Low-level publishing function, overload for SceneControlEvents.
+    /// The first argument is the initiator of the request (or nullptr).
+    /// The second argument is a pointer to a member function of
+    /// SceneControlEvents, the rest are arguments to said member function.
+    // NB: Args must be convertible to FuncArgs, but they don't necessarily have
+    //     to be the same types.
+    template<typename R, typename... FuncArgs, typename... Args>
+    void _publish(api::SceneControlEvents* initiator
+        , R (api::SceneControlEvents::*f)(FuncArgs...), Args&&... args)
+    {
+      // TODO: check if sender is allowed to move source?
+
+      for (api::SceneControlEvents* subscriber:
+           std::get<Subscribers<api::SceneControlEvents>>(_subscribers))
+      {
+        // NB: If initiator is nullptr this is always true:
+        if (subscriber != initiator)
+        {
+          try { (subscriber->*f)(std::forward<Args>(args)...); }
+          catch (std::exception& e) { ERROR(e.what()); }
+        }
+      }
+    }
+
+    /// Overload for SceneControlEvents to be sent to the "leader".
+    /// The first argument is a dummy argument for selecting this overload.
+    template<typename R, typename... FuncArgs, typename... Args>
+    void _publish(ToLeaderTag*
+        , R (api::SceneControlEvents::*f)(FuncArgs...), Args&&... args)
+    {
+      assert(_conf.follow);
+      try { _call_leader(f, std::forward<Args>(args)...); }
+      catch (std::exception& e) { ERROR(e.what()); }
+    }
+
+    /// Overload for all events without options to suppress own messages.
+    /// Those are never sent to the "leader", therefore it is not allowed to use
+    /// this for SceneControlEvents on a "follower".
+    template<typename R, typename C, typename... FuncArgs, typename... Args>
+    void _publish(R (C::*f)(FuncArgs...), Args&&... args)
+    {
+      // NB: Nothing is sent to the "leader"
+
+      if constexpr (std::is_same_v<C, api::SceneControlEvents>)
+      {
+        // In a "follower", those must use separate overload from above
+        assert(!_conf.follow);
+      }
+
+      for (C* subscriber: std::get<Subscribers<C>>(_subscribers))
+      {
+        try { (subscriber->*f)(std::forward<Args>(args)...); }
+        catch (std::exception& e) { ERROR(e.what()); }
+      }
+    }
+
+    std::vector<Loudspeaker> _get_loudspeakers() const
+    {
+      std::vector<LegacyLoudspeaker> loudspeakers;
+      _renderer.get_loudspeakers(loudspeakers);
+      return {loudspeakers.begin(), loudspeakers.end()};
+    }
 
 #ifdef ENABLE_ECASOUND
     /// load the audio recorder and set it to "record enable" mode.
@@ -233,56 +392,37 @@ class Controller : public Publisher
     conf_struct _conf;
 
     Scene _scene;
-    /// a list of subscribers
-    using subscriber_list_t = std::vector<Subscriber*>;
-    /// list of objects that will be notified on all events
-    subscriber_list_t _subscribers;
+    LegacyScene _legacy_scene;
+
+    std::tuple<
+      Subscribers<api::BundleEvents>,
+      Subscribers<api::SceneControlEvents>,
+      Subscribers<api::SceneInformationEvents>,
+      Subscribers<api::TransportEvents>,
+      Subscribers<api::RendererControlEvents>,
+      Subscribers<api::RendererInformationEvents>,
+      Subscribers<api::SourceMetering>,
+      Subscribers<api::MasterMetering>,
+      Subscribers<api::OutputActivity>,
+      Subscribers<api::CpuLoad>
+    > _subscribers;
+    api::Controller* _leader = nullptr;
 #ifdef ENABLE_GUI
     std::unique_ptr<QGUI> _gui;
 #endif
 
     Renderer _renderer;
+    RenderSubscriber<Renderer> _rendersubscriber;
 
     query_state _query_state;
 #ifdef ENABLE_ECASOUND
     AudioRecorder::ptr_t    _audio_recorder; ///< pointer to audio recorder
     AudioPlayer::ptr_t      _audio_player;   ///< pointer to audio player
 #endif
-    std::string _schema_file_name;           ///< XML Schema
-    std::string _input_port_prefix;          ///< e.g. alsa_pcm:capture
 #ifdef ENABLE_IP_INTERFACE
     std::unique_ptr<Server> _network_interface;
 #endif
     std::unique_ptr<Tracker> _tracker;
-
-    /// check if audio player is running and start it if necessary
-    bool _audio_player_is_running();
-
-    /// Publishing function.
-    /// The first argument is a pointer to a member function of the Subscriber
-    /// class, the rest are arguments to said member function.
-    template<typename R, typename... FuncArgs, typename... Args>
-    inline void _publish(R (Subscriber::*f)(FuncArgs...), Args&&... args)
-    {
-      ScopedLock guard(_subscribers_lock);
-      for (auto& subscriber: _subscribers)
-      {
-        (subscriber->*f)(std::forward<Args>(args)...);  // ignore return value
-      }
-    }
-
-    /// helper struct for a source including its source id
-    struct SourceCopy : public Source
-    {
-      typedef std::vector<SourceCopy> container_t; ///< list of SourceCopys
-      /// type conversion constructor
-      SourceCopy(const std::pair<id_t, Source>& other)
-        : Source(other.second) // copy ctor of base class
-        , id(other.first)
-      {}
-
-      id_t id; ///< unique ID, see Scene::source_map_t
-    };
 
     void _add_master_volume(Node& node) const;
     void _add_transport_state(Node& node) const;
@@ -301,8 +441,7 @@ class Controller : public Publisher
     std::unique_ptr<typename Renderer::template ScopedThread<
       typename Renderer::QueryThread>> _query_thread;
 
-    typename Renderer::Lock _subscribers_lock;
-    using ScopedLock = typename Renderer::ScopedLock;
+    std::mutex _m;
 };
 
 template<typename Renderer>
@@ -311,15 +450,13 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   , _argv(argv)
   , _conf(configuration(_argc, _argv))
   , _renderer(_conf.renderer_params)
+  , _rendersubscriber(_renderer)
   , _query_state(query_state(*this, _renderer))
-  , _tracker(nullptr)
-  , _loop(false)
+  , _loop(_conf.loop)  // temporary solution
 {
   // TODO: signal handling?
 
   internal::print_about_message();
-
-  _renderer.load_reproduction_setup();
 
 #ifndef ENABLE_IP_INTERFACE
   if (_conf.ip_server)
@@ -355,31 +492,46 @@ Controller<Renderer>::Controller(int argc, char* argv[])
     _conf.gui = false;
   }
 
-  // temporary solution:
-  this->set_loop_mode(_conf.loop);
+  // NB: we don't need a lock here because nothing is publishing yet
 
-  this->subscribe(&_scene);
+  _subscribe<api::SceneControlEvents>(&_scene);
+  _subscribe<api::SceneInformationEvents>(&_scene);
 
-  this->publish_sample_rate(_renderer.sample_rate());
+  _subscribe<api::SceneControlEvents>(&_legacy_scene);
+  _subscribe<api::SceneInformationEvents>(&_legacy_scene);
+  _subscribe<api::RendererControlEvents>(&_legacy_scene);
+  _subscribe<api::RendererInformationEvents>(&_legacy_scene);
+  _subscribe<api::TransportEvents>(&_legacy_scene);
+  _subscribe<api::SourceMetering>(&_legacy_scene);
+  _subscribe<api::MasterMetering>(&_legacy_scene);
+  _subscribe<api::OutputActivity>(&_legacy_scene);
+  _subscribe<api::CpuLoad>(&_legacy_scene);
 
-  std::vector<Loudspeaker> loudspeakers;
-  _renderer.get_loudspeakers(loudspeakers);
-  _publish(&Subscriber::set_loudspeakers, loudspeakers);
+  _subscribe<api::BundleEvents>(&_rendersubscriber);
+  _subscribe<api::SceneControlEvents>(&_rendersubscriber);
+  _subscribe<api::RendererControlEvents>(&_rendersubscriber);
+  _subscribe<api::RendererInformationEvents>(&_rendersubscriber);
 
-  // TODO: memory leak, subscriber is never deleted!
-  auto subscriber = new RenderSubscriber<Renderer>(_renderer);
-  this->subscribe(subscriber);
+  // End of initial subscriptions, start publishing ...
+
+  _publish(&api::RendererInformationEvents::renderer_name
+      , _renderer.name());
+
+  _renderer.load_reproduction_setup();
+
+  _publish(&api::RendererInformationEvents::sample_rate
+      , _renderer.sample_rate());
+
+  _publish(&api::RendererInformationEvents::loudspeakers, _get_loudspeakers());
 
 #ifdef ENABLE_ECASOUND
   _load_audio_recorder(_conf.audio_recorder_file_name);
 #endif
 
-  // TODO: allow specification in scene file
-  this->set_auto_rotation(_conf.auto_rotate_sources);
-
-  if (!this->load_scene(_conf.scene_file_name))
+  if (!_conf.follow)
   {
-    throw std::runtime_error("Couldn't load scene!");
+    // NB: This is ignored in "followers"
+    this->take_control()->auto_rotate_sources(_conf.auto_rotate_sources);
   }
 
   if (_conf.freewheeling)
@@ -398,11 +550,25 @@ Controller<Renderer>::Controller(int argc, char* argv[])
         << " and with end-of-message character with ASCII code " <<
         _conf.end_of_message_character << ".");
 
-    _network_interface.reset(new Server(*this, _conf.server_port
+    _network_interface.reset(new Server(*this, *this, _conf.server_port
         , static_cast<char>(_conf.end_of_message_character)));
     _network_interface->start();
   }
 #endif // ENABLE_IP_INTERFACE
+
+  if (_conf.follow && _conf.scene_file_name != "")
+  {
+    // TODO: if "follower": connect to "leader" before loading scene
+    throw std::logic_error(
+        "Loading a scene as \"follower\" is not yet supported");
+  }
+
+  auto control = this->take_control();  // Start a bundle for scene loading
+
+  if (_conf.scene_file_name != "" && !_load_scene(_conf.scene_file_name))
+  {
+    throw std::runtime_error("Couldn't load scene!");
+  }
 }
 
 template<typename Renderer>
@@ -414,14 +580,18 @@ class Controller<Renderer>::query_state
       , _renderer(renderer)
     {}
 
+    // NB: This is executed in the audio thread
     void query()
     {
-      _state = _renderer.get_transport_state();
+      if (!_controller._conf.follow)
+      {
+        _state = _renderer.get_transport_state();
+      }
       _cpu_load = _renderer.get_cpu_load();
 
       auto output_list = output_list_t(_renderer.get_output_list());
 
-      _master_level = typename Renderer::sample_type();
+      _master_level = {};
       for (const auto& out: output_list)
       {
         _master_level = std::max(_master_level, out.get_level());
@@ -440,6 +610,7 @@ class Controller<Renderer>::query_state
           levels->source_id = source.id;
           levels->source_level = source.get_level();
 
+          assert(levels->outputs.size() == _renderer.get_output_list().size());
           levels->outputs_available = source.get_output_levels(
               &*levels->outputs.begin(), &*levels->outputs.end());
 
@@ -454,29 +625,39 @@ class Controller<Renderer>::query_state
       }
     }
 
+    // NB: This is executed in the control thread
     void update()
     {
-      _controller._publish(&Subscriber::set_transport_state, _state);
-      _controller.set_cpu_load(_cpu_load);
-      _controller.set_master_signal_level(_master_level);
+      auto control = _controller.take_control();  // Scoped bundle
+
+      if (!_controller._conf.follow)
+      {
+        _controller._publish(&api::TransportEvents::transport_state
+            , _state.first, _state.second);
+      }
+      _controller._publish(&api::CpuLoad::cpu_load, _cpu_load);
+      _controller._publish(&api::MasterMetering::master_level, _master_level);
 
       if (!_discard_source_levels)
       {
         for (auto& item: _source_levels)
         {
-          _controller.set_source_signal_level(item.source_id
-              , item.source_level);
+          _controller._publish(&api::SourceMetering::source_level
+              , item.source_id, item.source_level);
 
           // TODO: make this a compile-time decision:
           if (item.outputs_available)
           {
-            _controller.set_source_output_levels(item.source_id
-                , &*item.outputs.begin(), &*item.outputs.end());
+            assert(item.outputs.size() == _renderer.get_output_list().size());
+            _controller._publish(&api::OutputActivity::output_activity
+                , item.source_id, &*item.outputs.begin(), &*item.outputs.end());
           }
         }
       }
       else
       {
+        // NB: The output list should only be accessed by the audio thread.
+        //     Since the number of outputs is never changed, that's OK here.
         _source_levels.resize(_new_size
           , SourceLevel(_renderer.get_output_list().size()));
       }
@@ -485,25 +666,24 @@ class Controller<Renderer>::query_state
   private:
     struct SourceLevel
     {
-      explicit SourceLevel(size_t n)
-        : outputs_available(false)
-        , outputs(n)
+      explicit SourceLevel(size_t number_of_outputs)
+        : outputs(number_of_outputs)
       {}
 
       typename Renderer::sample_type source_level;
 
-      int source_id;
+      std::string source_id;
 
-      bool outputs_available;
-      // this may never be resized:
+      bool outputs_available{false};
+      // this must never be resized:
       std::vector<typename Renderer::sample_type> outputs;
     };
 
     using source_levels_t = std::vector<SourceLevel>;
 
     Controller& _controller;
-    Renderer& _renderer;
-    std::pair<bool, jack_nframes_t> _state;
+    const Renderer& _renderer;
+    std::pair<bool, uint32_t> _state;
     float _cpu_load;
     typename Renderer::sample_type _master_level;
 
@@ -531,15 +711,18 @@ bool Controller<Renderer>::run()
 
   _renderer.new_query(_query_state);
 
+  {
+    auto control = this->take_control();
+    control->processing(true);
+    if (!_conf.follow)
+    {
+      control->transport_locate(0.0f);
+    }
+  }
+
   if (_conf.gui)
   {
 #ifdef ENABLE_GUI
-
-    // TEMPORARY!!!
-    this->start_processing();
-    this->transport_locate(0.0f);
-    //this->transport_start();
-
     if (!_start_gui(_conf.path_to_gui_images, _conf.path_to_scene_menu))
     {
       return false;
@@ -551,13 +734,7 @@ bool Controller<Renderer>::run()
   }
   else // without GUI
   {
-    // TODO: check if IP-server is running
-    // TODO: wait for shutdown command (run forever)
-
-    // TEMPORARY!!!
-    this->start_processing();
-    this->transport_locate(0.0f);
-    this->transport_start();
+    this->take_control()->transport_start();
     bool keep_running = true;
     while (keep_running)
     {
@@ -565,19 +742,19 @@ bool Controller<Renderer>::run()
       {
         case 'c':
           std::cout << "Calibrating client.\n";
-          this->calibrate_client();
+          this->take_control()->calibrate_tracker();
           break;
         case 'p':
-          this->transport_start();
+          this->take_control()->transport_start();
           break;
         case 'q':
           keep_running = false;
           break;
         case 'r':
-          this->transport_locate(0.0f);
+          this->take_control()->transport_locate(0.0f);
           break;
         case 's':
-          this->transport_stop();
+          this->take_control()->transport_stop();
           break;
       }
     }
@@ -588,23 +765,19 @@ bool Controller<Renderer>::run()
 template<typename Renderer>
 Controller<Renderer>::~Controller()
 {
-  //recorder->disable();
-  this->stop_processing();
-
-  // TODO: check if transport needs to be stopped
-  this->transport_stop();
-
-  if (!this->save_scene_as_XML("ssr_scene_autosave.asd"))
+  if (!_conf.follow)
   {
-    ERROR("Couldn't write XML scene! (It's an ugly hack anyway ...");
+    auto control = this->take_control();
+
+    // TODO: check if transport needs to be stopped
+    control->transport_stop();
+
+    // NB: Scene is save while holding the lock
+    if (!_save_scene("ssr_scene_autosave.asd"))
+    {
+      ERROR("Couldn't write XML scene! (It's an ugly hack anyway ...");
+    }
   }
-
-  {
-    ScopedLock guard(_subscribers_lock);
-    _subscribers.clear();
-  }  // unlock
-
-  this->deactivate();
 }
 
 namespace internal
@@ -707,11 +880,20 @@ get_orientation(const Node& node)
  **/
 template<typename T>
 T
-get_attribute_of_node(const Node& node, const std::string attribute
+get_attribute_of_node(const Node& node, const std::string& attribute
     , const T default_value)
 {
   if (!node) return default_value;
   return apf::str::S2RV(node.get_attribute(attribute), default_value);
+}
+
+/// Overload for const char* default value
+inline std::string
+get_attribute_of_node(const Node& node, const std::string& attribute
+    , const char* default_value)
+{
+  std::string temp{default_value};
+  return get_attribute_of_node(node, attribute, temp);
 }
 
 /** check for file/port
@@ -719,7 +901,7 @@ get_attribute_of_node(const Node& node, const std::string attribute
  * @param file_name_or_port_number a string where the obtained file name or
  * port number is stored.
  * @return channel number, 0 if port was given.
- * @note on error, @p file_name_or_port_number is set to the empty string ""
+ * @note on error, @a file_name_or_port_number is set to the empty string ""
  * and 0 is returned.
  **/
 inline int
@@ -732,7 +914,6 @@ get_file_name_or_port_number(const Node& node
     {
       file_name_or_port_number = get_content(i);
       int channel = apf::str::S2RV(i.get_attribute("channel"), 1);
-      // TODO: raise error if channel is negative?
       assert(channel >= 0);
       return channel;
     }
@@ -747,41 +928,458 @@ get_file_name_or_port_number(const Node& node
   return 0;
 }
 
-} // end of anonymous namespace
+} // end of namespace "internal"
+
 
 template<typename Renderer>
-void
-Controller<Renderer>::subscribe(Subscriber* const subscriber)
+template<typename X>
+class Controller<Renderer>::CommonInterface
+                                        : virtual public api::SceneControlEvents
 {
-  ScopedLock guard(_subscribers_lock);
-  _subscribers.push_back(subscriber);
+public:
+  explicit CommonInterface(X* initiator, Controller<Renderer>& controller)
+    : _initiator(initiator)
+    , _controller(controller)
+    , _lock(_controller._m)
+  {
+    _controller._publish(&api::BundleEvents::bundle_start);
+  }
+
+  ~CommonInterface()
+  {
+    _controller._publish(&api::BundleEvents::bundle_stop);
+  }
+
+  // SceneControlEvents
+
+  void auto_rotate_sources(bool auto_rotate) override
+  {
+    _controller._publish(_initiator,
+        &api::SceneControlEvents::auto_rotate_sources, auto_rotate);
+
+    if constexpr (_is_leader)
+    {
+      if (auto_rotate)
+      {
+        _controller._orient_all_sources_toward_reference();
+        VERBOSE("Auto-rotation of sound sources is enabled.");
+      }
+      else
+      {
+        VERBOSE("Auto-rotation of sound sources is disabled.");
+      }
+    }
+  }
+
+  void delete_source(id_t id) override
+  {
+    _controller._publish(_initiator,
+        &api::SceneControlEvents::delete_source, id);
+
+    // TODO: stop AudioPlayer if not needed anymore?
+  }
+
+  void source_position(id_t id, const Pos& position) override
+  {
+    if constexpr (_is_leader)
+    {
+      auto* src = _controller._scene.get_source(id);
+      if (src == nullptr)
+      {
+        WARNING("Source \"" << id << "\" does not exist.");
+        return;
+      }
+      else if (src->fixed)
+      {
+        WARNING("Source \"" << id << "\" cannot be moved because it is fixed.");
+        return;
+      }
+    }
+    _controller._publish(_initiator,
+        &api::SceneControlEvents::source_position, id, position);
+    if constexpr (_is_leader)
+    {
+      if (_controller._scene.get_auto_rotation())
+      {
+        _controller._orient_source_toward_reference(id);
+      }
+    }
+  }
+
+  void source_rotation(id_t id, const Rot& rotation) override
+  {
+    if constexpr (_is_leader)
+    {
+      if (_controller._scene.get_auto_rotation())
+      {
+        VERBOSE2("Ignoring update of source rotation."
+            << " Auto-rotation is enabled.");
+        return;
+      }
+      auto* src = _controller._scene.get_source(id);
+      if (src == nullptr)
+      {
+        WARNING("Source \"" << id << "\" does not exist.");
+        return;
+      }
+      if (src->fixed)
+      {
+        WARNING("Source \"" << id
+            << "\" cannot be rotated because it is fixed.");
+        return;
+      }
+    }
+    _controller._publish(_initiator,
+        &api::SceneControlEvents::source_rotation, id, rotation);
+  }
+
+  void source_volume(id_t id, float volume) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::source_volume, id, volume);
+  }
+
+  void source_mute(id_t id, bool mute) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::source_mute, id, mute);
+  }
+
+  void source_name(id_t id, const std::string& name) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::source_name, id, name);
+  }
+
+  void source_model(id_t id, const std::string& model) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::source_model, id, model);
+  }
+
+  void source_fixed(id_t id, bool fixed) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::source_fixed, id, fixed);
+  }
+
+  void reference_position(const Pos& position) override
+  {
+    _controller._publish(_initiator,
+        &api::SceneControlEvents::reference_position, position);
+    if constexpr (_is_leader)
+    {
+      if (_controller._scene.get_auto_rotation())
+      {
+        _controller._orient_all_sources_toward_reference();
+      }
+    }
+  }
+
+  void reference_rotation(const Rot& rotation) override
+  {
+    _controller._publish(_initiator,
+        &api::SceneControlEvents::reference_rotation, rotation);
+  }
+
+  void master_volume(float volume) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::master_volume, volume);
+  }
+
+  void decay_exponent(float exponent) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::decay_exponent, exponent);
+  }
+
+  void amplitude_reference_distance(float dist) override
+  {
+    if (dist > 1.0f)
+    {
+      _controller._publish(_initiator,
+          &api::SceneControlEvents::amplitude_reference_distance, dist);
+    }
+    else
+    {
+      ERROR("Amplitude reference distance cannot be smaller than 1.");
+    }
+  }
+
+protected:
+  static constexpr bool _is_leader = !std::is_same_v<X, ToLeaderTag>;
+  X* _initiator;
+  Controller<Renderer>& _controller;
+  std::lock_guard<std::mutex> _lock;
+};
+
+
+template<typename Renderer>
+template<typename X>
+class Controller<Renderer>::ControlInterface : public CommonInterface<X>
+                                             , public api::Controller
+{
+public:
+  using CommonInterface<X>::CommonInterface;
+
+  void load_scene(const std::string& filename) override
+  {
+    if constexpr (_is_leader)
+    {
+      if (!_controller._load_scene(filename))
+      {
+        WARNING("Loading scene \"" << filename << "\" failed");
+      }
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::load_scene, filename);
+    }
+  }
+
+  void save_scene(const std::string& filename) const override
+  {
+    if constexpr (_is_leader)
+    {
+      if (!_controller._save_scene(filename))
+      {
+        WARNING("Saving scene \"" << filename << "\" failed");
+      }
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::save_scene, filename);
+    }
+  }
+
+  void new_source(const std::string& id, const std::string& name
+      , const std::string& model, const std::string& file_name_or_port_number
+      , int channel, const Pos& position, const Rot& rotation, bool fixed
+      , float volume, bool mute, const std::string& properties_file) override
+  {
+    if constexpr (_is_leader)
+    {
+      _controller._new_source(id, name, model, file_name_or_port_number
+          , channel, position, rotation, fixed, volume, mute, properties_file);
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::new_source, id, name,  model
+          , file_name_or_port_number, channel, position, rotation, fixed
+          , volume, mute, properties_file);
+    }
+  }
+
+  void delete_all_sources() override
+  {
+    if constexpr (_is_leader)
+    {
+      _controller._delete_all_sources();
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::delete_all_sources);
+    }
+  }
+
+  void transport_start() override
+  {
+    if constexpr (_is_leader)
+    {
+      _controller._renderer.transport_start();
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::transport_start);
+    }
+  }
+
+  void transport_stop() override
+  {
+    if constexpr (_is_leader)
+    {
+      _controller._renderer.transport_stop();
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::transport_stop);
+    }
+  }
+
+  void transport_locate(float time) override
+  {
+    if constexpr (_is_leader)
+    {
+      _controller._transport_locate(time);
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::transport_locate, time);
+    }
+  }
+
+  void calibrate_tracker() override
+  {
+    // NB: This is not sent to the leader
+    _controller._calibrate_client();
+  }
+
+  std::string get_source_id(unsigned source_number) const override
+  {
+    return _controller._scene.get_source_id(source_number);
+  }
+
+  // RendererControlEvents
+
+  void processing(bool state) override
+  {
+    _controller._publish(&api::RendererControlEvents::processing, state);
+  }
+
+  void reference_offset_position(const Pos& position) override
+  {
+    _controller._publish(&api::RendererControlEvents::reference_offset_position
+        , position);
+  }
+
+  void reference_offset_rotation(const Rot& rotation) override
+  {
+    _controller._publish(&api::RendererControlEvents::reference_offset_rotation
+        , rotation);
+  }
+
+private:
+  using CommonInterface<X>::_is_leader;
+  using CommonInterface<X>::_controller;
+};
+
+
+template<typename Renderer>
+class Controller<Renderer>::FollowerInterface : public CommonInterface<>
+                                              , public api::Follower
+{
+private:
+  using CommonInterface<>::_controller;
+
+public:
+  explicit FollowerInterface(Controller<Renderer>& controller)
+    : CommonInterface<>(nullptr, controller)
+  {}
+
+  // SceneControlEvents are inherited from CommonInterface
+
+  // SceneInformationEvents
+
+  void new_source(id_t id) override
+  {
+    _controller._publish(&api::SceneInformationEvents::new_source, id);
+  }
+
+  void source_property(id_t id, const std::string& key
+                              , const std::string& value) override
+  {
+    _controller._publish(&api::SceneInformationEvents::source_property
+        , id, key, value);
+  }
+
+  // TransportEvents
+
+  void transport_state(bool rolling, uint32_t frame) override
+  {
+    _controller._publish(&api::TransportEvents::transport_state
+        , rolling, frame);
+  }
+
+  // SourceMetering
+
+  void source_level(id_t id, float level) override
+  {
+    _controller._publish(&api::SourceMetering::source_level, id, level);
+  }
+};
+
+
+template<typename Renderer>
+std::unique_ptr<api::Subscription>
+Controller<Renderer>::subscribe_leader(api::Controller* leader)
+{
+  if (!_conf.follow)
+  {
+    throw std::logic_error(
+        "\"subscribe_leader()\" can only be called on \"follower\"");
+  }
+  std::lock_guard lock{_m};
+  if (_leader != nullptr)
+  {
+    throw std::runtime_error("A \"leader\" is already subscribed");
+  }
+  _leader = leader;
+  return std::make_unique<Subscription>([this]() {
+    std::lock_guard lock{_m};
+    _leader = nullptr;
+  });
 }
 
+
 template<typename Renderer>
-void
-Controller<Renderer>::unsubscribe(Subscriber* subscriber)
+std::unique_ptr<api::Controller>
+Controller<Renderer>::take_control(api::SceneControlEvents* suppress_own)
 {
-  ScopedLock guard(_subscribers_lock);
-  auto s = std::find(_subscribers.begin(), _subscribers.end(), subscriber);
-  if (s != _subscribers.end())
+  if (_conf.follow)
   {
-    _subscribers.erase(s);
+    if (suppress_own != nullptr)
+    {
+      throw std::logic_error(
+          "\"suppress_own\" can only be used directly on \"leader\"");
+    }
+    return std::make_unique<ControlInterface<ToLeaderTag>>(
+        nullptr, *this);
   }
   else
   {
-    WARNING("unsubscribe(): given subscriber not found!");
+    return std::make_unique<ControlInterface<api::SceneControlEvents>>(
+        suppress_own, *this);
   }
 }
 
+
+template<typename Renderer>
+std::unique_ptr<api::Controller>
+Controller<Renderer>::take_control()
+{
+  return this->take_control(nullptr);
+}
+
+
+template<typename Renderer>
+std::unique_ptr<api::Follower>
+Controller<Renderer>::update_follower()
+{
+  return std::make_unique<FollowerInterface>(*this);
+}
+
+
+template<typename Renderer>
+unsigned int
+Controller<Renderer>::get_source_number(id_t source_id) const
+{
+  return _scene.get_source_number(source_id);
+}
+
+
 template<typename Renderer>
 bool
-Controller<Renderer>::load_scene(const std::string& scene_file_name)
+Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 {
-  this->stop_processing();
-  // TODO: get state.
+  assert(!_conf.follow);
 
   // remove all existing sources (if any)
-  this->delete_all_sources();
+  _delete_all_sources();
+
+#ifdef ENABLE_ECASOUND
+  _audio_player.reset();  // shut down audio player
+#endif
 
   if (scene_file_name == "")
   {
@@ -838,7 +1436,8 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
     }
 
     VERBOSE("Setting master volume to " << master_volume << " dB.");
-    this->set_master_volume(apf::math::dB2linear(master_volume));
+    _publish(&api::SceneControlEvents::master_volume
+        , apf::math::dB2linear(master_volume));
 
     // GET DECAY EXPONENT
     auto exponent = _conf.renderer_params.get<float>("decay_exponent");
@@ -854,7 +1453,7 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
 
     // always use default value when nothing is specified
     VERBOSE("Setting amplitude decay exponent to " << exponent << ".");
-    this->set_decay_exponent(exponent);
+    _publish(&api::SceneControlEvents::decay_exponent, exponent);
 
     // GET AMPLITUDE REFERENCE DISTANCE
 
@@ -874,7 +1473,7 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
     // always use default value when nothing is specified
     VERBOSE("Setting amplitude reference distance to "
         << ref_dist << " meters.");
-    this->set_amplitude_reference_distance(ref_dist);
+    _publish(&api::SceneControlEvents::amplitude_reference_distance, ref_dist);
 
     // LOAD REFERENCE
 
@@ -901,10 +1500,8 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
     if (!pos_ptr) pos_ptr.reset(new internal::PositionPlusBool());
     if (!dir_ptr) dir_ptr.reset(new Orientation(90));
 
-    this->set_reference_position(*pos_ptr);
-    this->set_reference_orientation(*dir_ptr);
-    this->set_reference_offset_position(Position());
-    this->set_reference_offset_orientation(Orientation());
+    _publish(&api::SceneControlEvents::reference_position, *pos_ptr);
+    _publish(&api::SceneControlEvents::reference_rotation, *dir_ptr);
 
     // LOAD SOURCES
 
@@ -929,17 +1526,16 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
         std::string name_str; if (name != "") name_str = " name: \""
           + name + "\"";
 
-        Source::model_t model
-          = internal::get_attribute_of_node(node, "model", Source::unknown);
+        std::string model = internal::get_attribute_of_node(node, "model", "");
 
-        if (model == Source::unknown)
+        if (model == "")
         {
           VERBOSE("Source model not defined!" << id_str << name_str
               << " Using default (= point source).");
-          model = Source::point;
+          model = "point";
         }
 
-        if ((model == Source::point) && !dir_ptr)
+        if ((model == "point") && !dir_ptr)
         {
           // orientation is optional for point sources, required for plane waves
           dir_ptr.reset(new Orientation);
@@ -966,10 +1562,11 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
         float gain_dB = internal::get_attribute_of_node(node, "volume", 0.0f);
         bool muted = internal::get_attribute_of_node(node, "mute", false);
         pos_ptr->fixed = internal::get_attribute_of_node(node, "fixed", false);
-        // bool doppler = internal::get_attribute_of_node(node, "doppler_effect", false);
 
-        this->new_source(name, model, file_name_or_port_number, channel
-            , *pos_ptr, pos_ptr->fixed, *dir_ptr, false
+        // NB: If ID is not the empty string and not unique, this will fail:
+        _new_source(id, name, model, file_name_or_port_number
+            , channel, Pos{pos_ptr->x, pos_ptr->y}
+            , *dir_ptr, pos_ptr->fixed
             , apf::math::dB2linear(gain_dB), muted, properties_file);
       }
     }
@@ -987,18 +1584,17 @@ Controller<Renderer>::load_scene(const std::string& scene_file_name)
       return false;
     }
   }
-
-  this->transport_locate(0); // go to beginning of audio files
-  // TODO: only start processing if it was on before
-  this->start_processing();
-
+  _transport_locate(0);  // go to beginning of audio files
   return true;
 }
 
 template<typename Renderer>
 bool
-Controller<Renderer>::_create_spontaneous_scene(const std::string& audio_file_name)
+Controller<Renderer>::_create_spontaneous_scene(
+    const std::string& audio_file_name)
 {
+  assert(!_conf.follow);
+
 #ifndef ENABLE_ECASOUND
   ERROR("Couldn't create scene from file \"" << audio_file_name
         << "\"! Ecasound was disabled at compile time.");
@@ -1027,58 +1623,58 @@ Controller<Renderer>::_create_spontaneous_scene(const std::string& audio_file_na
     = audio_file_name.substr(audio_file_name.rfind('/') + 1);
 
   // set master volume
-  this->set_master_volume(apf::math::dB2linear(0.0f));
-  this->set_decay_exponent(_conf.renderer_params.get<float>("decay_exponent"));
-  this->set_amplitude_reference_distance(_conf.renderer_params.get<float>(
-        "amplitude_reference_distance"));  // throws on error!
+  _publish(&api::SceneControlEvents::master_volume, apf::math::dB2linear(0.0f));
+  _publish(&api::SceneControlEvents::decay_exponent,
+      // throws on error!
+      _conf.renderer_params.get<float>("decay_exponent"));
+  _publish(&api::SceneControlEvents::amplitude_reference_distance,
+      // throws on error!
+      _conf.renderer_params.get<float>("amplitude_reference_distance"));
   // set reference
-  this->set_reference_position(Position());
-  this->set_reference_orientation(Orientation(90.0f));
-  this->set_reference_offset_position(Position());
-  this->set_reference_offset_orientation(Orientation());
+  _publish(&api::SceneControlEvents::reference_position, Pos{});
+  _publish(&api::SceneControlEvents::reference_rotation, Rot{});
 
   const float default_source_distance = 2.5f; // for mono and stereo files
 
   switch (no_of_audio_channels)
   {
     case 1: // mono file
-      this->new_source(source_name, Source::point, audio_file_name, 1
-          , Position(0.0f, default_source_distance), false, Orientation()
-          , false, apf::math::dB2linear(0.0f), false, "");
-
-      VERBOSE("Creating point source at x = "
-          << apf::str::A2S(0.0f) << " mtrs, y = "
-          << apf::str::A2S(default_source_distance) << " mtrs.");
-
+      {
+        Pos pos{0, default_source_distance};
+        VERBOSE("Creating point source at x = " << pos.x
+            << " mtrs, y = " << pos.y << " mtrs.");
+        assert(pos.z == 0);
+        _new_source("", source_name, "point", audio_file_name, 1
+            , pos, Rot{}, false, 1.0f, false, "");
+      }
       break;
 
     case 2: // stereo file
       {
-#undef PI
-        const float PI = 3.14159265358979323846;
+        constexpr auto pi = apf::math::pi<float>();
 
-        const float pos_x = default_source_distance * cos(PI/3.0f);
-        const float pos_y = default_source_distance * sin(PI/3.0f);
+        const float pos_x = default_source_distance * std::cos(pi/3.0f);
+        const float pos_y = default_source_distance * std::sin(pi/3.0f);
 
-        // create source
-        this->new_source(source_name + " left", Source::plane, audio_file_name
-            , 1, Position(-pos_x, pos_y), false, Orientation(-60), false
-            , apf::math::dB2linear(0.0f), false, "");
+        Pos pos{-pos_x, pos_y};
+        VERBOSE("Creating plane wave at x = " << pos.x
+            << " mtrs, y = " << pos.y << " mtrs.");
+        assert(pos.z == 0);
 
-        VERBOSE("Creating point source at x = " << apf::str::A2S(-pos_x)
-            << " mtrs, y = " << apf::str::A2S(pos_y) << " mtrs.");
+        _new_source("", source_name + " left", "plane"
+            , audio_file_name, 1, pos, Orientation(-60)
+            , false, 1.0f, false, "");
 
-        // create source
-        this->new_source(source_name + " right", Source::plane, audio_file_name
-            , 2u, Position(pos_x, pos_y), false, Orientation(-120), false
-            , apf::math::dB2linear(0.0f), false, "");
+        pos = Pos{pos_x, pos_y};
+        VERBOSE("Creating plane wave at x = " << pos.x
+            << " mtrs, y = " << pos.y << " mtrs.");
+        assert(pos.z == 0);
 
-        VERBOSE("Creating point source at x = "
-            << apf::str::A2S(pos_x) << " mtrs, y = "
-            << apf::str::A2S(pos_y) << " mtrs.");
-
-        break;
+        _new_source("", source_name + " right", "plane"
+            , audio_file_name, 2, pos, Orientation(-120)
+            , false, 1.0f, false, "");
       }
+      break;
 
     default:
       // init random position generator
@@ -1096,15 +1692,16 @@ Controller<Renderer>::_create_spontaneous_scene(const std::string& audio_file_na
         const float pos_y = 2.0f + (static_cast<float>(rand()%(10*(N+1)))
             - (5.0f*(N+1))) / 10.0f;
 
-        VERBOSE("Creating point source at x = "
-            << apf::str::A2S(pos_x) << " mtrs, y = "
-            << apf::str::A2S(pos_y) << " mtrs.");
+        Pos pos{pos_x, pos_y};
 
-        // create sources
-        this->new_source(source_name + " " + apf::str::A2S(n+1), Source::point
-            , audio_file_name, n+1u, Position(pos_x, pos_y), false
-            , Orientation(), false, apf::math::dB2linear(0.0f), false, "");
-      } // for each audio channel
+        VERBOSE("Creating point source at x = " << pos.x
+            << " mtrs, y = " << pos.y << " mtrs.");
+        assert(pos.z == 0);
+
+        _new_source("", source_name + " " + apf::str::A2S(n + 1)
+            , "point", audio_file_name, n + 1, pos, Rot{}
+            , false, 1.0f, false, "");
+      }
   } // switch
   return true;
 #endif  // ENABLE_ECASOUND
@@ -1126,7 +1723,7 @@ Controller<Renderer>::_start_gui(const std::string& path_to_gui_images
   gl_format.setDepth(true);
   QGLFormat::setDefaultFormat(gl_format);
 
-  _gui.reset(new QGUI(*this, _scene, _argc, _argv,
+  _gui.reset(new QGUI(*this, _legacy_scene, _argc, _argv,
     path_to_gui_images, path_to_scene_menu));
 
   // check if anti-aliasing is possible
@@ -1207,7 +1804,7 @@ Controller<Renderer>::_start_tracker(const std::string& type, const std::string&
 /// This is temporary!!!!
 template<typename Renderer>
 void
-Controller<Renderer>::calibrate_client()
+Controller<Renderer>::_calibrate_client()
 {
 #if defined(ENABLE_INTERSENSE) || defined(ENABLE_POLHEMUS) || defined(ENABLE_VRPN) || defined(ENABLE_RAZOR)
   if (_tracker)
@@ -1219,6 +1816,15 @@ Controller<Renderer>::calibrate_client()
     WARNING("No tracker there to calibrate.");
   }
 #endif
+}
+
+
+template<typename Renderer>
+void
+Controller<Renderer>::_transport_locate(float time)
+{
+  _renderer.transport_locate(
+      static_cast<uint32_t>(time * _renderer.sample_rate()));
 }
 
 #ifdef ENABLE_ECASOUND
@@ -1258,123 +1864,24 @@ Controller<Renderer>::_load_audio_recorder(const std::string& audio_file_name
 }
 #endif
 
-/** start audio processing.
- * This sets the Scene's processing state to "processing". The
- * process callback function has to check for this variable and act accordingly.
- **/
-template<typename Renderer>
-void
-Controller<Renderer>::start_processing()
-{
-  if (!_scene.get_processing_state())
-  {
-    this->set_processing_state(true);
-  }
-  else
-  {
-    WARNING("Renderer is already processing.");
-  }
-}
-
-/** Stop audio processing.
- * This sets the Scene's processing state to "ready". The
- * process callback function has to check for this variable and act
- * accordingly.
- **/
-template<typename Renderer>
-void
-Controller<Renderer>::stop_processing()
-{
-  if (_scene.get_processing_state())
-  {
-    this->set_processing_state(false);
-  }
-  else
-  {
-    WARNING("Renderer was already stopped.");
-  }
-}
-
-/** _.
- * @param state processing state.
- * @warning States are not checked for validity. To start and stop rendering,
- * use preferably start_processing() and stop_processing(). This function should
- * only be used by the respective renderer to set the state "ready" and by
- * anyone who wants to set the state "exiting".
- **/
-template<typename Renderer>
-void
-Controller<Renderer>::set_processing_state(bool state)
-{
-  _publish(&Subscriber::set_processing_state, state);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_auto_rotation(bool auto_rotate_sources)
-{
-  _publish(&Subscriber::set_auto_rotation, auto_rotate_sources);
-
-  if (auto_rotate_sources)
-  {
-    orient_all_sources_toward_reference();
-
-    VERBOSE("Auto-rotation of sound sources is enabled.");
-  }
-  else VERBOSE("Auto-rotation of sound sources is disabled.");
-
-}
-
-// non-const because audioplayer could be started
-template<typename Renderer>
-void
-Controller<Renderer>::transport_start()
-{
-  _renderer.transport_start();
-}
-
-// non-const because audioplayer could be started
-template<typename Renderer>
-void
-Controller<Renderer>::transport_stop()
-{
-  _renderer.transport_stop();
-}
-
-/** Skips the scene to a specified instant of time
- * @ param frame instant of time in sec to locate
- **/
-template<typename Renderer>
-bool
-Controller<Renderer>::transport_locate(float time)
-{
-  // convert time to samples (cut decimal part)
-  return _renderer.transport_locate(
-      static_cast<jack_nframes_t>(time * _renderer.sample_rate()));
-}
-
 /** Create a new source.
- * @param name Source name
  * @param model Source model
  * @param file_name_or_port_number File name or port number (as string)
  * @param channel Channel of soundfile. If 0, a JACK portname is expected.
- * @param position initial position of the source.
- * @param orientation initial orientation of the source.
- * @param gain gain (=volume) of the source.
- * @return ID of the created source. If 0, no source was created.
  **/
 template<typename Renderer>
 void
-Controller<Renderer>::new_source(const std::string& name
-    , const Source::model_t model
-    , const std::string& file_name_or_port_number, int channel
-    , const Position& position, const bool pos_fixed
-    , const Orientation& orientation, const bool or_fixed, const float gain
-    , const bool muted, const std::string& properties_file)
+Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
+      , const std::string& model, const std::string& file_name_or_port_number
+      , int channel, const Pos& position, const Rot& rotation, bool fixed
+      , float volume, bool mute, const std::string& properties_file)
 {
-  (void) or_fixed;
 
-  assert(channel >= 0);
+  // TODO: similar function for follower? just using a JACK port, no audio file
+
+  assert(!_conf.follow);
+
+  std::string id = requested_id;
 
   std::string port_name;
   long int file_length = 0;
@@ -1399,6 +1906,8 @@ Controller<Renderer>::new_source(const std::string& name
   }
   else  // no audio file
   {
+    assert(channel == 0);
+
     if (file_name_or_port_number != "")
     {
       port_name = _conf.input_port_prefix + file_name_or_port_number;
@@ -1407,338 +1916,96 @@ Controller<Renderer>::new_source(const std::string& name
 
   if (port_name == "")
   {
-    VERBOSE("No audio file or port specified for source '" << name << "'.");
+    VERBOSE("No audio file or port specified for source");
   }
 
   apf::parameter_map p;
   p.set("connect_to", port_name);
   p.set("properties_file", properties_file);
-  id_t id;
-
   try
   {
-    auto guard = _renderer.get_scoped_lock();
-    id = _renderer.add_source(p);
+    id = _renderer.add_source(id, p);
   }
   catch (std::exception& e)
   {
     ERROR(e.what());
     return;
   }
+  assert(requested_id.size() == 0 || requested_id == id);
 
-  _publish(&Subscriber::new_source, id);
-  // mute while transmitting data
-  _publish(&Subscriber::set_source_mute, id, true);
-  _publish(&Subscriber::set_source_gain, id, gain);
+  _publish(&api::SceneInformationEvents::new_source, id);
+  _publish(&api::SceneInformationEvents::source_property
+      , id, "port_name", port_name);
 
-  // make sure that source orientation is handled correctly
-  this->set_source_position(id, position);
-
-  _publish(&Subscriber::set_source_position_fixed, id, pos_fixed);
-
-  // make sure that source orientation is handled correctly
-  this->set_source_orientation(id, orientation);
-
-  // _publish(&Subscriber::set_source_orientation_fix, id, or_fix);
-  _publish(&Subscriber::set_source_name, id, name);
-  _publish(&Subscriber::set_source_model, id, model);
-  _publish(&Subscriber::set_source_port_name, id, port_name);
   if (file_name_or_port_number != "")
   {
-    _publish(&Subscriber::set_source_file_name, id, file_name_or_port_number);
-    _publish(&Subscriber::set_source_file_channel, id, channel);
+    _publish(&api::SceneInformationEvents::source_property
+        , id, "audio_file", file_name_or_port_number);
+    _publish(&api::SceneInformationEvents::source_property
+        , id, "audio_file_channel", apf::str::A2S(channel));
+    _publish(&api::SceneInformationEvents::source_property
+        , id, "audio_file_length", apf::str::A2S(file_length));
   }
-  _publish(&Subscriber::set_source_file_length, id, file_length);
-  _publish(&Subscriber::set_source_properties_file, id, properties_file);
-  // finally, unmute if requested
-  _publish(&Subscriber::set_source_mute, id, muted);
+  _publish(&api::SceneInformationEvents::source_property
+      , id, "properties_file", properties_file);
+
+  _publish(&api::SceneControlEvents::source_name, id, name);
+  _publish(&api::SceneControlEvents::source_model, id, model);
+  _publish(&api::SceneControlEvents::source_position, id, position);
+  _publish(&api::SceneControlEvents::source_rotation, id, rotation);
+  _publish(&api::SceneControlEvents::source_fixed, id, fixed);
+  _publish(&api::SceneControlEvents::source_volume, id, volume);
+  _publish(&api::SceneControlEvents::source_mute, id, mute);
 }
 
 template<typename Renderer>
 void
-Controller<Renderer>::delete_all_sources()
+Controller<Renderer>::_delete_all_sources()
 {
-  _publish(&Subscriber::delete_all_sources);
-#ifdef ENABLE_ECASOUND
-  _audio_player.reset(); // shut down audio player
-#endif
-  // Wait until InternalInput objects are destroyed
-  _renderer.wait_for_rt_thread();
-}
+  assert(!_conf.follow);
 
-template<typename Renderer>
-void
-Controller<Renderer>::delete_source(id_t id)
-{
-  _publish(&Subscriber::delete_source, id);
-  // TODO: stop AudioPlayer if not needed anymore?
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_position(const id_t id, const Position& position)
-{
-  // TODO: check if the client who sent the request is actually allowed to
-  // change the position. (same TODO as above)
-
-  // TODO: check if position is inside of room boundaries.
-  // if not: change position (e.g. single dimensions) to an allowed position
-
-  // check if source may be moved
-  if (!_scene.get_source_position_fixed(id))
+  std::string id;
+  while (!(id = _scene.get_source_id(1)).empty())
   {
-    _publish(&Subscriber::set_source_position, id, position);
+    _publish(&api::SceneControlEvents::delete_source, id);
+    // NB: This assumes that _scene is subscribed!
+  }
+}
 
-    // make source face the reference
-    if (_scene.get_auto_rotation())
-    {
-      // new orientation will be published automatically
-      orient_source_toward_reference(id);
-    }
+template<typename Renderer>
+void
+Controller<Renderer>::_orient_source_toward_reference(id_t id)
+{
+  assert(!_conf.follow);
+
+  auto* src = _scene.get_source(id);
+  if (src)
+  {
+    // NB: Reference offset is not taken into account
+    //     (because it is a property of the renderer, not the scene)
+    auto ref_pos = _scene.get_reference_position();
+    _publish(&api::SceneControlEvents::source_rotation
+        , id, look_at(src->position, ref_pos));
   }
   else
   {
-    WARNING("Source \'" << _scene.get_source_name(id) << "\' cannot be moved.");
+    WARNING("Auto-rotation: Source \"" << id << "\" doesn't exist");
   }
 }
 
 template<typename Renderer>
 void
-Controller<Renderer>::set_source_orientation(const id_t id
-    , const Orientation& orientation)
+Controller<Renderer>::_orient_all_sources_toward_reference()
 {
-  // TODO: validate orientation?
-
-  // check if source may be rotated
-  if (!_scene.get_source_position_fixed(id))
-  {
-    if (_scene.get_auto_rotation())
+  _scene.for_each_source([this](auto id, const auto& source){
+    if (!source.fixed)
     {
-      VERBOSE2("Ignoring update of source orientation."
-        << " Auto-rotation is enabled.");
+      _orient_source_toward_reference(id);
     }
-    else
-    {
-      _publish(&Subscriber::set_source_orientation, id, orientation);
-    }
-  }
-  else
-  {
-    WARNING("Source \'" << _scene.get_source_name(id)
-      << "\' cannot be rotated.");
-  }
+  });
 }
 
-template<typename Renderer>
-void
-Controller<Renderer>::orient_source_toward_reference(const id_t id)
-{
-  // take reference offset into account?
-  if (auto src_pos = _scene.get_source_position(id))
-  {
-    _publish(&Subscriber::set_source_orientation, id
-      , (_scene.get_reference().position - *src_pos).orientation());
-  }
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::orient_all_sources_toward_reference()
-{
-  typename SourceCopy::container_t sources;
-
-  _scene.get_sources(sources);
-
-  for (const auto& source: sources)
-  {
-    // check if sources may be rotated
-    if (!_scene.get_source_position_fixed(source.id))
-    {
-      // new orientation will be published automatically
-      orient_source_toward_reference(source.id);
-    }
-  }
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_gain(const id_t id, const float gain)
-{
-  _publish(&Subscriber::set_source_gain, id, gain);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_signal_level(const id_t id, const float level)
-{
-  _publish(&Subscriber::set_source_signal_level, id, level);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_mute(const id_t id, const bool mute)
-{
-  _publish(&Subscriber::set_source_mute, id, mute);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_name(const id_t id, const std::string& name)
-{
-  _publish(&Subscriber::set_source_name, id, name);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_properties_file(const id_t id, const std::string& name)
-{
-  _publish(&Subscriber::set_source_properties_file, id, name);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_model(const id_t id, const Source::model_t model)
-{
-  _publish(&Subscriber::set_source_model, id, model);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_port_name(const id_t id, const std::string& port_name)
-{
-  _publish(&Subscriber::set_source_port_name, id, port_name);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_file_name(const id_t id, const std::string& file_name)
-{
-  _publish(&Subscriber::set_source_file_name, id, file_name);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_file_channel(const id_t id, const int& channel)
-{
-  _publish(&Subscriber::set_source_file_channel, id, channel);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_position_fixed(const id_t id, const bool fixed)
-{
-  _publish(&Subscriber::set_source_position_fixed, id, fixed);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_reference_position(const Position& position)
-{
-  _publish(&Subscriber::set_reference_position, position);
-
-  // make sources face the reference
-  if (_scene.get_auto_rotation()) orient_all_sources_toward_reference();
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_reference_orientation(const Orientation& orientation)
-{
-  _publish(&Subscriber::set_reference_orientation, orientation);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_reference_offset_position(const Position& position)
-{
-  _publish(&Subscriber::set_reference_offset_position, position);
-
-  // make sources face the reference // has no effect currently
-  //if (_scene.get_auto_rotation()) orient_all_sources_toward_reference();
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_reference_offset_orientation(const Orientation& orientation)
-{
-  _publish(&Subscriber::set_reference_offset_orientation, orientation);
-}
-
-// linear volume!
-template<typename Renderer>
-void
-Controller<Renderer>::set_master_volume(const float volume)
-{
-  // TODO: validate volume?
-  _publish(&Subscriber::set_master_volume, volume);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_decay_exponent(const float exponent)
-{
-  // TODO: validate exponent?
-  _publish(&Subscriber::set_decay_exponent, exponent);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_amplitude_reference_distance(const float dist)
-{
-  if (dist > 1.0f)
-  {
-    _publish(&Subscriber::set_amplitude_reference_distance, dist);
-  }
-  else
-  {
-    ERROR("Amplitude reference distance cannot be smaller than 1.");
-  }
-}
-
-// linear scale
-template<typename Renderer>
-void
-Controller<Renderer>::set_master_signal_level(float level)
-{
-  _publish(&Subscriber::set_master_signal_level, level);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_cpu_load(const float load)
-{
-  _publish(&Subscriber::set_cpu_load, load);
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::publish_sample_rate(const int sample_rate)
-{
-  _publish(&Subscriber::set_sample_rate, sample_rate);
-}
-
-template<typename Renderer>
-std::string
-Controller<Renderer>::get_renderer_name() const
-{
-  return _renderer.params.get("name", "");
-}
-
-template<typename Renderer>
-bool
-Controller<Renderer>::show_head() const
-{
-  return _renderer.show_head();
-}
-
-template<typename Renderer>
-void
-Controller<Renderer>::set_source_output_levels(id_t id, float* first
-    , float* last)
-{
-  _publish(&Subscriber::set_source_output_levels, id, first, last);
-}
-
+#ifdef ENABLE_IP_INTERFACE
 template<typename Renderer>
 std::string
 Controller<Renderer>::get_scene_as_XML() const
@@ -1759,10 +2026,11 @@ Controller<Renderer>::get_scene_as_XML() const
 
   return node.to_string();
 }
+#endif
 
 template<typename Renderer>
 bool
-Controller<Renderer>::save_scene_as_XML(const std::string& filename) const
+Controller<Renderer>::_save_scene(const std::string& filename) const
 {
   // ATTENTION: this is an ugly work-around/quick-hack!
   // TODO: the following should be included into the XMLParser wrapper!
@@ -1808,7 +2076,7 @@ template<typename Renderer>
 void
 Controller<Renderer>::_add_master_volume(Node& node) const
 {
-  float volume = _scene.get_master_volume();
+  float volume = _legacy_scene.get_master_volume();
   node.new_child("volume", apf::str::A2S(apf::math::linear2dB(volume)));
 }
 
@@ -1824,7 +2092,7 @@ template<typename Renderer>
 void
 Controller<Renderer>::_add_reference(Node& node) const
 {
-  DirectionalPoint reference = _scene.get_reference();
+  DirectionalPoint reference = _legacy_scene.get_reference();
   Node reference_node = node.new_child("reference");
   _add_position(reference_node, reference.position);
   _add_orientation(reference_node, reference.orientation);
@@ -1856,8 +2124,8 @@ template<typename Renderer>
 void
 Controller<Renderer>::_add_loudspeakers(Node& node) const
 {
-  Loudspeaker::container_t loudspeakers;
-  _scene.get_loudspeakers(loudspeakers, false); // get relative positions
+  LegacyLoudspeaker::container_t loudspeakers;
+  _legacy_scene.get_loudspeakers(loudspeakers, false); // get relative positions
   for (const auto& ls: loudspeakers)
   {
     Node loudspeaker_node = node.new_child("loudspeaker");
@@ -1872,10 +2140,8 @@ void
 Controller<Renderer>::_add_sources(Node& node
     , const std::string& scene_file_name) const
 {
-  typename SourceCopy::container_t sources;
-  _scene.get_sources(sources);
-  for (const auto& source: sources)
-  {
+  _legacy_scene.for_each_source([&](
+        unsigned int id, const LegacySource& source) {
     Node source_node = node.new_child("source");
     if (scene_file_name != "")
     {
@@ -1883,7 +2149,7 @@ Controller<Renderer>::_add_sources(Node& node
     }
     else
     {
-      source_node.new_attribute("id", apf::str::A2S(source.id));
+      source_node.new_attribute("id", apf::str::A2S(id));
     }
     source_node.new_attribute("name", apf::str::A2S(source.name));
     source_node.new_attribute("model", apf::str::A2S(source.model));
@@ -1923,7 +2189,6 @@ Controller<Renderer>::_add_sources(Node& node
     source_node.new_attribute("mute", apf::str::A2S(source.mute));
     // save volume in dB!
     source_node.new_attribute("volume", apf::str::A2S(apf::math::linear2dB(source.gain)));
-    // TODO: information about mirror sources
 
     if (source.properties_file != "")
     {
@@ -1931,9 +2196,7 @@ Controller<Renderer>::_add_sources(Node& node
           , posixpathtools::make_path_relative_to_file(source.properties_file
             , scene_file_name));
     }
-
-    // TODO: save doppler effect setting (source.doppler_effect)
-  }
+  });
 }
 
 template<typename Renderer>

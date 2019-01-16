@@ -40,7 +40,7 @@
 #include <QtWidgets/QRadioButton>
 
 #include "qclicktextlabel.h"
-#include "source.h"
+#include "legacy_source.h"
 
 /// QSourceProperties
 class QSourceProperties : public QFrame
@@ -51,7 +51,7 @@ class QSourceProperties : public QFrame
     QSourceProperties(QWidget* parent = 0);
     ~QSourceProperties();
 
-    void update_displays(const Source& source,
+    void update_displays(const LegacySource& source,
 			 const DirectionalPoint& reference);
 
   private:

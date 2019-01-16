@@ -30,17 +30,18 @@
 #include "trackervrpn.h"
 
 #include <stdexcept>  // for runtime_error
+#include <cmath>  // for std::atan2()
 
-#include "publisher.h"
+#include "api.h"  // for Publisher
+#include "legacy_orientation.h"  // for Orientation
 #include "ssr_global.h"
 
-#include "apf/math.h"  // for pi
-
-ssr::TrackerVrpn::TrackerVrpn(Publisher& controller, const std::string& address)
+ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
+    , const std::string& address)
   : vrpn_Tracker_Remote(address.c_str())
   , _controller(controller)
   , _stopped(false)
-  , _az_corr(90.0f)
+  , _az_corr(0.0f)
   , _thread_id(0)
 {
   VERBOSE("Starting VRPN tracker \"" << address << "\"");
@@ -64,7 +65,7 @@ ssr::TrackerVrpn::~TrackerVrpn()
 }
 
 ssr::TrackerVrpn::ptr_t
-ssr::TrackerVrpn::create(Publisher& controller, const std::string& ports)
+ssr::TrackerVrpn::create(api::Publisher& controller, const std::string& ports)
 {
   ptr_t temp; // temp = NULL
   try
@@ -81,7 +82,7 @@ ssr::TrackerVrpn::create(Publisher& controller, const std::string& ports)
 void
 ssr::TrackerVrpn::calibrate()
 {
-  _az_corr = _current_azimuth + 90.0f;
+  _az_corr = _current_azimuth;
 }
 
 void
@@ -134,9 +135,12 @@ ssr::TrackerVrpn::vrpn_change_handler(const vrpn_TRACKERCB t)
   double y = t.quat[2];
   double z = t.quat[3];
 
-  // calculate yaw (azimuth) from quaternions
-  double azi = atan2(2*(w*x+y*z),1-2*(x*x+y*y))*(180/apf::math::pi<double>());
+  // TODO: store _az_corr as quaternion and directly set 3D rotation
+
+  // calculate yaw (azimuth) (in radians) from quaternions
+  double azi = std::atan2(2*(w*x+y*z),1-2*(x*x+y*y));
 
   _current_azimuth = azi;
-  _controller.set_reference_orientation(Orientation(-azi + _az_corr));
+  _controller.take_control()->reference_offset_rotation(
+      Orientation(-azi + _az_corr));
 }

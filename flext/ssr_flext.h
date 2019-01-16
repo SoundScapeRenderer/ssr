@@ -31,6 +31,7 @@
 #define SSR_FLEXT_H
 
 #include <string>
+#include <vector>
 
 #include <flext.h>
 
@@ -50,7 +51,7 @@ FLEXT_NEW_DSP_V("ssr_" #name "~", ssr_ ## name)
 #include "apf/pointer_policy.h"
 #include "apf/cxx_thread_policy.h"
 
-#include "../src/source.h"
+#include "../src/legacy_source.h"
 
 template<typename Renderer>
 class SsrFlext : public flext_dsp
@@ -220,7 +221,7 @@ class SsrFlext : public flext_dsp
 
       for (size_t i = 0; i < _in_channels; ++i)
       {
-        _engine.add_source();
+        _source_ids.push_back(_engine.add_source(""));
         AddInSignal();
       }
 
@@ -244,6 +245,15 @@ class SsrFlext : public flext_dsp
       _engine.audio_callback(Blocksize(), InSig(), OutSig());
     }
 
+    std::string _get_string_id(int numeric_id) const
+    {
+      if (numeric_id < 1 || _source_ids.size() < numeric_id)
+      {
+        return {};
+      }
+      return _source_ids[numeric_id - 1];
+    }
+
     FLEXT_CALLBACK_A(_handle_messages)
     void _handle_messages(const t_symbol* s, int argc, const t_atom* argv)
     {
@@ -265,7 +275,7 @@ class SsrFlext : public flext_dsp
           return;
         }
 
-        auto* source = _engine.get_source(src_id);
+        auto* source = _engine.get_source(_get_string_id(src_id));
 
         if (!source)
         {
@@ -364,14 +374,14 @@ class SsrFlext : public flext_dsp
             error("%s - src model expects a string value!", thisName());
             return;
           }
-          Source::model_t model = Source::unknown;
+          LegacySource::model_t model = LegacySource::unknown;
           if (!apf::str::S2A(model_str, model))
           {
             error("%s - couldn't convert model string: %s"
                 , thisName(), model_str.c_str());
             return;
           }
-          source->model = model;
+          source->model = model == LegacySource::plane ? "plane" : "point";
         }
         else
         {
@@ -506,6 +516,7 @@ class SsrFlext : public flext_dsp
 
     int _in_channels;
     Renderer _engine;
+    std::vector<std::string> _source_ids;
 };
 
 #endif

@@ -27,238 +27,196 @@
 /// @file
 /// %RenderSubscriber (definition).
 
-// TODO: the whole publish/subscribe-thing should be redesigned, so maybe the
-// RenderSubscriber will be replaced by something else ...
-// Also, the actual renderer supports only a subset of the current (r1509)
-// Subscriber interface (no audio port names, no file names, ...).
-
 #ifndef SSR_RENDERSUBSCRIBER_H
 #define SSR_RENDERSUBSCRIBER_H
 
-#include "subscriber.h"
-#include <map>
+#include "api.h"
+#include "legacy_position.h"  // legacy Position type
+#include "legacy_orientation.h"  // legacy Orientation type
+#include "ssr_global.h"  // for WARNING()
+
+#include "rendererbase.h"  // for Source
 
 namespace ssr
 {
 
 template<typename Renderer>
-class RenderSubscriber : public Subscriber
+class RenderSubscriber : public api::BundleEvents
+                       // TODO: new_source
+                       , public api::SceneControlEvents
+                       , public api::RendererControlEvents
+                       , public api::RendererInformationEvents
 {
-  public:
-    RenderSubscriber(Renderer &renderer) : _renderer(renderer) {}
+public:
+  RenderSubscriber(Renderer &renderer) : _renderer(renderer) {}
 
-    // Subscriber Interface
-    virtual void set_loudspeakers(const Loudspeaker::container_t& loudspeakers);
+  void get_data(api::RendererControlEvents* subscriber)
+  {
+    subscriber->processing(_processing);
+    subscriber->reference_offset_position(_reference_offset_position);
+    subscriber->reference_offset_rotation(_reference_offset_rotation);
+  }
 
-    virtual void new_source(id_t id) { (void) id; }
+  void get_data(api::RendererInformationEvents* subscriber)
+  {
+    subscriber->renderer_name(_renderer_name);
+    subscriber->sample_rate(_sample_rate);
+    subscriber->loudspeakers(_loudspeakers);
+  }
 
-    virtual void delete_source(id_t id)
+private:
+  using Source = typename RendererBase<Renderer>::Source;
+
+  template<typename PTM, typename T>
+  void _set_source_member(id_t id, PTM member, T&& arg)
+  {
+    auto* src = _renderer.get_source(id);
+    if (!src)
     {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.rem_source(id);
+      WARNING("Source \"" << id << "\" does not exist.");
     }
-
-    virtual void delete_all_sources()
+    else
     {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.rem_all_sources();
+      src->*member = std::forward<T>(arg);
     }
+  }
 
-    virtual bool set_source_position(id_t id, const Position& position)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      auto src = _renderer.get_source(id);
-      if (!src) return false;
-      src->derived().position = position;
-      return true;
-    }
+  // BundleEvents
 
-    virtual bool set_source_orientation(id_t id, const Orientation& orientation)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      auto src = _renderer.get_source(id);
-      if (!src) return false;
-      src->derived().orientation = orientation;
-      return true;
-    }
+  void bundle_start() override
+  {
+    // TODO: implement
+  }
 
-    virtual bool set_source_gain(id_t id, const float& gain)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      auto src = _renderer.get_source(id);
-      if (!src) return false;
-      src->derived().gain = gain;
-      return true;
-    }
+  void bundle_stop() override
+  {
+    // TODO: implement
+  }
 
-    virtual bool set_source_mute(id_t id, const bool& mute)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      auto src = _renderer.get_source(id);
-      if (!src) return false;
-      src->derived().mute = mute;
-      return true;
-    }
+  // SceneControlEvents
 
-    virtual bool set_source_name(id_t id, const std::string& name)
-    {
-      (void) id;
-      (void) name;
-      return true;
-    }
+  void auto_rotate_sources(bool auto_rotate) override
+  {
+    (void) auto_rotate;
+  }
 
-    virtual bool set_source_brir_file_name(id_t id, const std::string& name)
-    {
-      (void) id;
-      (void) name;
-      return true;
-    }
+  void delete_source(id_t id) override
+  {
+    _renderer.rem_source(id);
+  }
 
-    virtual bool set_source_model(id_t id, const Source::model_t& model)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      auto src = _renderer.get_source(id);
-      if (!src) return false;
-      src->derived().model = model;
-      return true;
-    }
+  void source_position(id_t id, const Pos& pos) override
+  {
+    _set_source_member(id, &Source::position, pos);
+  }
 
-    virtual bool set_source_port_name(id_t id, const std::string& port_name)
-    {
-      (void) id;
-      (void) port_name;
-      return true;
-    }
+  void source_rotation(id_t id, const Rot& rot) override
+  {
+    _set_source_member(id, &Source::orientation, rot);
+  }
 
-    virtual bool set_source_file_name(id_t id, const std::string& file_name)
-    {
-      (void) id;
-      (void) file_name;
-      return 1;
-    }
+  void source_volume(id_t id, float volume) override
+  {
+    _set_source_member(id, &Source::gain, volume);
+  }
 
-    virtual bool set_source_file_channel(id_t id, const int& file_channel)
-    {
-      (void) id;
-      (void) file_channel;
-      return 1;
-    }
+  void source_mute(id_t id, bool mute) override
+  {
+    _set_source_member(id, &Source::mute, mute);
+  }
 
-    virtual bool set_source_file_length(id_t id, const long int& length)
-    {
-      (void) id;
-      (void) length;
-      return true;
-    }
+  void source_name(id_t, const std::string&) override
+  {
+    // Not used in renderer
+  }
 
-    virtual void set_reference_position(const Position& position)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.reference_position = position;
-    }
+  void source_model(id_t id, const std::string& model) override
+  {
+    _set_source_member(id, &Source::model, model);
+  }
 
-    virtual void set_reference_orientation(const Orientation& orientation)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.reference_orientation = orientation;
-    }
+  void source_fixed(id_t, bool) override
+  {
+    // Not used in renderer
+  }
 
-    virtual void set_reference_offset_position(const Position& position)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.reference_offset_position = position;
-    }
+  void reference_position(const Pos& pos) override
+  {
+    Position position{pos};
+    _renderer.state.reference_position = position;
+  }
 
-    virtual void set_reference_offset_orientation(const Orientation& orientation)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.reference_offset_orientation = orientation;
-    }
+  void reference_rotation(const Rot& rot) override
+  {
+    _renderer.state.reference_orientation = rot;
+  }
 
-    virtual void set_master_volume(float volume)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.master_volume = volume;
-    }
+  void master_volume(float volume) override
+  {
+    _renderer.state.master_volume = volume;
+  }
 
-    virtual void set_source_output_levels(id_t, float*, float*) {}
+  void decay_exponent(float exponent) override
+  {
+    _renderer.state.decay_exponent = exponent;
+  }
 
-    virtual void set_processing_state(bool state)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.processing = state;
-    }
+  void amplitude_reference_distance(float distance) override
+  {
+    _renderer.state.amplitude_reference_distance = distance;
+  }
 
-    virtual void set_transport_state(
-        const std::pair<bool, jack_nframes_t>& state)
-    {
-      (void) state;
-    }
+  // RendererControlEvents
 
-    virtual void set_auto_rotation(bool auto_rotate_sources)
-    {
-      (void) auto_rotate_sources;
-    }
+  void processing(bool state) override
+  {
+    _renderer.state.processing = state;
+    _processing = state;
+  }
 
-    virtual void set_decay_exponent(float exponent)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.decay_exponent = exponent;
-    }
+  void reference_offset_position(const Pos& pos) override
+  {
+    Position position{pos};
+    _renderer.state.reference_offset_position = position;
+    _reference_offset_position = pos;
+  }
 
-    virtual void set_amplitude_reference_distance(float distance)
-    {
-      auto guard = _renderer.get_scoped_lock();
-      _renderer.state.amplitude_reference_distance = distance;
-    }
+  void reference_offset_rotation(const Rot& rot) override
+  {
+    Orientation orientation{rot};
+    // For backwards compatibility, 90 degrees are added when converting to
+    // Orientation.  This, however, should not be done for the reference offset.
+    orientation.azimuth -= 90.0f;
+    _renderer.state.reference_offset_orientation = orientation;
+    _reference_offset_rotation = rot;
+  }
 
-    virtual void set_master_signal_level(float level)
-    {
-      (void) level;
-    }
+  // RendererInformationEvents (not needed in renderer!)
 
-    virtual void set_cpu_load(float load)
-    {
-      (void) load;
-    }
+  void renderer_name(const std::string& name) override
+  {
+    _renderer_name = name;
+  }
 
-    virtual void set_sample_rate(int sample_rate)
-    {
-      (void) sample_rate;
-    }
+  void sample_rate(int rate) override
+  {
+    _sample_rate = rate;
+  }
 
-    virtual bool set_source_signal_level(const id_t id, const float& level)
-    {
-      (void) id;
-      (void) level;
-      return true;
-    }
+  void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
+  {
+    _loudspeakers = loudspeakers;
+  }
 
-    virtual bool set_source_properties_file(ssr::id_t, const std::string&)
-    {
-      return 1;
-    }
+  Renderer& _renderer;
 
-    virtual bool set_source_position_fixed(ssr::id_t id, const bool& fix)
-    {
-      (void) id;
-      (void) fix;
-      return true;
-    }
-
-  private:
-    Renderer& _renderer;
+  bool _processing{false};
+  Pos _reference_offset_position;
+  Rot _reference_offset_rotation;
+  std::string _renderer_name;
+  int _sample_rate;
+  std::vector<Loudspeaker> _loudspeakers;
 };
-
-template<typename Renderer>
-void
-RenderSubscriber<Renderer>::set_loudspeakers(
-    const Loudspeaker::container_t& loudspeakers)
-{
-  (void)loudspeakers;
-
-  // TODO: handle loudspeakers differently. Maybe remove them from the Scene?
-}
 
 }  // namespace ssr
 

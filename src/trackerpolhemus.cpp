@@ -36,19 +36,20 @@
 #include <thread>    // std::this_thread::sleep_for
 #include <chrono>    // std::chrono::milliseconds
 
+#include "api.h"  // for Publisher
+#include "legacy_orientation.h"  // for Orientation
 #include "trackerpolhemus.h"
-#include "publisher.h"
 #include "ssr_global.h"
 #include "apf/stringtools.h"
 
 using apf::str::A2S;
 
-ssr::TrackerPolhemus::TrackerPolhemus(Publisher& controller
+ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
     , const std::string& type, const std::string& ports)
   : Tracker()
   , _controller(controller)
   , _stopped(false)
-  , _az_corr(90.0f)
+  , _az_corr(0.0f)
   , _thread_id(0)
 {
   if (ports == "")
@@ -153,8 +154,8 @@ ssr::TrackerPolhemus::~TrackerPolhemus()
 }
 
 ssr::TrackerPolhemus::ptr_t
-ssr::TrackerPolhemus::create(Publisher& controller, const std::string& type
-    , const std::string& ports)
+ssr::TrackerPolhemus::create(api::Publisher& controller
+    , const std::string& type, const std::string& ports)
 {
   ptr_t temp; // temp = NULL
   try
@@ -193,7 +194,7 @@ ssr::TrackerPolhemus::_open_serial_port(const char *portname)
 void
 ssr::TrackerPolhemus::calibrate()
 {
-  _az_corr = _current_data.azimuth + 90.0f;
+  _az_corr = _current_data.azimuth;
 }
 
 void
@@ -299,7 +300,7 @@ ssr::TrackerPolhemus::thread(void *arg)
               >> _current_data.elevation
               >> _current_data.roll;
 
-    _controller.set_reference_orientation(
+    _controller.take_control()->reference_offset_rotation(
         Orientation(-_current_data.azimuth + _az_corr));
   };
   return arg;

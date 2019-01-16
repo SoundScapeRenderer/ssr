@@ -41,7 +41,7 @@
 namespace ssr
 {
 
-struct Publisher;
+namespace api { struct Publisher; }
 
 /// Intersense InertiaCube3 head tracker
 class TrackerInterSense : public Tracker
@@ -52,17 +52,17 @@ class TrackerInterSense : public Tracker
     virtual ~TrackerInterSense(); ///< destructor
 
     /// "named constructor"
-    static ptr_t create(Publisher& controller, const std::string& ports = "",
-        const unsigned int read_interval = 20);
+    static ptr_t create(api::Publisher& controller
+        , const std::string& ports = "", const unsigned int read_interval = 20);
 
     virtual void calibrate();
 
   private:
     /// constructor
-    TrackerInterSense(Publisher& controller, const std::string& ports
+    TrackerInterSense(api::Publisher& controller, const std::string& ports
         , const unsigned int read_interval);
 
-    Publisher& _controller;
+    api::Publisher& _controller;
 
     /// interval in ms to wait after each read cycle
     unsigned int _read_interval;

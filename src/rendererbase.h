@@ -39,10 +39,8 @@
 #include "apf/parameter_map.h"
 #include "apf/math.h"  // for dB2linear()
 
-// TODO: avoid multiple ambiguous "Source" classes
-#include "source.h"  // for ::Source::model_t
-
 #include "maptools.h"
+#include "legacy_directionalpoint.h"  // for Position etc.
 
 #ifndef SSR_QUERY_POLICY
 #define SSR_QUERY_POLICY apf::disable_queries
@@ -52,8 +50,6 @@ namespace ssr
 {
 
 /** Renderer base class.
- * @todo more documentation!
- *
  * The parallel rendering engine uses the non-blocking datastructure RtList to
  * communicate between realtime and non-realtime threads.
  * All non-realtime accesses to RtList%s have to be locked with
@@ -203,11 +199,12 @@ class RendererBase : public apf::MimoProcessor<Derived
             input, output, member));
     }
 
-    int add_source(const apf::parameter_map& p = apf::parameter_map());
-    void rem_source(int id);
+    std::string add_source(id_t id
+        , const apf::parameter_map& p = apf::parameter_map());
+    void rem_source(id_t id);
     void rem_all_sources();
 
-    Source* get_source(int id);
+    Source* get_source(id_t id);
 
     // May only be used in realtime thread!
     const rtlist_t& get_source_list() const { return _source_list; }
@@ -216,13 +213,9 @@ class RendererBase : public apf::MimoProcessor<Derived
 
     // TODO: proper solution for getting the reproduction setup
     template<typename SomeListType>
-    void get_loudspeakers(SomeListType&) {}
+    void get_loudspeakers(SomeListType&) const {}
 
-    std::unique_ptr<ScopedLock> get_scoped_lock()
-    {
-      // TODO: in C++14, use make_unique()
-      return std::unique_ptr<ScopedLock>(new ScopedLock(_lock));
-    }
+    auto get_scoped_lock() { return std::make_unique<ScopedLock>(_lock); }
 
     const sample_type master_volume_correction;  // linear
 
@@ -245,11 +238,9 @@ class RendererBase : public apf::MimoProcessor<Derived
       return temp;
     }
 
-    int _get_new_id();
+    std::map<std::string, Source*, std::less<>> _source_map;
 
-    std::map<int, Source*> _source_map;
-
-    int _highest_id;
+    size_t _next_id_suffix = 0;
 
     typename _base::Lock _lock;
 };
@@ -266,7 +257,6 @@ RendererBase<Derived>::RendererBase(const apf::parameter_map& p)
   , _master_level()
   , _source_list(_fifo)
   , _show_head(true)
-  , _highest_id(0)
 {}
 
 /** Create a new source.
@@ -274,13 +264,26 @@ RendererBase<Derived>::RendererBase(const apf::parameter_map& p)
  * @throw unknown whatever the Derived::Source constructor throws
  **/
 template<typename Derived>
-int RendererBase<Derived>::add_source(const apf::parameter_map& p)
+std::string
+RendererBase<Derived>::add_source(id_t requested_id
+    , const apf::parameter_map& p)
 {
-  int id = _get_new_id();
+  std::string id = requested_id;
+  if (id.size() && _source_map.find(id) != _source_map.end())
+  {
+    throw std::runtime_error("Source with ID \"" + id + "\" already exists");
+  }
+  if (id == "")
+  {
+    do
+    {
+      id = ".ssr:" + apf::str::A2S(_next_id_suffix++);
+    }
+    while (_source_map.find(id) != _source_map.end());
+  }
 
   typename Derived::Input::Params in_params;
   in_params = p;
-  in_params.set("id", in_params.get("id", id));
   auto in = this->add(in_params);
 
   // WARNING: if Derived::Input throws an exception, the SSR crashes!
@@ -290,8 +293,6 @@ int RendererBase<Derived>::add_source(const apf::parameter_map& p)
   src_params.parent = &this->derived();
   src_params.fifo = &_fifo;
   src_params.input = in;
-
-  // For now, Input ID and Source ID are the same:
   src_params.id = id;
 
   typename Derived::Source* src;
@@ -314,11 +315,10 @@ int RendererBase<Derived>::add_source(const apf::parameter_map& p)
 
   _source_map[id] = src;
   return id;
-  // TODO: what happens on failure? can there be failure?
 }
 
 template<typename Derived>
-void RendererBase<Derived>::rem_source(int id)
+void RendererBase<Derived>::rem_source(id_t id)
 {
   auto delinquent = _source_map.find(id);
 
@@ -351,21 +351,22 @@ void RendererBase<Derived>::rem_all_sources()
   {
     this->rem_source(_source_map.begin()->first);
   }
-  _highest_id = 0;
 }
+
 
 template<typename Derived>
 typename RendererBase<Derived>::Source*
-RendererBase<Derived>::get_source(int id)
+RendererBase<Derived>::get_source(id_t id)
 {
-  return maptools::get_item(_source_map, id);
-}
-
-template<typename Derived>
-int
-RendererBase<Derived>::_get_new_id()
-{
-  return ++_highest_id;
+  auto iter = _source_map.find(id);
+  if (iter == _source_map.end())
+  {
+    return nullptr;
+  }
+  else
+  {
+    return iter->second;
+  }
 }
 
 /// A sound source.
@@ -389,7 +390,7 @@ class RendererBase<Derived>::Source
       Derived* parent = nullptr;
       const typename Derived::Input* input = nullptr;
       apf::CommandQueue* fifo = nullptr;
-      int id = 0;
+      std::string id;
 
       using apf::parameter_map::operator=;
     };
@@ -402,7 +403,7 @@ class RendererBase<Derived>::Source
       , orientation(*p.fifo)
       , gain(*p.fifo, sample_type(1.0))
       , mute(*p.fifo, false)
-      , model(*p.fifo, ::Source::point)
+      , model(*p.fifo, "point")
       , weighting_factor()
       , id(p.id)
       , _input(*(p.input ? p.input : throw std::logic_error(
@@ -430,11 +431,11 @@ class RendererBase<Derived>::Source
     apf::SharedData<Orientation> orientation;
     apf::SharedData<sample_type> gain;
     apf::SharedData<bool> mute;
-    apf::SharedData< ::Source::model_t> model;
+    apf::SharedData<std::string> model;
 
     apf::BlockParameter<sample_type> weighting_factor;
 
-    const int id;
+    const std::string id;
 
   protected:
     const typename Derived::Input& _input;
@@ -476,7 +477,7 @@ void RendererBase<Derived>::Source::_process()
     if (std::strcmp(this->parent.name(), "BrsRenderer") != 0
          && std::strcmp(this->parent.name(), "GenericRenderer") != 0)
     {
-      if (this->model != ::Source::plane)
+      if (this->model != "plane")
       {
         float source_distance = (this->position
           - (_input.parent.state.reference_position

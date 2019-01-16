@@ -2,8 +2,8 @@
 
 vpath %.cpp ../src
 
-SSR_SRCS = position.cpp orientation.cpp directionalpoint.cpp \
-	   ssr_global.cpp xmlparser.cpp
+SSR_SRCS = legacy_position.cpp legacy_orientation.cpp \
+           legacy_directionalpoint.cpp ssr_global.cpp xmlparser.cpp
 SRCS = $(MAIN_SOURCE) $(SSR_SRCS)
 
 INCPATH = -I../apf -I../src
@@ -12,7 +12,7 @@ PKG_CONFIG ?= pkg-config
 
 INCPATH += `$(PKG_CONFIG) --cflags libxml-2.0`
 
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=c++17
 
 LIBS = -lfftw3f -lsndfile -lxml2
 

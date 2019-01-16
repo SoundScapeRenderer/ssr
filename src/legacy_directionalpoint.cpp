@@ -30,7 +30,7 @@
 #include <ostream>
 #include <cmath> // for cos()
 
-#include "directionalpoint.h"
+#include "legacy_directionalpoint.h"
 
 /** ctor.
  * @param position position

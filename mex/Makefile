@@ -6,7 +6,8 @@
 MEXFILES ?= ssr_dca ssr_binaural ssr_vbap ssr_aap ssr_wfs ssr_generic \
   ssr_brs
 
-OBJECTS := ssr_global position orientation directionalpoint xmlparser
+OBJECTS := ssr_global legacy_position legacy_orientation \
+  legacy_directionalpoint xmlparser
 
 LIBRARIES += libxml-2.0 fftw3f sndfile
 
@@ -15,7 +16,7 @@ SRC_DIR ?= ../src
 MEX ?= mex -v
 OCT ?= mkoctfile --mex --verbose
 
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++17
 
 # optimization:
 CXXFLAGS_OPT += -O3

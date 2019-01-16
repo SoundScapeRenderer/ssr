@@ -30,7 +30,8 @@
 
 #include "trackerrazor.h"
 
-ssr::TrackerRazor::TrackerRazor(Publisher& controller, const std::string& ports)
+ssr::TrackerRazor::TrackerRazor(api::Publisher& controller
+    , const std::string& ports)
   : Tracker()
   , _controller(controller)
   , _current_azimuth(0.0f)
@@ -74,7 +75,7 @@ ssr::TrackerRazor::TrackerRazor(Publisher& controller, const std::string& ports)
 }
 
 ssr::TrackerRazor::ptr_t
-ssr::TrackerRazor::create(Publisher& controller, const std::string& ports)
+ssr::TrackerRazor::create(api::Publisher& controller, const std::string& ports)
 {
   ptr_t temp; // temp = NULL
   try

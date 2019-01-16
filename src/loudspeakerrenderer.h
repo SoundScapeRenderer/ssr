@@ -31,7 +31,7 @@
 #define SSR_LOUDSPEAKERRENDERER_H
 
 #include "rendererbase.h"
-#include "loudspeaker.h"
+#include "legacy_loudspeaker.h"
 #include "xmlparser.h"
 #include "apf/parameter_map.h"
 
@@ -46,14 +46,14 @@ class LoudspeakerRenderer : public RendererBase<Derived>
     using Node = XMLParser::Node;
 
   public:
-    class Output : public _base::Output, public Loudspeaker
+    class Output : public _base::Output, public LegacyLoudspeaker
     {
       public:
-        struct Params : _base::Output::Params, Loudspeaker {};
+        struct Params : _base::Output::Params, LegacyLoudspeaker {};
 
         // TODO: handle loudspeaker delays?
 
-        Output(const Params& p) : _base::Output(p), Loudspeaker(p) {}
+        Output(const Params& p) : _base::Output(p), LegacyLoudspeaker(p) {}
     };
 
     LoudspeakerRenderer(const apf::parameter_map& p)
@@ -67,7 +67,7 @@ class LoudspeakerRenderer : public RendererBase<Derived>
 
     void load_reproduction_setup();
 
-    void get_loudspeakers(std::vector<Loudspeaker>& l) const;
+    void get_loudspeakers(std::vector<LegacyLoudspeaker>& l) const;
 
   private:
     void _load_loudspeaker(const Node& node);
@@ -87,7 +87,7 @@ class LoudspeakerRenderer : public RendererBase<Derived>
 
 template<typename Derived>
 void
-LoudspeakerRenderer<Derived>::get_loudspeakers(std::vector<Loudspeaker>& l)
+LoudspeakerRenderer<Derived>::get_loudspeakers(std::vector<LegacyLoudspeaker>& l)
   const
 {
   using out_list_t
@@ -95,7 +95,7 @@ LoudspeakerRenderer<Derived>::get_loudspeakers(std::vector<Loudspeaker>& l)
 
   for (const auto& out: out_list_t(this->get_output_list()))
   {
-    l.push_back(Loudspeaker(out));
+    l.push_back(LegacyLoudspeaker(out));
   }
 }
 
@@ -221,10 +221,10 @@ LoudspeakerRenderer<Derived>::_load_loudspeaker(const Node& node)
   }
 
   std::string model_str = node.get_attribute("model");
-  Loudspeaker::model_t model;
-  if      (model_str == "normal")    model = Loudspeaker::normal;
-  else if (model_str == "subwoofer") model = Loudspeaker::subwoofer;
-  else                               model = Loudspeaker::normal;
+  LegacyLoudspeaker::model_t model;
+  if      (model_str == "normal")    model = LegacyLoudspeaker::normal;
+  else if (model_str == "subwoofer") model = LegacyLoudspeaker::subwoofer;
+  else                               model = LegacyLoudspeaker::normal;
 
   float delay = !node ? 0.0f
     : apf::str::S2RV(node.get_attribute("delay"), 0.0f);

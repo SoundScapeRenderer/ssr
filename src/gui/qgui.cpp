@@ -196,7 +196,7 @@ QString qt_style_sheet =
  * @param argc number of command line arguments passed to the GUI.
  * @param argv the arguments themselves.
  **/
-ssr::QGUI::QGUI(Publisher& controller, const Scene& scene, int &argc, char *argv[]
+ssr::QGUI::QGUI(api::Publisher& controller, const LegacyScene& scene, int &argc, char *argv[]
         , const std::string& path_to_gui_images
         , const std::string& path_to_scene_menu) :
   _qt_app(argc, argv), _gui(controller, scene

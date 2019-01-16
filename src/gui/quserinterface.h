@@ -60,7 +60,7 @@ class QUserInterface : public QOpenGLPlotter
   Q_OBJECT
 
   public:
-    QUserInterface(Publisher& controller, const Scene& scene
+    QUserInterface(api::Publisher& controller, const LegacyScene& scene
         , const std::string& path_to_gui_images
         , const std::string& path_to_scene_menu
         , unsigned int update_frequency = 30u, QWidget *parent = 0);

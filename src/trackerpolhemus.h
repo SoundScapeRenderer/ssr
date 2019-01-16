@@ -40,7 +40,7 @@
 namespace ssr
 {
 
-struct Publisher; // forward declaration
+namespace api { struct Publisher; }
 
 /// Polhemus Fastrak/Patriot trackers
 class TrackerPolhemus : public Tracker
@@ -51,14 +51,14 @@ class TrackerPolhemus : public Tracker
     virtual ~TrackerPolhemus(); ///< destructor
 
     /// "named constructor"
-    static ptr_t create(Publisher& controller, const std::string& type
+    static ptr_t create(api::Publisher& controller, const std::string& type
         , const std::string& ports);
 
     virtual void calibrate();
 
   private:
     /// constructor
-    TrackerPolhemus(Publisher& controller, const std::string& type
+    TrackerPolhemus(api::Publisher& controller, const std::string& type
         , const std::string& ports);
 
     struct tracker_data_t
@@ -78,7 +78,7 @@ class TrackerPolhemus : public Tracker
       {}
     };
 
-    Publisher& _controller;
+    api::Publisher& _controller;
 
     tracker_data_t _current_data;
 

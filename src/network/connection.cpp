@@ -30,26 +30,18 @@
 #include <functional>
 #include <memory>
 #include "connection.h"
-#include "publisher.h"
+
 
 /// ctor
 ssr::Connection::Connection(asio::io_service &io_service
-    , Publisher &controller, char end_of_message_character)
+    , api::Publisher &controller, char end_of_message_character)
   : _socket(io_service)
   , _timer(io_service)
   , _controller(controller)
   , _subscriber(*this)
   , _commandparser(controller)
-  , _is_subscribed(false)
   , _end_of_message_character(end_of_message_character)
 {}
-
-/// dtor
-ssr::Connection::~Connection()
-{
-  if (_is_subscribed) _controller.unsubscribe(&_subscriber);
-  _is_subscribed = false;
-}
 
 /** Get an instance of Connection.
  * @param io_service
@@ -58,7 +50,7 @@ ssr::Connection::~Connection()
  **/
 ssr::Connection::pointer
 ssr::Connection::create(asio::io_service &io_service
-    , Publisher& controller, char end_of_message_character)
+    , api::Publisher& controller, char end_of_message_character)
 {
   return pointer(new Connection(io_service, controller
       , end_of_message_character));
@@ -73,17 +65,11 @@ ssr::Connection::create(asio::io_service &io_service
 void
 ssr::Connection::start()
 {
-  // ok... this Connection object is activated.
-  // now we can connect the NetworkSubscriber.
+  _subs.push_back(_controller.subscribe_scene_control(&_subscriber));
+  _subs.push_back(_controller.subscribe_renderer_control(&_subscriber));
+  _subs.push_back(_controller.subscribe_source_metering(&_subscriber));
+  _subs.push_back(_controller.subscribe_output_activity(&_subscriber));
 
-  _controller.subscribe(&_subscriber);
-  _is_subscribed = true;
-  // this stuff should perhaps get refactored.
-  // need to think about this. not sure if i like this mixed into
-  // the Connection code.
-  std::string whole_scene = _controller.get_scene_as_XML();
-  this->write(whole_scene);
-  // And we can also start_read ing.
   start_read();
 
   // initialize the timer
@@ -102,8 +88,6 @@ void
 ssr::Connection::timeout_handler(const asio::error_code &e)
 {
   if (e) return;
-
-  _subscriber.send_levels();
 
   // Set timer again.
   _timer.expires_from_now(std::chrono::milliseconds(100));
@@ -183,4 +167,10 @@ ssr::Connection::write_handler(std::shared_ptr<std::string> str_ptr
   // Dont do nothing. we could check for error and stuff.
   // the shared_ptr was just used to keep the string alive and
   // destroy it now.
+}
+
+unsigned int
+ssr::Connection::get_source_number(id_t source_id) const
+{
+  return _controller.get_source_number(source_id);
 }

@@ -25,45 +25,44 @@
  ******************************************************************************/
 
 /// @file
-/// Geometry information of a point including an orientation (definition).
+/// Legacy 2D %Orientation class and helper function(s) (definition).
 
-#ifndef SSR_DIRECTIONALPOINT_H
-#define SSR_DIRECTIONALPOINT_H
+#ifndef SSR_LEGACY_ORIENTATION_H
+#define SSR_LEGACY_ORIENTATION_H
 
 #include <iosfwd>
 
-#include "position.h"
-#include "orientation.h"
+#include "api.h"  // for Rot
 
-/** Class which combines Position and Orientation.
- * Anything which <b>has a</b> position and orientation can be derived from it.
+/** Geometric representation of a orientation.
+ * For now, only azimuth value is handled.
  **/
-struct DirectionalPoint
+struct Orientation
 {
-  DirectionalPoint() {} ///< standard ctor
-  DirectionalPoint(const Position& position, const Orientation& orientation);
+  explicit Orientation(const float azimuth = 0);
 
-  Position    position;    ///< position
-  Orientation orientation; ///< orientation
+  Orientation(const ssr::Rot& three_d_rot);
 
-  /// Distance between a plane (*this) and a point
-  float plane_to_point_distance(const Position& point) const;
+  operator ssr::Rot();
 
-  DirectionalPoint& rotate(float angle); ///< rotate around the origin
-  /// rotate around the origin
-  DirectionalPoint& rotate(const Orientation& rotation);
-  /// move and rotate
-  DirectionalPoint& transform(const DirectionalPoint& t);
+  float azimuth; ///< (=yaw) azimuth (in degrees)
 
-  DirectionalPoint& operator+=(const DirectionalPoint& other);
-  DirectionalPoint& operator-=(const DirectionalPoint& other);
+  /// plus (+) operator
+  friend Orientation operator+(const Orientation& lhs, const Orientation& rhs);
+  /// minus (-) operator
+  friend Orientation operator-(const Orientation& lhs, const Orientation& rhs);
+  /// unary minus (-) operator
+  friend Orientation operator-(const Orientation& rhs);
 
-  friend DirectionalPoint operator+(const DirectionalPoint& a,
-      const DirectionalPoint& b);
-  friend DirectionalPoint operator-(const DirectionalPoint& a,
-      const DirectionalPoint& b);
+  Orientation& operator+=(const Orientation& other);
+  Orientation& operator-=(const Orientation& other);
+
+  /// turn
+  Orientation& rotate(float angle);
+  Orientation& rotate(const Orientation& rotation);
+
   friend std::ostream& operator<<(std::ostream& stream,
-      const DirectionalPoint& point);
+      const Orientation& orientation);
 
   /** division (/) operator.
    * @param a dividend, a DirectionalPoint.
@@ -71,13 +70,13 @@ struct DirectionalPoint
    * @return quotient.
    **/
   template <typename T>
-  friend DirectionalPoint operator/(const DirectionalPoint& a, const T& b)
+  friend Orientation operator/(const Orientation& a, const T& b)
   {
-    return DirectionalPoint(a.position / b, a.orientation / b);
+    return Orientation(a.azimuth / b);
   }
 };
 
-/// Angle between the Orientations of two DirectionalPoints.
-float angle(const DirectionalPoint& a, const DirectionalPoint& b);
+/// Angle (in radians) between two orientations.
+float angle(const Orientation& a, const Orientation& b);
 
 #endif

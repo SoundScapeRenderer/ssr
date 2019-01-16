@@ -114,21 +114,24 @@ class DcaRenderer::Source : public _base::Source
 
       auto source_orientation = Orientation();
 
-      switch (this->model)
+      const std::string& model = this->model;
+      if (model == "point")
       {
-        default:
-        case ::Source::point:
-          this->source_model = coeff_t::point_source;
-          source_orientation = (this->position
-              - this->parent.state.reference_position).orientation();
-          // TODO: Undo inherent amplitude decay
-          break;
-        case ::Source::plane:
-          this->source_model = coeff_t::plane_wave;
-          source_orientation = this->orientation - Orientation(180);
-          // Note: no distance attenuation for plane waves!
-          // TODO: constant factor using amplitude_reference_distance()?
-          break;
+        this->source_model = coeff_t::point_source;
+        source_orientation = (this->position
+            - this->parent.state.reference_position).orientation();
+        // TODO: Undo inherent amplitude decay
+      }
+      else if (model == "plane")
+      {
+        this->source_model = coeff_t::plane_wave;
+        source_orientation = this->orientation - Orientation(180);
+        // Note: no distance attenuation for plane waves!
+        // TODO: constant factor using amplitude_reference_distance()?
+      }
+      else
+      {
+        // TODO: warning
       }
 
       this->angle = apf::math::deg2rad(180 + (source_orientation
@@ -545,7 +548,7 @@ DcaRenderer::load_reproduction_setup()
 
   auto add_distance = [] (float base, const Output& out)
   {
-    if (out.model == Loudspeaker::subwoofer)
+    if (out.model == LegacyLoudspeaker::subwoofer)
     {
       throw std::logic_error("Subwoofers are currently not supported!");
     }

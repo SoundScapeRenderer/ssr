@@ -36,7 +36,7 @@
 namespace ssr
 {
 
-struct Publisher;
+namespace api { struct Publisher; }
 
 /** Parses a XML string and maps to Controller.
  * This class is the bridge between the network interface and the Controller.
@@ -46,12 +46,12 @@ struct Publisher;
 class CommandParser
 {
   public:
-    CommandParser(Publisher& controller);
+    CommandParser(api::Publisher& publisher);
 
     void parse_cmd(const std::string &cmd);
 
   private:
-    Publisher& _controller;
+    api::Publisher& _publisher;
 };
 
 }  // namespace ssr

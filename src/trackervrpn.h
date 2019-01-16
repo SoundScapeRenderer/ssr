@@ -41,7 +41,7 @@
 namespace ssr
 {
 
-struct Publisher; // forward declaration
+namespace api { struct Publisher; }
 
 /// VRPN tracker
 class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
@@ -52,15 +52,15 @@ class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
     virtual ~TrackerVrpn();
 
     /// "named constructor"
-    static ptr_t create(Publisher& controller, const std::string& portsz);
+    static ptr_t create(api::Publisher& controller, const std::string& ports);
 
     virtual void calibrate();
     void set_value(double azi);
 
   private:
-    TrackerVrpn(Publisher& controller, const std::string& ports);
+    TrackerVrpn(api::Publisher& controller, const std::string& ports);
 
-    Publisher& _controller;
+    api::Publisher& _controller;
 
     std::string _address;
 

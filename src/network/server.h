@@ -46,13 +46,15 @@
 namespace ssr
 {
 
-struct Publisher;
+namespace api { struct Publisher; }
+struct LegacyXmlSceneProvider;
 
 /// Server class.
 class Server
 {
   public:
-    Server(Publisher& controller, int port, char end_of_message_character);
+    Server(api::Publisher& controller, LegacyXmlSceneProvider& scene_provider
+        , int port, char end_of_message_character);
     ~Server();
     void start();
     void stop();
@@ -63,7 +65,9 @@ class Server
     void handle_accept(Connection::pointer new_connection
         , const asio::error_code &error);
 
-    Publisher& _controller;
+    api::Publisher& _controller;
+    // Just a hack for get_scene_as_XML():
+    LegacyXmlSceneProvider& _scene_provider;
     asio::io_service _io_service;
     asio::ip::tcp::acceptor _acceptor;
     std::thread *_network_thread;

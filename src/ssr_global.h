@@ -36,9 +36,6 @@
 namespace ssr
 {
 
-/// Used as unique identifier for sources, loudspeakers, ...
-using id_t = unsigned int;
-
 /** Verbosity level.
  * @arg 0 - Only errors and warnings are shown.
  * @arg 1 - A few more messages are shown.

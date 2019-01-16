@@ -27,254 +27,136 @@
 /// @file
 /// NetworkSubscriber class (implementation).
 
+#include "ssr_global.h"  // for ERROR()
 #include "networksubscriber.h"
 #include "apf/stringtools.h"
 #include "apf/math.h" // for linear2dB()
 #include "connection.h"
+#include "legacy_position.h"  // for Position
+#include "legacy_orientation.h"  // for Orientation
 
 using apf::str::A2S;
 
-ssr::NetworkSubscriber::NetworkSubscriber(Connection &connection)
-  : _connection(connection)
-  , _master_level(0.0)
-{}
-
 void
-ssr::NetworkSubscriber::update_all_clients(std::string str)
+ssr::NetworkSubscriber::_send_message(const std::string& str)
 {
   _connection.write(str);
 }
 
 void
-ssr::NetworkSubscriber::send_levels()
+ssr::NetworkSubscriber::_send_source_message(const std::string& first_part
+    , id_t id, const std::string& second_part)
 {
-  source_level_map_t::iterator i;
-  std::string ms = "<update>";
-  for (i=_source_levels.begin(); i!=_source_levels.end(); i++)
+  auto source_number = _connection.get_source_number(id);
+  if (source_number != 0)
   {
-    ms += ("<source id='" + A2S((*i).first) + "' level='"
-        + A2S(apf::math::linear2dB((*i).second)) + "'/>");
+    _send_message(first_part + A2S(source_number) + second_part);
   }
-  ms += "</update>";
-  update_all_clients(ms);
-}
-
-// Subscriber interface
-
-void
-ssr::NetworkSubscriber::set_loudspeakers(
-    const Loudspeaker::container_t& loudspeakers)
-{
-  (void) loudspeakers;
-  //not_implemented("NetworkSubscriber::set_loudspeakers()");
+  else
+  {
+    ERROR("Source ID \"" << id << "\" not found");
+  }
 }
 
 void
-ssr::NetworkSubscriber::new_source(id_t id)
+ssr::NetworkSubscriber::source_level(id_t id, float level)
 {
-  std::string ms = "<update><source id='" + A2S(id) + "'/></update>";
-  update_all_clients(ms);
+  _send_source_message("<update><source id='", id
+      , "' level='" + A2S(apf::math::linear2dB(level)) + "'/></update>");
 }
 
 void
 ssr::NetworkSubscriber::delete_source(id_t id)
 {
-  _source_levels.erase(id);
-  std::string ms = "<update><delete><source id='" + A2S(id) + "' />" +
-    + "</delete></update>";
-  update_all_clients(ms);
+  _send_source_message(
+      "<update><delete><source id='", id, "' /></delete></update>");
+}
+
+
+void
+ssr::NetworkSubscriber::source_position(id_t id, const Pos& pos)
+{
+  const Position position{pos};
+  _send_source_message("<update><source id='", id, "'><position x='"
+    + A2S(position.x) + "' y='" + A2S(position.y) + "'/></source></update>");
 }
 
 void
-ssr::NetworkSubscriber::delete_all_sources()
+ssr::NetworkSubscriber::source_fixed(id_t id, bool fixed)
 {
-  _source_levels.clear();
-  std::string ms = "<update><delete><source id='0'/></delete></update>";
-  update_all_clients(ms);
-}
-
-bool
-ssr::NetworkSubscriber::set_source_position(id_t id, const Position& position)
-{
-  std::string ms = "<update><source id='" + A2S(id) + "'><position x='"
-    + A2S(position.x) + "' y='" + A2S(position.y) + "'/></source></update>";
-  update_all_clients(ms);
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_position_fixed(id_t id, const bool& fixed)
-{
-  std::string ms = "<update><source id='" + A2S(id) + "'><position fixed='"
-    + A2S(fixed) + "'/></source></update>";
-  update_all_clients(ms);
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_orientation(id_t id
-    , const Orientation& orientation)
-{
-  std::string ms = "<update><source id='" + A2S(id) + "'><orientation azimuth='"
-    + A2S(orientation.azimuth) + "'/></source></update>";
-  update_all_clients(ms);
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_gain(id_t id, const float& gain)
-{
-  std::string ms = "<update><source id='"
-    + A2S(id) + "' volume='" + A2S(apf::math::linear2dB(gain)) + "'/></update>";
-  update_all_clients(ms);
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_mute(id_t id, const bool& mute)
-{
-  std::string ms = "<update><source id='" + A2S(id) + "' mute='" + A2S(mute)
-    + "'/></update>";
-  update_all_clients(ms);
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_name(id_t id, const std::string& name)
-{
-  (void) id;
-  (void) name;
-#if 0
-  std::string ms = "<update><source id='" + A2S(id) + "' name='" +
-    _xmlparser.replace_entities(name) + "' /></update>";
-  update_all_clients(ms);
-#endif
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_properties_file(id_t id, const std::string& name)
-{
-  (void) id;
-  (void) name;
-#if 0
-  std::string ms = "<update><source id='" + A2S(id) + "' properties_file='" +
-    _xmlparser.replace_entities(name) + "' /></update>";
-  update_all_clients(ms);
-#endif
-  return true;
+  _send_source_message("<update><source id='", id, "'><position fixed='"
+    + A2S(fixed) + "'/></source></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_decay_exponent(float exponent)
+ssr::NetworkSubscriber::source_rotation(id_t id, const Rot& rot)
 {
-  (void) exponent;
-  //not_implemented("NetworkSubscriber::set_decay_exponent()");
-  return;
+  const Orientation orientation{rot};
+  _send_source_message("<update><source id='", id,  "'><orientation azimuth='"
+    + A2S(orientation.azimuth) + "'/></source></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_amplitude_reference_distance(float distance)
+ssr::NetworkSubscriber::source_volume(id_t id, float gain)
 {
-  (void) distance;
-  //not_implemented("NetworkSubscriber::set_amplitude_reference_distance()");
-  return;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_model(id_t id, const Source::model_t& model)
-{
-  std::string tmp;
-  tmp = A2S(model);
-  if (tmp == "") return false;
-
-  std::string ms = "<update><source id='" + A2S(id) + "' model='" + tmp
-    + "'/></update>";
-  update_all_clients(ms);
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_port_name(id_t id, const std::string& port_name)
-{
-  (void) id;
-  (void) port_name;
-#if 0
-  std::string ms = "<update><source id='" + A2S(id) +
-    "' port_name='" + _xmlparser.replace_entities(port_name) + "'/></update>";
-  update_all_clients(ms);
-#endif
-  return true;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_file_name(id_t id, const std::string& file_name)
-{
-  (void) id;
-  (void) file_name;
-  return 1;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_file_channel(id_t id
-    , const int& file_channel)
-{
-  (void) id;
-  (void) file_channel;
-  return 1;
-}
-
-bool
-ssr::NetworkSubscriber::set_source_file_length(id_t id, const long int& length)
-{
-  std::string ms = "<update><source id='" + A2S(id) + "' file_length='"
-    + A2S(length) + "'/></update>";
-  update_all_clients(ms);
-  return true;
+  _send_source_message("<update><source id='", id
+      , "' volume='" + A2S(apf::math::linear2dB(gain)) + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_reference_position(const Position& position)
+ssr::NetworkSubscriber::source_mute(id_t id, bool mute)
 {
-  std::string ms = "<update><reference><position x='" + A2S(position.x)
-    + "' y='" + A2S(position.y) + "'/></reference></update>";
-  update_all_clients(ms);
+  _send_source_message("<update><source id='", id, "' mute='" + A2S(mute)
+    + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_reference_orientation(const Orientation& orientation)
+ssr::NetworkSubscriber::source_model(id_t id, const std::string& model)
 {
-  std::string ms = "<update><reference><orientation azimuth='"
-    + A2S(orientation.azimuth) + "'/></reference></update>";
-  update_all_clients(ms);
+  _send_source_message("<update><source id='", id, "' model='" + model
+    + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_reference_offset_position(const Position& position)
+ssr::NetworkSubscriber::reference_position(const Pos& pos)
 {
-  std::string ms = "<update><reference_offset><position x='" + A2S(position.x)
-    + "' y='" + A2S(position.y) + "'/></reference_offset></update>";
-  update_all_clients(ms);
+  const Position position{pos};
+  _send_message("<update><reference><position x='" + A2S(position.x)
+    + "' y='" + A2S(position.y) + "'/></reference></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_reference_offset_orientation(const Orientation& orientation)
+ssr::NetworkSubscriber::reference_rotation(const Rot& rot)
 {
-  std::string ms = "<update><reference_offset><orientation azimuth='"
-    + A2S(orientation.azimuth) + "'/></reference_offset></update>";
-  update_all_clients(ms);
+  const Orientation orientation{rot};
+  _send_message("<update><reference><orientation azimuth='"
+    + A2S(orientation.azimuth) + "'/></reference></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_master_volume(float volume)
+ssr::NetworkSubscriber::reference_offset_position(const Pos& pos)
 {
-  std::string ms = "<update><scene volume='" + A2S(apf::math::linear2dB(volume))    + "'/></update>";
-  update_all_clients(ms);
+  const Position position{pos};
+  _send_message("<update><reference_offset><position x='" + A2S(position.x)
+    + "' y='" + A2S(position.y) + "'/></reference_offset></update>");
 }
 
 void
-ssr::NetworkSubscriber::set_source_output_levels(id_t id, float* first
-    , float* last)
+ssr::NetworkSubscriber::reference_offset_rotation(const Rot& rot)
+{
+  const Orientation orientation{rot};
+  _send_message("<update><reference_offset><orientation azimuth='"
+    + A2S(orientation.azimuth) + "'/></reference_offset></update>");
+}
+
+void
+ssr::NetworkSubscriber::master_volume(float volume)
+{
+  _send_message("<update><scene volume='" + A2S(apf::math::linear2dB(volume))    + "'/></update>");
+}
+
+void
+ssr::NetworkSubscriber::output_activity(id_t id, float* first, float* last)
 {
   std::string ms = "<update><source id='" + A2S(id) + "' output_level='";
 
@@ -284,70 +166,5 @@ ssr::NetworkSubscriber::set_source_output_levels(id_t id, float* first
     ms += " ";
   }
   ms += "'/></update>";
-  update_all_clients(ms);
-}
-
-void
-ssr::NetworkSubscriber::set_processing_state(bool state)
-{
-  (void) state;
-}
-
-void
-ssr::NetworkSubscriber::set_transport_state(
-    const std::pair<bool, jack_nframes_t>& state)
-{
-  // temporary hack: only start/stop is forwarded, the "time" in samples is
-  // ignored
-  static bool previous_state = false;
-  if (previous_state != state.first)
-  {
-    std::string ms = "<update><state transport='";
-    ms += state.first?"start":"stop";
-    ms += "'/></update>";
-    update_all_clients(ms);
-    previous_state = state.first;
-  }
-}
-
-void
-ssr::NetworkSubscriber::set_auto_rotation(bool auto_rotate_sources)
-{
-  (void) auto_rotate_sources;
-}
-
-void
-ssr::NetworkSubscriber::set_cpu_load(float load)
-{
-  (void)load;
-  // temporarily disabled:
-  /*
-  std::string ms = "<update><cpu load='" + A2S(load) + "'/></update>";
-  update_all_clients(ms);
-  */
-}
-
-void
-ssr::NetworkSubscriber::set_sample_rate(int sr)
-{
-  (void)sr;
-}
-
-void
-ssr::NetworkSubscriber::set_master_signal_level(float level)
-{
-  _master_level = level;
-  //std::string ms = "<update><master level='" + A2S(level) +
-  //  "'/></update>";
-  //update_all_clients(ms);
-}
-
-bool
-ssr::NetworkSubscriber::set_source_signal_level(const id_t id, const float& level)
-{
-  _source_levels[id] = level;
-  std::string ms = "<update><source id='" + A2S(id) + "' level='" + A2S(level)
-    + "'/></update>";
-  //update_all_clients(ms);
-  return true;
+  _send_message(ms);
 }

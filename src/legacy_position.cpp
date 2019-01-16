@@ -25,93 +25,116 @@
  ******************************************************************************/
 
 /// @file
-/// %Orientation class and helper function(s) (implementation).
+/// Legacy 2D %Position class and helper functions (implementation).
 
+#include <cmath> // for atan2(), sqrt()
 #include <ostream>
 
-#include "orientation.h"
+#include "legacy_position.h"
+#include "legacy_orientation.h"
 #include "apf/math.h"
-#include "ssr_global.h"
 
-/// ctor. @param azimuth azimuth (in degrees)
-Orientation::Orientation(const float azimuth) :
-  azimuth(azimuth)
+Position::Position(const float x, const float y) :
+  x(x),
+  y(y)
 {}
 
-/** - operator.
- * @return difference of Orientations
- **/
-Orientation operator-(const Orientation& lhs, const Orientation& rhs)
+Position::Position(const ssr::Pos& three_d_pos) :
+  x(three_d_pos.x),
+  y(three_d_pos.y)
+{}
+
+Position::operator ssr::Pos()
 {
-  return Orientation(lhs.azimuth - rhs.azimuth);
+  return {this->x, this->y};
 }
 
-/** + operator.
- **/
-Orientation operator+(const Orientation& lhs, const Orientation& rhs)
+Position& Position::operator+=(const Position& other)
 {
-  return Orientation(lhs.azimuth + rhs.azimuth);
-}
-
-/** unary -operator.
- * @return negative Orientation
- **/
-Orientation operator-(const Orientation& rhs)
-{
-  return Orientation(-rhs.azimuth);
-}
-
-/** += operator.
- * @param other addend.
- * @return sum of Orientations
- **/
-Orientation& Orientation::operator+=(const Orientation& other)
-{
-  azimuth += other.azimuth;
+  x += other.x;
+  y += other.y;
   return *this;
 }
 
-/** -= operator.
- * @param other minuend.
- * @return difference of Orientations
- **/
-Orientation& Orientation::operator-=(const Orientation& other)
+Position& Position::operator-=(const Position& other)
 {
-  azimuth -= other.azimuth;
+  x -= other.x;
+  y -= other.y;
   return *this;
+}
+
+bool Position::operator==(const Position& other) const
+{
+  return x == other.x && y == other.y;
+}
+
+bool Position::operator!=(const Position& other) const
+{
+  return !this->operator==(other);
+}
+
+/** convert the orientation given by the position vector (x,y) to an
+ * Orientation.
+ * @return Orientation with the corresponding azimuth value
+ * @warning Works only for 2D!
+ **/
+Orientation Position::orientation() const
+{
+  return Orientation(atan2(y, x) / apf::math::pi_div_180<float>());
+}
+
+float Position::length() const
+{
+  return sqrt(apf::math::square(x) + apf::math::square(y));
 }
 
 /** ._
  * @param angle angle in degrees.
- * @return the resulting orientation
+ * @return the resulting position
  **/
-Orientation& Orientation::rotate(float angle)
+Position& Position::rotate(float angle)
 {
-  this->azimuth += angle;
-  return *this;
+  // angle phi in radians!
+  float phi = apf::math::deg2rad(this->orientation().azimuth + angle);
+  float radius = this->length();
+  return *this = Position(radius * cos(phi), radius * sin(phi));
 }
 
-// this is only a 2D implementation!
-Orientation& Orientation::rotate(const Orientation& rotation)
+// this is a 2D implementation!
+Position& Position::rotate(const Orientation& rotation)
 {
   return this->rotate(rotation.azimuth);
 }
 
-/** _.
- * @param a One orientation
- * @param b Another orientation
- * @return Angle between the two orientations in radians. If the angle of @a b
- * is bigger than the angle of @a a, the result is negative.
- * @warning 2D implementation!
- **/
-float angle(const Orientation& a, const Orientation& b)
+Position operator-(const Position& a, const Position& b)
 {
-  return apf::math::deg2rad(a.azimuth - b.azimuth);
+  Position temp(a);
+  return temp -= b;
 }
 
-/// output stream operator (<<)
-std::ostream& operator<<(std::ostream& stream, const Orientation& orientation)
+Position operator+(const Position& a, const Position& b)
 {
-  stream << "azimuth = " << orientation.azimuth;
+  Position temp(a);
+  return temp += b;
+}
+
+Position operator-(const Position& a)
+{
+  return Position(-a.x, -a.y);
+}
+
+/** _.
+ * @param point
+ * @param orientation
+ * @return Angle in radians.
+ **/
+float angle(const Position& point, const Orientation& orientation)
+{
+  return angle(point.orientation(), orientation);
+}
+
+std::ostream& operator<<(std::ostream& stream, const Position& position)
+{
+  stream << "x = " << position.x << ", y = " << position.y;
   return stream;
 }

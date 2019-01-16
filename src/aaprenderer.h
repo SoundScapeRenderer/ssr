@@ -183,7 +183,7 @@ AapRenderer::load_reproduction_setup()
 
   for (const auto& out: rtlist_proxy<Output>(this->get_output_list()))
   {
-    if (out.model == Loudspeaker::subwoofer)
+    if (out.model == LegacyLoudspeaker::subwoofer)
     {
       // TODO: something
     }
@@ -221,7 +221,7 @@ AapRenderer::RenderFunction::select(SourceChannel& in)
 
   auto weighting_factor = sample_type();
 
-  if (_out.model == Loudspeaker::normal)
+  if (_out.model == LegacyLoudspeaker::normal)
   {
     // WARNING: The reference offset is currently broken!
 

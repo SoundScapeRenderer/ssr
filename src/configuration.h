@@ -61,6 +61,8 @@ struct conf_struct
   bool auto_rotate_sources;             ///< Automatic orientation of sources
 
   int server_port;                      ///< listening port
+  /// allow other SSR instance to provide scene data?
+  bool follow;
   /// size of delay line (in samples)
   int wfs_delayline_size;
   /// maximum negative delay (in samples, wfs_initial_delay >= 0)

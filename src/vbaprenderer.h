@@ -290,7 +290,7 @@ VbapRenderer::load_reproduction_setup()
 
   for (const auto& out: rtlist_proxy<Output>(this->get_output_list()))
   {
-    if (out.model == Loudspeaker::subwoofer)
+    if (out.model == LegacyLoudspeaker::subwoofer)
     {
       // TODO: put subwoofers in separate list? (for get_output_levels())
     }

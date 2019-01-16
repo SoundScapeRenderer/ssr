@@ -49,6 +49,7 @@ using apf::math::linear2dB;
 
 #include "apf/stringtools.h"
 #include "posixpathtools.h"
+#include "legacy_scene.h"  // for LegacyScene
 
 #define FILEMENUWIDTH 128
 #define BETWEENBUTTONSPACE 6
@@ -81,7 +82,8 @@ using apf::math::linear2dB;
  * @param parent parent Qt widget. If left as \a NULL (default) then the window
  * is startet as an independent main window.
  **/
-ssr::QUserInterface::QUserInterface(Publisher& controller, const Scene& scene
+ssr::QUserInterface::QUserInterface(api::Publisher& controller
+        , const LegacyScene& scene
         , const std::string& path_to_gui_images
         , const std::string& path_to_scene_menu
         , unsigned int update_frequency
@@ -92,7 +94,7 @@ ssr::QUserInterface::QUserInterface(Publisher& controller, const Scene& scene
     _controlsParent(this)
 {
   // set window title
-  std::string type = _controller.get_renderer_name();
+  std::string type = _scene.get_renderer_name();
   if      (type == "wfs")        setWindowTitle("SSR - WFS");
   else if (type == "binaural")   setWindowTitle("SSR - Binaural");
   else if (type == "brs")        setWindowTitle("SSR - BRS");
@@ -268,7 +270,7 @@ ssr::QUserInterface::~QUserInterface()
 /// Skips back to the beginning of the scene
 void ssr::QUserInterface::_skip_back()
 {
-  _controller.transport_locate(0);
+  _transport_locate(0);
 }
 
 /** Skips the scene to a specified instant of time
@@ -278,7 +280,7 @@ void ssr::QUserInterface::_transport_locate(float time)
 {
   if (time >= 0.0f)
   {
-    _controller.transport_locate(time);
+    _controller.take_control()->transport_locate(time);
   }
   else
   {
@@ -294,13 +296,15 @@ void ssr::QUserInterface::_solo_selected_sources()
 {
   _soloed_sources.clear();
 
+  auto control = _controller.take_control();
+
   for (selected_sources_map_t::iterator i = _selected_sources_map.begin();
        i != _selected_sources_map.end(); i++)
   {
     _soloed_sources.insert(i->second);
 
     // make sure it's not muted
-    _controller.set_source_mute(i->second, false);
+    control->source_mute(_scene.string_id(i->second), false);
 
   } // for
 
@@ -316,7 +320,7 @@ void ssr::QUserInterface::_solo_selected_sources()
     if (_soloed_sources.find(i->id) == _soloed_sources.end())
     {
       // then mute it
-      _controller.set_source_mute(i->id, true);
+      control->source_mute(_scene.string_id(i->id), true);
     }
   }
 
@@ -340,11 +344,12 @@ void ssr::QUserInterface::_unsolo_selected_sources()
   // if other sources are soloed
   else
   {
+    auto control = _controller.take_control();
     for (selected_sources_map_t::iterator i = _selected_sources_map.begin();
 	 i != _selected_sources_map.end(); i++)
     {
       // then mute the unsoloed sources
-      _controller.set_source_mute(i->second, true);
+      control->source_mute(_scene.string_id(i->second), true);
     } // for
   }
 
@@ -358,36 +363,30 @@ void ssr::QUserInterface::_unsolo_all_sources()
   source_buffer_list_t source_buffer_list;
   _scene.get_sources(source_buffer_list);
 
+  auto control = _controller.take_control();
   for (source_buffer_list_t::const_iterator i = source_buffer_list.begin();
        i != source_buffer_list.end(); i++)
   {
-    _controller.set_source_mute(i->id, false);
+    control->source_mute(_scene.string_id(i->id), false);
   }
 }
 
 /// This slot is called when the \a processing \a button was clicked by the user.
 void ssr::QUserInterface::_processing_button_pressed()
 {
-  if(_scene.get_processing_state())
-  {
-    _controller.stop_processing();
-  }
-  else
-  {
-    _controller.start_processing();
-  }
+  _controller.take_control()->processing(!_scene.get_processing_state());
 }
 
 /// This slot is called when the \a pause \a button was clicked by the user.
 void ssr::QUserInterface::_pause_button_pressed()
 {
-  _controller.transport_stop();
+  _controller.take_control()->transport_stop();
 }
 
 /// This slot is called when the \a play \a button was clicked by the user.
 void ssr::QUserInterface::_play_button_pressed()
 {
-  _controller.transport_start();
+  _controller.take_control()->transport_start();
 }
 
 /** This function is called whenever the fiel menu actions (open/close etc.)
@@ -521,7 +520,7 @@ void ssr::QUserInterface::_set_master_volume(float volume)
   volume = std::max(volume, MINVOLUME);
 
   // convert to linear scale
-  _controller.set_master_volume(apf::math::dB2linear(volume));
+  _controller.take_control()->master_volume(apf::math::dB2linear(volume));
 }
 
 /** Changes selected sources' volume.
@@ -529,6 +528,7 @@ void ssr::QUserInterface::_set_master_volume(float volume)
  */
 void ssr::QUserInterface::_change_volume_of_selected_sources(float d_volume)
 {
+  auto control = _controller.take_control();
 
   for (selected_sources_map_t::iterator i = _selected_sources_map.begin(); i != _selected_sources_map.end(); i++)
   {
@@ -538,7 +538,7 @@ void ssr::QUserInterface::_change_volume_of_selected_sources(float d_volume)
     current_gain = std::min(current_gain, dB2linear(MAXVOLUME));
     current_gain = std::max(current_gain, dB2linear(MINVOLUME));
 
-    _controller.set_source_gain(i->second, current_gain);
+    control->source_volume(_scene.string_id(i->second), current_gain);
 
   } // for
 }
@@ -565,7 +565,7 @@ void ssr::QUserInterface::_save_file_as()
       file_name_std.append(".asd");
     }
 
-    _controller.save_scene_as_XML(file_name_std);
+    _controller.take_control()->save_scene(file_name_std);
     VERBOSE("Scene saved in '" << file_name_std << "'.");
   }
 
@@ -601,7 +601,7 @@ void ssr::QUserInterface::_load_scene(const QString& path_to_scene)
     }
   }
 
-  _controller.load_scene(std::string(path_to_scene.toUtf8()));
+  _controller.take_control()->load_scene(std::string(path_to_scene.toUtf8()));
 
   // clear mouse cursor
   setCursor(Qt::ArrowCursor);
@@ -741,7 +741,7 @@ void ssr::QUserInterface::_resizeControls(int newWidth)
  */
 void ssr::QUserInterface::mousePressEvent(QMouseEvent *event)
 {
-  ssr::id_t _id_of_lastlast_clicked_source = _id_of_last_clicked_source;
+  unsigned int _id_of_lastlast_clicked_source = _id_of_last_clicked_source;
 
   event->accept();
 
@@ -870,25 +870,27 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
     Position d_position = position -
       *_scene.get_source_position(_id_of_last_clicked_source);
 
+    auto control = _controller.take_control();
+
     // move all selected sources
     for (selected_sources_map_t::iterator i = _selected_sources_map.begin(); i != _selected_sources_map.end(); i++)
     {
       // rotate complex sources by the appropriate angle
-      if (_scene.get_source_model(i->second) == Source::directional ||
-               _scene.get_source_model(i->second) == Source::extended)
+      if (_scene.get_source_model(i->second) == LegacySource::directional ||
+               _scene.get_source_model(i->second) == LegacySource::extended)
       {
         // position delta expressed as angle
         Orientation d_orientation = (*_scene.get_source_position(i->second) + d_position).orientation() -
             (*_scene.get_source_position(i->second)).orientation();
 
         // set the new orientation
-        _controller.set_source_orientation(i->second,
+        control->source_rotation(_scene.string_id(i->second),
                 (*_scene.get_source_orientation(i->second)) + d_orientation);
       } // if
 
       // finally set the source's position
       // plane waves and point sources will automatically face the reference
-      _controller.set_source_position(i->second,
+      control->source_position(_scene.string_id(i->second),
                 *_scene.get_source_position(i->second) + d_position);
 
     } // for
@@ -918,14 +920,16 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
     // previous position relative to source position
     prev_mouse_pos -= *_scene.get_source_position(_id_of_last_clicked_source);
 
+    auto control = _controller.take_control();
+
     // rotate all selected sources that can be rotated
     for (selected_sources_map_t::iterator i = _selected_sources_map.begin();
          i != _selected_sources_map.end(); i++)
     {
-      if (_scene.get_source_model(i->second) == Source::directional ||
-          _scene.get_source_model(i->second) == Source::extended)
+      if (_scene.get_source_model(i->second) == LegacySource::directional ||
+          _scene.get_source_model(i->second) == LegacySource::extended)
       {
-        _controller.set_source_orientation(i->second,
+        control->source_rotation(_scene.string_id(i->second),
                 (*_scene.get_source_orientation(i->second)) +
                 (mouse_pos.orientation() - prev_mouse_pos.orientation()));
       }
@@ -956,7 +960,7 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
       // change gain
       if (gain > MINVOLUME && gain <= MAXVOLUME)
       {
-        _controller.set_source_gain(i->second, dB2linear(gain));
+        _controller.take_control()->source_volume(_scene.string_id(i->second), dB2linear(gain));
       }
     } // for
 
@@ -985,7 +989,7 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
     // previous position relative to relative position
     prev_mouse_pos -= _scene.get_reference().position;
 
-    _controller.set_reference_orientation(_scene.get_reference().orientation +
+    _controller.take_control()->reference_rotation(_scene.get_reference().orientation +
                                           (mouse_pos.orientation() - prev_mouse_pos.orientation()));
 
   } // else if
@@ -1001,7 +1005,7 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
     position.x = static_cast<float>(pos_x + _x_offset);
     position.y = static_cast<float>(pos_y + _y_offset);
 
-    _controller.set_reference_position(position);
+    _controller.take_control()->reference_position(position);
   } // else if
 
   // right click on background
@@ -1128,8 +1132,8 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
   case Qt::Key_Down: _window_y_offset += 0.1f; update(); break;
   case Qt::Key_Left: _window_x_offset += 0.1f; update(); break;
   case Qt::Key_Right: _window_x_offset -= 0.1f; update(); break;
-  case Qt::Key_Space: if (_scene.is_playing()) _controller.transport_stop();
-                      else _controller.transport_start();
+  case Qt::Key_Space: if (_scene.is_playing()) _controller.take_control()->transport_stop();
+                      else _controller.take_control()->transport_start();
                       break;
   case Qt::Key_Backspace: _skip_back(); break;
 
@@ -1138,7 +1142,7 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
   case Qt::Key_F: _toggle_fixation_state_of_selected_sources(); break;
   case Qt::Key_M: _toggle_mute_state_of_selected_sources(); break;
   case Qt::Key_P: _toggle_source_models(); break;
-  case Qt::Key_R: _controller.set_auto_rotation(!_scene.get_auto_rotation()); break;
+  case Qt::Key_R: _controller.take_control()->auto_rotate_sources(!_scene.get_auto_rotation()); break;
 
   case Qt::Key_S: if ( event->modifiers() == Qt::ControlModifier )
                   {
@@ -1185,7 +1189,7 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
                      // change selected sources level
 		     else _change_volume_of_selected_sources(-1.0f);
                      break;
-  case Qt::Key_Return: {_controller.calibrate_client(); break; }
+  case Qt::Key_Return: {_controller.take_control()->calibrate_tracker(); break; }
   case Qt::Key_Control: {_ctrl_pressed = true; break; }
   case Qt::Key_Alt: {_alt_pressed = true; break; }
   case Qt::Key_F11: {if (!isFullScreen()) setWindowState(Qt::WindowFullScreen);
@@ -1294,17 +1298,18 @@ void ssr::QUserInterface::_show_about_window()
  */
 void ssr::QUserInterface::_set_source_mute(const bool flag)
 {
-  _controller.set_source_mute(_id_of_last_clicked_source, flag);
+  _controller.take_control()->source_mute(_scene.string_id(_id_of_last_clicked_source), flag);
 }
 
 /// Toggles the mute state of all selected sound sources
 void ssr::QUserInterface::_toggle_mute_state_of_selected_sources()
 {
+  auto control = _controller.take_control();
   // iterate over selected sources
   for (  selected_sources_map_t::iterator i = _selected_sources_map.begin();
          i != _selected_sources_map.end(); i++)
   {
-    _controller.set_source_mute(i->second,
+    control->source_mute(_scene.string_id(i->second),
                                 !_scene.get_source_mute_state(i->second));
   }
 }
@@ -1315,6 +1320,8 @@ void ssr::QUserInterface::_toggle_solo_state_of_selected_sources()
   source_buffer_list_t source_buffer_list;
   _scene.get_sources(source_buffer_list);
 
+  auto control = _controller.take_control();
+
   for (selected_sources_map_t::iterator i = _selected_sources_map.begin();
        i != _selected_sources_map.end(); i++)
   {
@@ -1323,7 +1330,7 @@ void ssr::QUserInterface::_toggle_solo_state_of_selected_sources()
       // solo source
       _soloed_sources.insert(i->second);
       // make sure it's not muted
-      _controller.set_source_mute(i->second, false);
+      control->source_mute(_scene.string_id(i->second), false);
 
       // mute other sources
       for (source_buffer_list_t::const_iterator j = source_buffer_list.begin();
@@ -1333,7 +1340,7 @@ void ssr::QUserInterface::_toggle_solo_state_of_selected_sources()
         if (_soloed_sources.find(j->id) == _soloed_sources.end())
         {
           // then mute it
-          _controller.set_source_mute(j->id, true);
+          control->source_mute(_scene.string_id(j->id), true);
         }
       }
     }
@@ -1345,7 +1352,7 @@ void ssr::QUserInterface::_toggle_solo_state_of_selected_sources()
       for (source_buffer_list_t::const_iterator j = source_buffer_list.begin();
       j != source_buffer_list.end(); j++)
       {
-        _controller.set_source_mute(j->id, false);
+        control->source_mute(_scene.string_id(j->id), false);
       }
     }
   } // for
@@ -1353,17 +1360,18 @@ void ssr::QUserInterface::_toggle_solo_state_of_selected_sources()
 
 void ssr::QUserInterface::_toggle_source_models()
 {
+  auto control = _controller.take_control();
   // toggle all source types between "plane" and "point"
   for (selected_sources_map_t::iterator i = _selected_sources_map.begin(); i != _selected_sources_map.end(); i++)
   {
     // if source is plane then make sure that it faces the reference
-    if (_scene.get_source_model(i->second) == Source::plane)
+    if (_scene.get_source_model(i->second) == LegacySource::plane)
     {
-      _controller.set_source_model(i->second, Source::point);
+      control->source_model(_scene.string_id(i->second), apf::str::A2S(LegacySource::point));
     }
-    else if (_scene.get_source_model(i->second) == Source::point)
+    else if (_scene.get_source_model(i->second) == LegacySource::point)
     {
-      _controller.set_source_model(i->second, Source::plane);
+      control->source_model(_scene.string_id(i->second), apf::str::A2S(LegacySource::plane));
     } // if
   } // for
 }
@@ -1373,7 +1381,7 @@ void ssr::QUserInterface::_toggle_source_models()
  */
 void ssr::QUserInterface::_set_source_position_fixed(const bool flag)
 {
-  _controller.set_source_position_fixed(_id_of_last_clicked_source, flag);
+  _controller.take_control()->source_fixed(_scene.string_id(_id_of_last_clicked_source), flag);
 }
 
 /** Sets the position fixed state of the currently active mouse.
@@ -1381,32 +1389,34 @@ void ssr::QUserInterface::_set_source_position_fixed(const bool flag)
  */
 void ssr::QUserInterface::_set_source_model(const int index)
 {
-  Source::model_t model = Source::unknown;
+  LegacySource::model_t model = LegacySource::unknown;
 
   switch(index){
     case 0:
-      model = Source::plane;
+      model = LegacySource::plane;
       break;
     case 1:
-      model = Source::point;
+      model = LegacySource::point;
       break;
   }
   VERBOSE("index: " << index);
 
-  ssr::id_t id = _id_of_last_clicked_source;
-  _controller.set_source_model(id, model);
+  unsigned int id = _id_of_last_clicked_source;
+  auto control = _controller.take_control();
+  control->source_model(_scene.string_id(id), apf::str::A2S(model));
   // make sure that the plane wave is oriented towards the reference point
-  _controller.set_source_orientation(id, (_scene.get_reference().position
+  control->source_rotation(_scene.string_id(id), (_scene.get_reference().position
         - *_scene.get_source_position(id)).orientation());
 }
 
 void ssr::QUserInterface::_toggle_fixation_state_of_selected_sources()
 {
+  auto control = _controller.take_control();
   // iterate over selected sources
   for (  selected_sources_map_t::iterator i = _selected_sources_map.begin();
          i != _selected_sources_map.end(); i++)
   {
-    _controller.set_source_position_fixed(i->second,
+    control->source_fixed(_scene.string_id(i->second),
                                 !_scene.get_source_position_fixed(i->second));
   }
 }

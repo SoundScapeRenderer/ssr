@@ -30,7 +30,7 @@
 #ifndef SSR_NETWORKSUBSCRIBER_H
 #define SSR_NETWORKSUBSCRIBER_H
 
-#include "subscriber.h"
+#include "api.h"
 #include <map>
 
 namespace ssr
@@ -43,59 +43,56 @@ class Connection;
  * strings (XML-messages in ASDF format) and sends it over a Connection to
  * the connected client.
  **/
-class NetworkSubscriber : public Subscriber
+class NetworkSubscriber : public api::SceneControlEvents
+                        , public api::RendererControlEvents
+                        , public api::SourceMetering
+                        , public api::OutputActivity
 {
   public:
-    NetworkSubscriber(Connection &connection);
-
-    // XXX: This is just to make the old code work.
-    //	only sends string to one connection.
-    void update_all_clients(std::string str);
-    void send_levels();
-
-    // Subscriber Interface
-    virtual void set_loudspeakers(const Loudspeaker::container_t& loudspeakers);
-    virtual void new_source(id_t id);
-    virtual void delete_source(id_t id);
-    virtual void delete_all_sources();
-    virtual bool set_source_position(id_t id, const Position& position);
-    virtual bool set_source_position_fixed(id_t id, const bool& fix);
-    virtual bool set_source_orientation(id_t id, const Orientation& orientation);
-    virtual bool set_source_gain(id_t id, const float& gain);
-    virtual bool set_source_mute(id_t id, const bool& mute);
-    virtual bool set_source_name(id_t id, const std::string& name);
-    virtual bool set_source_properties_file(id_t id, const std::string& name);
-    virtual bool set_source_model(id_t id, const Source::model_t& model);
-    virtual bool set_source_port_name(id_t id, const std::string& port_name);
-    virtual bool set_source_file_name(id_t id, const std::string& file_name);
-    virtual bool set_source_file_channel(id_t id, const int& file_channel);
-    virtual bool set_source_file_length(id_t id, const long int& length);
-    virtual void set_reference_position(const Position& position);
-    virtual void set_reference_orientation(const Orientation& orientation);
-    virtual void set_reference_offset_position(const Position& position);
-    virtual void set_reference_offset_orientation(const Orientation& orientation);
-    virtual void set_master_volume(float volume);
-
-    virtual void set_source_output_levels(id_t id, float* first, float* last);
-    virtual void set_processing_state(bool state);
-    //virtual void set_transport_state(JackClient::State state);
-    virtual void set_transport_state(
-        const std::pair<bool, jack_nframes_t>& state);
-
-    virtual void set_auto_rotation(bool auto_rotate_sources);
-    virtual void set_decay_exponent(float exponent);
-    virtual void set_amplitude_reference_distance(float distance);
-    virtual void set_master_signal_level(float level);
-    virtual void set_cpu_load(float load);
-    virtual void set_sample_rate(int sample_rate);
-    virtual bool set_source_signal_level(const id_t id, const float& level);
+    explicit NetworkSubscriber(Connection &connection)
+      : _connection(connection)
+    {}
 
   private:
-    Connection &_connection;
 
-    typedef std::map<id_t,float> source_level_map_t;
-    source_level_map_t           _source_levels;
-    float                        _master_level;
+    // SceneControlEvents
+
+    void auto_rotate_sources(bool) override {}
+    void delete_source(id_t id) override;
+    void source_position(id_t id, const Pos& position) override;
+    void source_rotation(id_t id, const Rot& rotation) override;
+    void source_volume(id_t id, float gain) override;
+    void source_mute(id_t id, bool mute) override;
+    void source_name(id_t, const std::string&) override {}
+    void source_model(id_t id, const std::string& model) override;
+    void source_fixed(id_t id, bool fix) override;
+
+    void reference_position(const Pos& position) override;
+    void reference_rotation(const Rot& rotation) override;
+
+    void master_volume(float volume) override;
+    void decay_exponent(float) override {}
+    void amplitude_reference_distance(float) override {}
+
+    // RendererControlEvents
+
+    void processing(bool) override {}
+    void reference_offset_position(const Pos& position) override;
+    void reference_offset_rotation(const Rot& rotation) override;
+
+    // SourceMetering
+
+    void source_level(id_t id, float level) override;
+
+    // OutputActivity
+
+    void output_activity(id_t id, float* first, float* last) override;
+
+    void _send_message(const std::string& str);
+    void _send_source_message(
+        const std::string& first_part, id_t id, const std::string& second_part);
+
+    Connection &_connection;
 };
 
 }  // namespace ssr

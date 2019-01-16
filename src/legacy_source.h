@@ -25,21 +25,21 @@
  ******************************************************************************/
 
 /// @file
-/// %Source class (definition).
+/// Legacy source class (definition). Superseded by Source.
 
-#ifndef SSR_SOURCE_H
-#define SSR_SOURCE_H
+#ifndef SSR_LEGACY_SOURCE_H
+#define SSR_LEGACY_SOURCE_H
 
 #include <vector>
 #include <string>
 #include <istream> // for operator>>
 
-#include "directionalpoint.h"
+#include "legacy_directionalpoint.h"
 
 /// Class for saving source information
-struct Source : DirectionalPoint
+struct LegacySource : DirectionalPoint
 {
-  /** %Source type.
+  /** Legacy source type.
    * This enum can be extended arbitrarily, but for starters only point source
    * and plane wave will be implemented.
    **/
@@ -56,13 +56,13 @@ struct Source : DirectionalPoint
   /// ctor.
   /// @param position position
   /// @param orientation orientation
-  explicit Source(size_t outputs,
+  explicit LegacySource(size_t outputs,
       const Position&    position    = Position(),
       const Orientation& orientation = Orientation()) :
     DirectionalPoint(position, orientation), // base class ctor
     audio_file_channel(0),
     file_length(0),
-    model(Source::point),
+    model(LegacySource::point),
     mute(0),
     gain(1.0),
     signal_level(0.0),
@@ -74,13 +74,13 @@ struct Source : DirectionalPoint
   {}
 
   // TODO: get rid of output levels? remove one of the constructors?
-  explicit Source(
+  explicit LegacySource(
       const Position&    position    = Position(),
       const Orientation& orientation = Orientation()) :
     DirectionalPoint(position, orientation), // base class ctor
     audio_file_channel(0),
     file_length(0),
-    model(Source::point),
+    model(LegacySource::point),
     mute(0),
     gain(1.0),
     signal_level(0.0),
