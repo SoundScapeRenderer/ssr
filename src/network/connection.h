@@ -39,7 +39,6 @@
 #endif
 #include <asio.hpp>
 
-#include <iostream>
 #include <memory>
 
 #include "networksubscriber.h"
@@ -62,7 +61,7 @@ class Connection : public std::enable_shared_from_this<Connection>
         , Publisher &controller, char end_of_message_character);
 
     void start();
-    void write(std::string &writestring);
+    void write(const std::string& writestring);
 
     /// @return Reference to socket
     socket_t& socket() { return _socket; }

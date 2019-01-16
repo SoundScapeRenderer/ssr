@@ -86,7 +86,7 @@ ssr::Connection::start()
   // And we can also start_read ing.
   start_read();
 
-  // intialize the timer
+  // initialize the timer
   _timer.expires_from_now(std::chrono::milliseconds(100));
   _timer.async_wait(std::bind(&Connection::timeout_handler, shared_from_this()
         , std::placeholders::_1));
@@ -149,7 +149,7 @@ ssr::Connection::read_handler(const asio::error_code &error
  * @param writestring: String to be send over the network.
  **/
 void
-ssr::Connection::write(std::string &writestring)
+ssr::Connection::write(const std::string& writestring)
 {
   // Create a Copy of this string.
   // Put into shared_ptr bound to the callback

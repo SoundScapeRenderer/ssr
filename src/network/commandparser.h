@@ -30,12 +30,8 @@
 #ifndef SSR_COMMANDPARSER_H
 #define SSR_COMMANDPARSER_H
 
-#include <iostream>
-#include <queue>
 #include <string>
 
-#include "ssr_global.h"
-#include "xmlparser.h"
 
 namespace ssr
 {
@@ -51,13 +47,11 @@ class CommandParser
 {
   public:
     CommandParser(Publisher& controller);
-    ~CommandParser();
 
-    void parse_cmd(std::string &cmd);
-    //void parse_cmd_old(std::string &cmd)
+    void parse_cmd(const std::string &cmd);
+
   private:
     Publisher& _controller;
-    //Subscriber& _scene;
 };
 
 }  // namespace ssr

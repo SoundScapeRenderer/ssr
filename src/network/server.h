@@ -40,7 +40,6 @@
 #include <asio.hpp>
 
 #include <thread>
-#include <iostream>
 
 #include "connection.h"
 

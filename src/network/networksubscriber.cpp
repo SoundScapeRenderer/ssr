@@ -34,15 +34,10 @@
 
 using apf::str::A2S;
 
-// temporary hack:
-//static bool previous_state = false;
-
 ssr::NetworkSubscriber::NetworkSubscriber(Connection &connection)
   : _connection(connection)
   , _master_level(0.0)
 {}
-
-ssr::NetworkSubscriber::~NetworkSubscriber() {}
 
 void
 ssr::NetworkSubscriber::update_all_clients(std::string str)

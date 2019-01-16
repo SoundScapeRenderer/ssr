@@ -41,16 +41,12 @@ class Connection;
 /** NetworkSubscriber.
  * This Subscriber turns function calls to the Subscriber interface into
  * strings (XML-messages in ASDF format) and sends it over a Connection to
- * connected clients.
- *
- * @todo There will be a set of flags, which can filter certain
- * events. But this will be done by deriving.
+ * the connected client.
  **/
 class NetworkSubscriber : public Subscriber
 {
   public:
     NetworkSubscriber(Connection &connection);
-    ~NetworkSubscriber();
 
     // XXX: This is just to make the old code work.
     //	only sends string to one connection.
