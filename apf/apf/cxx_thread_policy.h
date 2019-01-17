@@ -50,8 +50,8 @@ class cxx_thread_policy
     using useconds_type = int;
 
     class Thread;
-    template<typename F> struct ScopedThread;
-    template<typename F> struct DetachedThread;
+    template<typename F> class ScopedThread;
+    template<typename F> class DetachedThread;
     using Lock = std::mutex;
     class Semaphore;
 
