@@ -82,10 +82,10 @@
 #include "apf/math.h"
 #include "apf/stringtools.h"
 
-using Node = XMLParser::Node; ///< a node of the DOM tree
-
 namespace ssr
 {
+
+using Node = XMLParser::Node; ///< a node of the DOM tree
 
 namespace internal
 {
