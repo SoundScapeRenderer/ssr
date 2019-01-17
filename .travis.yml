@@ -10,66 +10,80 @@ env:
 
 matrix:
   include:
+    # linux with gcc 8
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      dist: trusty
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     # linux with gcc 7
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-          install:
-            - gcc-7
+          packages:
+            - g++-7
       dist: trusty
       env:
-        - MATRIX_EVAL="CC=gcc-7 CXX=g++-7"
-      compiler: gcc
-    # linux with gcc 6
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    # linux with clang 7
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-          install:
-            - gcc-6
+            - llvm-toolchain-trusty-7
+          packages:
+            - clang-7
       dist: trusty
       env:
-        - MATRIX_EVAL="CC=gcc-6 CXX=g++-6"
-      compiler: gcc
-    # linux with gcc (default)
-    - os: linux
-      dist: trusty
-      compiler: gcc
-    # linux with clang (default)
-    - os: linux
-      dist: trusty
-      env:
-        - MATRIX_EVAL="COMPILE_ASIO=1"
-      compiler: clang
-    # linux with clang 3.8
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7 && COMPILE_ASIO=1"
+    # linux with clang 6.0
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-          install:
-            - clang-3.8
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - clang-6.0
       dist: trusty
       env:
-        - MATRIX_EVAL="CC=clang-3.8 CXX=clang++-3.8 COMPILE_ASIO=1"
-      compiler: clang
-    # osx with xcode9.2/gcc
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && COMPILE_ASIO=1"
+    # linux with clang 5.0
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - clang-5.0
+      dist: trusty
+      env:
+        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0 && COMPILE_ASIO=1"
+    # linux with clang 4.0
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-4.0
+          packages:
+            - clang-4.0
+      dist: trusty
+      env:
+        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0 && COMPILE_ASIO=1"
+    # osx with xcode10.1/clang
     - os: osx
-      osx_image: xcode9.2
-      compiler: gcc
-    # osx with xcode9.2/clang
+      osx_image: xcode10.1
+    # osx with xcode9.4/clang
     - os: osx
-      osx_image: xcode9.2
-      compiler: clang
-    # osx with xcode/gcc (default)
-    - os: osx
-      compiler: gcc
-    # osx with xcode/clang (default)
-    - os: osx
-      compiler: clang
+      osx_image: xcode9.4
 
 before_install:
   - eval "${MATRIX_EVAL}"
