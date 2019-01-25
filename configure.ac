@@ -236,6 +236,10 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], AC_MSG_RESULT([yes]),
   AC_MSG_ERROR([C++11 not supported! Please upgrade.])
 ])
 
+dnl JACK1 problem with C++17: https://github.com/jackaudio/jack1/issues/84
+AS_IF([test x$GCC = xyes],
+      [WARNING_FLAGS="$WARNING_FLAGS -Wno-register"])
+
 dnl see http://www.open-std.org/JTC1/SC22/WG21/docs/cwg_defects.html#1123
 dnl and http://stackoverflow.com/q/11497252/500098
 AC_MSG_CHECKING([if $CXX implements core/1123])
