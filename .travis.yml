@@ -37,10 +37,11 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - ubuntu-toolchain-r-test  # only needed for <= trusty
             - llvm-toolchain-trusty-7
           packages:
             - clang-7
+            - libstdc++-8-dev  # only needed for <= trusty
       dist: trusty
       env:
         - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7 && COMPILE_ASIO=1"
@@ -49,10 +50,11 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - ubuntu-toolchain-r-test  # only needed for <= trusty
             - llvm-toolchain-trusty-6.0
           packages:
             - clang-6.0
+            - libstdc++-8-dev  # only needed for <= trusty
       dist: trusty
       env:
         - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && COMPILE_ASIO=1"
@@ -61,23 +63,14 @@ matrix:
       addons:
         apt:
           sources:
+            - ubuntu-toolchain-r-test  # only needed for <= trusty
             - llvm-toolchain-trusty-5.0
           packages:
             - clang-5.0
+            - libstdc++-7-dev  # only needed for <= trusty
       dist: trusty
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0 && COMPILE_ASIO=1"
-    # linux with clang 4.0
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-4.0
-          packages:
-            - clang-4.0
-      dist: trusty
-      env:
-        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0 && COMPILE_ASIO=1"
     # osx with xcode10.1/clang
     - os: osx
       osx_image: xcode10.1
