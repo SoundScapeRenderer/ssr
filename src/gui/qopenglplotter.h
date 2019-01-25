@@ -153,6 +153,7 @@ class QOpenGLPlotter : public QGLWidget
     QMouseEvent _previous_mouse_event;
     bool   _ctrl_pressed;
     bool   _alt_pressed;
+    bool   _shift_pressed;
 
     int    _find_selected_object(const QPoint &pos);
     void   _get_openGL_pos(int x, int y,

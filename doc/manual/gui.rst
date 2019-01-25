@@ -245,6 +245,12 @@ positioning of sources. The properties ``fixed position``, ``muted`` and
 :ref:`4.3 <source_picture>` to see the complete list of properties
 this dialog shows.
 
+Drag & Drop of Scenes
+~~~~~~~~~~~~~~~~~~~~~
+
+You can also drag & drop scenes (or audio files) into the GUI to open them. Currently, you can only drag & drop one single file.
+
+
 .. _keyboard_actions:
 
 Keyboard Actions

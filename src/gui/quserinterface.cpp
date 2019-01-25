@@ -40,6 +40,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QVBoxLayout>
+#include <QMimeData>
 
 #include "quserinterface.h"
 #include "apf/math.h"
@@ -119,6 +120,9 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
   // TODO: use screen size for initial window positions
   //QRect screenSize = QApplication::desktop()->screenGeometry();
   setGeometry(200, 70, 900, 700);
+
+  setAcceptDrops(true);
+
   _controlsParent = new QLabel(this, Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
   _controlsParent->setFixedSize(900, 75);
   _controlsParent->move(200, 780);
@@ -1191,6 +1195,7 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
                      break;
   case Qt::Key_Return: {_controller.take_control()->calibrate_tracker(); break; }
   case Qt::Key_Control: {_ctrl_pressed = true; break; }
+  case Qt::Key_Shift: {_shift_pressed = true; break; }
   case Qt::Key_Alt: {_alt_pressed = true; break; }
   case Qt::Key_F11: {if (!isFullScreen()) setWindowState(Qt::WindowFullScreen);
       else setWindowState( Qt::WindowNoState );} break;
@@ -1210,6 +1215,7 @@ void ssr::QUserInterface::keyReleaseEvent(QKeyEvent *event)
     switch (event->key()){
     case Qt::Key_Control: {_ctrl_pressed = false; break; }
     case Qt::Key_Alt: {_alt_pressed = false; break; }
+    case Qt::Key_Shift: {_shift_pressed = false; break; }
     default: ;
     }
 }
@@ -1224,6 +1230,52 @@ void ssr::QUserInterface::wheelEvent(QWheelEvent *event)
   // update zoom
   _set_zoom(static_cast<int>(_zoom_factor/STDZOOMFACTOR *
                              (100.0f+event->delta()/100.f*5.0f) + 0.5f));
+}
+
+/** Handles Qt drag & drop events.
+ * @param event Qt mouse drag enter event.
+ */
+void ssr::QUserInterface::dragEnterEvent(QDragEnterEvent *event)
+{
+  // make sure that the drag event contains file paths
+  if (event->mimeData()->hasUrls()) event->acceptProposedAction();
+  //if (event->mimeData()->hasFormat("text/plain"))
+   // event->acceptProposedAction();
+}
+
+/** Handles Qt drag & drop events.
+ * @param event Qt mouse drop event.
+ */
+void ssr::QUserInterface::dropEvent(QDropEvent *event)
+{
+  event->acceptProposedAction();
+
+  const QMimeData* mimeData = event->mimeData();
+
+  // check for our needed mime type, here a file or a list of files
+  if (mimeData->hasUrls())
+  {
+    QList<QUrl> urlList = mimeData->urls();
+
+    QUrl url(urlList.at(0));
+
+    VERBOSE("Dropped file: " <<
+      std::string(url.toString().toStdString()));
+
+    // Remove "file://"
+    //this->_load_scene(url.toString().toStdString().substr(7));
+    this->_load_scene(url.toString().remove(0,7));
+
+    // TODO: Add source if more than one file is dragged and dropped.
+    //QStringList pathList;
+    // for (int i = 0; i < urlList.size() && i < 32; +i)
+    //{
+    //  pathList.append(urlList.at(i).toLocalFile());
+    //}
+    // call a function to open all files (needs function is yet to be written)
+    //openFiles(pathList);
+
+   }
 }
 
 /// Displays the about window.

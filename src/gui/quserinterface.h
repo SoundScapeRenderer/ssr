@@ -101,6 +101,8 @@ class QUserInterface : public QOpenGLPlotter
     virtual void mouseDoubleClickEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent (QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent * event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dropEvent(QDropEvent *event);
 
   private:
     scene_button_list_t _scene_button_list; ///< list which holds all quiack access scene tabs

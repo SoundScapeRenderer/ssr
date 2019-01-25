@@ -95,6 +95,7 @@ ssr::QOpenGLPlotter::QOpenGLPlotter(api::Publisher& controller
           Qt::NoModifier)), // dummy event
     _ctrl_pressed(false),
     _alt_pressed(false),
+    _shift_pressed(false),
     _rubber_band_starting_point(Position()),
     _rubber_band_ending_point(Position()),
     _window_x_offset(0.0f),
