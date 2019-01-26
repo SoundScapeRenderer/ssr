@@ -190,7 +190,7 @@ LoudspeakerRenderer<Derived>::_set_connection(apf::parameter_map& p)
   const std::string prefix = this->params.get("system_output_prefix", "");
   if (prefix != "")
   {
-    p.set("connect_to", prefix + apf::str::A2S(_next_loudspeaker_channel));
+    p.set("connect-to", prefix + apf::str::A2S(_next_loudspeaker_channel));
   }
   ++_next_loudspeaker_channel;
 }

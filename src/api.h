@@ -164,8 +164,8 @@ struct SceneInformationEvents
   virtual void new_source(id_t id) = 0;
 
   /// Set immutable properties (string-to-string mapping) of a (new) source,
-  /// e.g. @c audio_file, @c audio_file_channel, @c audio_file_length,
-  /// @c port_name, @c properties_file.
+  /// e.g. @c audio-file, @c audio-file-channel, @c audio-file-length,
+  /// @c port-name, @c properties-file.
   virtual void source_property(id_t id, const std::string& key
                                       , const std::string& value) = 0;
 };

@@ -224,7 +224,7 @@ jack_policy::Xput<X>::Xput(jack_policy& parent, const parameter_map& p)
   , _port_name(_port ? jack_port_name(_port) : "")
 {
   // optionally connect to jack_port
-  std::string connect_to = p.get("connect_to", "");
+  std::string connect_to = p.get("connect-to", "");
   if (connect_to != "")
   {
     if (X::is_input)

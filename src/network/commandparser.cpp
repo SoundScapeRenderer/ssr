@@ -199,10 +199,10 @@ ssr::CommandParser::parse_cmd(const std::string& cmd)
         VERBOSE2("set source name: id = " << id << ", name = " << name);
       }
 
-      std::string properties_file = i.get_attribute("properties_file");
+      std::string properties_file = i.get_attribute("properties-file");
       if (!properties_file.empty() && !new_source)
       {
-        ERROR("Cannot set properties_file! This works only for new sources.");
+        ERROR("Cannot set properties-file! This works only for new sources.");
       }
 
       std::string model = i.get_attribute("model");

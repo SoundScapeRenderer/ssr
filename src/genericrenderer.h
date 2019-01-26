@@ -94,7 +94,7 @@ class GenericRenderer::Source : public _base::Source
       size_t outputs = this->parent.get_output_list().size();
 
       auto ir_file = apf::load_sndfile(
-          p.get<std::string>("properties_file"), this->parent.sample_rate()
+          p.get<std::string>("properties-file"), this->parent.sample_rate()
           , outputs);
 
       size_t size = ir_file.frames();

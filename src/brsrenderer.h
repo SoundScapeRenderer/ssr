@@ -93,7 +93,7 @@ class BrsRenderer::Source : public _base::Source
       , _brtf_index(size_t(-1))
     {
       SndfileHandle ir_file
-        = apf::load_sndfile(p.get<std::string>("properties_file")
+        = apf::load_sndfile(p.get<std::string>("properties-file")
             , this->parent.sample_rate(), 0);
 
       size_t no_of_channels = ir_file.channels();
@@ -286,13 +286,13 @@ BrsRenderer::load_reproduction_setup()
   if (prefix != "")
   {
     // TODO: read target from proper reproduction file
-    params.set("connect_to", prefix + "1");
+    params.set("connect-to", prefix + "1");
   }
   this->add(params);
 
   if (prefix != "")
   {
-    params.set("connect_to", prefix + "2");
+    params.set("connect-to", prefix + "2");
   }
   this->add(params);
 }

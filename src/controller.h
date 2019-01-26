@@ -1512,7 +1512,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       {
         std::string name  = node.get_attribute("name");
         std::string id    = node.get_attribute("id");
-        std::string properties_file = node.get_attribute("properties_file");
+        std::string properties_file = node.get_attribute("properties-file");
 
         properties_file = posixpathtools::make_path_relative_to_current_dir(
             properties_file, scene_file_name);
@@ -1920,8 +1920,8 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
   }
 
   apf::parameter_map p;
-  p.set("connect_to", port_name);
-  p.set("properties_file", properties_file);
+  p.set("connect-to", port_name);
+  p.set("properties-file", properties_file);
   try
   {
     id = _renderer.add_source(id, p);
@@ -1935,19 +1935,19 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
 
   _publish(&api::SceneInformationEvents::new_source, id);
   _publish(&api::SceneInformationEvents::source_property
-      , id, "port_name", port_name);
+      , id, "port-name", port_name);
 
   if (file_name_or_port_number != "")
   {
     _publish(&api::SceneInformationEvents::source_property
-        , id, "audio_file", file_name_or_port_number);
+        , id, "audio-file", file_name_or_port_number);
     _publish(&api::SceneInformationEvents::source_property
-        , id, "audio_file_channel", apf::str::A2S(channel));
+        , id, "audio-file-channel", apf::str::A2S(channel));
     _publish(&api::SceneInformationEvents::source_property
-        , id, "audio_file_length", apf::str::A2S(file_length));
+        , id, "audio-file-length", apf::str::A2S(file_length));
   }
   _publish(&api::SceneInformationEvents::source_property
-      , id, "properties_file", properties_file);
+      , id, "properties-file", properties_file);
 
   _publish(&api::SceneControlEvents::source_name, id, name);
   _publish(&api::SceneControlEvents::source_model, id, model);
@@ -2192,7 +2192,7 @@ Controller<Renderer>::_add_sources(Node& node
 
     if (source.properties_file != "")
     {
-      source_node.new_attribute("properties_file"
+      source_node.new_attribute("properties-file"
           , posixpathtools::make_path_relative_to_file(source.properties_file
             , scene_file_name));
     }

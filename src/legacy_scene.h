@@ -345,25 +345,25 @@ class LegacyScene : public api::SceneControlEvents
     virtual void source_property(id_t id, const std::string& key
                                         , const std::string& value) override
     {
-      if (key == "audio_file")
+      if (key == "audio-file")
       {
         _set_source_member(id, &LegacySource::audio_file_name, value);
       }
-      else if (key == "audio_file_channel")
+      else if (key == "audio-file-channel")
       {
         _set_source_member(id, &LegacySource::audio_file_channel
             , apf::str::S2RV(value, 0));
       }
-      else if (key == "audio_file_length")
+      else if (key == "audio-file-length")
       {
         _set_source_member(id, &LegacySource::file_length
             , apf::str::S2RV(value, 0));
       }
-      else if (key == "port_name")
+      else if (key == "port-name")
       {
         _set_source_member(id, &LegacySource::port_name, value);
       }
-      else if (key == "properties_file")
+      else if (key == "properties-file")
       {
         _set_source_member(id, &LegacySource::properties_file, value);
       }

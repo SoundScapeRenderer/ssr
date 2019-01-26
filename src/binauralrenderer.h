@@ -227,13 +227,13 @@ void BinauralRenderer::load_reproduction_setup()
   if (prefix != "")
   {
     // TODO: read target from proper reproduction file
-    params.set("connect_to", prefix + "1");
+    params.set("connect-to", prefix + "1");
   }
   this->add(params);
 
   if (prefix != "")
   {
-    params.set("connect_to", prefix + "2");
+    params.set("connect-to", prefix + "2");
   }
   this->add(params);
 }
