@@ -46,6 +46,7 @@ struct conf_struct
                                         ///< as loud as the other source types
   bool gui;                             ///< start GUI?
   bool ip_server;                       ///< start IP server?
+  bool websocket_server;                ///< start WebSocket server?
   std::string tracker;                  ///< type of head tracker (or "")
   std::string tracker_ports;            ///< space-separated serial ports
   bool freewheeling;                    ///< use JACK's freewheeling mode?
@@ -56,11 +57,13 @@ struct conf_struct
   std::string input_port_prefix;        ///< e.g. "alsa_pcm:capture"
   std::string output_port_prefix;       ///< e.g. "alsa_pcm:playback"
   std::string path_to_gui_images;       ///< dto.
+  std::string websocket_resource_directory;  ///< resources for the HTML GUI
   std::string path_to_scene_menu;       ///< path to scene_menu.conf
   int end_of_message_character;         ///< ASCII
   bool auto_rotate_sources;             ///< Automatic orientation of sources
 
   int server_port;                      ///< listening port
+  int websocket_port;  ///< Port for incoming WebSocket connections
   /// allow other SSR instance to provide scene data?
   bool follow;
   /// size of delay line (in samples)

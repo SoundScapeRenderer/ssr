@@ -53,8 +53,8 @@ public:
   void get_data(api::RendererControlEvents* subscriber)
   {
     subscriber->processing(_processing);
-    subscriber->reference_offset_position(_reference_offset_position);
-    subscriber->reference_offset_rotation(_reference_offset_rotation);
+    subscriber->reference_position_offset(_reference_position_offset);
+    subscriber->reference_rotation_offset(_reference_rotation_offset);
   }
 
   void get_data(api::RendererInformationEvents* subscriber)
@@ -174,21 +174,21 @@ private:
     _processing = state;
   }
 
-  void reference_offset_position(const Pos& pos) override
+  void reference_position_offset(const Pos& pos) override
   {
     Position position{pos};
     _renderer.state.reference_offset_position = position;
-    _reference_offset_position = pos;
+    _reference_position_offset = pos;
   }
 
-  void reference_offset_rotation(const Rot& rot) override
+  void reference_rotation_offset(const Rot& rot) override
   {
     Orientation orientation{rot};
     // For backwards compatibility, 90 degrees are added when converting to
     // Orientation.  This, however, should not be done for the reference offset.
     orientation.azimuth -= 90.0f;
     _renderer.state.reference_offset_orientation = orientation;
-    _reference_offset_rotation = rot;
+    _reference_rotation_offset = rot;
   }
 
   // RendererInformationEvents (not needed in renderer!)
@@ -211,8 +211,8 @@ private:
   Renderer& _renderer;
 
   bool _processing{false};
-  Pos _reference_offset_position;
-  Rot _reference_offset_rotation;
+  Pos _reference_position_offset;
+  Rot _reference_rotation_offset;
   std::string _renderer_name;
   int _sample_rate;
   std::vector<Loudspeaker> _loudspeakers;

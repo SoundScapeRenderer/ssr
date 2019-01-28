@@ -25,55 +25,39 @@
  ******************************************************************************/
 
 /// @file
-/// Server class (definition).
+/// CommandParser class (definition).
 
-#ifndef SSR_SERVER_H
-#define SSR_SERVER_H
+#ifndef SSR_COMMANDPARSER_H
+#define SSR_COMMANDPARSER_H
 
-#ifdef HAVE_CONFIG_H
-#include <config.h> // for ENABLE_*
-#endif
+#include <string>
 
-#if !defined(ASIO_STANDALONE)
-#define ASIO_STANDALONE
-#endif
-#include <asio.hpp>
-
-#include <thread>
-
-#include "connection.h"
 
 namespace ssr
 {
 
 namespace api { struct Publisher; }
-struct LegacyXmlSceneProvider;
 
-/// Server class.
-class Server
+namespace legacy_network
+{
+
+/** Parses a XML string and maps to Controller.
+ * This class is the bridge between the network interface and the Controller.
+ * Incoming XML messages (in ASDF-format) are parsed and the appropriate
+ * functions of Controller called.
+ **/
+class CommandParser
 {
   public:
-    Server(api::Publisher& controller, LegacyXmlSceneProvider& scene_provider
-        , int port, char end_of_message_character);
-    ~Server();
-    void start();
-    void stop();
+    CommandParser(api::Publisher& publisher);
+
+    void parse_cmd(const std::string &cmd);
 
   private:
-    void run();
-    void start_accept();
-    void handle_accept(Connection::pointer new_connection
-        , const asio::error_code &error);
-
-    api::Publisher& _controller;
-    // Just a hack for get_scene_as_XML():
-    LegacyXmlSceneProvider& _scene_provider;
-    asio::io_service _io_service;
-    asio::ip::tcp::acceptor _acceptor;
-    std::thread *_network_thread;
-
-    char _end_of_message_character;
+    api::Publisher& _publisher;
 };
+
+}  // namespace legacy_network
 
 }  // namespace ssr
 

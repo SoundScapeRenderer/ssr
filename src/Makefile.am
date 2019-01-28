@@ -26,6 +26,9 @@ AM_CPPFLAGS += -I$(srcdir)/../apf
 ## Add GML path
 AM_CPPFLAGS += -I$(srcdir)/../gml/include
 
+## Add RapidJSON path
+AM_CPPFLAGS += -I$(srcdir)/../rapidjson/include
+
 if ENABLE_APP_BUNDLE
 AM_CPPFLAGS += -DSSR_DATA_DIR=\"SoundScapeRenderer.app/Contents/Resources\"
 else
@@ -46,7 +49,9 @@ dist_noinst_DATA = Doxyfile coding_style.txt \
 	../apf/misc/Makefile.dependencies \
 	../apf/apf/mextools.h \
 	../gml/README.md \
-	../gml/LICENSE.txt
+	../gml/LICENSE.txt \
+	../rapidjson/readme.md \
+	../rapidjson/license.txt
 
 ssr_binaural_SOURCES = ssr_binaural.cpp binauralrenderer.h \
 	$(SSRSOURCES)
@@ -178,17 +183,44 @@ SSRSOURCES += \
 endif
 
 if ENABLE_IP_INTERFACE
-AM_CPPFLAGS += -I$(srcdir)/network
-
 SSRSOURCES += \
-	network/commandparser.cpp \
-	network/commandparser.h \
-	network/connection.cpp \
-	network/connection.h \
-	network/networksubscriber.cpp \
-	network/networksubscriber.h \
-	network/server.cpp \
-	network/server.h
+	legacy_network/commandparser.cpp \
+	legacy_network/commandparser.h \
+	legacy_network/connection.cpp \
+	legacy_network/connection.h \
+	legacy_network/networksubscriber.cpp \
+	legacy_network/networksubscriber.h \
+	legacy_network/server.cpp \
+	legacy_network/server.h
+endif
+
+if ENABLE_WEBSOCKET_INTERFACE
+SSRSOURCES += \
+	websocket/server.h \
+	websocket/connection.h \
+	../rapidjson/include/rapidjson/document.h \
+	../rapidjson/include/rapidjson/ostreamwrapper.h \
+	../rapidjson/include/rapidjson/stringbuffer.h \
+	../rapidjson/include/rapidjson/writer.h \
+	../rapidjson/include/rapidjson/reader.h \
+	../rapidjson/include/rapidjson/allocators.h \
+	../rapidjson/include/rapidjson/rapidjson.h \
+	../rapidjson/include/rapidjson/stream.h \
+	../rapidjson/include/rapidjson/encodings.h \
+	../rapidjson/include/rapidjson/encodedstream.h \
+	../rapidjson/include/rapidjson/error/error.h \
+	../rapidjson/include/rapidjson/memorystream.h \
+	../rapidjson/include/rapidjson/internal/dtoa.h \
+	../rapidjson/include/rapidjson/internal/itoa.h \
+	../rapidjson/include/rapidjson/internal/meta.h \
+	../rapidjson/include/rapidjson/internal/stack.h \
+	../rapidjson/include/rapidjson/internal/swap.h \
+	../rapidjson/include/rapidjson/internal/strtod.h \
+	../rapidjson/include/rapidjson/internal/ieee754.h \
+	../rapidjson/include/rapidjson/internal/biginteger.h \
+	../rapidjson/include/rapidjson/internal/diyfp.h \
+	../rapidjson/include/rapidjson/internal/pow10.h \
+	../rapidjson/include/rapidjson/internal/strfunc.h
 endif
 
 if ENABLE_GUI

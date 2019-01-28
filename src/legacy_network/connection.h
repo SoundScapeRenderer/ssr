@@ -25,34 +25,83 @@
  ******************************************************************************/
 
 /// @file
-/// CommandParser class (definition).
+/// Connection class (definition).
 
-#ifndef SSR_COMMANDPARSER_H
-#define SSR_COMMANDPARSER_H
+#ifndef SSR_CONNECTION_H
+#define SSR_CONNECTION_H
 
-#include <string>
+#ifdef HAVE_CONFIG_H
+#include <config.h> // for ENABLE_*
+#endif
 
+#if !defined(ASIO_STANDALONE)
+#define ASIO_STANDALONE
+#endif
+#include <asio.hpp>
+
+#include <memory>
+
+#include "networksubscriber.h"
+#include "commandparser.h"
 
 namespace ssr
 {
 
 namespace api { struct Publisher; }
 
-/** Parses a XML string and maps to Controller.
- * This class is the bridge between the network interface and the Controller.
- * Incoming XML messages (in ASDF-format) are parsed and the appropriate
- * functions of Controller called.
- **/
-class CommandParser
+namespace legacy_network
+{
+
+/// Connection class.
+class Connection : public std::enable_shared_from_this<Connection>
 {
   public:
-    CommandParser(api::Publisher& publisher);
+    /// Ptr to Connection
+    typedef std::shared_ptr<Connection> pointer;
+    typedef asio::ip::tcp::socket socket_t;
 
-    void parse_cmd(const std::string &cmd);
+    static pointer create(asio::io_service &io_service
+        , api::Publisher &controller, char end_of_message_character);
+
+    void start();
+    void write(const std::string& writestring);
+
+    /// @return Reference to socket
+    socket_t& socket() { return _socket; }
+
+    unsigned int get_source_number(id_t source_id) const;
 
   private:
-    api::Publisher& _publisher;
+    Connection(asio::io_service &io_service, api::Publisher &controller
+        , char end_of_message_character);
+
+    void start_read();
+    void read_handler(const asio::error_code &error, size_t size);
+    void write_handler(std::shared_ptr<std::string> str_ptr
+        , const asio::error_code &error, size_t bytes_transferred);
+
+    void timeout_handler(const asio::error_code &e);
+
+    /// TCP/IP socket
+    socket_t _socket;
+    /// Buffer for incoming messages.
+    asio::streambuf _streambuf;
+    /// @see Connection::timeout_handler
+    asio::steady_timer _timer;
+
+    /// Reference to Controller
+    api::Publisher &_controller;
+    /// Subscriber obj
+    NetworkSubscriber _subscriber;
+    /// Commandparser obj
+    CommandParser _commandparser;
+
+    char _end_of_message_character;
+
+    std::vector<std::unique_ptr<api::Subscription>> _subs;
 };
+
+}  // namespace legacy_network
 
 }  // namespace ssr
 

@@ -7,6 +7,9 @@
 # location of images for GUI
 PATH_TO_GUI_IMAGES = images
 
+# location of resources for HTML GUI
+WEBSOCKET_RESOURCE_DIRECTORY = websocket_resources
+
 # head related impulse responses
 HRIR_FILE_NAME = impulse_responses/hrirs/hrirs_fabian_min_phase_eq.wav
 

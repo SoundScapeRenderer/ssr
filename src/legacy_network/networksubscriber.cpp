@@ -36,15 +36,16 @@
 #include "legacy_orientation.h"  // for Orientation
 
 using apf::str::A2S;
+using ssr::legacy_network::NetworkSubscriber;
 
 void
-ssr::NetworkSubscriber::_send_message(const std::string& str)
+NetworkSubscriber::_send_message(const std::string& str)
 {
   _connection.write(str);
 }
 
 void
-ssr::NetworkSubscriber::_send_source_message(const std::string& first_part
+NetworkSubscriber::_send_source_message(const std::string& first_part
     , id_t id, const std::string& second_part)
 {
   auto source_number = _connection.get_source_number(id);
@@ -59,14 +60,14 @@ ssr::NetworkSubscriber::_send_source_message(const std::string& first_part
 }
 
 void
-ssr::NetworkSubscriber::source_level(id_t id, float level)
+NetworkSubscriber::source_level(id_t id, float level)
 {
   _send_source_message("<update><source id='", id
       , "' level='" + A2S(apf::math::linear2dB(level)) + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::delete_source(id_t id)
+NetworkSubscriber::delete_source(id_t id)
 {
   _send_source_message(
       "<update><delete><source id='", id, "' /></delete></update>");
@@ -74,7 +75,7 @@ ssr::NetworkSubscriber::delete_source(id_t id)
 
 
 void
-ssr::NetworkSubscriber::source_position(id_t id, const Pos& pos)
+NetworkSubscriber::source_position(id_t id, const Pos& pos)
 {
   const Position position{pos};
   _send_source_message("<update><source id='", id, "'><position x='"
@@ -82,14 +83,14 @@ ssr::NetworkSubscriber::source_position(id_t id, const Pos& pos)
 }
 
 void
-ssr::NetworkSubscriber::source_fixed(id_t id, bool fixed)
+NetworkSubscriber::source_fixed(id_t id, bool fixed)
 {
   _send_source_message("<update><source id='", id, "'><position fixed='"
     + A2S(fixed) + "'/></source></update>");
 }
 
 void
-ssr::NetworkSubscriber::source_rotation(id_t id, const Rot& rot)
+NetworkSubscriber::source_rotation(id_t id, const Rot& rot)
 {
   const Orientation orientation{rot};
   _send_source_message("<update><source id='", id,  "'><orientation azimuth='"
@@ -97,28 +98,28 @@ ssr::NetworkSubscriber::source_rotation(id_t id, const Rot& rot)
 }
 
 void
-ssr::NetworkSubscriber::source_volume(id_t id, float gain)
+NetworkSubscriber::source_volume(id_t id, float gain)
 {
   _send_source_message("<update><source id='", id
       , "' volume='" + A2S(apf::math::linear2dB(gain)) + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::source_mute(id_t id, bool mute)
+NetworkSubscriber::source_mute(id_t id, bool mute)
 {
   _send_source_message("<update><source id='", id, "' mute='" + A2S(mute)
     + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::source_model(id_t id, const std::string& model)
+NetworkSubscriber::source_model(id_t id, const std::string& model)
 {
   _send_source_message("<update><source id='", id, "' model='" + model
     + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::reference_position(const Pos& pos)
+NetworkSubscriber::reference_position(const Pos& pos)
 {
   const Position position{pos};
   _send_message("<update><reference><position x='" + A2S(position.x)
@@ -126,7 +127,7 @@ ssr::NetworkSubscriber::reference_position(const Pos& pos)
 }
 
 void
-ssr::NetworkSubscriber::reference_rotation(const Rot& rot)
+NetworkSubscriber::reference_rotation(const Rot& rot)
 {
   const Orientation orientation{rot};
   _send_message("<update><reference><orientation azimuth='"
@@ -134,7 +135,7 @@ ssr::NetworkSubscriber::reference_rotation(const Rot& rot)
 }
 
 void
-ssr::NetworkSubscriber::reference_offset_position(const Pos& pos)
+NetworkSubscriber::reference_position_offset(const Pos& pos)
 {
   const Position position{pos};
   _send_message("<update><reference_offset><position x='" + A2S(position.x)
@@ -142,7 +143,7 @@ ssr::NetworkSubscriber::reference_offset_position(const Pos& pos)
 }
 
 void
-ssr::NetworkSubscriber::reference_offset_rotation(const Rot& rot)
+NetworkSubscriber::reference_rotation_offset(const Rot& rot)
 {
   const Orientation orientation{rot};
   _send_message("<update><reference_offset><orientation azimuth='"
@@ -150,13 +151,13 @@ ssr::NetworkSubscriber::reference_offset_rotation(const Rot& rot)
 }
 
 void
-ssr::NetworkSubscriber::master_volume(float volume)
+NetworkSubscriber::master_volume(float volume)
 {
   _send_message("<update><scene volume='" + A2S(apf::math::linear2dB(volume))    + "'/></update>");
 }
 
 void
-ssr::NetworkSubscriber::output_activity(id_t id, float* first, float* last)
+NetworkSubscriber::output_activity(id_t id, float* first, float* last)
 {
   std::string ms = "<update><source id='" + A2S(id) + "' output_level='";
 

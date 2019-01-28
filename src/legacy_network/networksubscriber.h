@@ -36,6 +36,9 @@
 namespace ssr
 {
 
+namespace legacy_network
+{
+
 class Connection;
 
 /** NetworkSubscriber.
@@ -77,8 +80,8 @@ class NetworkSubscriber : public api::SceneControlEvents
     // RendererControlEvents
 
     void processing(bool) override {}
-    void reference_offset_position(const Pos& position) override;
-    void reference_offset_rotation(const Rot& rotation) override;
+    void reference_position_offset(const Pos& position) override;
+    void reference_rotation_offset(const Rot& rotation) override;
 
     // SourceMetering
 
@@ -94,6 +97,8 @@ class NetworkSubscriber : public api::SceneControlEvents
 
     Connection &_connection;
 };
+
+}  // namespace legacy_network
 
 }  // namespace ssr
 

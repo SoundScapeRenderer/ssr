@@ -525,6 +525,13 @@ ENABLE_FORCED([ip-interface], [network (TCP/IP) interface (needs Asio, https://t
   AC_CHECK_HEADER([asio.hpp], , [have_ip_interface=no])
 ])
 
+ENABLE_FORCED([websocket-interface], [WebSocket interface (needs WebSocket++ and Asio)],
+[
+  CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
+  AC_CHECK_HEADER([asio.hpp], , [have_websocket_interface=no])
+  AC_CHECK_HEADER([websocketpp/server.hpp], , [have_websocket_interface=no])
+])
+
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
 [
   dnl Checking for libecasoundc. It does not provide pkg-config and installs
@@ -766,7 +773,7 @@ echo "|    Razor AHRS .......................... : $have_razor"
 echo "|    VRPN ................................ : $have_vrpn"
 echo "|"
 echo "| Build with Ecasound support ............ : $have_ecasound"
-echo "| Build with IP interface ................ : $have_ip_interface"
+echo "| Network: legacy/WebSocket .............. : $have_ip_interface/$have_websocket_interface"
 echo "| Build with GUI ......................... : $gui_string"
 echo "|"
 echo "| Enable debugging/optimization .......... : $have_debugging/$have_optimization"

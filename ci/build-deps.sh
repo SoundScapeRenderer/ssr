@@ -23,4 +23,14 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   fi
 fi
 
+git clone git://github.com/zaphoyd/websocketpp.git
+cd websocketpp
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+cd ..
+cd ..
+
 exit 0

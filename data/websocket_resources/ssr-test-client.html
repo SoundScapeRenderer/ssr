@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>SSR Test Client</title>
+<script>
+var DEFAULT_HOST = "localhost";
+var DEFAULT_PORT = "9422";
+var SUBPROTOCOL = "ssr-json";
+
+var SOCKET;
+
+var OUTGOING_LOG = new Array(10);
+var INCOMING_LOG = new Array(10);
+
+function onButtonSend()
+{
+  sendJson(document.getElementById("input-message").value);
+}
+
+var examples = [
+  ["state", {"ref-pos": [-1, 1, 0]}],
+  ["state", {"ref-pos": [0, 0, 0]}],
+  ["state", {"ref-pos-offset": [.5, .5, 0]}],
+  ["state", {"ref-pos-offset": [0, 0, 0]}],
+  ["state", {"ref-rot": [0, 0, 0.7071, 0.7071]}],
+  ["state", {"ref-rot": [0, 0, -0.7071, 0.7071]}],
+  ["state", {"ref-rot": [0, 0, 0, 1]}],
+  ["state", {"processing": true}],
+  ["state", {"processing": false}],
+  ["state", {"auto-rotate-sources": true}],
+  ["state", {"auto-rotate-sources": false}],
+  ["new-src", [{"port-number": 1, "id":"jack1", "name": "JACK port 1",
+    "pos": [-1, -1, 0]}]],
+  ["mod-src", {"jack1":{"pos": [-2, -1, 0], "mute": true}}],
+  ["del-src", ["jack1"]],
+  ["load-scene", "my-scene.asd"],
+];
+
+function sendJson(payload)
+{
+  SOCKET.send(payload);
+  OUTGOING_LOG.shift();
+  OUTGOING_LOG.push(payload);
+  document.getElementById("outgoing-messages").value = OUTGOING_LOG.join("\n");
+}
+
+function sendObject(obj)
+{
+  sendJson(JSON.stringify(obj));
+}
+
+function sendExample(idx)
+{
+  sendObject(examples[idx]);
+}
+
+function connectWebSocket()
+{
+  var host = document.getElementById("input-host");
+  var port = document.getElementById("input-port");
+  SOCKET = new WebSocket("ws://" + host.value + ":" + port.value, SUBPROTOCOL);
+
+  SOCKET.onopen = function()
+  {
+    var status = document.getElementById("ws-status");
+    status.style.backgroundColor = "#40ff40";
+    status.textContent = "WebSocket connected to " + SOCKET.url +
+      ", subprotocol: " + SOCKET.protocol;
+  };
+
+  SOCKET.onmessage = function(msg)
+  {
+    INCOMING_LOG.shift();
+    INCOMING_LOG.push(msg.data);
+    document.getElementById("incoming-messages").value = INCOMING_LOG.join("\n");
+
+    let command_list = JSON.parse(msg.data);
+
+    if (!(command_list instanceof Array)) {
+      throw Error(`Invalid message: ${command_list}`);
+    }
+    while (true) {
+      let command = command_list.shift();
+      if (command === undefined) {
+        break;
+      }
+      let data = command_list.shift();
+      if (data === undefined) {
+        throw Error(`No data for "${command}" command`);
+      }
+
+      let src_list;
+      switch (command) {
+        case "state":
+          for (const property in data) {
+            switch (property) {
+              case "loudspeakers":
+                ls_list = document.getElementById("loudspeaker-list");
+                ls_list.innerHTML = "";  // Remove all existing loudspeakers
+                for (const ls of data["loudspeakers"]) {
+                  let li = document.createElement("li");
+                  li.textContent = ls.model ? `model: ${ls.model}; ` : "" +
+                    `position: ${ls.pos}; rotation: ${ls.rot}`;
+                  ls_list.appendChild(li);
+                }
+                break;
+              default:
+                document.getElementById(property).textContent = data[property];
+            }
+          }
+          break;
+        case "new-src":
+          src_list = document.getElementById("source-list");
+          for (const src_id in data) {
+            let li = document.createElement("li");
+            li.innerHTML =
+              `ID: <span class="src-id">${src_id}</span>; ` +
+              'name: <span class="src-name">n/a</span>; ' +
+              'mute: <span class="src-mute">n/a</span>; ' +
+              'model: <span class="src-model">n/a</span>; ' +
+              'fixed: <span class="src-fixed">n/a</span><br>' +
+              'audio file: <span class="src-audio-file">n/a</span>; ' +
+              'channel: <span class="src-audio-file-channel">n/a</span>; ' +
+              'length: <span class="src-audio-file-length">n/a</span><br>' +
+              'JACK port: <span class="src-port-name">n/a</span><br>' +
+              'properties file: <span class="src-properties-file">n/a</span><br>' +
+              'pos: <span class="src-pos">n/a</span><br>' +
+              'rot: <span class="src-rot">n/a</span><br>' +
+              'volume: <span class="src-volume">n/a</span><br>' +
+              'level: <span class="src-level">n/a</span><br>' +
+              'output activity: <span class="src-output-activity">n/a</span>';
+            src_list.appendChild(li);
+          }
+          updateSourceProperties(data);
+          break;
+        case "mod-src":
+          updateSourceProperties(data);
+          break;
+        case "del-src":
+          src_list = document.getElementById("source-list");
+          for (const src_id of data) {
+            for (const li of src_list.getElementsByTagName("li")) {
+              if (li.querySelector(".src-id").textContent === src_id) {
+                src_list.removeChild(li);
+                break;
+              }
+            }
+          }
+          break;
+        default:
+          throw Error(`Unknown command: "${command}"`);
+      }
+    }
+  };
+
+  SOCKET.onerror = function()
+  {
+    alert("WebSocket Error!");
+  };
+
+  SOCKET.onclose = function(msg)
+  {
+    var status = document.getElementById("ws-status");
+    status.style.backgroundColor = "#ff4040";
+    status.textContent = "WebSocket connection closed. Code: " + msg.code;
+
+    resetValues();
+    for (const input of document.getElementById("subscriptions")
+                                .getElementsByTagName("input")) {
+      input.checked = false;
+    }
+  };
+
+  localStorage.connection_data = host.value + ":" + port.value;
+
+  for (const input of document.getElementsByTagName("input")) {
+    input.disabled = false;
+  }
+  document.getElementById("input-host").disabled = true;
+  document.getElementById("input-port").disabled = true;
+  document.getElementById("input-connect").disabled = true;
+}
+
+// TODO: function resetToDefaults() (clearing localStorage)
+function onLoad()
+{
+  var host = document.getElementById("input-host");
+  var port = document.getElementById("input-port");
+  if (localStorage.connection_data)
+  {
+    var data = localStorage.connection_data.split(":");
+    host.value = data[0];
+    port.value = data[1];
+  }
+  else
+  {
+    host.value = DEFAULT_HOST;
+    port.value = DEFAULT_PORT;
+  }
+  document.getElementById("input-disconnect").disabled = true;
+
+  for (const idx in examples)
+  {
+    var a = document.createElement("a");
+    a.href = "javascript:sendExample(" + idx + ")";
+    a.textContent = JSON.stringify(examples[idx]);
+    document.getElementById("example-links").appendChild(a);
+    var br = document.createElement("br");
+    document.getElementById("example-links").appendChild(br);
+  }
+  resetValues();
+}
+
+function handleSubscription(box)
+{
+  sendObject([box.checked ? "subscribe" : "unsubscribe", [box.name]]);
+
+  if (!box.checked) {
+    resetValues(box.name);
+  }
+}
+
+function resetValues(subscription)
+{
+  if (!subscription) {
+    for (const input of document.getElementsByTagName("input")) {
+      input.disabled = true;
+    }
+    document.getElementById("input-host").disabled = false;
+    document.getElementById("input-port").disabled = false;
+    document.getElementById("input-connect").disabled = false;
+  }
+
+  if (!subscription || subscription === "scene") {
+    [
+      "auto-rotate-sources", "ref-pos", "ref-rot", "master-volume",
+      "decay-exponent", "amplitude-reference-distance", "transport-rolling",
+    ].forEach(id => document.getElementById(id).textContent = "n/a");
+
+    document.getElementById("source-list").innerHTML = "";
+  }
+  if (!subscription || subscription === "renderer") {
+    [
+      "renderer-name", "sample-rate", "processing",
+      "ref-pos-offset", "ref-rot-offset",
+    ].forEach(id => document.getElementById(id).textContent = "n/a");
+
+    document.getElementById("loudspeaker-list").innerHTML = "";
+  }
+  if (!subscription || subscription === "transport-frame") {
+    document.getElementById("frame").innerHTML = "n/a";
+  }
+  if (!subscription || subscription === "source-metering") {
+    let src_list = document.getElementById("source-list");
+    for (const li of src_list.getElementsByTagName("li")) {
+      li.querySelector(".src-level").textContent = "n/a";
+    }
+  }
+  if (!subscription || subscription === "master-metering") {
+    document.getElementById("master-level").innerHTML = "n/a";
+  }
+  if (!subscription || subscription === "output-activity") {
+    let src_list = document.getElementById("source-list");
+    for (const li of src_list.getElementsByTagName("li")) {
+      li.querySelector(".src-output-activity").textContent = "n/a";
+    }
+  }
+  if (!subscription || subscription === "cpu-load") {
+    document.getElementById("cpu").innerHTML = "n/a";
+  }
+}
+
+function updateSourceProperties(data)
+{
+  src_list = document.getElementById("source-list");
+  for (const src_id in data) {
+    for (const li of src_list.getElementsByTagName("li")) {
+      if (li.querySelector(".src-id").textContent === src_id) {
+        let src_properties = data[src_id];
+        for (const property in src_properties) {
+          li.querySelector(`.src-${property}`).textContent =
+            src_properties[property];
+        }
+        break;
+      }
+    };
+  }
+}
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+textarea {
+  width: 100%;
+  resize: none;
+  overflow-y: hidden;
+}
+</style>
+
+<body onload="onLoad()">
+  <h1>SoundScape Renderer Test Client</h1>
+  <div>
+    <input id="input-host" type="text" style="width: 8em"
+           onkeydown="if (event.key === 'Enter') {
+                        document.getElementById('input-port').focus();
+                        document.getElementById('input-port').select(); }" />
+    <input id="input-port" type="text" style="width: 4em"
+           onkeydown="if (event.key === 'Enter') {
+                        document.getElementById('input-connect').click(); }" />
+    <input id="input-connect"
+           type="button"
+           value="Connect"
+           onclick="connectWebSocket()"/>
+    <input id="input-disconnect"
+           type="button"
+           value="Disconnect"
+           onclick="SOCKET.close()"/>
+  </div>
+  <span id="ws-status">Not initialized</span>
+
+  <h2>Subscribable Events</h2>
+
+  <div id="subscriptions">
+    <label>
+      <input type="checkbox" name="scene"
+             onclick="handleSubscription(this)"> scene
+    </label><br>
+    <label>
+      <input type="checkbox" name="renderer"
+             onclick="handleSubscription(this)"> renderer
+    </label><br>
+    <label>
+      <input type="checkbox" name="transport-frame"
+             onclick="handleSubscription(this)"> transport frame
+    </label><br>
+    <label>
+      <input type="checkbox" name="source-metering"
+             onclick="handleSubscription(this)"> source metering
+    </label><br>
+    <label>
+      <input type="checkbox" name="master-metering"
+             onclick="handleSubscription(this)"> master metering
+    </label><br>
+    <label>
+      <input type="checkbox" name="output-activity"
+             onclick="handleSubscription(this)"> output activity
+    </label><br>
+    <label>
+      <input type="checkbox" name="cpu-load"
+             onclick="handleSubscription(this)"> CPU load
+    </label>
+  </div>
+
+  <h2>Scene Properties</h2>
+
+  <ul>
+    <li>auto-rotate sources: <span id="auto-rotate-sources"></span></li>
+    <li>reference position: <span id="ref-pos"></span></li>
+    <li>reference rotation: <span id="ref-rot"></span></li>
+    <li>master volume: <span id="master-volume"></span></li>
+    <li>decay exponent: <span id="decay-exponent"></span></li>
+    <li>amplitude reference distance: <span id="amplitude-reference-distance"></span></li>
+  </ul>
+
+  <h3>Sources</h3>
+
+  <ul id="source-list">
+  </ul>
+
+  <h3>Transport</h3>
+
+  <ul>
+    <li>rolling: <span id="transport-rolling"></span></li>
+    <li>frame: <span id="frame"></span></li>
+  </ul>
+
+  <h2>Renderer Properties</h2>
+
+  <ul>
+    <li>name: <span id="renderer-name"></span></li>
+    <li>sample rate: <span id="sample-rate"></span></li>
+    <li>processing: <span id="processing"></span></li>
+    <li>reference position offset: <span id="ref-pos-offset"></span></li>
+    <li>reference rotation offset: <span id="ref-rot-offset"></span></li>
+    <li>master level: <span id="master-level"></span></li>
+    <li>CPU load: <span id="cpu"></span></li>
+  </ul>
+
+  <h3>Loudspeakers</h3>
+
+  <ul id="loudspeaker-list">
+  </ul>
+
+  <h2>JSON Messages</h2>
+
+  <p>
+  <label>Incoming:</label><br>
+  <textarea id="incoming-messages" rows="10" wrap="off"
+    readonly spellcheck="false"></textarea>
+  </p>
+  <p>
+  <label>Outgoing:</label><br>
+  <textarea id="outgoing-messages" rows="10" wrap="off"
+    readonly spellcheck="false"></textarea>
+  </p>
+
+  <div id="example-links">
+    Example messages (click to send):<br/>
+  </div>
+  <div style="display: flex">
+    <label>arbitrary data:&nbsp;</label>
+    <input id="input-message" type="text" style="flex:1"
+           onkeydown="if (event.key === 'Enter') {
+                        document.getElementById('input-send').click();
+                        this.select(); }" />
+    <input id="input-send" type="button" value="Send" onclick="onButtonSend()"/>
+  </div>
+</body>

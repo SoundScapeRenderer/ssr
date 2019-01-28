@@ -51,7 +51,7 @@ class LegacyScene : public api::SceneControlEvents
                   , public api::SceneInformationEvents
                   , public api::RendererControlEvents
                   , public api::RendererInformationEvents
-                  , public api::TransportEvents
+                  , public api::TransportFrameEvents
                   , public api::SourceMetering
                   , public api::MasterMetering
                   , public api::OutputActivity
@@ -373,6 +373,11 @@ class LegacyScene : public api::SceneControlEvents
       }
     }
 
+    void transport_rolling(bool rolling) override
+    {
+      _transport_playing = rolling;
+    }
+
     // from RendererControlEvents
 
     void processing(bool processing_state) override
@@ -380,12 +385,12 @@ class LegacyScene : public api::SceneControlEvents
       _processing_state = processing_state;
     }
 
-    void reference_offset_position(const Pos& position) override
+    void reference_position_offset(const Pos& position) override
     {
       _reference_offset.position = position;
     }
 
-    void reference_offset_rotation(const Rot& rotation) override
+    void reference_rotation_offset(const Rot& rotation) override
     {
       Orientation orientation(rotation);
       orientation.azimuth -= 90.0f;  // Undo angle conversion offset
@@ -409,11 +414,10 @@ class LegacyScene : public api::SceneControlEvents
       _loudspeakers.assign(loudspeakers.begin(), loudspeakers.end());
     }
 
-    // from TransportEvents
+    // from TransportFrameEvents
 
-    void transport_state(bool rolling, uint32_t frame) override
+    void transport_frame(uint32_t frame) override
     {
-      _transport_playing = rolling;
       _transport_position = frame;
     }
 

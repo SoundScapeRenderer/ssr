@@ -98,20 +98,16 @@ public:
 
   Pos get_reference_position() const { return _reference_position; }
   Rot get_reference_rotation() const { return _reference_rotation; }
+  bool get_auto_rotation() const { return _auto_rotate_sources; }
+  bool transport_is_rolling() const { return _transport_is_rolling; }
 
-  bool get_auto_rotation() const
-  {
-    return _auto_rotate_sources;
-  }
-
-  void get_data(SceneControlEvents* subscriber)
+  void get_data(SceneControlEvents* subscriber) const
   {
     assert(subscriber);
     subscriber->auto_rotate_sources(_auto_rotate_sources);
     subscriber->reference_position(_reference_position);
     subscriber->reference_rotation(_reference_rotation);
     subscriber->master_volume(_master_volume);
-    // TODO: master volume correction?
     subscriber->decay_exponent(_decay_exponent);
     subscriber->amplitude_reference_distance(_amplitude_reference_distance);
 
@@ -126,8 +122,9 @@ public:
     });
   }
 
-  void get_data(SceneInformationEvents* subscriber)
+  void get_data(SceneInformationEvents* subscriber) const
   {
+    subscriber->transport_rolling(_transport_is_rolling);
     this->for_each_source([subscriber](auto id, auto& source) {
         // Sources have to be created first, then they can be updated
         subscriber->new_source(id);
@@ -264,6 +261,11 @@ private:
     }
   }
 
+  void transport_rolling(bool rolling) override
+  {
+    _transport_is_rolling = rolling;
+  }
+
   std::map<std::string, Source, std::less<>> _source_map;
   /// List of source IDs, ordered by creation time.
   std::vector<std::string> _source_ids;
@@ -278,6 +280,7 @@ private:
   float _amplitude_reference_distance{3};
 
   bool _auto_rotate_sources{true};
+  bool _transport_is_rolling{false};
 
   // TODO: this should be removed at some point:
   friend class LegacySceneWrapper;

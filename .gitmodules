@@ -1,3 +1,6 @@
 [submodule "gml"]
 	path = gml
 	url = https://github.com/ilmola/gml.git
+[submodule "rapidjson"]
+	path = rapidjson
+	url = https://github.com/Tencent/rapidjson.git

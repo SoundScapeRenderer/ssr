@@ -81,6 +81,9 @@ namespace // anonymous
 #ifdef ENABLE_IP_INTERFACE
         "IP interface|"
 #endif
+#ifdef ENABLE_WEBSOCKET_INTERFACE
+        "WebSocket interface|"
+#endif
 #ifdef ENABLE_INTERSENSE
         "InterSense "
 #ifdef HAVE_INTERSENSE_404
@@ -136,12 +139,14 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 #else
   conf.gui = false;
 #endif
-#ifdef ENABLE_IP_INTERFACE
-  conf.ip_server = true;
-#else
   conf.ip_server = false;
-#endif
   conf.server_port = 4711;
+#ifdef ENABLE_WEBSOCKET_INTERFACE
+  conf.websocket_server = true;
+#else
+  conf.websocket_server = false;
+#endif
+  conf.websocket_port = 9422;
 
   conf.follow = false;
 
@@ -155,6 +160,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   conf.input_port_prefix = "system:capture_";
   conf.output_port_prefix = "system:playback_";
   conf.path_to_gui_images = SSR_DATA_DIR"/images";
+  conf.websocket_resource_directory = SSR_DATA_DIR"/websocket_resources";
   conf.path_to_scene_menu = "./scene_menu.conf";
   conf.end_of_message_character = 0; // default: binary zero
 
@@ -248,15 +254,27 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
 #ifdef ENABLE_IP_INTERFACE
 "  -i, --ip-server[=PORT]\n"
-"                      Start IP server (default on),\n"
+"                      Start IP server (default off),\n"
 "                      a port number can be specified (default 4711)\n"
-"  -I, --no-ip-server  Don't start IP server\n"
+"  -I, --no-ip-server  Don't start IP server (default)\n"
 "      --end-of-message-character=VALUE\n"
 "                      ASCII code for character to end messages with\n"
 "                      (default 0 = binary zero)\n"
 #else
 "  -i, --ip-server     Start IP server (not enabled at compile time!)\n"
 "  -I, --no-ip-server  Don't start IP server (default)\n"
+#endif
+#ifdef ENABLE_WEBSOCKET_INTERFACE
+"      --websocket-server[=PORT]\n"
+"                      Start WebSocket server (default on),\n"
+"                      a port number can be specified (default 9422)\n"
+"      --no-websocket-server\n"
+"                      Don't start WebSocket server\n"
+#else
+"      --websocket-server\n"
+"                      Start WebSocket server (not enabled at compile time!)\n"
+"      --no-websocket-server\n"
+"                      Don't start WebSocket server (default)\n"
 #endif
 "      --follow        Wait for another SSR instance to connect\n"
 "      --no-follow     Don't follow another SSR instance (default)\n"
@@ -333,6 +351,8 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     {"ip-server",    optional_argument, nullptr, 'i'},
     {"no-ip-server", no_argument,       nullptr, 'I'},
     {"end-of-message-character", required_argument, nullptr, 0},
+    {"websocket-server", optional_argument, nullptr, 0},
+    {"no-websocket-server", no_argument, nullptr, 0},
     {"follow",       no_argument,       nullptr,  0 },
     {"no-follow",    no_argument,       nullptr,  0 },
     {"gui",          no_argument,       nullptr, 'g'},
@@ -420,6 +440,23 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
           {
             ERROR("Invalid end-of-message character specified!");
           }
+        }
+        else if (strcmp("websocket-server", longopts[longindex].name) == 0)
+        {
+          conf.websocket_server = true;
+#ifdef ENABLE_WEBSOCKET_INTERFACE
+          if (optarg)
+          {
+            if (!S2A(optarg, conf.websocket_port))
+            {
+              ERROR("Invalid WebSocket port specified!");
+            }
+          }
+#endif
+        }
+        else if (strcmp("no-websocket-server", longopts[longindex].name) == 0)
+        {
+          conf.websocket_server = false;
         }
         else if (strcmp("follow", longopts[longindex].name) == 0)
         {
@@ -797,6 +834,11 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
       conf.path_to_gui_images
         = make_path_relative_to_current_dir(value, filename);
     }
+    else if (!strcmp(key, "WEBSOCKET_RESOURCE_DIRECTORY"))
+    {
+      conf.websocket_resource_directory
+        = make_path_relative_to_current_dir(value, filename);
+    }
     else if (!strcmp(key, "FREEWHEEL"))
     {
       if (!strcasecmp(value, "yes")) conf.freewheeling = true;
@@ -827,6 +869,19 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
       {
         ERROR("Invalid end-of-message character specified!");
       }
+      #endif
+    }
+    else if (!strcmp(key, "WEBSOCKET_INTERFACE"))
+    {
+      #ifdef ENABLE_WEBSOCKET_INTERFACE
+      if (!strcasecmp(value, "on")) conf.websocket_server= true;
+      else conf.websocket_server= false;
+      #endif
+    }
+    else if (!strcmp(key, "WEBSOCKET_PORT"))
+    {
+      #ifdef ENABLE_WEBSOCKET_INTERFACE
+      conf.websocket_port = atoi(value);
       #endif
     }
     else if (!strcmp(key, "FOLLOW"))

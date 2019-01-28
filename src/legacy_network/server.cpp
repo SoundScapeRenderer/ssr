@@ -32,7 +32,9 @@
 #include "ssr_global.h"  // for VERBOSE2()
 #include "legacy_xmlsceneprovider.h"  // for LegacyXmlSceneProvider
 
-ssr::Server::Server(api::Publisher& controller
+using ssr::legacy_network::Server;
+
+Server::Server(api::Publisher& controller
     , LegacyXmlSceneProvider& scene_provider
     , int port, char end_of_message_character)
   : _controller(controller)
@@ -44,13 +46,13 @@ ssr::Server::Server(api::Publisher& controller
   , _end_of_message_character(end_of_message_character)
 {}
 
-ssr::Server::~Server()
+Server::~Server()
 {
   this->stop();
 }
 
 void
-ssr::Server::start_accept()
+Server::start_accept()
 {
   Connection::pointer new_connection = Connection::create(_io_service
       , _controller, _end_of_message_character);
@@ -61,7 +63,7 @@ ssr::Server::start_accept()
 }
 
 void
-ssr::Server::handle_accept(Connection::pointer new_connection
+Server::handle_accept(Connection::pointer new_connection
     , const asio::error_code &error)
 {
   if (!error)
@@ -74,13 +76,13 @@ ssr::Server::handle_accept(Connection::pointer new_connection
 }
 
 void
-ssr::Server::start()
+Server::start()
 {
   _network_thread = new std::thread(std::bind(&Server::run, this));
 }
 
 void
-ssr::Server::stop()
+Server::stop()
 {
   VERBOSE2("Stopping network thread ...");
   if (_network_thread)
@@ -92,7 +94,7 @@ ssr::Server::stop()
 }
 
 void
-ssr::Server::run()
+Server::run()
 {
   start_accept();
   _io_service.run();

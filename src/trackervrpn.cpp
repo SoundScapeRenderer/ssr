@@ -141,6 +141,6 @@ ssr::TrackerVrpn::vrpn_change_handler(const vrpn_TRACKERCB t)
   double azi = std::atan2(2*(w*x+y*z),1-2*(x*x+y*y));
 
   _current_azimuth = azi;
-  _controller.take_control()->reference_offset_rotation(
+  _controller.take_control()->reference_rotation_offset(
       Orientation(-azi + _az_corr));
 }

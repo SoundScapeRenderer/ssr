@@ -38,7 +38,8 @@ nobase_dist_pkgdata_DATA = \
 	images/skip_back_button_pressed.png \
 	images/source_shadow.png \
 	images/ssr_logo_large.png \
-	images/ssr_logo.png
+	images/ssr_logo.png \
+	websocket_resources/ssr-test-client.html
 
 ## stuff that will end up either in $prefix/share/ssr/ or in $bundledir/Extras
 nobase_dist_extras_DATA = \
@@ -66,7 +67,8 @@ nobase_dist_extras_DATA = \
 
 # these will be removed on "make uninstall":
 UNINSTALL_PKGDATA = \
-	images
+	images \
+	websocket_resources
 
 UNINSTALL_EXTRASDATA = \
 	reproduction_setups \
