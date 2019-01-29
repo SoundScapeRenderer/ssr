@@ -1,5 +1,6 @@
 language: cpp
 sudo: required
+dist: xenial
 
 git:
   depth: 3
@@ -18,7 +19,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-8
-      dist: trusty
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     # linux with gcc 7
@@ -29,7 +29,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-7
-      dist: trusty
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     # linux with clang 7
@@ -37,12 +36,11 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test  # only needed for <= trusty
-            - llvm-toolchain-trusty-7
+            - ubuntu-toolchain-r-test  # for libstdc++
+            - llvm-toolchain-xenial-7
           packages:
             - clang-7
-            - libstdc++-8-dev  # only needed for <= trusty
-      dist: trusty
+            - libstdc++-8-dev
       env:
         - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7 && COMPILE_ASIO=1"
     # linux with clang 6.0
@@ -50,33 +48,16 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test  # only needed for <= trusty
-            - llvm-toolchain-trusty-6.0
+            - ubuntu-toolchain-r-test  # for libstdc++
+            - llvm-toolchain-xenial-6.0
           packages:
             - clang-6.0
-            - libstdc++-8-dev  # only needed for <= trusty
-      dist: trusty
+            - libstdc++-8-dev
       env:
         - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0 && COMPILE_ASIO=1"
-    # linux with clang 5.0
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test  # only needed for <= trusty
-            - llvm-toolchain-trusty-5.0
-          packages:
-            - clang-5.0
-            - libstdc++-7-dev  # only needed for <= trusty
-      dist: trusty
-      env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0 && COMPILE_ASIO=1"
     # osx with xcode10.1/clang
     - os: osx
       osx_image: xcode10.1
-    # osx with xcode9.4/clang
-    - os: osx
-      osx_image: xcode9.4
 
 before_install:
   - eval "${MATRIX_EVAL}"

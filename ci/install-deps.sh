@@ -24,6 +24,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   sudo apt-get install -y \
     libasio-dev \
     qt5-default \
+    libqt5opengl5-dev \
     libecasoundc-dev \
     doxygen \
     ecasound \
