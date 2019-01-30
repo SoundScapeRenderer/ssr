@@ -40,9 +40,9 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
     , const std::string& address)
   : vrpn_Tracker_Remote(address.c_str())
   , _controller(controller)
-  , _stopped(false)
   , _az_corr(0.0f)
   , _thread_id(0)
+  , _stop_thread(false)
 {
   VERBOSE("Starting VRPN tracker \"" << address << "\"");
 
@@ -61,7 +61,8 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
 
 ssr::TrackerVrpn::~TrackerVrpn()
 {
-  if (_thread_id) _stop();
+  if (_thread_id == _tracker_thread.get_id()) _stop();
+  // Release any ports?
 }
 
 ssr::TrackerVrpn::ptr_t
@@ -78,46 +79,6 @@ ssr::TrackerVrpn::create(api::Publisher& controller, const std::string& ports)
   }
   return temp;
 }
-
-void
-ssr::TrackerVrpn::calibrate()
-{
-  _az_corr = _current_azimuth;
-}
-
-void
-ssr::TrackerVrpn::_start()
-{
-  pthread_create(&_thread_id, nullptr, _thread, this);
-  VERBOSE("Starting tracker ...");
-}
-
-void
-ssr::TrackerVrpn::_stop()
-{
-  _stopped = true;
-  pthread_join(_thread_id, 0);
-}
-
-void*
-ssr::TrackerVrpn::_thread(void *arg)
-{
-  return static_cast<TrackerVrpn*>(arg)->thread(nullptr);
-}
-
-void*
-ssr::TrackerVrpn::thread(void *arg)
-{
-  while (!_stopped)
-  {
-    this->mainloop();
-
-    // TODO: make this configurable:
-    vrpn_SleepMsecs(10);
-  };
-  return arg;
-}
-
 void VRPN_CALLBACK
 ssr::TrackerVrpn::_vrpn_change_handler(void* arg, const vrpn_TRACKERCB t)
 {
@@ -143,4 +104,45 @@ ssr::TrackerVrpn::vrpn_change_handler(const vrpn_TRACKERCB t)
   _current_azimuth = azi;
   _controller.take_control()->reference_offset_rotation(
       Orientation(-azi + _az_corr));
+}
+
+void
+ssr::TrackerVrpn::calibrate()
+{
+  _az_corr = _current_azimuth;
+}
+
+void
+ssr::TrackerVrpn::_start()
+{
+  // create thread
+  _tracker_thread = std::thread(_thread_starter, this);
+  _thread_id = _tracker_thread.get_id();
+  VERBOSE("Starting tracker ...");
+}
+
+void
+ssr::TrackerVrpn::_stop()
+{
+  _stop_thread = true;
+  _tracker_thread.join();
+}
+
+void*
+ssr::TrackerPolhemus::_thread_starter(void *arg)
+{
+  return reinterpret_cast<TrackerPolhemus*> (arg)->_thread(nullptr);
+}
+
+void*
+ssr::TrackerPolhemus::_thread(void *arg)
+{
+  while (!_stop_thread)
+  {
+    this->mainloop();
+
+    // TODO: make this configurable:
+    vrpn_SleepMsecs(10);
+  };
+  return arg;
 }

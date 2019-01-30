@@ -30,7 +30,7 @@
 #ifndef SSR_TRACKERVRPN_H
 #define SSR_TRACKERVRPN_H
 
-#include <pthread.h>
+#include <thread>
 #include <string>
 #include <memory>  // for std::unique_ptr
 
@@ -66,20 +66,23 @@ class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
 
     double _current_azimuth;
 
-    volatile bool _stopped; ///< stops the tracking thread
-
     float _az_corr; ///< correction of the azimuth due to calibration
-    void _start(); ///< start the tracking thread
-    void _stop();  ///< stop the tracking thread
-    // thread related stuff
-    pthread_t _thread_id;
-    static void* _thread(void*);
-    void* thread(void*);
 
     static void VRPN_CALLBACK _vrpn_change_handler(void* arg
         , const vrpn_TRACKERCB t);
 
     void vrpn_change_handler(const vrpn_TRACKERCB t);
+
+    // thread related stuff
+    std::thread _tracker_thread;
+    std::thread::id _thread_id;
+
+    volatile bool _stop_thread; // thread stop flag
+    void _start(); ///< start the tracking thread
+    void _stop();  ///< stop the tracking thread
+
+    static void* _thread_starter(void*);
+    void* _thread(void*);  // thread main function
 };
 
 }  // namespace ssr

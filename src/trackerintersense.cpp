@@ -46,8 +46,8 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
   : Tracker()
   , _controller(controller)
   , _read_interval(read_interval)
-  , _stopped(false)
   , _thread_id(0)
+  , _stop_thread(false)
 {
   // suppress output of libisense.so
   //int stdout_fileno = fileno(stdout);
@@ -133,7 +133,7 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
 ssr::TrackerInterSense::~TrackerInterSense()
 {
   // if thread was started
-  if (_thread_id) _stop();
+  if (_thread_id == _tracker_thread.get_id()) _stop();
   ISD_CloseTracker(_tracker_h);
 }
 
@@ -158,28 +158,29 @@ void ssr::TrackerInterSense::calibrate()
   ISD_ResetHeading(_tracker_h, 1);
 }
 
-void ssr::TrackerInterSense::_start()
+void
+ssr::TrackerPolhemus::_start()
 {
   // create thread
-  pthread_create(&_thread_id , nullptr, _thread, this);
-  WARNING("Tracker started.");
+  _tracker_thread = std::thread(_thread_starter, this);
+  _thread_id = _tracker_thread.get_id();
+  VERBOSE("Starting tracker ...");
 }
 
-void ssr::TrackerInterSense::_stop()
+void
+ssr::TrackerPolhemus::_stop()
 {
-  // dummy
-  void *thread_exit_status;
+  _stop_thread = true;
+  _tracker_thread.join();
+}
 
-  _stopped = true;
-  pthread_join(_thread_id , &thread_exit_status);
+void*
+ssr::TrackerPolhemus::_thread_starter(void *arg)
+{
+  return reinterpret_cast<TrackerInterSense*> (arg)->_thread(nullptr);
 }
 
 void* ssr::TrackerInterSense::_thread(void *arg)
-{
-  return reinterpret_cast<TrackerInterSense*> (arg)->thread(nullptr);
-}
-
-void* ssr::TrackerInterSense::thread(void *arg)
 {
 #ifdef HAVE_INTERSENSE_404
   ISD_TRACKING_DATA_TYPE tracker_data;
@@ -187,7 +188,7 @@ void* ssr::TrackerInterSense::thread(void *arg)
   ISD_TRACKER_DATA_TYPE tracker_data;
 #endif
 
-  while(!_stopped)
+  while(!_stop_thread)
   {
 #ifdef HAVE_INTERSENSE_404
     ISD_GetTrackingData(_tracker_h, &tracker_data);

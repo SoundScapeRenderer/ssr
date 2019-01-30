@@ -15,16 +15,18 @@
 #ifndef RAZORAHRS_H
 #define RAZORAHRS_H
 
+#include <thread>
 #include <string>
 #include <memory>
 #include <functional>
 #include <stdexcept>
 #include <sstream>
 #include <unistd.h>  // for write(), close(), ...
-#include <termios.h> // for cfsetispeed(), ...
+#include <termios.h> // for speed_t, cfsetispeed(), ...
 #include <fcntl.h>   // for open(), ...
 #include <errno.h>
 #include <sys/time.h>
+
 
 // Razor AHRS tracker
 class RazorAHRS
@@ -56,7 +58,7 @@ class RazorAHRS
     bool _init_razor();
 
     // timing
-    long elapsed_ms(struct timeval start, struct timeval end)
+    inline long elapsed_ms(struct timeval start, struct timeval end)
     {
       return static_cast<long> ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000);
     }
@@ -77,52 +79,27 @@ class RazorAHRS
     DataCallbackFunc data;
     ErrorCallbackFunc error;
 
-    /* threading stuff */
-    pthread_t _thread_id;
-    void* _thread(void*);  // thread main function
-    volatile bool _stop_thread; // thred stop flag
-
-    // start the tracking thread
-    void _start_io_thread()
-    {
-      // create thread
-      pthread_create(&_thread_id , nullptr, _thread_starter, this);
-    }
-
-    // stop the tracking thread
-    void _stop_io_thread()
-    {
-      void *thread_exit_status; // dummy
-      _stop_thread = true;
-      pthread_join(_thread_id , &thread_exit_status);
-    }
-
-    static void* _thread_starter(void *arg)
-    {
-      return reinterpret_cast<RazorAHRS*> (arg)->_thread(nullptr);
-    }
-
-    std::string to_str(int i)
+    inline std::string to_str(int i)
     {
       std::stringstream ss;
       ss << i;
       return ss.str();
     }
 
-    bool _big_endian()
+    inline bool _big_endian()
     {
         const int num = 1;
         return (*(reinterpret_cast<const char*> (&num))) != 1;
     }
 
     // swap endianess of int
-    void _swap_endianess(int &i)
+    inline void _swap_endianess(int &i)
     {
       i = (i >> 24) | ((i << 8) & 0x00FF0000) | ((i >> 8) & 0x0000FF00) | (i << 24);
     }
 
     // swap endianess of float
-    void _swap_endianess(float &f)
+    inline void _swap_endianess(float &f)
     {
       float swapped;
       char *f_as_char = reinterpret_cast<char*> (&f);
@@ -138,18 +115,29 @@ class RazorAHRS
     }
 
     // swap endianess of int array
-    void _swap_endianess(int arr[], int arr_length)
+    inline void _swap_endianess(int arr[], int arr_length)
     {
       for (int i = 0; i < arr_length; i++)
         _swap_endianess(arr[i]);
     }
 
     // swap endianess of float array
-    void _swap_endianess(float arr[], int arr_length)
+    inline void _swap_endianess(float arr[], int arr_length)
     {
       for (int i = 0; i < arr_length; i++)
         _swap_endianess(arr[i]);
     }
+
+    // thread related stuff
+    std::thread _tracker_thread;
+    std::thread::id _thread_id;
+
+    volatile bool _stop_thread; // thread stop flag
+    void _start(); ///< start the tracking thread
+    void _stop();  ///< stop the tracking thread
+
+    static void* _thread_starter(void*);
+    void* _thread(void*);  // thread main function
 };
 
 #endif // RAZORAHRS_H

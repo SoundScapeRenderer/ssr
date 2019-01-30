@@ -30,7 +30,7 @@
 #ifndef SSR_TRACKERPOLHEMUS_H
 #define SSR_TRACKERPOLHEMUS_H
 
-#include <pthread.h>
+#include <thread>
 #include <string>
 #include <memory>
 #include <stdexcept> // for std::runtime_error
@@ -85,19 +85,20 @@ class TrackerPolhemus : public Tracker
     int _tracker_port;
     int _open_serial_port(const char *portname);
 
-    volatile bool _stopped; ///< stops the tracking thread
-
     float _az_corr; ///< correction of the azimuth due to calibration
 
+    std::string::size_type _line_size;
+
+    // thread related stuff
+    std::thread _tracker_thread;
+    std::thread::id _thread_id;
+
+    volatile bool _stop_thread; // thread stop flag
     void _start(); ///< start the tracking thread
     void _stop();  ///< stop the tracking thread
 
-    // thread related stuff
-    pthread_t _thread_id;
-    static void* _thread(void*);
-    void* thread(void*);
-
-    std::string::size_type _line_size;
+    static void* _thread_starter(void*);
+    void* _thread(void*);  // thread main function
 };
 
 }  // namespace ssr
