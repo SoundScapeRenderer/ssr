@@ -48,7 +48,7 @@ ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
   : Tracker()
   , _controller(controller)
   , _az_corr(0.0f)
-  , _thread_id(0)
+  , _thread_id(std::this_thread::get_id())
   , _stop_thread(false)
 {
   if (ports == "")

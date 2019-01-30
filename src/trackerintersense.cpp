@@ -46,7 +46,7 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
   : Tracker()
   , _controller(controller)
   , _read_interval(read_interval)
-  , _thread_id(0)
+  , _thread_id(std::this_thread::get_id())
   , _stop_thread(false)
 {
   // suppress output of libisense.so
