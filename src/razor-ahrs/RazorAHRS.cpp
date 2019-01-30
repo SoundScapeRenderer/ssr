@@ -25,7 +25,7 @@ RazorAHRS::RazorAHRS(const std::string &port, DataCallbackFunc data_func, ErrorC
     , _connect_timeout_ms(connect_timeout_ms)
     , data(data_func)
     , error(error_func)
-    , _thread_id(std::this_thread::get_id())
+    , _thread_id()
     , _stop_thread(false)
 {
   // check data type sizes

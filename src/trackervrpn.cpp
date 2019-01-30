@@ -41,7 +41,7 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
   : vrpn_Tracker_Remote(address.c_str())
   , _controller(controller)
   , _az_corr(0.0f)
-  , _thread_id(std::this_thread::get_id())
+  , _thread_id()
   , _stop_thread(false)
 {
   VERBOSE("Starting VRPN tracker \"" << address << "\"");
