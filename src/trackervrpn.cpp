@@ -129,13 +129,13 @@ ssr::TrackerVrpn::_stop()
 }
 
 void*
-ssr::TrackerPolhemus::_thread_starter(void *arg)
+ssr::TrackerVrpn::_thread_starter(void *arg)
 {
-  return reinterpret_cast<TrackerPolhemus*> (arg)->_thread(nullptr);
+  return reinterpret_cast<TrackerVrpn*> (arg)->_thread(nullptr);
 }
 
 void*
-ssr::TrackerPolhemus::_thread(void *arg)
+ssr::TrackerVrpn::_thread(void *arg)
 {
   while (!_stop_thread)
   {

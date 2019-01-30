@@ -159,7 +159,7 @@ void ssr::TrackerInterSense::calibrate()
 }
 
 void
-ssr::TrackerPolhemus::_start()
+ssr::TrackerInterSense::_start()
 {
   // create thread
   _tracker_thread = std::thread(_thread_starter, this);
@@ -168,14 +168,14 @@ ssr::TrackerPolhemus::_start()
 }
 
 void
-ssr::TrackerPolhemus::_stop()
+ssr::TrackerInterSense::_stop()
 {
   _stop_thread = true;
   _tracker_thread.join();
 }
 
 void*
-ssr::TrackerPolhemus::_thread_starter(void *arg)
+ssr::TrackerInterSense::_thread_starter(void *arg)
 {
   return reinterpret_cast<TrackerInterSense*> (arg)->_thread(nullptr);
 }
