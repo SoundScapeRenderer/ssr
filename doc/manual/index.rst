@@ -34,3 +34,4 @@ SoundScape Renderer User Manual
    renderers
    gui
    network
+   api

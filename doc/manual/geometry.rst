@@ -1,0 +1,4 @@
+Geometry
+========
+
+.. doxygenfile:: geometry.h

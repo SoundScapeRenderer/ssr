@@ -25,10 +25,18 @@ from subprocess import check_output
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.mathjax']
+extensions = [
+    'sphinx.ext.mathjax',
+    'breathe',  # for Doxygen integration
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+breathe_projects = {'ssr': '../doxygen/xml'}
+breathe_default_project = 'ssr'
+breathe_domain_by_extension = {'h': 'cpp'}
+breathe_default_members = 'members', 'undoc-members'
 
 # The suffix of source filenames.
 source_suffix = '.rst'
