@@ -64,12 +64,16 @@ struct LegacyLoudspeaker : DirectionalPoint
   LegacyLoudspeaker(const ssr::Loudspeaker& other)
     : LegacyLoudspeaker{{other.position, other.rotation}
         , other.model == "subwoofer" ? subwoofer : normal}
-  {}
+  {
+    this->rotate(-90);
+  }
 
   operator ssr::Loudspeaker()
   {
-    return {this->position, this->orientation
-      , this->model == subwoofer ? "subwoofer" : ""};
+    auto ls{*this};
+    ls.rotate(90);
+    return {ls.position, ls.orientation
+      , ls.model == subwoofer ? "subwoofer" : ""};
   }
 
   model_t model; ///< type of loudspeaker
