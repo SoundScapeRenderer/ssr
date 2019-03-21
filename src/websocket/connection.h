@@ -785,6 +785,16 @@ Connection::on_message(message_ptr msg)
           }
           control->transport_locate_frames(member.value.GetInt());
         }
+        else if (member.name == "tracker")
+        {
+          if (!member.value.IsString()
+              || member.value.GetString() != std::string("reset"))
+          {
+            ERROR("Invalid value for tracker: " << member.value);
+            return;
+          }
+          control->reset_tracker();
+        }
         else
         {
           ERROR("Unknown property: " << member.name);
@@ -1092,7 +1102,6 @@ Connection::on_message(message_ptr msg)
     }
     else
     {
-      // TODO: calibrate-tracker
       ERROR("Unknown command: " << command);
       return;
     }
