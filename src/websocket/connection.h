@@ -758,6 +758,33 @@ Connection::on_message(message_ptr msg)
           if (!rot) { return; }
           control->reference_rotation_offset(*rot);
         }
+        // Further events
+        else if (member.name == "transport-rolling")
+        {
+          if (!member.value.IsBool())
+          {
+            ERROR("transport-rolling needs a boolean value, not "
+                << member.value);
+            return;
+          }
+          if (member.value.GetBool())
+          {
+            control->transport_start();
+          }
+          else
+          {
+            control->transport_stop();
+          }
+        }
+        else if (member.name == "frame")
+        {
+          if (!member.value.IsInt())
+          {
+            ERROR("Invalid transport frame: " << member.value);
+            return;
+          }
+          control->transport_locate_frames(member.value.GetInt());
+        }
         else
         {
           ERROR("Unknown property: " << member.name);
@@ -1065,7 +1092,7 @@ Connection::on_message(message_ptr msg)
     }
     else
     {
-      // TODO: transport start/stop/locate, calibrate-tracker
+      // TODO: calibrate-tracker
       ERROR("Unknown command: " << command);
       return;
     }
