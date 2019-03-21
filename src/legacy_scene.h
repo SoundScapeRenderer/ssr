@@ -325,6 +325,11 @@ class LegacyScene : public api::SceneControlEvents
 
     // from SceneInformationEvents
 
+    void sample_rate(int rate) override
+    {
+      _sample_rate = rate;
+    }
+
     void new_source(id_t id) override
     {
       auto [iter, inserted] = _source_id_map.try_emplace(id, _next_source_id);
@@ -402,11 +407,6 @@ class LegacyScene : public api::SceneControlEvents
     void renderer_name(const std::string& name) override
     {
       _renderer_name = name;
-    }
-
-    void sample_rate(int rate) override
-    {
-      _sample_rate = rate;
     }
 
     void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override

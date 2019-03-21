@@ -60,7 +60,6 @@ public:
   void get_data(api::RendererInformationEvents* subscriber)
   {
     subscriber->renderer_name(_renderer_name);
-    subscriber->sample_rate(_sample_rate);
     subscriber->loudspeakers(_loudspeakers);
   }
 
@@ -198,11 +197,6 @@ private:
     _renderer_name = name;
   }
 
-  void sample_rate(int rate) override
-  {
-    _sample_rate = rate;
-  }
-
   void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
   {
     _loudspeakers = loudspeakers;
@@ -214,7 +208,6 @@ private:
   Pos _reference_position_offset;
   Rot _reference_rotation_offset;
   std::string _renderer_name;
-  int _sample_rate;
   std::vector<Loudspeaker> _loudspeakers;
 };
 

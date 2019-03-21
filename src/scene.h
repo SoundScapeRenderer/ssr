@@ -124,6 +124,7 @@ public:
 
   void get_data(SceneInformationEvents* subscriber) const
   {
+    subscriber->sample_rate(_sample_rate);
     subscriber->transport_rolling(_transport_is_rolling);
     this->for_each_source([subscriber](auto id, auto& source) {
         // Sources have to be created first, then they can be updated
@@ -233,6 +234,11 @@ private:
 
   // SceneInformationEvents
 
+  void sample_rate(int rate) override
+  {
+    _sample_rate = rate;
+  }
+
   void new_source(id_t id) override
   {
     VERBOSE("Adding source \"" << id << "\" to source map");
@@ -281,6 +287,7 @@ private:
 
   bool _auto_rotate_sources{true};
   bool _transport_is_rolling{false};
+  int _sample_rate{0};
 
   // TODO: this should be removed at some point:
   friend class LegacySceneWrapper;

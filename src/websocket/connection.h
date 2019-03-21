@@ -265,6 +265,11 @@ private:
 
   // SceneInformationEvents
 
+  void sample_rate(int rate) override
+  {
+    _update_object(_state, "sample-rate", rate);
+  }
+
   void new_source(id_t id) override
   {
     _add_member(_new_source, id, json::Value{json::kObjectType});
@@ -303,11 +308,6 @@ private:
   void renderer_name(const std::string& name) override
   {
     _update_object(_state, "renderer-name", name);
-  }
-
-  void sample_rate(int rate) override
-  {
-    _update_object(_state, "sample-rate", rate);
   }
 
   void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override

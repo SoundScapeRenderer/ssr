@@ -159,6 +159,11 @@ struct SceneInformationEvents
 {
   virtual ~SceneInformationEvents() = default;
 
+  /// Sampling rate of the scene/transport in Hertz.
+  /// This is needed to convert api::TransportFrameEvents::transport_frame()
+  /// and audio file durations to seconds.
+  virtual void sample_rate(int rate) = 0;
+
   /// Publish creation of a new source.
   /// @param id ID of the new source
   virtual void new_source(id_t id) = 0;
@@ -203,9 +208,6 @@ struct RendererInformationEvents
   /// Name of the renderer.
   virtual void renderer_name(const std::string& name) = 0;
 
-  /// Sampling rate of the renderer in Hertz.
-  virtual void sample_rate(int rate) = 0;
-
   /// List of loudspeakers.  Doesn't change during the lifetime of a renderer.
   virtual void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) = 0;
 };
@@ -221,8 +223,9 @@ struct TransportFrameEvents
 
   /// Update transport frame.
   /// Whether or not the transport is "rolling" can be found out with
-  /// SceneInformationEvents::transport_rolling().
-  /// @param frame current transport time in frames
+  /// api::SceneInformationEvents::transport_rolling().
+  /// @param frame current transport time in frames.
+  ///   Use api::SceneInformationEvents::sample_rate() to convert to seconds.
   /// @see http://www.jackaudio.org/files/docs/html/group__TransportControl.html
   virtual void transport_frame(uint32_t frame) = 0;
 };

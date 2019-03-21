@@ -479,9 +479,6 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 
   _renderer.load_reproduction_setup();
 
-  _publish(&api::RendererInformationEvents::sample_rate
-      , _renderer.sample_rate());
-
   _publish(&api::RendererInformationEvents::loudspeakers, _get_loudspeakers());
 
 #ifdef ENABLE_ECASOUND
@@ -492,6 +489,8 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   {
     _publish(&api::SceneControlEvents::auto_rotate_sources
         , _conf.auto_rotate_sources);
+    _publish(&api::SceneInformationEvents::sample_rate
+        , _renderer.sample_rate());
     bool is_rolling;
     std::tie(is_rolling, std::ignore) = _renderer.get_transport_state();
     // This is may not be necessary since the renderer continuously sends this?
@@ -1250,6 +1249,11 @@ public:
   // SceneControlEvents are inherited from CommonInterface
 
   // SceneInformationEvents
+
+  void sample_rate(int rate) override
+  {
+    _controller._publish(&api::SceneInformationEvents::sample_rate, rate);
+  }
 
   void new_source(id_t id) override
   {
