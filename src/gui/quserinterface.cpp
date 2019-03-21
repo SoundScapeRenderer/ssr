@@ -1193,7 +1193,7 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
                      // change selected sources level
 		     else _change_volume_of_selected_sources(-1.0f);
                      break;
-  case Qt::Key_Return: {_controller.take_control()->calibrate_tracker(); break; }
+  case Qt::Key_Return: {_controller.take_control()->reset_tracker(); break; }
   case Qt::Key_Control: {_ctrl_pressed = true; break; }
   case Qt::Key_Shift: {_shift_pressed = true; break; }
   case Qt::Key_Alt: {_alt_pressed = true; break; }

@@ -350,7 +350,7 @@ struct Controller : virtual SceneControlEvents
 
   /// Reset the tracker (if one is connected).
   /// @todo There should probably be a more fancy tracker interface ...?
-  virtual void calibrate_tracker() = 0;
+  virtual void reset_tracker() = 0;
 
   /// Get string ID given one-based source number.
   /// If the source number is @c 0 or higher than the number of sources, an

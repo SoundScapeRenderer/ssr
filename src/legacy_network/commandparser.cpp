@@ -469,7 +469,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       std::string tracker = i.get_attribute("tracker");
       if (tracker == "reset")
       {
-        control->calibrate_tracker();
+        control->reset_tracker();
       }
       else if (tracker != "")
       {

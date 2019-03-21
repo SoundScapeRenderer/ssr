@@ -720,7 +720,7 @@ bool Controller<Renderer>::run()
       {
         case 'c':
           std::cout << "Calibrating client.\n";
-          this->take_control()->calibrate_tracker();
+          this->take_control()->reset_tracker();
           break;
         case 'p':
           this->take_control()->transport_start();
@@ -1213,7 +1213,7 @@ public:
     }
   }
 
-  void calibrate_tracker() override
+  void reset_tracker() override
   {
     // NB: This is not sent to the leader
     _controller._calibrate_client();
