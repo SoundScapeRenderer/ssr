@@ -193,7 +193,7 @@ class Controller : public api::Publisher
 
     void _calibrate_client();
 
-    void _transport_locate(float time);
+    void _transport_locate_frames(uint32_t time);
 
     template<typename Events>
     bool _subscribe(Events* subscriber)
@@ -694,7 +694,7 @@ bool Controller<Renderer>::run()
     control->processing(true);
     if (!_conf.follow)
     {
-      control->transport_locate(0.0f);
+      control->transport_locate_frames(0);
     }
   }
 
@@ -729,7 +729,7 @@ bool Controller<Renderer>::run()
           keep_running = false;
           break;
         case 'r':
-          this->take_control()->transport_locate(0.0f);
+          this->take_control()->transport_locate_frames(0);
           break;
         case 's':
           this->take_control()->transport_stop();
@@ -1186,15 +1186,30 @@ public:
     }
   }
 
-  void transport_locate(float time) override
+  void transport_locate_frames(uint32_t time) override
   {
     if constexpr (_is_leader)
     {
-      _controller._transport_locate(time);
+      _controller._transport_locate_frames(time);
     }
     else
     {
-      _controller._call_leader(&api::Controller::transport_locate, time);
+      _controller._call_leader(&api::Controller::transport_locate_frames, time);
+    }
+  }
+
+  void transport_locate_seconds(float time) override
+  {
+    if constexpr (_is_leader)
+    {
+      auto frames = static_cast<uint32_t>(
+          time * _controller._renderer.sample_rate());
+      _controller._transport_locate_frames(frames);
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::transport_locate_seconds
+          , time);
     }
   }
 
@@ -1686,7 +1701,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       return false;
     }
   }
-  _transport_locate(0);  // go to beginning of audio files
+  _transport_locate_frames(0);  // go to beginning of audio files
   return true;
 }
 
@@ -1923,10 +1938,9 @@ Controller<Renderer>::_calibrate_client()
 
 template<typename Renderer>
 void
-Controller<Renderer>::_transport_locate(float time)
+Controller<Renderer>::_transport_locate_frames(uint32_t time)
 {
-  _renderer.transport_locate(
-      static_cast<uint32_t>(time * _renderer.sample_rate()));
+  _renderer.transport_locate(time);
 }
 
 #ifdef ENABLE_ECASOUND

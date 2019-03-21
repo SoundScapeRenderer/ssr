@@ -284,7 +284,7 @@ void ssr::QUserInterface::_transport_locate(float time)
 {
   if (time >= 0.0f)
   {
-    _controller.take_control()->transport_locate(time);
+    _controller.take_control()->transport_locate_seconds(time);
   }
   else
   {

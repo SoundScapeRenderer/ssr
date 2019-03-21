@@ -438,7 +438,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       }
       else if (transport == "rewind")
       {
-        control->transport_locate(0);
+        control->transport_locate_frames(0);
       }
       else if (transport != "")
       {
@@ -456,7 +456,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       float time;
       if (string2time(seek, time))
       {
-        control->transport_locate(time);
+        control->transport_locate_seconds(time);
       }
       else if (seek != "")
       {

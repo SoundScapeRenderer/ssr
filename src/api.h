@@ -337,9 +337,16 @@ struct Controller : virtual SceneControlEvents
   virtual void transport_stop() = 0;
 
   /// Skip the scene to a specified instant of time.
-  /// @param time instant of time in seconds.
+  /// @param time instant of time in frames.
+  ///   Use api::SceneInformationEvents::sample_rate() to convert from seconds.
   /// @see TransportFrameEvents
-  virtual void transport_locate(float time) = 0;
+  virtual void transport_locate_frames(uint32_t time) = 0;
+
+  /// Skip the scene to a specified instant of time.
+  /// @param time instant of time in seconds.
+  ///   Use api::SceneInformationEvents::sample_rate() to convert from frames.
+  /// @see TransportFrameEvents
+  virtual void transport_locate_seconds(float time) = 0;
 
   /// Reset the tracker (if one is connected).
   /// @todo There should probably be a more fancy tracker interface ...?
