@@ -23,12 +23,6 @@ AM_CPPFLAGS =
 ## Add Audio Processing Framework (APF) path
 AM_CPPFLAGS += -I$(srcdir)/../apf
 
-## Add GML path
-AM_CPPFLAGS += -I$(srcdir)/../gml/include
-
-## Add RapidJSON path
-AM_CPPFLAGS += -I$(srcdir)/../rapidjson/include
-
 if ENABLE_APP_BUNDLE
 AM_CPPFLAGS += -DSSR_DATA_DIR=\"SoundScapeRenderer.app/Contents/Resources\"
 else
