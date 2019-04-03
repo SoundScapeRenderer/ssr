@@ -141,4 +141,32 @@ ssr::TrackerVrpn::_thread()
     // TODO: make this configurable:
     vrpn_SleepMsecs(10);
   };
+  return arg;
+}
+
+void VRPN_CALLBACK
+ssr::TrackerVrpn::_vrpn_change_handler(void* arg, const vrpn_TRACKERCB t)
+{
+  return static_cast<TrackerVrpn*>(arg)->vrpn_change_handler(t);
+}
+
+void
+ssr::TrackerVrpn::vrpn_change_handler(const vrpn_TRACKERCB t)
+{
+  // TODO: check t.sensor for sensor number!
+
+  // get quaternions information
+  double w = t.quat[0];
+  double x = t.quat[1];
+  double y = t.quat[2];
+  double z = t.quat[3];
+
+  // TODO: store _az_corr as quaternion and directly set 3D rotation
+
+  // calculate yaw (azimuth) (in radians) from quaternions
+  double azi = std::atan2(2*(w*x+y*z),1-2*(x*x+y*y));
+
+  _current_azimuth = azi;
+  _controller.take_control()->reference_offset_rotation(
+      Orientation(-azi + _az_corr + 90.0f));
 }

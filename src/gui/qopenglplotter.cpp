@@ -382,8 +382,8 @@ void ssr::QOpenGLPlotter::_draw_reference()
 
     glTranslatef(0.03f, -0.03f, 0.0f);
 
-    // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
+    // rotate according to reference offset position
+    glRotatef(90.0f + _scene.get_reference_offset().orientation.azimuth, 0.0f, 0.0f, 1.0f);
 
     glBindTexture(GL_TEXTURE_2D, _listener_shadow_texture);
 
@@ -396,8 +396,8 @@ void ssr::QOpenGLPlotter::_draw_reference()
 
     glPopMatrix();
 
-    // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
+    // rotate according to reference offset position
+    glRotatef(90.0f + _scene.get_reference_offset().orientation.azimuth, 0.0f, 0.0f, 1.0f);
 
     glBindTexture(GL_TEXTURE_2D, _listener_texture);
 

@@ -73,8 +73,8 @@ class TrackerRazor : public Tracker
         calibrate();
         _init_az_corr = false;
       }
-      _controller.take_control()->reference_rotation_offset(
-          Orientation(-_current_azimuth + _az_corr));
+      _controller.take_control()->reference_offset_rotation(
+          Orientation(-_current_azimuth + _az_corr + 90.0f));
     }
     void on_error(const std::string &msg) { ERROR("Razor AHRS: " << msg); }
 
