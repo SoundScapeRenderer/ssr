@@ -1152,6 +1152,11 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
                   {
                     _save_file_as();
                   }
+                  else if ( event->modifiers() == Qt::ShiftModifier )
+                  {
+                    _unsolo_all_sources();
+                    _toggle_solo_state_of_selected_sources();
+                  }
                   else if (_selected_sources_map.empty())
                   {
                     _unsolo_all_sources();

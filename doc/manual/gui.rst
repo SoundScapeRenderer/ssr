@@ -300,6 +300,8 @@ Sec. :ref:`Running SSR <running_ssr>`).
 -  ``s``: if no source selected: unsolos all potentially soloed sources,
    otherwise: solos selected sound sources.
 
+-  ``Shift+s``: solo in place, unsolos all other sources.
+
 -  ``Ctrl+s``: opens the *save scene as…* dialog
 
 -  ``F11``: toggles window fullscreen state
