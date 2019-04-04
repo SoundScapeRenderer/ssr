@@ -30,6 +30,7 @@
 #ifndef SSR_TRACKERPOLHEMUS_H
 #define SSR_TRACKERPOLHEMUS_H
 
+#include <atomic>
 #include <thread>
 #include <string>
 #include <memory>
@@ -91,14 +92,12 @@ class TrackerPolhemus : public Tracker
 
     // thread related stuff
     std::thread _tracker_thread;
-    std::thread::id _thread_id;
 
-    volatile bool _stop_thread; // thread stop flag
+    std::atomic<bool> _stop_thread; // thread stop flag
     void _start(); ///< start the tracking thread
     void _stop();  ///< stop the tracking thread
 
-    static void* _thread_starter(void*);
-    void* _thread(void*);  // thread main function
+    void _thread();  // thread main function
 };
 
 }  // namespace ssr

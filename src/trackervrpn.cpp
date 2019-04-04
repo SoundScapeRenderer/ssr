@@ -41,7 +41,6 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
   : vrpn_Tracker_Remote(address.c_str())
   , _controller(controller)
   , _az_corr(0.0f)
-  , _thread_id()
   , _stop_thread(false)
 {
   VERBOSE("Starting VRPN tracker \"" << address << "\"");
@@ -61,7 +60,8 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
 
 ssr::TrackerVrpn::~TrackerVrpn()
 {
-  if (_thread_id == _tracker_thread.get_id()) _stop();
+  // stop thread
+  _stop();
   // Release any ports?
 }
 
@@ -116,8 +116,7 @@ void
 ssr::TrackerVrpn::_start()
 {
   // create thread
-  _tracker_thread = std::thread(_thread_starter, this);
-  _thread_id = _tracker_thread.get_id();
+  _tracker_thread = std::thread(&ssr::TrackerVrpn::_thread, this);
   VERBOSE("Starting tracker ...");
 }
 
@@ -125,17 +124,15 @@ void
 ssr::TrackerVrpn::_stop()
 {
   _stop_thread = true;
-  _tracker_thread.join();
+  if (_tracker_thread.joinable())
+  {
+    VERBOSE2("Stopping tracker...");
+    _tracker_thread.join();
+  }
 }
 
-void*
-ssr::TrackerVrpn::_thread_starter(void *arg)
-{
-  return reinterpret_cast<TrackerVrpn*> (arg)->_thread(nullptr);
-}
-
-void*
-ssr::TrackerVrpn::_thread(void *arg)
+void
+ssr::TrackerVrpn::_thread()
 {
   while (!_stop_thread)
   {
@@ -144,5 +141,4 @@ ssr::TrackerVrpn::_thread(void *arg)
     // TODO: make this configurable:
     vrpn_SleepMsecs(10);
   };
-  return arg;
 }

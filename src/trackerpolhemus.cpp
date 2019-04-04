@@ -48,7 +48,6 @@ ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
   : Tracker()
   , _controller(controller)
   , _az_corr(0.0f)
-  , _thread_id()
   , _stop_thread(false)
 {
   if (ports == "")
@@ -147,8 +146,8 @@ ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
 
 ssr::TrackerPolhemus::~TrackerPolhemus()
 {
-  // if thread was started
-  if (_thread_id == _tracker_thread.get_id()) _stop();
+  // stop thread
+  _stop();
   close(_tracker_port);
 }
 
@@ -200,8 +199,7 @@ void
 ssr::TrackerPolhemus::_start()
 {
   // create thread
-  _tracker_thread = std::thread(_thread_starter, this);
-  _thread_id = _tracker_thread.get_id();
+  _tracker_thread = std::thread(&ssr::TrackerPolhemus::_thread, this);
   VERBOSE("Starting tracker ...");
 }
 
@@ -209,17 +207,15 @@ void
 ssr::TrackerPolhemus::_stop()
 {
   _stop_thread = true;
-  _tracker_thread.join();
+  if (_tracker_thread.joinable())
+  {
+    VERBOSE2("Stopping tracker...");
+    _tracker_thread.join();
+  }
 }
 
-void*
-ssr::TrackerPolhemus::_thread_starter(void *arg)
-{
-  return reinterpret_cast<TrackerPolhemus*> (arg)->_thread(nullptr);
-}
-
-void*
-ssr::TrackerPolhemus::_thread(void *arg)
+void
+ssr::TrackerPolhemus::_thread()
 {
   char c;
   std::string line;
@@ -241,7 +237,6 @@ ssr::TrackerPolhemus::_thread(void *arg)
       if (error < 1)
       {
         ERROR("Can not read from serial port. Stopping Polhemus tracker.");
-        return arg;
       }
 
       if ((error = read(_tracker_port, &c, 1)))
@@ -251,7 +246,6 @@ ssr::TrackerPolhemus::_thread(void *arg)
       else
       {
         ERROR("Can not read from serial port.");
-        return arg;
       }
     }
 
@@ -300,5 +294,4 @@ ssr::TrackerPolhemus::_thread(void *arg)
     _controller.take_control()->reference_offset_rotation(
         Orientation(-_current_data.azimuth + _az_corr));
   };
-  return arg;
 }

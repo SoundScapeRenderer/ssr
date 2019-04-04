@@ -25,7 +25,6 @@ RazorAHRS::RazorAHRS(const std::string &port, DataCallbackFunc data_func, ErrorC
     , _connect_timeout_ms(connect_timeout_ms)
     , data(data_func)
     , error(error_func)
-    , _thread_id()
     , _stop_thread(false)
 {
   // check data type sizes
@@ -91,8 +90,8 @@ RazorAHRS::RazorAHRS(const std::string &port, DataCallbackFunc data_func, ErrorC
 
 RazorAHRS::~RazorAHRS()
 {
-  // if thread was started, stop thread
-  if (_thread_id == _tracker_thread.get_id()) _stop();
+  // stop thread
+  _stop();
   close(_serial_port);
 }
 
@@ -276,8 +275,7 @@ void
 RazorAHRS::_start()
 {
   // create thread
-  _tracker_thread = std::thread(_thread_starter, this);
-  _thread_id = _tracker_thread.get_id();
+  _tracker_thread = std::thread(&RazorAHRS::_thread, this);
   VERBOSE("Starting tracker ...");
 }
 
@@ -285,17 +283,15 @@ void
 RazorAHRS::_stop()
 {
   _stop_thread = true;
-  _tracker_thread.join();
+  if (_tracker_thread.joinable())
+  {
+    VERBOSE2("Stopping tracker...");
+    _tracker_thread.join();
+  }
 }
 
-void*
-RazorAHRS::_thread_starter(void *arg)
-{
-  return reinterpret_cast<RazorAHRS*> (arg)->_thread(nullptr);
-}
-
-void*
-RazorAHRS::_thread(void *arg)
+void
+RazorAHRS::_thread()
 {
   char c;
   int result;
@@ -305,13 +301,11 @@ RazorAHRS::_thread(void *arg)
     if (!_init_razor())
     {
       error("Tracker init failed.");
-      return arg;
     }
   }
   catch(std::runtime_error& e)
   {
     error("Tracker init failed: " + std::string(e.what()));
-    return arg;
   }
 
   while (!_stop_thread)
@@ -358,11 +352,9 @@ RazorAHRS::_thread(void *arg)
       if (errno != EAGAIN && errno != EINTR)
       {
         error("Can not read from serial port (3).");
-        return arg;
       }
     }
     // else if result is 0, no data was available
   }
 
-  return arg;
 }
