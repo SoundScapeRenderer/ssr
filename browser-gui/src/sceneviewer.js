@@ -147,6 +147,9 @@ export class SceneViewer {
     this.sources = {};
     // TODO: binaural vs. loudspeakers?
     this.reference = this.createReference();
+    this.reference_offset = new THREE.Mesh(
+      kiteGeometry(), new THREE.MeshBasicMaterial({ wireframe: true }));
+    this.reference.add(this.reference_offset);
   }
 
   createReference() {
@@ -271,8 +274,14 @@ export class SceneViewer {
               case 'ref-pos':
                 this.reference.position.set(...value);
                 break;
+              case 'ref-pos-offset':
+                this.reference_offset.position.set(...value);
+                break;
               case 'ref-rot':
                 this.reference.quaternion.set(...value);
+                break;
+              case 'ref-rot-offset':
+                this.reference_offset.quaternion.set(...value);
                 break;
               default:
                 // TODO: implement the rest!
