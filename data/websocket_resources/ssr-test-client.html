@@ -16,14 +16,21 @@ function onButtonSend()
   sendJson(document.getElementById("input-message").value);
 }
 
+var sin = Math.sin;
+var cos = Math.cos;
+var PI = Math.PI;
+
 var examples = [
   ["state", {"ref-pos": [-1, 1, 0]}],
   ["state", {"ref-pos": [0, 0, 0]}],
   ["state", {"ref-pos-offset": [.5, .5, 0]}],
   ["state", {"ref-pos-offset": [0, 0, 0]}],
-  ["state", {"ref-rot": [0, 0, 0.7071, 0.7071]}],
-  ["state", {"ref-rot": [0, 0, -0.7071, 0.7071]}],
+  ["state", {"ref-rot": [0, 0, sin(PI / 8), cos(PI / 8)]}],
+  ["state", {"ref-rot": [0, 0, sin(-PI / 8), cos(-PI / 8)]}],
   ["state", {"ref-rot": [0, 0, 0, 1]}],
+  ["state", {"ref-rot-offset": [0, 0, sin(PI / 16), cos(PI / 16)]}],
+  ["state", {"ref-rot-offset": [0, 0, sin(-PI / 16), cos(-PI / 16)]}],
+  ["state", {"ref-rot-offset": [0, 0, 0, 1]}],
   ["state", {"transport-rolling": true}],
   ["state", {"transport-rolling": false}],
   ["state", {"frame": 500000}],
