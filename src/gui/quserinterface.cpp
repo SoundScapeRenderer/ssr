@@ -993,8 +993,8 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
     // previous position relative to relative position offset
     prev_mouse_pos -= _scene.get_reference_offset().position;
 
-    _controller.take_control()->reference_offset_rotation(_scene.get_reference_offset().rotate(90.0f).orientation +
-                                          (mouse_pos.orientation() - prev_mouse_pos.orientation()));
+    _controller.take_control()->reference_offset_rotation(_scene.get_reference_offset().orientation +
+                                                          (mouse_pos.orientation() - prev_mouse_pos.orientation()));
 
   } // else if
 

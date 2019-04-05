@@ -168,5 +168,5 @@ ssr::TrackerVrpn::vrpn_change_handler(const vrpn_TRACKERCB t)
 
   _current_azimuth = azi;
   _controller.take_control()->reference_offset_rotation(
-      Orientation(-azi + _az_corr + 90.0f));
+      Orientation(-azi + _az_corr));
 }

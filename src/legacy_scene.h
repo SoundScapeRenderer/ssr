@@ -398,7 +398,7 @@ class LegacyScene : public api::SceneControlEvents
     void reference_rotation_offset(const Rot& rotation) override
     {
       Orientation orientation(rotation);
-      orientation.azimuth -= 90.0f;  // Undo angle conversion offset
+      // orientation.azimuth -= 90.0f;  // Undo angle conversion offset
       _reference_offset.orientation = orientation;
     }
 

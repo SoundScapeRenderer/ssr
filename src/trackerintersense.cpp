@@ -191,12 +191,12 @@ ssr::TrackerInterSense::_thread()
     ISD_GetTrackingData(_tracker_h, &tracker_data);
     _controller.take_control()->reference_rotation_offset(
         Orientation(-tracker_data.Station[0].Euler[0]
-           + 90.0f + 90.0f));
+           + 90.0f));
 #else
     ISD_GetData(_tracker_h, &tracker_data);
     _controller.take_control()->reference_rotation_offset(
         Orientation(-static_cast<float>(tracker_data.Station[0].Orientation[0])
-           + 90.0f + 90.0f));
+           + 90.0f));
 #endif
 
     // wait a bit
