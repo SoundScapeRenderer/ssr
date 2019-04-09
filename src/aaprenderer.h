@@ -226,9 +226,9 @@ AapRenderer::RenderFunction::select(SourceChannel& in)
     // WARNING: The reference offset is currently broken!
 
     float alpha_0  = deg2rad((_out.position).orientation().azimuth);
-    float theta_pw = deg2rad(((in.source.position -
-            _out.parent.state.reference_position).orientation()
-          - _out.parent.state.reference_orientation).azimuth);
+    float theta_pw = deg2rad(((Position(in.source.position) -
+            Position(_out.parent.state.reference_position)).orientation()
+          - Orientation(_out.parent.state.reference_rotation)).azimuth);
 
     // TODO: wrap angles?
 

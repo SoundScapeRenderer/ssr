@@ -270,11 +270,11 @@ void WfsRenderer::Source::_process()
 
       // TODO: avoid getting reference 2 times (see select())
       auto ls = DirectionalPoint(out);
-      auto ref = DirectionalPoint(out.parent.state.reference_position
-          , out.parent.state.reference_orientation);
+      auto ref = DirectionalPoint(Position(out.parent.state.reference_position)
+          , Orientation(out.parent.state.reference_rotation));
       ls.transform(ref);
 
-      auto a = apf::math::wrap(angle(ls.position - this->position
+      auto a = apf::math::wrap(angle(ls.position - Position(this->position)
             , ls.orientation), 2 * apf::math::pi<sample_type>());
 
       auto halfpi = apf::math::pi<sample_type>()/2;
@@ -307,21 +307,22 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
   const float safety_radius = 0.01f; // 1 cm
 
   // TODO: move reference calculation to WfsRenderer::Process?
-  auto ref = DirectionalPoint(_out.parent.state.reference_position
-      , _out.parent.state.reference_orientation);
+  auto ref = DirectionalPoint(Position(_out.parent.state.reference_position)
+      , Orientation(_out.parent.state.reference_rotation));
 
   // TODO: this is actually wrong!
   // We use it to be compatible with the (also wrong) GUI implementation.
   auto ref_off = ref;
   ref_off.transform(DirectionalPoint(
-        _out.parent.state.reference_offset_position
-        , _out.parent.state.reference_offset_orientation));
+        Position(_out.parent.state.reference_position_offset)
+        , Orientation(_out.parent.state.reference_rotation_offset)
+          - Orientation(90)));
 
   sample_type weighting_factor = 1;
   float float_delay = 0;
 
   auto ls = LegacyLoudspeaker(_out);
-  auto src_pos = in.source.position;
+  auto src_pos = Position(in.source.position);
 
   // TODO: shortcut if in.source.weighting_factor == 0
 
@@ -443,14 +444,16 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
       // the delay is calculated to be correct on the reference position
       // delay can be negative!
       float_delay
-        = DirectionalPoint(in.source.position, in.source.orientation)
+        = DirectionalPoint(Position(in.source.position)
+            , Orientation(in.source.rotation))
         .plane_to_point_distance(ref_off.position) - reference_distance;
     }
     else
     {
       // weighting factor is determined by the cosine of the angle
       // difference between plane wave direction and loudspeaker direction
-      weighting_factor = cos(angle(in.source.orientation, ls.orientation));
+      weighting_factor = cos(angle(
+            Orientation(in.source.rotation), ls.orientation));
       // check if loudspeaker is active for this source
       if (weighting_factor < 0)
       {
@@ -459,8 +462,8 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
       }
       else
       {
-        float_delay = DirectionalPoint(in.source.position
-                                     , in.source.orientation)
+        float_delay = DirectionalPoint(Position(in.source.position)
+                                     , Orientation(in.source.rotation))
           .plane_to_point_distance(ls.position);
 
         if (float_delay < 0.0)

@@ -40,7 +40,7 @@
 #include "apf/math.h"  // for dB2linear()
 
 #include "maptools.h"
-#include "legacy_directionalpoint.h"  // for Position etc.
+#include "geometry.h"  // for vec3
 
 #ifndef SSR_QUERY_POLICY
 #define SSR_QUERY_POLICY apf::disable_queries
@@ -112,9 +112,9 @@ class RendererBase : public apf::MimoProcessor<Derived
     {
       State(apf::CommandQueue& fifo, const apf::parameter_map& params)
         : reference_position(fifo)
-        , reference_orientation(fifo, Orientation(90))
-        , reference_offset_position(fifo)
-        , reference_offset_orientation(fifo)
+        , reference_rotation(fifo)
+        , reference_position_offset(fifo)
+        , reference_rotation_offset(fifo)
         , master_volume(fifo, 1)
         , processing(fifo, true)
         , decay_exponent(fifo, params.get<sample_type>("decay_exponent", 1))
@@ -122,10 +122,10 @@ class RendererBase : public apf::MimoProcessor<Derived
             , params.get<sample_type>("amplitude_reference_distance", 3))
       {}
 
-      apf::SharedData<Position> reference_position;
-      apf::SharedData<Orientation> reference_orientation;
-      apf::SharedData<Position> reference_offset_position;
-      apf::SharedData<Orientation> reference_offset_orientation;
+      apf::SharedData<Pos> reference_position;
+      apf::SharedData<Rot> reference_rotation;
+      apf::SharedData<Pos> reference_position_offset;
+      apf::SharedData<Rot> reference_rotation_offset;
       apf::SharedData<sample_type> master_volume;
       apf::SharedData<bool> processing;
       apf::SharedData<sample_type> decay_exponent;
@@ -400,7 +400,7 @@ class RendererBase<Derived>::Source
               "Bug (RendererBase::Source): parent == NULL!")))
       , position(*(p.fifo ? p.fifo : throw std::logic_error(
               "Bug (RendererBase::Source): fifo == NULL!")))
-      , orientation(*p.fifo)
+      , rotation(*p.fifo)
       , gain(*p.fifo, sample_type(1.0))
       , mute(*p.fifo, false)
       , model(*p.fifo, "point")
@@ -427,8 +427,8 @@ class RendererBase<Derived>::Source
 
     Derived& parent;
 
-    apf::SharedData<Position> position;
-    apf::SharedData<Orientation> orientation;
+    apf::SharedData<Pos> position;
+    apf::SharedData<Rot> rotation;
     apf::SharedData<sample_type> gain;
     apf::SharedData<bool> mute;
     apf::SharedData<std::string> model;
@@ -479,9 +479,9 @@ void RendererBase<Derived>::Source::_process()
     {
       if (this->model != "plane")
       {
-        float source_distance = (this->position
-          - (_input.parent.state.reference_position
-            + _input.parent.state.reference_offset_position)).length();
+        float source_distance = length(vec3{this->position}
+          - (vec3{_input.parent.state.reference_position}
+            + vec3{_input.parent.state.reference_position_offset}));
 
         // no volume increase for sources closer than 0.5 m
         source_distance = std::max(source_distance, 0.5f);

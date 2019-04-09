@@ -106,8 +106,8 @@ class DcaRenderer::Source : public _base::Source
       // NOTE: reference offset is not taken into account!
 
       // distance is only used for point sources (but is updated anyway)
-      this->distance = (this->position
-          - this->parent.state.reference_position).length();
+      this->distance = (Position(this->position)
+          - Position(this->parent.state.reference_position)).length();
 
       // TODO: distance is not correct for plane waves!
       // This is only important for the delay
@@ -118,14 +118,14 @@ class DcaRenderer::Source : public _base::Source
       if (model == "point")
       {
         this->source_model = coeff_t::point_source;
-        source_orientation = (this->position
-            - this->parent.state.reference_position).orientation();
+        source_orientation = (Position(this->position)
+            - Position(this->parent.state.reference_position)).orientation();
         // TODO: Undo inherent amplitude decay
       }
       else if (model == "plane")
       {
         this->source_model = coeff_t::plane_wave;
-        source_orientation = this->orientation - Orientation(180);
+        source_orientation = Orientation(this->rotation) - Orientation(180);
         // Note: no distance attenuation for plane waves!
         // TODO: constant factor using amplitude_reference_distance()?
       }
@@ -135,7 +135,7 @@ class DcaRenderer::Source : public _base::Source
       }
 
       this->angle = apf::math::deg2rad(180 + (source_orientation
-            - this->parent.state.reference_orientation).azimuth);
+            - Orientation(this->parent.state.reference_rotation)).azimuth);
 
       // TODO: calculate delay
 
