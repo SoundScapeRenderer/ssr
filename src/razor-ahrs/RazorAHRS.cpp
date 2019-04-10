@@ -12,11 +12,11 @@
 *     https://github.com/ptrbrtz/razor-9dof-ahrs
 ******************************************************************************************/
 
-#include <thread>   // std::this_thread::sleep_for
 #include <chrono>   // std::chrono::milliseconds
+#include <cassert>
 
 #include "RazorAHRS.h"
-#include <cassert>
+#include "ssr_global.h"
 
 RazorAHRS::RazorAHRS(const std::string &port, DataCallbackFunc data_func, ErrorCallbackFunc error_func,
     Mode mode, int connect_timeout_ms, speed_t speed)
@@ -25,7 +25,6 @@ RazorAHRS::RazorAHRS(const std::string &port, DataCallbackFunc data_func, ErrorC
     , _connect_timeout_ms(connect_timeout_ms)
     , data(data_func)
     , error(error_func)
-    , _thread_id(0)
     , _stop_thread(false)
 {
   // check data type sizes
@@ -86,13 +85,13 @@ RazorAHRS::RazorAHRS(const std::string &port, DataCallbackFunc data_func, ErrorC
   }
 
   // start input/output thread
-  _start_io_thread();
+  _start();
 }
 
 RazorAHRS::~RazorAHRS()
 {
-  // if thread was started, stop thread
-  if (_thread_id) _stop_io_thread();
+  // stop thread
+  _stop();
   close(_serial_port);
 }
 
@@ -272,8 +271,27 @@ RazorAHRS::_is_io_blocking()
   return (fcntl(_serial_port, F_GETFL, 0) & O_NDELAY);
 }
 
-void*
-RazorAHRS::_thread(void *arg)
+void
+RazorAHRS::_start()
+{
+  // create thread
+  _tracker_thread = std::thread(&RazorAHRS::_thread, this);
+  VERBOSE("Starting tracker ...");
+}
+
+void
+RazorAHRS::_stop()
+{
+  _stop_thread = true;
+  if (_tracker_thread.joinable())
+  {
+    VERBOSE2("Stopping tracker...");
+    _tracker_thread.join();
+  }
+}
+
+void
+RazorAHRS::_thread()
 {
   char c;
   int result;
@@ -283,13 +301,11 @@ RazorAHRS::_thread(void *arg)
     if (!_init_razor())
     {
       error("Tracker init failed.");
-      return arg;
     }
   }
   catch(std::runtime_error& e)
   {
     error("Tracker init failed: " + std::string(e.what()));
-    return arg;
   }
 
   while (!_stop_thread)
@@ -336,11 +352,9 @@ RazorAHRS::_thread(void *arg)
       if (errno != EAGAIN && errno != EINTR)
       {
         error("Can not read from serial port (3).");
-        return arg;
       }
     }
     // else if result is 0, no data was available
   }
 
-  return arg;
 }

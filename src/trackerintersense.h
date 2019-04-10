@@ -30,7 +30,8 @@
 #ifndef SSR_TRACKERINTERSENSE_H
 #define SSR_TRACKERINTERSENSE_H
 
-#include <pthread.h>
+#include <atomic>
+#include <thread>
 #include <isense.h>
 #include <string>
 #include <memory>
@@ -67,17 +68,17 @@ class TrackerInterSense : public Tracker
     /// interval in ms to wait after each read cycle
     unsigned int _read_interval;
 
-    bool _stopped; ///< stops the tracking thread
 
     ISD_TRACKER_HANDLE _tracker_h; ///< tracker handle
 
+    // thread related stuff
+    std::thread _tracker_thread;
+
+    std::atomic<bool> _stop_thread; // thread stop flag
     void _start(); ///< start the tracking thread
     void _stop();  ///< stop the tracking thread
 
-    // thread related stuff
-    pthread_t _thread_id;
-    static void* _thread(void*);
-    void* thread(void*);
+    void _thread();  // thread main function
 };
 
 }  // namespace ssr
