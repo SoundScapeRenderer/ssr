@@ -35,7 +35,7 @@ ssr::TrackerRazor::TrackerRazor(api::Publisher& controller
   : Tracker()
   , _controller(controller)
   , _current_azimuth(0.0f)
-  , _az_corr(0.0f)
+  , _az_corr(90.0f)
   , _init_az_corr(true)
   , _tracker(nullptr)
 {

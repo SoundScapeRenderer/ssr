@@ -291,7 +291,7 @@ ssr::TrackerPolhemus::_thread()
               >> _current_data.elevation
               >> _current_data.roll;
 
-    _controller.take_control()->reference_offset_rotation(
+    _controller.take_control()->reference_rotation_offset(
         Orientation(-_current_data.azimuth + _az_corr));
   };
 }

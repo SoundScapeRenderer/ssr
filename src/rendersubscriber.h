@@ -185,7 +185,7 @@ private:
     Orientation orientation{rot};
     // For backwards compatibility, 90 degrees are added when converting to
     // Orientation.  This, however, should not be done for the reference offset.
-    // orientation.azimuth -= 90.0f;
+    orientation.azimuth -= 90.0f;
     _renderer.state.reference_offset_orientation = orientation;
     _reference_rotation_offset = rot;
   }
