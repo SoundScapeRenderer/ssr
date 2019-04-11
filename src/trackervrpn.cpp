@@ -109,7 +109,7 @@ ssr::TrackerVrpn::vrpn_change_handler(const vrpn_TRACKERCB t)
 void
 ssr::TrackerVrpn::calibrate()
 {
-  _az_corr = _current_azimuth;
+  _az_corr = _current_azimuth + 90;
 }
 
 void

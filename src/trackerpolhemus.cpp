@@ -192,7 +192,7 @@ ssr::TrackerPolhemus::_open_serial_port(const char *portname)
 void
 ssr::TrackerPolhemus::calibrate()
 {
-  _az_corr = _current_data.azimuth;
+  _az_corr = _current_data.azimuth + 90;
 }
 
 void
