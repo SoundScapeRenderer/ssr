@@ -369,8 +369,7 @@ class Controller : public api::Publisher
 
     bool _loop; ///< part of a quick-hack. should be removed some time.
 
-    std::unique_ptr<typename Renderer::template ScopedThread<
-      typename Renderer::QueryThread>> _query_thread;
+    std::unique_ptr<typename Renderer::QueryThread> _query_thread;
 
     std::mutex _m;
 
@@ -674,8 +673,7 @@ template<typename Renderer>
 bool Controller<Renderer>::run()
 {
   // TODO: make sleep time customizable
-  _query_thread.reset(Renderer::new_scoped_thread(
-        typename Renderer::QueryThread(_renderer._query_fifo), 10 * 1000));
+  _query_thread = _renderer.make_query_thread(10 * 1000);
 
   _start_tracker(_conf.tracker, _conf.tracker_ports);
 

@@ -186,15 +186,30 @@ class MimoProcessor : public interface_policy
         typename thread_policy::Lock& _obj;
     };
 
-    class QueryThread
+    class CleanupFunction
     {
       public:
-        QueryThread(CommandQueue& fifo) : _fifo(fifo) {};
+        CleanupFunction(CommandQueue& fifo) : _fifo(fifo) {};
         void operator()() { _fifo.cleanup_commands(); }
 
       private:
         CommandQueue& _fifo;
     };
+
+    struct QueryThread : thread_policy::template ScopedThread<CleanupFunction>
+    {
+      QueryThread(CommandQueue& fifo
+          , typename thread_policy::useconds_type usleeptime)
+        : thread_policy::template ScopedThread<CleanupFunction>(
+            CleanupFunction(fifo), usleeptime)
+      {}
+    };
+
+    std::unique_ptr<QueryThread>
+    make_query_thread(typename thread_policy::useconds_type usleeptime)
+    {
+      return std::make_unique<QueryThread>(_query_fifo, usleeptime);
+    }
 
     template<typename F>
     class QueryCommand : public CommandQueue::Command
@@ -279,13 +294,6 @@ class MimoProcessor : public interface_policy
     const rtlist_t& get_output_list() const { return _output_list; }
 
     const parameter_map params;
-
-    template<typename F>
-    static typename thread_policy::template ScopedThread<F>*
-    new_scoped_thread(F f, typename thread_policy::useconds_type usleeptime)
-    {
-      return new typename thread_policy::template ScopedThread<F>(f,usleeptime);
-    }
 
   protected:
     using MimoProcessorBase = APF_MIMOPROCESSOR_BASE;
