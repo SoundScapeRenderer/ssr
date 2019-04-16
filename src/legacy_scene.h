@@ -256,9 +256,11 @@ class LegacyScene : public api::SceneControlEvents
     {
       if (auto iter = _source_id_map.find(id); iter != _source_id_map.end())
       {
+        VERBOSE("LegacyScene: deleting source \"" << iter->first << "\"");
         // this should call the destructor for the LegacySource object.
         // IMPORTANT: the map holds the Sources directly, no pointers!
         _source_map.erase(iter->second);
+        _source_id_map.erase(iter->first);
       }
     }
 
