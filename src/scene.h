@@ -168,7 +168,7 @@ private:
     }
     else
     {
-      std::remove(_source_ids.begin(), _source_ids.end(), id);
+      _source_ids.erase(std::find(_source_ids.begin(), _source_ids.end(), id));
     }
   }
 
