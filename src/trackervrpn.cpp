@@ -35,12 +35,15 @@
 #include "api.h"  // for Publisher
 #include "legacy_orientation.h"  // for Orientation
 #include "ssr_global.h"
+#include "apf/math.h"  // for rad2deg()
+
 
 ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
     , const std::string& address)
   : vrpn_Tracker_Remote(address.c_str())
   , _controller(controller)
-  , _az_corr(0.0f)
+  //, _az_corr(0.0f)
+  , _tracker_orientation({})
   , _stop_thread(false)
 {
   SSR_VERBOSE("Starting VRPN tracker \"" << address << "\"");
@@ -48,8 +51,10 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
   // TODO: what exactly is this supposed to do?
   //this->set_update_rate(120);
 
-  this->register_change_handler(this, _vrpn_change_handler);
+  // register vrpn callback
+  this->vrpn_Tracker_Remote::register_change_handler(&_tracker_orientation, this->handle_tracker);
 
+  // start thread
   _start();
 
   // wait until tracker has started
@@ -60,6 +65,8 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
 
 ssr::TrackerVrpn::~TrackerVrpn()
 {
+  // Probably not absolutely necessary
+  this->vrpn_Tracker_Remote::unregister_change_handler(&_tracker_orientation, this->handle_tracker);
   // stop thread
   _stop();
   // Release any ports?
@@ -79,37 +86,49 @@ ssr::TrackerVrpn::create(api::Publisher& controller, const std::string& ports)
   }
   return temp;
 }
+
 void VRPN_CALLBACK
-ssr::TrackerVrpn::_vrpn_change_handler(void* arg, const vrpn_TRACKERCB t)
+ssr::TrackerVrpn::handle_tracker(void *userdata, const vrpn_TRACKERCB t)
 {
-  return static_cast<TrackerVrpn*>(arg)->vrpn_change_handler(t);
+  //this function gets called when the tracker's POSITION xform is updated
+
+  ssr::Tracker::tracker_data *_data = reinterpret_cast<ssr::Tracker::tracker_data*>(userdata);
+
+  // https://github.com/vrpn/vrpn/wiki/Client-side-VRPN-Devices#type-definitions
+  double x = t.quat[0];
+  double y = t.quat[1];
+  double z = t.quat[2];
+  double w = t.quat[3];
+
+  // write back to tracker_data
+  _data->orientation.x = x;
+  _data->orientation.y = y;
+  _data->orientation.z = z;
+  _data->orientation.w = w;
 }
 
 void
-ssr::TrackerVrpn::vrpn_change_handler(const vrpn_TRACKERCB t)
+ssr::TrackerVrpn::update(const tracker_data& _data)
 {
-  // TODO: check t.sensor for sensor number!
+  double x = _data.orientation.x;
+  double y = _data.orientation.y;
+  double z = _data.orientation.z;
+  double w = _data.orientation.w;
 
-  // get quaternions information
-  double w = t.quat[0];
-  double x = t.quat[1];
-  double y = t.quat[2];
-  double z = t.quat[3];
+  // yaw (z-axis rotation), from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  double yaw = std::atan2(2.0f * (w * z + x * y),
+                          1.0f - 2.0f * (y * y + z * z));
+  _current_azimuth = apf::math::rad2deg(yaw);
 
-  // TODO: store _az_corr as quaternion and directly set 3D rotation
-
-  // calculate yaw (azimuth) (in radians) from quaternions
-  double azi = std::atan2(2*(w*x+y*z),1-2*(x*x+y*y));
-
-  _current_azimuth = azi;
   _controller.take_control()->reference_rotation_offset(
-      Orientation(-azi + _az_corr));
+      Orientation(-_current_azimuth + Tracker::azi_correction));
 }
 
 void
 ssr::TrackerVrpn::calibrate()
 {
-  _az_corr = _current_azimuth + 90;
+  VERBOSE2("Calibrate.");
+  Tracker::azi_correction = _current_azimuth + 90;
 }
 
 void
@@ -136,8 +155,8 @@ ssr::TrackerVrpn::_thread()
 {
   while (!_stop_thread)
   {
-    this->mainloop();
-
+    this->vrpn_Tracker_Remote::mainloop();
+    update(_tracker_orientation);
     // TODO: make this configurable:
     vrpn_SleepMsecs(10);
   };

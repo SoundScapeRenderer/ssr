@@ -30,6 +30,13 @@
 #ifndef SSR_TRACKER_H
 #define SSR_TRACKER_H
 
+#include <atomic>
+
+#include "api.h"
+
+namespace ssr
+{
+
 /// Class definition
 struct Tracker
 {
@@ -37,6 +44,19 @@ struct Tracker
 
   /// calibrate tracker; set the instantaneous position to be the reference
   virtual void calibrate() = 0;
+
+  // Azimuth value at calibration in degree
+  std::atomic<double> azi_correction{0.0f};
+
+  // Current tracker data
+  struct tracker_data
+  {
+    // Sensor orientation in quaternions
+    struct Rot {std::atomic<double> x{}, y{}, z{}, w{1}; } orientation;
+  };
+
 };
+
+}  // namespace ssr
 
 #endif

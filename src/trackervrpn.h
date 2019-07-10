@@ -45,7 +45,7 @@ namespace ssr
 namespace api { struct Publisher; }
 
 /// VRPN tracker
-class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
+class TrackerVrpn : public Tracker, public vrpn_Tracker_Remote
 {
   public:
     using ptr_t = std::unique_ptr<TrackerVrpn>;
@@ -56,7 +56,6 @@ class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
     static ptr_t create(api::Publisher& controller, const std::string& ports);
 
     virtual void calibrate();
-    void set_value(double azi);
 
   private:
     TrackerVrpn(api::Publisher& controller, const std::string& ports);
@@ -67,12 +66,11 @@ class TrackerVrpn : public vrpn_Tracker_Remote, public Tracker
 
     double _current_azimuth;
 
-    float _az_corr; ///< correction of the azimuth due to calibration
+    Tracker::tracker_data _tracker_orientation;
 
-    static void VRPN_CALLBACK _vrpn_change_handler(void* arg
-        , const vrpn_TRACKERCB t);
+    static void VRPN_CALLBACK handle_tracker(void *userdata, const vrpn_TRACKERCB t);
 
-    void vrpn_change_handler(const vrpn_TRACKERCB t);
+    void update(const tracker_data& _data);
 
     // thread related stuff
     std::thread _tracker_thread;
