@@ -32,9 +32,9 @@
 #include <stdexcept>  // for runtime_error
 #include <cmath>  // for std::atan2()
 
+#include "ssr_global.h"
 #include "api.h"  // for Publisher
 #include "legacy_orientation.h"  // for Orientation
-#include "ssr_global.h"
 #include "apf/math.h"  // for rad2deg()
 
 
@@ -42,8 +42,7 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
     , const std::string& address)
   : vrpn_Tracker_Remote(address.c_str())
   , _controller(controller)
-  //, _az_corr(0.0f)
-  , _tracker_orientation({})
+  , _current_azimuth(0.0)
   , _stop_thread(false)
 {
   SSR_VERBOSE("Starting VRPN tracker \"" << address << "\"");
@@ -52,7 +51,7 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
   //this->set_update_rate(120);
 
   // register vrpn callback
-  this->vrpn_Tracker_Remote::register_change_handler(&_tracker_orientation, this->handle_tracker);
+  this->vrpn_Tracker_Remote::register_change_handler(&Tracker::current_data, this->handle_tracker);
 
   // start thread
   _start();
@@ -66,7 +65,7 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
 ssr::TrackerVrpn::~TrackerVrpn()
 {
   // Probably not absolutely necessary
-  this->vrpn_Tracker_Remote::unregister_change_handler(&_tracker_orientation, this->handle_tracker);
+  this->vrpn_Tracker_Remote::unregister_change_handler(&Tracker::current_data, this->handle_tracker);
   // stop thread
   _stop();
   // Release any ports?
@@ -92,7 +91,7 @@ ssr::TrackerVrpn::handle_tracker(void *userdata, const vrpn_TRACKERCB t)
 {
   //this function gets called when the tracker's POSITION xform is updated
 
-  ssr::Tracker::tracker_data *_data = reinterpret_cast<ssr::Tracker::tracker_data*>(userdata);
+  ssr::Tracker::Tracker_data *_data = reinterpret_cast<ssr::Tracker::Tracker_data*>(userdata);
 
   // https://github.com/vrpn/vrpn/wiki/Client-side-VRPN-Devices#type-definitions
   double x = t.quat[0];
@@ -101,19 +100,19 @@ ssr::TrackerVrpn::handle_tracker(void *userdata, const vrpn_TRACKERCB t)
   double w = t.quat[3];
 
   // write back to tracker_data
-  _data->orientation.x = x;
-  _data->orientation.y = y;
-  _data->orientation.z = z;
-  _data->orientation.w = w;
+  _data->x = x;
+  _data->y = y;
+  _data->z = z;
+  _data->w = w;
 }
 
 void
-ssr::TrackerVrpn::update(const tracker_data& _data)
+ssr::TrackerVrpn::update(const Tracker::Tracker_data& _data)
 {
-  double x = _data.orientation.x;
-  double y = _data.orientation.y;
-  double z = _data.orientation.z;
-  double w = _data.orientation.w;
+  double x = _data.x;
+  double y = _data.y;
+  double z = _data.z;
+  double w = _data.w;
 
   // yaw (z-axis rotation), from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   double yaw = std::atan2(2.0f * (w * z + x * y),
@@ -122,13 +121,6 @@ ssr::TrackerVrpn::update(const tracker_data& _data)
 
   _controller.take_control()->reference_rotation_offset(
       Orientation(-_current_azimuth + Tracker::azi_correction));
-}
-
-void
-ssr::TrackerVrpn::calibrate()
-{
-  VERBOSE2("Calibrate.");
-  Tracker::azi_correction = _current_azimuth + 90;
 }
 
 void
@@ -156,7 +148,7 @@ ssr::TrackerVrpn::_thread()
   while (!_stop_thread)
   {
     this->vrpn_Tracker_Remote::mainloop();
-    update(_tracker_orientation);
+    update(Tracker::current_data);
     // TODO: make this configurable:
     vrpn_SleepMsecs(10);
   };
