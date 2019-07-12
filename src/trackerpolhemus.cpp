@@ -299,5 +299,8 @@ ssr::TrackerPolhemus::_thread()
     Tracker::current_data.yaw = _current_data.azimuth;
     Tracker::current_data.pitch = _current_data.elevation;
     Tracker::current_data.roll = _current_data.roll;
+
+    // Push updates to SSR
+    this->update(Tracker::current_data);
   };
 }

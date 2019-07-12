@@ -78,6 +78,8 @@ class TrackerRazor : public Tracker
       Tracker::current_data.yaw = ypr[0];
       Tracker::current_data.pitch = ypr[1];
       Tracker::current_data.roll = ypr[2];
+      // Push updates to SSR
+      this->update(Tracker::current_data);
     }
     void on_error(const std::string &msg) { SSR_ERROR("Razor AHRS: " << msg); }
 

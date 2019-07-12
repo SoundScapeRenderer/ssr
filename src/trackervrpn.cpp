@@ -147,8 +147,10 @@ ssr::TrackerVrpn::_thread()
 {
   while (!_stop_thread)
   {
+    // This calls the callback
     this->vrpn_Tracker_Remote::mainloop();
-    update(Tracker::current_data);
+    // Push updates to SSR
+    this->update(Tracker::current_data);
     // TODO: make this configurable:
     vrpn_SleepMsecs(10);
   };
