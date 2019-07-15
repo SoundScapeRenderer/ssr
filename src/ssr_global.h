@@ -54,11 +54,11 @@ extern unsigned int usleeptime;
 // some preprocessor macros:
 
 /// turn the argument into a string
-#define __STR__(x)  #x
+#define __SSR_STR__(x)  #x
 /// workaround to evaluate the argument and pass the result to __STR__
-#define __XSTR__(x) __STR__(x)
+#define __SSR_XSTR__(x) __SSR_STR__(x)
 /// make a string with filename and line number
-#define __POS__ "(" __FILE__ ":" __XSTR__(__LINE__) ")"
+#define __SSR_POS__ "(" __FILE__ ":" __SSR_XSTR__(__LINE__) ")"
 
 /// Write message to stdout, if ssr::verbose is non-zero.
 #define SSR_VERBOSE(msg) __SSR_VERBOSE(msg,1)
@@ -84,9 +84,9 @@ extern unsigned int usleeptime;
 
 /// Write a warning message to stderr.
 #define SSR_WARNING(msg) \
-  std::cerr << "Warning: " << msg << " " __POS__ << std::endl
+  std::cerr << "Warning: " << msg << " " __SSR_POS__ << std::endl
 /// Write an error message to stderr.
 #define SSR_ERROR(msg) \
-  std::cerr << "Error: " << msg << " " __POS__ << std::endl
+  std::cerr << "Error: " << msg << " " __SSR_POS__ << std::endl
 
 #endif
