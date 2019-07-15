@@ -186,7 +186,7 @@ private:
       Writer writer(buffer, &_out_allocator);
       commands.Accept(writer);
       _server.send(_hdl, buffer.GetString(), websocketpp::frame::opcode::text);
-      VERBOSE3("output allocator usage: " << _out_allocator.Size());
+      SSR_VERBOSE3("output allocator usage: " << _out_allocator.Size());
       _out_allocator.Clear();
     }
   }
@@ -541,7 +541,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_scene_information_subscription || _scene_control_subscription)
           {
-            VERBOSE("Already subscribed: scene");
+            SSR_VERBOSE("Already subscribed: scene");
           }
           else
           {
@@ -556,7 +556,7 @@ Connection::on_message(message_ptr msg)
           if (_renderer_information_subscription
               || _renderer_control_subscription)
           {
-            VERBOSE("Already subscribed: renderer");
+            SSR_VERBOSE("Already subscribed: renderer");
           }
           else
           {
@@ -569,7 +569,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_transport_frame_subscription)
           {
-            VERBOSE("Already subscribed: transport-frame");
+            SSR_VERBOSE("Already subscribed: transport-frame");
           }
           else
           {
@@ -580,7 +580,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_source_metering_subscription)
           {
-            VERBOSE("Already subscribed: source-metering");
+            SSR_VERBOSE("Already subscribed: source-metering");
           }
           else
           {
@@ -591,7 +591,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_master_metering_subscription)
           {
-            VERBOSE("Already subscribed: master-metering");
+            SSR_VERBOSE("Already subscribed: master-metering");
           }
           else
           {
@@ -602,7 +602,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_output_activity_subscription)
           {
-            VERBOSE("Already subscribed: output-activity");
+            SSR_VERBOSE("Already subscribed: output-activity");
           }
           else
           {
@@ -613,7 +613,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_cpu_load_subscription)
           {
-            VERBOSE("Already subscribed: cpu-load");
+            SSR_VERBOSE("Already subscribed: cpu-load");
           }
           else
           {
@@ -1106,7 +1106,7 @@ Connection::on_message(message_ptr msg)
       return;
     }
   }
-  VERBOSE3("input allocator usage: " << alloc.Size());
+  SSR_VERBOSE3("input allocator usage: " << alloc.Size());
 }
 
 }  // namespace ws

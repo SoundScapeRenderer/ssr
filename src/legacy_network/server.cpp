@@ -29,7 +29,7 @@
 
 #include <functional>
 #include "server.h"
-#include "ssr_global.h"  // for VERBOSE2()
+#include "ssr_global.h"  // for SSR_VERBOSE2()
 #include "legacy_xmlsceneprovider.h"  // for LegacyXmlSceneProvider
 
 using ssr::legacy_network::Server;
@@ -84,13 +84,13 @@ Server::start()
 void
 Server::stop()
 {
-  VERBOSE2("Stopping network thread ...");
+  SSR_VERBOSE2("Stopping network thread ...");
   if (_network_thread)
   {
     _io_service.stop();
     _network_thread->join();
   }
-  VERBOSE2("Network thread stopped.");
+  SSR_VERBOSE2("Network thread stopped.");
 }
 
 void

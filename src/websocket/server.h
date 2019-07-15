@@ -31,7 +31,7 @@
 #include <fstream>  // for std::ifstream
 #include <thread>
 
-#include "ssr_global.h"  // for SSR_ERROR(), VERBOSE(), ...
+#include "ssr_global.h"  // for SSR_ERROR(), SSR_VERBOSE(), ...
 #include "connection.h"  // for Connection
 
 namespace ssr
@@ -123,7 +123,7 @@ public:
                      std::istreambuf_iterator<char>{}};
     if (body != "")
     {
-      VERBOSE("Serving " << resource);
+      SSR_VERBOSE("Serving " << resource);
       if (content_type != "")
       {
         con->append_header("Content-Type", content_type);
@@ -144,7 +144,7 @@ public:
     const auto& subp_requests = websocket->get_requested_subprotocols();
     for (const auto& proto: subp_requests)
     {
-      VERBOSE2("Subprotocol \"" << proto << "\" requested");
+      SSR_VERBOSE2("Subprotocol \"" << proto << "\" requested");
       if (proto == _subprotocol)
       {
         websocket->select_subprotocol(proto);
@@ -160,7 +160,7 @@ public:
   {
     assert(_connections.find(hdl) == _connections.end());
     _connections.try_emplace(hdl, hdl, _server, _controller);
-    VERBOSE("WebSocket opened");
+    SSR_VERBOSE("WebSocket opened");
   }
 
   void on_message(connection_hdl hdl, message_ptr msg)
@@ -181,7 +181,7 @@ public:
     auto result = _connections.erase(hdl);
     if (result == 1)
     {
-      VERBOSE("WebSocket closed");
+      SSR_VERBOSE("WebSocket closed");
     }
     else
     {

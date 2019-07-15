@@ -114,7 +114,7 @@ CommandParser::parse_cmd(const std::string& cmd)
             if (!new_source)
             {
               control->source_position(id, position);
-              VERBOSE2("set source position: id = " << id << ", " << position);
+              SSR_VERBOSE2("set source position: id = " << id << ", " << position);
             }
             else
             {
@@ -131,7 +131,7 @@ CommandParser::parse_cmd(const std::string& cmd)
             if (!new_source)
             {
               control->source_fixed(id, fixed);
-              VERBOSE2("set source position fixed: id = " << id << ", fixed = "
+              SSR_VERBOSE2("set source position fixed: id = " << id << ", fixed = "
                   << A2S(fixed));
             }
           }
@@ -147,7 +147,7 @@ CommandParser::parse_cmd(const std::string& cmd)
             if (!new_source)
             {
               control->source_rotation(id, orientation);
-              VERBOSE2("set source orientation: id = " << id << ", "
+              SSR_VERBOSE2("set source orientation: id = " << id << ", "
                   << orientation);
             }
             else
@@ -170,7 +170,7 @@ CommandParser::parse_cmd(const std::string& cmd)
         if (!new_source)
         {
           control->source_volume(id, volume);
-          VERBOSE2("set source volume: id = " << id
+          SSR_VERBOSE2("set source volume: id = " << id
               << ", volume (linear) = " << volume);
         }
       }
@@ -185,7 +185,7 @@ CommandParser::parse_cmd(const std::string& cmd)
         if (!new_source)
         {
           control->source_mute(id, muted);
-          VERBOSE2("set source mute mode: id = " << id
+          SSR_VERBOSE2("set source mute mode: id = " << id
               << ", mute = " << A2S(muted));
         }
       }
@@ -197,7 +197,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       if (!name.empty() && !new_source)
       {
         control->source_name(id,name);
-        VERBOSE2("set source name: id = " << id << ", name = " << name);
+        SSR_VERBOSE2("set source name: id = " << id << ", name = " << name);
       }
 
       std::string properties_file = i.get_attribute("properties-file");
@@ -210,7 +210,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       if (!new_source && model != "")
       {
         control->source_model(id,model);
-        VERBOSE2("set source model: id = " << id << ", model = " << model);
+        SSR_VERBOSE2("set source model: id = " << id << ", model = " << model);
       }
       else
       {
@@ -268,7 +268,7 @@ CommandParser::parse_cmd(const std::string& cmd)
         }
         else
         {
-          VERBOSE2("Creating source with following properties:"
+          SSR_VERBOSE2("Creating source with following properties:"
               "\nname: " << name <<
               "\nmodel: " << model <<
               "\nfile_or_port_name: " << file_or_port_name <<
@@ -299,7 +299,7 @@ CommandParser::parse_cmd(const std::string& cmd)
               && S2A(inner_loop.get_attribute("y"), y))
           {
             control->reference_position(Position(x,y));
-            VERBOSE2("set reference position: " << Position(x,y));
+            SSR_VERBOSE2("set reference position: " << Position(x,y));
           }
           else SSR_ERROR("Invalid reference position!");
         }
@@ -309,7 +309,7 @@ CommandParser::parse_cmd(const std::string& cmd)
           if (S2A(inner_loop.get_attribute("azimuth"), azimuth))
           {
             control->reference_rotation(Orientation(azimuth));
-            VERBOSE2("set reference orientation: " << Orientation(azimuth));
+            SSR_VERBOSE2("set reference orientation: " << Orientation(azimuth));
           }
           else SSR_ERROR("Invalid reference orientation!");
         }
@@ -326,7 +326,7 @@ CommandParser::parse_cmd(const std::string& cmd)
               && S2A(inner_loop.get_attribute("y"), y))
           {
             control->reference_position_offset(Position(x,y));
-            VERBOSE2("set reference offset position: " << Position(x,y));
+            SSR_VERBOSE2("set reference offset position: " << Position(x,y));
           }
           else SSR_ERROR("Invalid reference offset position!");
         }
@@ -336,7 +336,7 @@ CommandParser::parse_cmd(const std::string& cmd)
           if (S2A(inner_loop.get_attribute("azimuth"), azimuth))
           {
             control->reference_rotation_offset(Orientation(azimuth));
-            VERBOSE2("set reference offset orientation: " << Orientation(azimuth));
+            SSR_VERBOSE2("set reference offset orientation: " << Orientation(azimuth));
           }
           else SSR_ERROR("Invalid reference offset orientation!");
         }
@@ -397,7 +397,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       {
         // volume is given in dB in the network messages
         control->master_volume(apf::math::dB2linear(volume));
-        VERBOSE2("set master volume: " << volume << " dB");
+        SSR_VERBOSE2("set master volume: " << volume << " dB");
       }
       else SSR_ERROR("Invalid Volume Setting! (\"" << volume_str << "\")");
 

@@ -593,10 +593,10 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     conf.renderer_params.set("system_output_prefix", conf.output_port_prefix);
   }
 
-  VERBOSE2("Requested renderer settings:");
+  SSR_VERBOSE2("Requested renderer settings:");
   for (const auto& entry: conf.renderer_params)
   {
-    VERBOSE2(entry.first << " = " << entry.second);
+    SSR_VERBOSE2(entry.first << " = " << entry.second);
   }
 
   return conf;
@@ -729,7 +729,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
         break;
     }//switch
 
-    VERBOSE2(key << " = " << value);
+    SSR_VERBOSE2(key << " = " << value);
 
     if (!strcmp(key, "NAME"))
     {

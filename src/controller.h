@@ -508,7 +508,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   if (_conf.ip_server)
   {
 
-    VERBOSE("Starting IP Server with port " << _conf.server_port
+    SSR_VERBOSE("Starting IP Server with port " << _conf.server_port
         << " and with end-of-message character with ASCII code " <<
         _conf.end_of_message_character << ".");
 
@@ -521,7 +521,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 #ifdef ENABLE_WEBSOCKET_INTERFACE
   if (_conf.websocket_server)
   {
-    VERBOSE("Starting WebSocket server with port " << _conf.websocket_port);
+    SSR_VERBOSE("Starting WebSocket server with port " << _conf.websocket_port);
     _websocket_interface = std::make_unique<ws::Server>(*this
         , _conf.websocket_port, _conf.websocket_resource_directory);
   }
@@ -938,11 +938,11 @@ public:
       if (auto_rotate)
       {
         _controller._orient_all_sources_toward_reference();
-        VERBOSE("Auto-rotation of sound sources is enabled.");
+        SSR_VERBOSE("Auto-rotation of sound sources is enabled.");
       }
       else
       {
-        VERBOSE("Auto-rotation of sound sources is disabled.");
+        SSR_VERBOSE("Auto-rotation of sound sources is disabled.");
       }
     }
   }
@@ -989,7 +989,7 @@ public:
     {
       if (_controller._scene.get_auto_rotation())
       {
-        VERBOSE2("Ignoring update of source rotation."
+        SSR_VERBOSE2("Ignoring update of source rotation."
             << " Auto-rotation is enabled.");
         return;
       }
@@ -1498,7 +1498,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 
   if (scene_file_name == "")
   {
-    VERBOSE("No scene file specified. Opening empty scene ...");
+    SSR_VERBOSE("No scene file specified. Opening empty scene ...");
     return true;
   }
 
@@ -1527,7 +1527,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     }
     else if (scene_file->validate(_conf.xml_schema))
     {
-      VERBOSE("Valid scene setup (" << scene_file_name << ").");
+      SSR_VERBOSE("Valid scene setup (" << scene_file_name << ").");
     }
     else
     {
@@ -1550,7 +1550,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       master_volume = 0.0f;
     }
 
-    VERBOSE("Setting master volume to " << master_volume << " dB.");
+    SSR_VERBOSE("Setting master volume to " << master_volume << " dB.");
     _publish(&api::SceneControlEvents::master_volume
         , apf::math::dB2linear(master_volume));
 
@@ -1567,7 +1567,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     }
 
     // always use default value when nothing is specified
-    VERBOSE("Setting amplitude decay exponent to " << exponent << ".");
+    SSR_VERBOSE("Setting amplitude decay exponent to " << exponent << ".");
     _publish(&api::SceneControlEvents::decay_exponent, exponent);
 
     // GET AMPLITUDE REFERENCE DISTANCE
@@ -1586,7 +1586,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     }
 
     // always use default value when nothing is specified
-    VERBOSE("Setting amplitude reference distance to "
+    SSR_VERBOSE("Setting amplitude reference distance to "
         << ref_dist << " meters.");
     _publish(&api::SceneControlEvents::amplitude_reference_distance, ref_dist);
 
@@ -1609,7 +1609,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     }
     else
     {
-      VERBOSE("No reference point given in XML file. "
+      SSR_VERBOSE("No reference point given in XML file. "
           "Using standard (= origin).");
     }
     if (!pos_ptr) pos_ptr.reset(new internal::PositionPlusBool());
@@ -1645,7 +1645,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 
         if (model == "")
         {
-          VERBOSE("Source model not defined!" << id_str << name_str
+          SSR_VERBOSE("Source model not defined!" << id_str << name_str
               << " Using default (= point source).");
           model = "point";
         }
@@ -1756,7 +1756,7 @@ Controller<Renderer>::_create_spontaneous_scene(
     case 1: // mono file
       {
         Pos pos{0, default_source_distance};
-        VERBOSE("Creating point source at x = " << pos.x
+        SSR_VERBOSE("Creating point source at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
         _new_source("", source_name, "point", audio_file_name, 1
@@ -1772,7 +1772,7 @@ Controller<Renderer>::_create_spontaneous_scene(
         const float pos_y = default_source_distance * std::sin(pi/3.0f);
 
         Pos pos{-pos_x, pos_y};
-        VERBOSE("Creating plane wave at x = " << pos.x
+        SSR_VERBOSE("Creating plane wave at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
 
@@ -1781,7 +1781,7 @@ Controller<Renderer>::_create_spontaneous_scene(
             , false, 1.0f, false, "");
 
         pos = Pos{pos_x, pos_y};
-        VERBOSE("Creating plane wave at x = " << pos.x
+        SSR_VERBOSE("Creating plane wave at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
 
@@ -1809,7 +1809,7 @@ Controller<Renderer>::_create_spontaneous_scene(
 
         Pos pos{pos_x, pos_y};
 
-        VERBOSE("Creating point source at x = " << pos.x
+        SSR_VERBOSE("Creating point source at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
 
@@ -2036,7 +2036,7 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
 
   if (port_name == "")
   {
-    VERBOSE("No audio file or port specified for source");
+    SSR_VERBOSE("No audio file or port specified for source");
   }
 
   apf::parameter_map p;

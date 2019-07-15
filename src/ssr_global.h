@@ -61,26 +61,26 @@ extern unsigned int usleeptime;
 #define __POS__ "(" __FILE__ ":" __XSTR__(__LINE__) ")"
 
 /// Write message to stdout, if ssr::verbose is non-zero.
-#define VERBOSE(msg) __VERBOSE(msg,1)
+#define SSR_VERBOSE(msg) __SSR_VERBOSE(msg,1)
 /// Write message to stdout, if ssr::verbose is greater than 1.
-#define VERBOSE2(msg) __VERBOSE(msg,2)
+#define SSR_VERBOSE2(msg) __SSR_VERBOSE(msg,2)
 /// Write message to stdout, if ssr::verbose is greater than 2.
-#define VERBOSE3(msg) __VERBOSE(msg,3)
+#define SSR_VERBOSE3(msg) __SSR_VERBOSE(msg,3)
 
 /// Write message to stdout, if ssr::verbose >= level
-#define __VERBOSE(msg,level) __VERBOSE_NOLF(msg,level) << std::endl
+#define __SSR_VERBOSE(msg,level) __SSR_VERBOSE_NOLF(msg,level) << std::endl
 
 // TODO: the NOLF thing is a little ugly, still searching for a better thing ...
 
 /// NOLF = no line feed
-#define __VERBOSE_NOLF(msg,level) \
+#define __SSR_VERBOSE_NOLF(msg,level) \
   if (ssr::verbose >= (level)) std::cout << msg << std::flush
-/// like VERBOSE(), but without line feed at the end.
-#define VERBOSE_NOLF(msg) __VERBOSE_NOLF(msg,1)
-/// like VERBOSE2(), but without line feed at the end.
-#define VERBOSE2_NOLF(msg) __VERBOSE_NOLF(msg,2)
-/// like VERBOSE3(), but without line feed at the end.
-#define VERBOSE3_NOLF(msg) __VERBOSE_NOLF(msg,3)
+/// like SSR_VERBOSE(), but without line feed at the end.
+#define SSR_VERBOSE_NOLF(msg) __SSR_VERBOSE_NOLF(msg,1)
+/// like SSR_VERBOSE2(), but without line feed at the end.
+#define SSR_VERBOSE2_NOLF(msg) __SSR_VERBOSE_NOLF(msg,2)
+/// like SSR_VERBOSE3(), but without line feed at the end.
+#define SSR_VERBOSE3_NOLF(msg) __SSR_VERBOSE_NOLF(msg,3)
 
 /// Write a warning message to stderr.
 #define SSR_WARNING(msg) \

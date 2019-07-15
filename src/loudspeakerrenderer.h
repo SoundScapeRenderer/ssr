@@ -159,7 +159,7 @@ LoudspeakerRenderer<Derived>::load_reproduction_setup()
 
       if (!apf::str::S2A(node.get_attribute("number"), number) || (number < 1))
       {
-        //VERBOSE("Couldn't get \"number\" attribute of \"skip\" element."
+        //SSR_VERBOSE("Couldn't get \"number\" attribute of \"skip\" element."
         //    " Using default value 1.");
         number = 1;
       }
@@ -179,7 +179,7 @@ LoudspeakerRenderer<Derived>::load_reproduction_setup()
         + _reproduction_setup + "\"!");
   }
 
-  //VERBOSE("Loaded " << l.size() << " loudspeakers from '"
+  //SSR_VERBOSE("Loaded " << l.size() << " loudspeakers from '"
   //    << setup_file_name << "'.");
 }
 

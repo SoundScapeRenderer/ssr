@@ -43,7 +43,7 @@ ssr::TrackerVrpn::TrackerVrpn(api::Publisher& controller
   , _az_corr(0.0f)
   , _stop_thread(false)
 {
-  VERBOSE("Starting VRPN tracker \"" << address << "\"");
+  SSR_VERBOSE("Starting VRPN tracker \"" << address << "\"");
 
   // TODO: what exactly is this supposed to do?
   //this->set_update_rate(120);
@@ -117,7 +117,7 @@ ssr::TrackerVrpn::_start()
 {
   // create thread
   _tracker_thread = std::thread(&ssr::TrackerVrpn::_thread, this);
-  VERBOSE("Starting tracker ...");
+  SSR_VERBOSE("Starting tracker ...");
 }
 
 void
@@ -126,7 +126,7 @@ ssr::TrackerVrpn::_stop()
   _stop_thread = true;
   if (_tracker_thread.joinable())
   {
-    VERBOSE2("Stopping tracker...");
+    SSR_VERBOSE2("Stopping tracker...");
     _tracker_thread.join();
   }
 }

@@ -54,7 +54,7 @@ ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
   {
     throw std::runtime_error("No serial port(s) specified!");
   }
-  VERBOSE("Opening serial port for Polhemus Fastrak/Patriot ...");
+  SSR_VERBOSE("Opening serial port for Polhemus Fastrak/Patriot ...");
 
   std::istringstream iss(ports);
   std::string port;
@@ -62,15 +62,15 @@ ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
   {
     if (port != "")
     {
-      VERBOSE_NOLF("Trying to open port " << port << " ... ");
+      SSR_VERBOSE_NOLF("Trying to open port " << port << " ... ");
       _tracker_port = _open_serial_port(port.c_str());
       if (_tracker_port == -1)
       {
-        VERBOSE("failure!");
+        SSR_VERBOSE("failure!");
       }
       else
       {
-        VERBOSE("success!");
+        SSR_VERBOSE("success!");
         break; // stop trying
       }
     }
@@ -200,7 +200,7 @@ ssr::TrackerPolhemus::_start()
 {
   // create thread
   _tracker_thread = std::thread(&ssr::TrackerPolhemus::_thread, this);
-  VERBOSE("Starting tracker ...");
+  SSR_VERBOSE("Starting tracker ...");
 }
 
 void
@@ -209,7 +209,7 @@ ssr::TrackerPolhemus::_stop()
   _stop_thread = true;
   if (_tracker_thread.joinable())
   {
-    VERBOSE2("Stopping tracker...");
+    SSR_VERBOSE2("Stopping tracker...");
     _tracker_thread.join();
   }
 }

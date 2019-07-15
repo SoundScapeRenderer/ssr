@@ -55,7 +55,7 @@ class AapRenderer : public SourceToOutput<AapRenderer, LoudspeakerRenderer>
       , _ambisonics_order(params.get("ambisonics_order", 0))
       , _in_phase_rendering(params.get("in_phase", true))
     {
-      VERBOSE((_in_phase_rendering ? "U" : "Not u")
+      SSR_VERBOSE((_in_phase_rendering ? "U" : "Not u")
           << "sing in-phase rendering.");
     }
 
@@ -205,7 +205,7 @@ AapRenderer::load_reproduction_setup()
 
   assert(_ambisonics_order > 0);
 
-  VERBOSE("Using Ambisonics order " << _ambisonics_order << ".");
+  SSR_VERBOSE("Using Ambisonics order " << _ambisonics_order << ".");
 
   // TODO: more things?
 }

@@ -240,7 +240,7 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
   _deselect_all_sources(); // no source selected
 
   // scene menu is not shown if floating control panel is used
-  VERBOSE("Floating control panel is used, scene menu will not be shown.");
+  SSR_VERBOSE("Floating control panel is used, scene menu will not be shown.");
   (void)path_to_scene_menu;
 
   // update screen with update_frequency
@@ -456,7 +456,7 @@ void ssr::QUserInterface::_create_scene_menu(const std::string& path_to_scene_me
     return;
   }
 
-  VERBOSE("Creating scene menu from file '" << path_to_scene_menu << "'.");
+  SSR_VERBOSE("Creating scene menu from file '" << path_to_scene_menu << "'.");
 
   std::string line;
   std::string::size_type index;
@@ -556,7 +556,7 @@ void ssr::QUserInterface::_save_file_as()
   // if aborted
   if ( file_name.isEmpty() )
   {
-    VERBOSE("Scene not saved.");
+    SSR_VERBOSE("Scene not saved.");
   }
   else
   {
@@ -570,7 +570,7 @@ void ssr::QUserInterface::_save_file_as()
     }
 
     _controller.take_control()->save_scene(file_name_std);
-    VERBOSE("Scene saved in '" << file_name_std << "'.");
+    SSR_VERBOSE("Scene saved in '" << file_name_std << "'.");
   }
 
 }
@@ -1259,7 +1259,7 @@ void ssr::QUserInterface::dropEvent(QDropEvent *event)
 
     QUrl url(urlList.at(0));
 
-    VERBOSE("Dropped file: " <<
+    SSR_VERBOSE("Dropped file: " <<
       std::string(url.toString().toStdString()));
 
     // Remove "file://"
@@ -1451,7 +1451,7 @@ void ssr::QUserInterface::_set_source_model(const int index)
       model = LegacySource::point;
       break;
   }
-  VERBOSE("index: " << index);
+  SSR_VERBOSE("index: " << index);
 
   unsigned int id = _id_of_last_clicked_source;
   auto control = _controller.take_control();
