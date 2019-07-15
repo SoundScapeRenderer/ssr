@@ -75,7 +75,7 @@ std::string AudioPlayer::get_port_name(const std::string& audio_file_name,
         + "' already registered.");
     if (channel > registered_file->get_channels())
     {
-      ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
+      SSR_ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
           + audio_file_name + "'!");
       return "";
     }
@@ -91,7 +91,7 @@ std::string AudioPlayer::get_port_name(const std::string& audio_file_name,
     }
     if (channel > temp->get_channels())
     {
-      ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
+      SSR_ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
           + audio_file_name + "'!");
       // if wrong channel is requested, audiofile is not registered.
       return "";
@@ -309,7 +309,7 @@ AudioPlayer::Soundfile::ptr_t AudioPlayer::Soundfile::create(
   }
   catch(soundfile_error& e)
   {
-    ERROR(e.what());
+    SSR_ERROR(e.what());
   }
   return temp;
 }

@@ -438,7 +438,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         {
           if (!S2A(optarg, conf.end_of_message_character))
           {
-            ERROR("Invalid end-of-message character specified!");
+            SSR_ERROR("Invalid end-of-message character specified!");
           }
         }
         else if (strcmp("websocket-server", longopts[longindex].name) == 0)
@@ -449,7 +449,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
           {
             if (!S2A(optarg, conf.websocket_port))
             {
-              ERROR("Invalid WebSocket port specified!");
+              SSR_ERROR("Invalid WebSocket port specified!");
             }
           }
 #endif
@@ -482,7 +482,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         }
         else
         {
-          ERROR("For now, only one non-option parameter "
+          SSR_ERROR("For now, only one non-option parameter "
               "(= scene file) is allowed!");
           WARNING("Ignoring '" << optarg << "'.");
         }
@@ -522,7 +522,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         {
           if (!S2A(optarg, conf.server_port))
           {
-            ERROR("Invalid server port specified!");
+            SSR_ERROR("Invalid server port specified!");
           }
         }
 #endif
@@ -818,7 +818,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
       else if (!strcasecmp(value,"true")) conf.renderer_params.set("in_phase", true);
       else if (!strcasecmp(value,"FALSE")) conf.renderer_params.set("in_phase", false);
       else if (!strcasecmp(value,"false")) conf.renderer_params.set("in_phase", false);
-      else ERROR("I don't understand the option '" << value
+      else SSR_ERROR("I don't understand the option '" << value
           << "' for in-phase rendering.");
     }
     else if (!strcmp(key, "INPUT_PREFIX"))
@@ -867,7 +867,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
       #ifdef ENABLE_IP_INTERFACE
       if (!S2A(value, conf.end_of_message_character))
       {
-        ERROR("Invalid end-of-message character specified!");
+        SSR_ERROR("Invalid end-of-message character specified!");
       }
       #endif
     }

@@ -47,7 +47,7 @@
 #include "qopenglplotter.h"
 #include "qclicktextlabel.h"
 //#include "mathtools.h"
-#include "ssr_global.h"  // for ERROR()
+#include "ssr_global.h"  // for SSR_ERROR()
 #include "api.h"  // for Publisher
 #include "legacy_scene.h"  // for LegacyScene
 
@@ -155,7 +155,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 
   if (!image_buffer.isNull()) _ssr_logo_texture = bindTexture(image_buffer);
   else
-    ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
+    SSR_ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   image_buffer = QImage();
 
@@ -170,7 +170,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
     _source_shadow_texture = bindTexture(image_buffer);
   }
   else
-    ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
+    SSR_ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   if (_scene.show_head())
   {
@@ -186,7 +186,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
 
     if (!image_buffer.isNull()) _listener_texture = bindTexture(image_buffer);
     else
-     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
+     SSR_ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
     // load listener shadow texture
     image_buffer = QImage();
@@ -201,7 +201,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
       _listener_shadow_texture = bindTexture(image_buffer);
     }
     else
-     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
+     SSR_ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
     // load listener background texture
     image_buffer = QImage();
@@ -216,7 +216,7 @@ void ssr::QOpenGLPlotter::_load_background_textures()
       _listener_background_texture = bindTexture(image_buffer);
     }
     else
-     ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
+     SSR_ERROR("Texture \"" << path_to_image.toUtf8().data() << "\" not loaded.");
 
   }
 

@@ -87,7 +87,7 @@ AudioRecorder::AudioRecorder(const std::string& audio_file_name,
   if (_eca.error())
   {
     VERBOSE("failed!");
-    ERROR("File must be writable and needs an extension recognized by "
+    SSR_ERROR("File must be writable and needs an extension recognized by "
         "ecasound, e.g. \".wav\".");
     throw audiorecorder_error("ecasound: " + _eca.last_error());
   }
@@ -117,7 +117,7 @@ bool AudioRecorder::enable()
   _eca.command("engine-launch");
   if (_eca.error())
   {
-    ERROR("ecasound: " + _eca.last_error());
+    SSR_ERROR("ecasound: " + _eca.last_error());
     return false;
   }
   return true;
@@ -128,7 +128,7 @@ bool AudioRecorder::disable()
   _eca.command("engine-halt");
   if (_eca.error())
   {
-    ERROR("ecasound: " + _eca.last_error());
+    SSR_ERROR("ecasound: " + _eca.last_error());
     return false;
   }
   return true;

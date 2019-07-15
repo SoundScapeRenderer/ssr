@@ -86,7 +86,7 @@ extern unsigned int usleeptime;
 #define WARNING(msg) \
   std::cerr << "Warning: " << msg << " " __POS__ << std::endl
 /// Write an error message to stderr.
-#define ERROR(msg) \
+#define SSR_ERROR(msg) \
   std::cerr << "Error: " << msg << " " __POS__ << std::endl
 
 #endif

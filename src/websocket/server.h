@@ -31,7 +31,7 @@
 #include <fstream>  // for std::ifstream
 #include <thread>
 
-#include "ssr_global.h"  // for ERROR(), VERBOSE(), ...
+#include "ssr_global.h"  // for SSR_ERROR(), VERBOSE(), ...
 #include "connection.h"  // for Connection
 
 namespace ssr
@@ -111,7 +111,7 @@ public:
     }
     else
     {
-      ERROR("Unknown file type: " << resource);
+      SSR_ERROR("Unknown file type: " << resource);
       con->set_status(websocketpp::http::status_code::not_implemented
           , "unknown file type");
       return;
@@ -134,7 +134,7 @@ public:
     else
     {
       con->set_status(websocketpp::http::status_code::not_found);
-      ERROR("Not found: " << resource);
+      SSR_ERROR("Not found: " << resource);
     }
   }
 
@@ -152,7 +152,7 @@ public:
       }
     }
     // TODO: error status to client?
-    ERROR("Wrong subprotocol(s) requested");
+    SSR_ERROR("Wrong subprotocol(s) requested");
     return false;
   }
 
@@ -172,7 +172,7 @@ public:
     }
     else
     {
-      ERROR("Invalid connection handle for incoming message");
+      SSR_ERROR("Invalid connection handle for incoming message");
     }
   }
 
@@ -185,7 +185,7 @@ public:
     }
     else
     {
-      ERROR("Connection to be closed does not exist");
+      SSR_ERROR("Connection to be closed does not exist");
     }
   }
 

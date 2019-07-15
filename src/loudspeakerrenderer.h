@@ -232,7 +232,7 @@ LoudspeakerRenderer<Derived>::_load_loudspeaker(const Node& node)
   // check validity
   if (delay < 0)
   {
-    //ERROR("Loudspeaker delay can not be negative. I'll ignore it");
+    //SSR_ERROR("Loudspeaker delay can not be negative. I'll ignore it");
     delay = 0.0f;
   }
 
@@ -440,7 +440,7 @@ LoudspeakerRenderer<Derived>::_get_position(const Node& node)
       }
       else
       {
-        //ERROR("Invalid position!");
+        //SSR_ERROR("Invalid position!");
         return temp; // return NULL
       } // if read operation successful
 
@@ -467,7 +467,7 @@ LoudspeakerRenderer<Derived>::_get_orientation(const Node& node)
       }
       else
       {
-        //ERROR("Invalid orientation!");
+        //SSR_ERROR("Invalid orientation!");
         return temp; // return NULL
       }
     }
@@ -493,7 +493,7 @@ LoudspeakerRenderer<Derived>::_get_angle(const Node& node)
       }
       else
       {
-        //ERROR("Invalid angle!");
+        //SSR_ERROR("Invalid angle!");
         return temp; // return NULL
       }
     }

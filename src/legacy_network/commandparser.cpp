@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-#include "ssr_global.h" // for ERROR()
+#include "ssr_global.h" // for SSR_ERROR()
 #include "commandparser.h"
 #include "api.h"
 #include "xmlparser.h"
@@ -59,7 +59,7 @@ CommandParser::parse_cmd(const std::string& cmd)
   XMLParser::doc_t doc1 = xp.load_string(cmd);
   if (!doc1)
   {
-    ERROR("Unable to load string! (\"" << cmd << "\")");
+    SSR_ERROR("Unable to load string! (\"" << cmd << "\")");
     return;
   }
 
@@ -67,7 +67,7 @@ CommandParser::parse_cmd(const std::string& cmd)
 
   if (!result1)
   {
-    ERROR("XPath: no result!");
+    SSR_ERROR("XPath: no result!");
     return;
   }
   XMLParser::Node node1 = result1->node(); // get first (and only?) node.
@@ -89,14 +89,14 @@ CommandParser::parse_cmd(const std::string& cmd)
       {
         if (!S2A(i.get_attribute("id"), source_number))
         {
-          ERROR("No source ID specified!");
+          SSR_ERROR("No source ID specified!");
           return;
         }
       }
       auto id = control->get_source_id(source_number);
       if (id == "" && !new_source)
       {
-        ERROR("Invalid source number: " << source_number);
+        SSR_ERROR("Invalid source number: " << source_number);
         return;
       }
 
@@ -203,7 +203,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       std::string properties_file = i.get_attribute("properties-file");
       if (!properties_file.empty() && !new_source)
       {
-        ERROR("Cannot set properties-file! This works only for new sources.");
+        SSR_ERROR("Cannot set properties-file! This works only for new sources.");
       }
 
       std::string model = i.get_attribute("model");
@@ -220,7 +220,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       std::string port_name = i.get_attribute("port");
       if (!port_name.empty() && !new_source)
       {
-        ERROR("Cannot set port name! This works only for new sources.");
+        SSR_ERROR("Cannot set port name! This works only for new sources.");
       }
 
       std::string file_or_port_name = port_name;
@@ -228,15 +228,15 @@ CommandParser::parse_cmd(const std::string& cmd)
       std::string file_name = i.get_attribute("file");
       if (!file_name.empty() && !new_source)
       {
-        ERROR("Cannot set file name! This works only for new sources.");
+        SSR_ERROR("Cannot set file name! This works only for new sources.");
       }
       if (!file_name.empty() && !port_name.empty())
       {
-        ERROR("Either file name or port name can be set, not both!");
+        SSR_ERROR("Either file name or port name can be set, not both!");
       }
       if (new_source && file_name.empty() && port_name.empty())
       {
-        ERROR("Either file name or port name must be specified!");
+        SSR_ERROR("Either file name or port name must be specified!");
       }
 
       int channel = 0;
@@ -246,7 +246,7 @@ CommandParser::parse_cmd(const std::string& cmd)
 
         if (file_name.empty())
         {
-          ERROR("'channel' is only allowed if a file name is also specified!");
+          SSR_ERROR("'channel' is only allowed if a file name is also specified!");
           channel = 0;
         }
         else
@@ -264,7 +264,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       {
         if (file_or_port_name == "")
         {
-          ERROR("Either file name or port name must be specified!");
+          SSR_ERROR("Either file name or port name must be specified!");
         }
         else
         {
@@ -301,7 +301,7 @@ CommandParser::parse_cmd(const std::string& cmd)
             control->reference_position(Position(x,y));
             VERBOSE2("set reference position: " << Position(x,y));
           }
-          else ERROR("Invalid reference position!");
+          else SSR_ERROR("Invalid reference position!");
         }
         else if (inner_loop == "orientation")
         {
@@ -311,7 +311,7 @@ CommandParser::parse_cmd(const std::string& cmd)
             control->reference_rotation(Orientation(azimuth));
             VERBOSE2("set reference orientation: " << Orientation(azimuth));
           }
-          else ERROR("Invalid reference orientation!");
+          else SSR_ERROR("Invalid reference orientation!");
         }
       }
     } // if (reference)
@@ -328,7 +328,7 @@ CommandParser::parse_cmd(const std::string& cmd)
             control->reference_position_offset(Position(x,y));
             VERBOSE2("set reference offset position: " << Position(x,y));
           }
-          else ERROR("Invalid reference offset position!");
+          else SSR_ERROR("Invalid reference offset position!");
         }
         else if (inner_loop == "orientation")
         {
@@ -338,7 +338,7 @@ CommandParser::parse_cmd(const std::string& cmd)
             control->reference_rotation_offset(Orientation(azimuth));
             VERBOSE2("set reference offset orientation: " << Orientation(azimuth));
           }
-          else ERROR("Invalid reference offset orientation!");
+          else SSR_ERROR("Invalid reference offset orientation!");
         }
       }
     } // if (reference_offset)
@@ -358,10 +358,10 @@ CommandParser::parse_cmd(const std::string& cmd)
             }
             else
             {
-              ERROR("Source ID doesn't exist: " << id);
+              SSR_ERROR("Source ID doesn't exist: " << id);
             }
           }
-          else ERROR("Cannot read source ID!");
+          else SSR_ERROR("Cannot read source ID!");
         }
         else {}
       }// for ()
@@ -399,7 +399,7 @@ CommandParser::parse_cmd(const std::string& cmd)
         control->master_volume(apf::math::dB2linear(volume));
         VERBOSE2("set master volume: " << volume << " dB");
       }
-      else ERROR("Invalid Volume Setting! (\"" << volume_str << "\")");
+      else SSR_ERROR("Invalid Volume Setting! (\"" << volume_str << "\")");
 
       bool clear_scene;
       if (S2A(i.get_attribute("clear"), clear_scene) && clear_scene)
@@ -422,7 +422,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       }
       else if (processing != "")
       {
-        ERROR("Invalid value for \"processing\": " << processing);
+        SSR_ERROR("Invalid value for \"processing\": " << processing);
       }
 
       // start/stop/rewind transport
@@ -442,7 +442,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       }
       else if (transport != "")
       {
-        ERROR("Invalid value for \"transport\": " << transport);
+        SSR_ERROR("Invalid value for \"transport\": " << transport);
       }
 
       // jump to a certain time
@@ -460,7 +460,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       }
       else if (seek != "")
       {
-        ERROR("Couldn't get the time out of the \"seek\" attribute (\""
+        SSR_ERROR("Couldn't get the time out of the \"seek\" attribute (\""
             << seek << "\").");
       }
 
@@ -473,7 +473,7 @@ CommandParser::parse_cmd(const std::string& cmd)
       }
       else if (tracker != "")
       {
-        ERROR("Invalid value for \"tracker\": " << tracker);
+        SSR_ERROR("Invalid value for \"tracker\": " << tracker);
       }
     }
   }

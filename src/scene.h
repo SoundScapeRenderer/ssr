@@ -249,7 +249,7 @@ private:
     }
     else
     {
-      ERROR("Source \"" << id << "\" already existed in the source map");
+      SSR_ERROR("Source \"" << id << "\" already existed in the source map");
     }
   }
 
@@ -259,7 +259,7 @@ private:
     auto src = _source_map.find(id);
     if (src == _source_map.end())
     {
-      ERROR("Source \"" << id << "\" doesn't exist!");
+      SSR_ERROR("Source \"" << id << "\" doesn't exist!");
     }
     else
     {

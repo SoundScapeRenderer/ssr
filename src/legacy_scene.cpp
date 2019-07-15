@@ -116,7 +116,7 @@ LegacySource ssr::LegacyScene::get_source(legacy_id_t id) const
   auto source = LegacySource(_loudspeakers.size());
   auto source_ptr = maptools::get_item(_source_map, id);
 
-  if (!source_ptr) ERROR("Source " << id << " doesn't exist!");
+  if (!source_ptr) SSR_ERROR("Source " << id << " doesn't exist!");
   else source = *source_ptr;
 
   return source;
