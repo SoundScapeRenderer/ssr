@@ -64,7 +64,7 @@ class Tracker
     };
 
     // get current tracker data
-    const Tracker_data* const get_tracker_data() const { return &this->current_data; }
+    const Tracker_data* get_tracker_data() const { return &this->current_data; }
 
     // Update SSR
     virtual void update(const Tracker::Tracker_data &_data) = 0;
