@@ -76,12 +76,7 @@ class TrackerPolhemus : public Tracker
     int _open_serial_port(const char *portname);
     std::string::size_type _line_size;
 
-    void update(const Tracker::Tracker_data& _data) override
-    {
-      _current_azimuth = _data.yaw;
-      _controller.take_control()->reference_rotation_offset(
-      Orientation(-_current_azimuth + Tracker::azi_correction));
-    }
+    void update(const Tracker::Tracker_data &_data) override;
 
     // thread related stuff
     std::thread _tracker_thread;

@@ -91,3 +91,10 @@ ssr::TrackerRazor::create(api::Publisher& controller, const std::string& ports)
   }
   return temp;
 }
+
+void ssr::TrackerRazor::update(const Tracker::Tracker_data &_data)
+{
+  _current_azimuth = _data.yaw;
+  _controller.take_control()->reference_rotation_offset(
+  Orientation(-_current_azimuth + Tracker::azi_correction));
+}

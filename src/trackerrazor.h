@@ -79,16 +79,11 @@ class TrackerRazor : public Tracker
       Tracker::current_data.pitch = ypr[1];
       Tracker::current_data.roll = ypr[2];
       // Push updates to SSR
-      this->update(Tracker::current_data);
+      this->update(*Tracker::get_tracker_data());
     }
     void on_error(const std::string &msg) { SSR_ERROR("Razor AHRS: " << msg); }
 
-    void update(const Tracker::Tracker_data& _data) override
-    {
-      _current_azimuth = _data.yaw;
-      _controller.take_control()->reference_rotation_offset(
-      Orientation(-_current_azimuth + Tracker::azi_correction));
-    };
+    void update(const Tracker::Tracker_data &_data) override;
 
     // thread related stuff
     virtual void _start() override {}; // implemented in RazorAHRS

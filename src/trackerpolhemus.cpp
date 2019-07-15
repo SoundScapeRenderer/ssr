@@ -301,6 +301,13 @@ ssr::TrackerPolhemus::_thread()
     Tracker::current_data.roll = _current_data.roll;
 
     // Push updates to SSR
-    this->update(Tracker::current_data);
+    this->update(*Tracker::get_tracker_data());
   };
+}
+
+void ssr::TrackerPolhemus::update(const Tracker::Tracker_data &_data)
+{
+  _current_azimuth = _data.yaw;
+  _controller.take_control()->reference_rotation_offset(
+  Orientation(-_current_azimuth + Tracker::azi_correction));
 }
