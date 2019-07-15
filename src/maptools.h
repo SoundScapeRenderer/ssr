@@ -97,7 +97,7 @@ bool delete_item(std::map<idT, dataT*>& m, const idT& id)
   auto delinquent = m.find(id);
   if (delinquent == m.end())
   {
-    //WARNING("maptools::delete_item: '" << id << "' does not exist!");
+    //SSR_WARNING("maptools::delete_item: '" << id << "' does not exist!");
     return true; // anyway, the function kind of succeeded, didn't it?
   }
   delete delinquent->second;

@@ -479,7 +479,7 @@ WfsRenderer::RenderFunction::select(SourceChannel& in)
   }
   else
   {
-    //WARNING("Unknown source model");
+    //SSR_WARNING("Unknown source model");
   }
 
 #if defined(WEIGHTING_OLD)

@@ -935,7 +935,7 @@ Connection::on_message(message_ptr msg)
           }
           else
           {
-            WARNING("Unknown source property: " << member.name);
+            SSR_WARNING("Unknown source property: " << member.name);
           }
         }
 
@@ -1094,11 +1094,11 @@ Connection::on_message(message_ptr msg)
     }
     else if (command == "save-scene")
     {
-      WARNING("save-scene not implemented (yet?)");
+      SSR_WARNING("save-scene not implemented (yet?)");
     }
     else if (command == "time")
     {
-      WARNING("Message timestamps might be implemented in the future ...");
+      SSR_WARNING("Message timestamps might be implemented in the future ...");
     }
     else
     {

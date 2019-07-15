@@ -85,7 +85,7 @@ std::string AudioPlayer::get_port_name(const std::string& audio_file_name,
     auto temp = Soundfile::create(audio_file_name, loop);
     if (!temp)
     {
-      WARNING("AudioPlayer: Initialization of soundfile '" + audio_file_name
+      SSR_WARNING("AudioPlayer: Initialization of soundfile '" + audio_file_name
           + "' failed!");
       return "";
     }
@@ -221,7 +221,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
 
   if (_sample_rate != jack_sample_rate)
   {
-    WARNING("'" + _filename
+    SSR_WARNING("'" + _filename
         + "' has a different sample rate than JACK! ("
         + apf::str::A2S(_sample_rate) + " vs. "
         + apf::str::A2S(jack_sample_rate) + ")");

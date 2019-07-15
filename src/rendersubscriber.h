@@ -31,7 +31,7 @@
 #define SSR_RENDERSUBSCRIBER_H
 
 #include "api.h"
-#include "ssr_global.h"  // for WARNING()
+#include "ssr_global.h"  // for SSR_WARNING()
 
 #include "rendererbase.h"  // for Source
 
@@ -70,7 +70,7 @@ private:
     auto* src = _renderer.get_source(id);
     if (!src)
     {
-      WARNING("Source \"" << id << "\" does not exist.");
+      SSR_WARNING("Source \"" << id << "\" does not exist.");
     }
     else
     {

@@ -345,7 +345,7 @@ class LegacyScene : public api::SceneControlEvents
       }
       else
       {
-        WARNING("LegacyScene: Source ID \"" << id << "\" already exists");
+        SSR_WARNING("LegacyScene: Source ID \"" << id << "\" already exists");
       }
     }
 
@@ -376,7 +376,7 @@ class LegacyScene : public api::SceneControlEvents
       }
       else
       {
-        WARNING("LegacyScene: Unknown property: \"" << key << "\"");
+        SSR_WARNING("LegacyScene: Unknown property: \"" << key << "\"");
       }
     }
 

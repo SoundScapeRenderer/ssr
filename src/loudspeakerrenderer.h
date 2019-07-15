@@ -170,7 +170,7 @@ LoudspeakerRenderer<Derived>::load_reproduction_setup()
     }
     else
     {
-      //WARNING("Ignored \"" << node << "\" element!");
+      //SSR_WARNING("Ignored \"" << node << "\" element!");
     }
   }
   if (_next_loudspeaker_channel < 2)

@@ -230,7 +230,7 @@ class Controller : public api::Publisher
       }
       else
       {
-        WARNING("Instance is configured as \"follower\", "
+        SSR_WARNING("Instance is configured as \"follower\", "
             "but no \"leader\" is connected");
       }
     }
@@ -438,7 +438,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 
   if ((_conf.ip_server || _conf.websocket_server) && _conf.freewheeling)
   {
-    WARNING("Freewheel mode cannot be used together with "
+    SSR_WARNING("Freewheel mode cannot be used together with "
         "--ip-server or --websocket-server. Ignored.\n"
         "Type '" + _conf.exec_name + " --help' for more information.");
     _conf.freewheeling = false;
@@ -446,7 +446,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 
   if (_conf.freewheeling && _conf.gui)
   {
-    WARNING("In 'freewheeling' mode the GUI cannot be used! Disabled.\n"
+    SSR_WARNING("In 'freewheeling' mode the GUI cannot be used! Disabled.\n"
         "Type '" + _conf.exec_name + " --help' for more information.");
     _conf.gui = false;
   }
@@ -963,12 +963,12 @@ public:
       auto* src = _controller._scene.get_source(id);
       if (src == nullptr)
       {
-        WARNING("Source \"" << id << "\" does not exist.");
+        SSR_WARNING("Source \"" << id << "\" does not exist.");
         return;
       }
       else if (src->fixed)
       {
-        WARNING("Source \"" << id << "\" cannot be moved because it is fixed.");
+        SSR_WARNING("Source \"" << id << "\" cannot be moved because it is fixed.");
         return;
       }
     }
@@ -996,12 +996,12 @@ public:
       auto* src = _controller._scene.get_source(id);
       if (src == nullptr)
       {
-        WARNING("Source \"" << id << "\" does not exist.");
+        SSR_WARNING("Source \"" << id << "\" does not exist.");
         return;
       }
       if (src->fixed)
       {
-        WARNING("Source \"" << id
+        SSR_WARNING("Source \"" << id
             << "\" cannot be rotated because it is fixed.");
         return;
       }
@@ -1106,7 +1106,7 @@ public:
     {
       if (!_controller._load_scene(filename))
       {
-        WARNING("Loading scene \"" << filename << "\" failed");
+        SSR_WARNING("Loading scene \"" << filename << "\" failed");
       }
     }
     else
@@ -1121,7 +1121,7 @@ public:
     {
       if (!_controller._save_scene(filename))
       {
-        WARNING("Saving scene \"" << filename << "\" failed");
+        SSR_WARNING("Saving scene \"" << filename << "\" failed");
       }
     }
     else
@@ -1546,7 +1546,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     if (xpath_result
         && !apf::str::S2A(get_content(xpath_result->node()), master_volume))
     {
-      WARNING("Invalid master volume specified in scene!");
+      SSR_WARNING("Invalid master volume specified in scene!");
       master_volume = 0.0f;
     }
 
@@ -1562,7 +1562,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     {
       if (!apf::str::S2A(get_content(xpath_result->node()), exponent))
       {
-        WARNING("Invalid amplitude decay exponent!");
+        SSR_WARNING("Invalid amplitude decay exponent!");
       }
     }
 
@@ -1581,7 +1581,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     {
       if (!apf::str::S2A(get_content(xpath_result->node()), ref_dist))
       {
-        WARNING("Invalid amplitude reference distance!");
+        SSR_WARNING("Invalid amplitude reference distance!");
       }
     }
 
@@ -1687,12 +1687,12 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     }
     else
     {
-      WARNING("No sources found in \"" << scene_file_name << "\"!");
+      SSR_WARNING("No sources found in \"" << scene_file_name << "\"!");
     }
   }
   else // file_extension != "asd" -> try to open file as audio file
   {
-    WARNING("Trying to open specified file as audio file.");
+    SSR_WARNING("Trying to open specified file as audio file.");
     if (!_create_spontaneous_scene(scene_file_name))
     {
       SSR_ERROR("\"" << scene_file_name << "\" could not be loaded as audio file!");
@@ -1720,16 +1720,16 @@ Controller<Renderer>::_create_spontaneous_scene(
 
   if (no_of_audio_channels == 0)
   {
-    WARNING("No audio channels found in file \"" << audio_file_name << "\"!");
+    SSR_WARNING("No audio channels found in file \"" << audio_file_name << "\"!");
     return false;
   }
 
-  WARNING("Creating spontaneous scene from the audio file \""
+  SSR_WARNING("Creating spontaneous scene from the audio file \""
       << audio_file_name << "\".");
 
   if (_renderer.params.get("name", "") == "brs")
   {
-    WARNING("I don't have information on the BRIRs. I'll use default HRIRs. "
+    SSR_WARNING("I don't have information on the BRIRs. I'll use default HRIRs. "
             "Everything will sound in front.");
   }
 
@@ -1844,7 +1844,7 @@ Controller<Renderer>::_start_gui(const std::string& path_to_gui_images
   // check if anti-aliasing is possible
   if (!_gui->format().sampleBuffers())
   {
-    WARNING("This system does not provide sample buffer support.\n"
+    SSR_WARNING("This system does not provide sample buffer support.\n"
         "I can not enable anti-aliasing for OpenGl stuff.");
   }
 
@@ -1910,7 +1910,7 @@ Controller<Renderer>::_start_tracker(const std::string& type, const std::string&
 
   if (!_tracker)
   {
-    WARNING("Cannot find tracker. "
+    SSR_WARNING("Cannot find tracker. "
             "Make sure that you have the appropriate access rights "
             "to read from the port. I continue without tracker.");
   }
@@ -1928,7 +1928,7 @@ Controller<Renderer>::_calibrate_client()
   }
   else
   {
-    WARNING("No tracker there to calibrate.");
+    SSR_WARNING("No tracker there to calibrate.");
   }
 #endif
 }
@@ -2109,7 +2109,7 @@ Controller<Renderer>::_orient_source_toward_reference(id_t id)
   }
   else
   {
-    WARNING("Auto-rotation: Source \"" << id << "\" doesn't exist");
+    SSR_WARNING("Auto-rotation: Source \"" << id << "\" doesn't exist");
   }
 }
 

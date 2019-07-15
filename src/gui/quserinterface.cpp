@@ -425,7 +425,7 @@ void ssr::QUserInterface::_show_file_menu()
 
 void ssr::QUserInterface::_new_scene()
 {
-  WARNING("Not implemented yet.");
+  SSR_WARNING("Not implemented yet.");
 }
 
 /** This function reads the file \a _scene_menu.conf and creates the accoding
@@ -452,7 +452,7 @@ void ssr::QUserInterface::_create_scene_menu(const std::string& path_to_scene_me
 
   if (!config_file.is_open())
   {
-    WARNING("Cannot open scene config file '" << path_to_scene_menu << "'.");
+    SSR_WARNING("Cannot open scene config file '" << path_to_scene_menu << "'.");
     return;
   }
 
@@ -757,7 +757,7 @@ void ssr::QUserInterface::mousePressEvent(QMouseEvent *event)
 
   uint selected_object = _find_selected_object(event->pos());
 
-  // WARNING("Object " << selected_object << " selected.");
+  // SSR_WARNING("Object " << selected_object << " selected.");
 
   // get position of mouse event
   GLdouble pos_x, pos_y, pos_z;

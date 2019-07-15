@@ -42,7 +42,7 @@
 #include "configuration.h"
 #include "posixpathtools.h"
 #include "apf/stringtools.h"
-#include "ssr_global.h" // for ssr::verbose, WARNING(), ...
+#include "ssr_global.h" // for ssr::verbose, SSR_WARNING(), ...
 #include "xmlparser.h"  // TODO: move this somewhere else
 
 using posixpathtools::make_path_relative_to_current_dir;
@@ -130,7 +130,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
 #ifndef NDEBUG
   // Because of this warning, "make check" fails for debug builds (on purpose).
-  WARNING(conf.exec_name << " was compiled for debugging!");
+  SSR_WARNING(conf.exec_name << " was compiled for debugging!");
 #endif
 
   // hard coded default values:
@@ -484,7 +484,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         {
           SSR_ERROR("For now, only one non-option parameter "
               "(= scene file) is allowed!");
-          WARNING("Ignoring '" << optarg << "'.");
+          SSR_WARNING("Ignoring '" << optarg << "'.");
         }
         break;
 
@@ -781,7 +781,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     }
     else if (!strcmp(key, "RENDERER_TYPE"))
     {
-      WARNING("\"RENDERER_TYPE\" is deprecated, don't use it anymore!");
+      SSR_WARNING("\"RENDERER_TYPE\" is deprecated, don't use it anymore!");
     }
     else if (!strcmp(key, "WFS_PREFILTER"))
     {

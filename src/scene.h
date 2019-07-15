@@ -143,7 +143,7 @@ private:
     auto src = _source_map.find(id);
     if (src == _source_map.end())
     {
-      WARNING("Source \"" << id << "\" doesn't exist!");
+      SSR_WARNING("Source \"" << id << "\" doesn't exist!");
     }
     else
     {
@@ -164,7 +164,7 @@ private:
     assert(erased < 2);
     if (erased == 0)
     {
-      WARNING("Source \"" << id << "\" not available, couldn't delete");
+      SSR_WARNING("Source \"" << id << "\" not available, couldn't delete");
     }
     else
     {

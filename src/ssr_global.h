@@ -83,7 +83,7 @@ extern unsigned int usleeptime;
 #define VERBOSE3_NOLF(msg) __VERBOSE_NOLF(msg,3)
 
 /// Write a warning message to stderr.
-#define WARNING(msg) \
+#define SSR_WARNING(msg) \
   std::cerr << "Warning: " << msg << " " __POS__ << std::endl
 /// Write an error message to stderr.
 #define SSR_ERROR(msg) \
