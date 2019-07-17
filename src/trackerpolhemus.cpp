@@ -44,9 +44,7 @@ using apf::str::A2S;
 
 ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
     , const std::string& type, const std::string& ports)
-  : Tracker()
-  , _controller(controller)
-  , _current_azimuth(0.0)
+  : Tracker(controller)
   , _stop_thread(false)
 {
   if (ports == "")
@@ -140,7 +138,7 @@ ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
   // wait until tracker has started
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-  this->calibrate();
+  Tracker::reset();
 }
 
 ssr::TrackerPolhemus::~TrackerPolhemus()
@@ -296,18 +294,11 @@ ssr::TrackerPolhemus::_thread()
               >> _current_data.roll;
 
     // Write back to tracker_data
-    Tracker::current_data.yaw = _current_data.azimuth;
-    Tracker::current_data.pitch = _current_data.elevation;
-    Tracker::current_data.roll = _current_data.roll;
+    Tracker::_current_rot = ypr2quaternion(_current_data.azimuth,
+                                           _current_data.elevation,
+                                           _current_data.roll);
 
     // Push updates to SSR
-    this->update(*Tracker::get_tracker_data());
+    Tracker::update();
   };
-}
-
-void ssr::TrackerPolhemus::update(const Tracker::Tracker_data &_data)
-{
-  _current_azimuth = _data.yaw;
-  _controller.take_control()->reference_rotation_offset(
-  Orientation(-_current_azimuth + Tracker::azi_correction));
 }

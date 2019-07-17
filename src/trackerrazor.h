@@ -34,6 +34,7 @@
 #include "legacy_orientation.h"  // for Orientation
 #include "ssr_global.h"  // for ERROR, VERBOSE
 #include "tracker.h"  // base class
+#include "apf/math.h"  // for deg2rad()
 
 #include "razor-ahrs/RazorAHRS.h"
 
@@ -57,38 +58,23 @@ class TrackerRazor : public Tracker
       if (_tracker != nullptr) delete _tracker;
     }
 
-  virtual void calibrate() override
-  {
-      SSR_VERBOSE2("Calibrate.");
-      Tracker::azi_correction = _current_azimuth + 90;
-  }
-
   private:
     /// constructor
     TrackerRazor(api::Publisher& controller, const std::string& ports);
-
-    api::Publisher& _controller;
-    double _current_azimuth;
 
     RazorAHRS* _tracker;
 
     /// Razor AHRS callback functions
     void on_data(const float ypr[])
     {
-      Tracker::current_data.yaw = ypr[0];
-      Tracker::current_data.pitch = ypr[1];
-      Tracker::current_data.roll = ypr[2];
+      Tracker::_current_rot = ypr2quaternion(apf::math::deg2rad(ypr[0]),
+                                             apf::math::deg2rad(ypr[1]),
+                                             apf::math::deg2rad(ypr[2]));
       // Push updates to SSR
-      this->update(*Tracker::get_tracker_data());
+      Tracker::update();
     }
     void on_error(const std::string &msg) { SSR_ERROR("Razor AHRS: " << msg); }
 
-    void update(const Tracker::Tracker_data &_data) override;
-
-    // thread related stuff
-    virtual void _start() override {}; // implemented in RazorAHRS
-    virtual void _stop() override {};  // implemented in RazorAHRS
-    virtual void _thread() override {};  // implemented in RazorAHRS
 };
 
 }  // namespace ssr

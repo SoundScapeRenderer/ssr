@@ -57,33 +57,22 @@ class TrackerPolhemus : public Tracker
     static ptr_t create(api::Publisher& controller, const std::string& type
         , const std::string& ports);
 
-    virtual void calibrate() override
-    {
-        SSR_VERBOSE2("Calibrate.");
-        Tracker::azi_correction = _current_azimuth + 90;
-    }
-
   private:
     /// constructor
     TrackerPolhemus(api::Publisher& controller, const std::string& type
         , const std::string& ports);
-
-    api::Publisher& _controller;
-    double _current_azimuth;
 
     int _tracker_port;
 
     int _open_serial_port(const char *portname);
     std::string::size_type _line_size;
 
-    void update(const Tracker::Tracker_data &_data) override;
-
     // thread related stuff
     std::thread _tracker_thread;
     std::atomic<bool> _stop_thread; // thread stop flag
-    void _start() override; ///< start the tracking thread
-    void _stop() override;  ///< stop the tracking thread
-    void _thread() override;  // thread main function
+    void _start(); ///< start the tracking thread
+    void _stop();  ///< stop the tracking thread
+    void _thread();  // thread main function
 };
 
 }  // namespace ssr

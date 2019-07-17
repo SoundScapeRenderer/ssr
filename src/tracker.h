@@ -33,6 +33,8 @@
 #include <atomic>
 #include <thread>
 
+#include "geometry.h"
+
 
 namespace ssr
 {
@@ -41,42 +43,31 @@ namespace ssr
 class Tracker
 {
   public:
+    Tracker(api::Publisher& controller) : _controller(controller){};  ///< constructor
+
     virtual ~Tracker() = default;  ///< destructor
 
-    /// calibrate tracker; set the instantaneous position to be the reference
-    virtual void calibrate() = 0;
-
-    // Azimuth value at calibration in degree
-    std::atomic<double> azi_correction{0.0};
-
-    struct Tracker_data
+    /// reset tracker; set the instantaneous position to be the reference
+    virtual void reset()
     {
-      // Sensor orientation in quaternions
-      std::atomic<double> x, y, z, w;
-
-      // Sensor orientation in axes rotation (in degree)
-      std::atomic<double> yaw, pitch, roll;
-
-      //constructor
-      Tracker_data()
-        : x(0.0), y(0.0), z(0.0), w(1.0), yaw(0.0), pitch(0.0), roll(0.0)
-      {}
-    };
-
-    // get current tracker data
-    const Tracker_data* get_tracker_data() const { return &this->current_data; }
+      SSR_VERBOSE2("Tracker reset.");
+      this->_correction_rot = this->_current_rot;
+    }
 
     // Update SSR
-    virtual void update(const Tracker::Tracker_data &_data) = 0;
-
-    // thread related stuff
-    virtual void _start() = 0; ///< start the tracking thread
-    virtual void _stop() = 0;  ///< stop the tracking thread
-    virtual void _thread() = 0;  ///< thread main function
+    virtual void update()
+    {
+      ssr::quat r = inverse(_correction_rot) * inverse(_current_rot);
+      _controller.take_control()->reference_rotation_offset(r);
+    }
 
     protected:
-      // Current tracker data
-      inline static Tracker_data current_data;
+      // Current tracker data (should be atomic)
+      ssr::quat _current_rot;
+      ssr::quat _correction_rot;
+
+    private:
+      api::Publisher& _controller;
 };
 
 }  // namespace ssr

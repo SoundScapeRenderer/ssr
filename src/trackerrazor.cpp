@@ -32,9 +32,7 @@
 
 ssr::TrackerRazor::TrackerRazor(api::Publisher& controller
     , const std::string& ports)
-  : Tracker()
-  , _controller(controller)
-  , _current_azimuth(0.0)
+  : Tracker(controller)
   , _tracker(nullptr)
 {
   if (ports == "")
@@ -74,7 +72,7 @@ ssr::TrackerRazor::TrackerRazor(api::Publisher& controller
   // wait until tracker has started
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-  this->calibrate();
+  Tracker::reset();
 }
 
 ssr::TrackerRazor::ptr_t
@@ -90,11 +88,4 @@ ssr::TrackerRazor::create(api::Publisher& controller, const std::string& ports)
     SSR_ERROR(e.what());
   }
   return temp;
-}
-
-void ssr::TrackerRazor::update(const Tracker::Tracker_data &_data)
-{
-  _current_azimuth = _data.yaw;
-  _controller.take_control()->reference_rotation_offset(
-  Orientation(-_current_azimuth + Tracker::azi_correction));
 }

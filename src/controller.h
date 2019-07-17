@@ -1924,7 +1924,7 @@ Controller<Renderer>::_calibrate_client()
 #if defined(ENABLE_INTERSENSE) || defined(ENABLE_POLHEMUS) || defined(ENABLE_VRPN) || defined(ENABLE_RAZOR)
   if (_tracker)
   {
-    _tracker->calibrate();
+    _tracker->reset();
   }
   else
   {
