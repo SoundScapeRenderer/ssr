@@ -59,7 +59,7 @@ class TrackerVrpn : public Tracker, public vrpn_Tracker_Remote
 
     virtual void calibrate() override
     {
-        VERBOSE2("Calibrate.");
+        SSR_VERBOSE2("Calibrate.");
         Tracker::azi_correction = _current_azimuth + 90;
     }
 
@@ -75,7 +75,7 @@ class TrackerVrpn : public Tracker, public vrpn_Tracker_Remote
     /// VRPN callback function
     static void VRPN_CALLBACK handle_tracker(void *userdata, const vrpn_TRACKERCB t);
 
-    void update(const Tracker::Tracker_data &_data);
+    void update(const Tracker::Tracker_data &_data) override;
 
     // thread related stuff
     std::thread _tracker_thread;
