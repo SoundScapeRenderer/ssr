@@ -42,7 +42,7 @@
 #include "configuration.h"
 #include "posixpathtools.h"
 #include "apf/stringtools.h"
-#include "ssr_global.h" // for ssr::verbose, WARNING(), ...
+#include "ssr_global.h" // for ssr::verbose, SSR_WARNING(), ...
 #include "xmlparser.h"  // TODO: move this somewhere else
 
 using posixpathtools::make_path_relative_to_current_dir;
@@ -130,7 +130,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
 #ifndef NDEBUG
   // Because of this warning, "make check" fails for debug builds (on purpose).
-  WARNING(conf.exec_name << " was compiled for debugging!");
+  SSR_WARNING(conf.exec_name << " was compiled for debugging!");
 #endif
 
   // hard coded default values:
@@ -438,7 +438,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         {
           if (!S2A(optarg, conf.end_of_message_character))
           {
-            ERROR("Invalid end-of-message character specified!");
+            SSR_ERROR("Invalid end-of-message character specified!");
           }
         }
         else if (strcmp("websocket-server", longopts[longindex].name) == 0)
@@ -449,7 +449,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
           {
             if (!S2A(optarg, conf.websocket_port))
             {
-              ERROR("Invalid WebSocket port specified!");
+              SSR_ERROR("Invalid WebSocket port specified!");
             }
           }
 #endif
@@ -482,9 +482,9 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         }
         else
         {
-          ERROR("For now, only one non-option parameter "
+          SSR_ERROR("For now, only one non-option parameter "
               "(= scene file) is allowed!");
-          WARNING("Ignoring '" << optarg << "'.");
+          SSR_WARNING("Ignoring '" << optarg << "'.");
         }
         break;
 
@@ -522,7 +522,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         {
           if (!S2A(optarg, conf.server_port))
           {
-            ERROR("Invalid server port specified!");
+            SSR_ERROR("Invalid server port specified!");
           }
         }
 #endif
@@ -593,10 +593,10 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     conf.renderer_params.set("system_output_prefix", conf.output_port_prefix);
   }
 
-  VERBOSE2("Requested renderer settings:");
+  SSR_VERBOSE2("Requested renderer settings:");
   for (const auto& entry: conf.renderer_params)
   {
-    VERBOSE2(entry.first << " = " << entry.second);
+    SSR_VERBOSE2(entry.first << " = " << entry.second);
   }
 
   return conf;
@@ -729,7 +729,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
         break;
     }//switch
 
-    VERBOSE2(key << " = " << value);
+    SSR_VERBOSE2(key << " = " << value);
 
     if (!strcmp(key, "NAME"))
     {
@@ -781,7 +781,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     }
     else if (!strcmp(key, "RENDERER_TYPE"))
     {
-      WARNING("\"RENDERER_TYPE\" is deprecated, don't use it anymore!");
+      SSR_WARNING("\"RENDERER_TYPE\" is deprecated, don't use it anymore!");
     }
     else if (!strcmp(key, "WFS_PREFILTER"))
     {
@@ -818,7 +818,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
       else if (!strcasecmp(value,"true")) conf.renderer_params.set("in_phase", true);
       else if (!strcasecmp(value,"FALSE")) conf.renderer_params.set("in_phase", false);
       else if (!strcasecmp(value,"false")) conf.renderer_params.set("in_phase", false);
-      else ERROR("I don't understand the option '" << value
+      else SSR_ERROR("I don't understand the option '" << value
           << "' for in-phase rendering.");
     }
     else if (!strcmp(key, "INPUT_PREFIX"))
@@ -867,7 +867,7 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
       #ifdef ENABLE_IP_INTERFACE
       if (!S2A(value, conf.end_of_message_character))
       {
-        ERROR("Invalid end-of-message character specified!");
+        SSR_ERROR("Invalid end-of-message character specified!");
       }
       #endif
     }

@@ -41,15 +41,10 @@ class SharedData
   public:
     class SetCommand;
 
-    explicit SharedData(CommandQueue& fifo, const X& def = X())
+    explicit SharedData(CommandQueue& fifo, X&& def = X())
       : _fifo(fifo)
-      , _data(def)
-    {
-      // TODO: use reserve() for std::strings and std::vectors? using traits?
-      // the size can be given as third (optional) argument.
-      // see src/scene.h for container_traits.
-      // ... or maybe use swap() instead of assignment?
-    }
+      , _data(std::forward<X>(def))
+    {}
 
     /// Get contained data. Use this if the conversion operator cannot be used.
     const X& get() const { return _data; }
@@ -59,6 +54,16 @@ class SharedData
     void operator=(const X& rhs)
     {
       _fifo.push(new SetCommand(&_data, rhs));
+    }
+
+    void operator=(X&& rhs)
+    {
+      _fifo.push(new SetCommand(&_data, std::forward<X>(rhs)));
+    }
+
+    void set_from_rt_thread(X&& data)
+    {
+      _data = std::forward<X>(data);
     }
 
     friend bool
@@ -86,12 +91,24 @@ class SharedData<X>::SetCommand : public CommandQueue::Command
       assert(pointer != nullptr);
     }
 
+    SetCommand(X* pointer, X&& data)
+      : _pointer(pointer)
+      , _data(std::forward<X>(data))
+    {
+      assert(pointer != nullptr);
+    }
+
   private:
-    virtual void execute() { *_pointer = _data; }
+    virtual void execute()
+    {
+      using std::swap;
+      swap(*_pointer, _data);
+    }
+
     virtual void cleanup() {}
 
     X* _pointer;
-    X _data;  ///< copy of data!
+    X _data;  ///< copy of data or moved-to data
 };
 
 }  // namespace apf

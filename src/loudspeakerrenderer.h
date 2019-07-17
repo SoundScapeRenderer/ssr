@@ -159,7 +159,7 @@ LoudspeakerRenderer<Derived>::load_reproduction_setup()
 
       if (!apf::str::S2A(node.get_attribute("number"), number) || (number < 1))
       {
-        //VERBOSE("Couldn't get \"number\" attribute of \"skip\" element."
+        //SSR_VERBOSE("Couldn't get \"number\" attribute of \"skip\" element."
         //    " Using default value 1.");
         number = 1;
       }
@@ -170,7 +170,7 @@ LoudspeakerRenderer<Derived>::load_reproduction_setup()
     }
     else
     {
-      //WARNING("Ignored \"" << node << "\" element!");
+      //SSR_WARNING("Ignored \"" << node << "\" element!");
     }
   }
   if (_next_loudspeaker_channel < 2)
@@ -179,7 +179,7 @@ LoudspeakerRenderer<Derived>::load_reproduction_setup()
         + _reproduction_setup + "\"!");
   }
 
-  //VERBOSE("Loaded " << l.size() << " loudspeakers from '"
+  //SSR_VERBOSE("Loaded " << l.size() << " loudspeakers from '"
   //    << setup_file_name << "'.");
 }
 
@@ -232,7 +232,7 @@ LoudspeakerRenderer<Derived>::_load_loudspeaker(const Node& node)
   // check validity
   if (delay < 0)
   {
-    //ERROR("Loudspeaker delay can not be negative. I'll ignore it");
+    //SSR_ERROR("Loudspeaker delay can not be negative. I'll ignore it");
     delay = 0.0f;
   }
 
@@ -440,7 +440,7 @@ LoudspeakerRenderer<Derived>::_get_position(const Node& node)
       }
       else
       {
-        //ERROR("Invalid position!");
+        //SSR_ERROR("Invalid position!");
         return temp; // return NULL
       } // if read operation successful
 
@@ -467,7 +467,7 @@ LoudspeakerRenderer<Derived>::_get_orientation(const Node& node)
       }
       else
       {
-        //ERROR("Invalid orientation!");
+        //SSR_ERROR("Invalid orientation!");
         return temp; // return NULL
       }
     }
@@ -493,7 +493,7 @@ LoudspeakerRenderer<Derived>::_get_angle(const Node& node)
       }
       else
       {
-        //ERROR("Invalid angle!");
+        //SSR_ERROR("Invalid angle!");
         return temp; // return NULL
       }
     }

@@ -46,11 +46,11 @@ AudioPlayer::~AudioPlayer()
   if (!_file_map.empty())
   {
     maptools::purge(_file_map);
-    VERBOSE2("AudioPlayer dtor: file map deleted.");
+    SSR_VERBOSE2("AudioPlayer dtor: file map deleted.");
   }
   else
   {
-    VERBOSE2("AudioPlayer dtor.");
+    SSR_VERBOSE2("AudioPlayer dtor.");
   }
 }
 
@@ -71,11 +71,11 @@ std::string AudioPlayer::get_port_name(const std::string& audio_file_name,
   auto registered_file = get_item(_file_map, audio_file_name);
   if (registered_file != nullptr)
   {
-    VERBOSE2("AudioPlayer: Input file '" + audio_file_name
+    SSR_VERBOSE2("AudioPlayer: Input file '" + audio_file_name
         + "' already registered.");
     if (channel > registered_file->get_channels())
     {
-      ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
+      SSR_ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
           + audio_file_name + "'!");
       return "";
     }
@@ -85,13 +85,13 @@ std::string AudioPlayer::get_port_name(const std::string& audio_file_name,
     auto temp = Soundfile::create(audio_file_name, loop);
     if (!temp)
     {
-      WARNING("AudioPlayer: Initialization of soundfile '" + audio_file_name
+      SSR_WARNING("AudioPlayer: Initialization of soundfile '" + audio_file_name
           + "' failed!");
       return "";
     }
     if (channel > temp->get_channels())
     {
-      ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
+      SSR_ERROR("AudioPlayer: Channel " << channel << " doesn't exist in '"
           + audio_file_name + "'!");
       // if wrong channel is requested, audiofile is not registered.
       return "";
@@ -221,7 +221,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
 
   if (_sample_rate != jack_sample_rate)
   {
-    WARNING("'" + _filename
+    SSR_WARNING("'" + _filename
         + "' has a different sample rate than JACK! ("
         + apf::str::A2S(_sample_rate) + " vs. "
         + apf::str::A2S(jack_sample_rate) + ")");
@@ -285,7 +285,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
   // This is a little ugly, but I don't know a better way to do it.
   // If you know one, tell me, please!
   std::this_thread::sleep_for(std::chrono::microseconds(ssr::usleeptime));
-  VERBOSE2("Added '" + _filename
+  SSR_VERBOSE2("Added '" + _filename
       + "', format: '" + apf::str::A2S(_sample_format)
       + "', channels: " + apf::str::A2S(_channels)
       + ", sample rate: " + apf::str::A2S(_sample_rate) + ".");
@@ -296,7 +296,7 @@ AudioPlayer::Soundfile::~Soundfile()
 {
   // TODO: check if ecasound is really running.
   _eca.command("cs-disconnect"); // implies "stop" and "engine-halt"
-  VERBOSE2("AudioPlayer::Soundfile: '" + _filename + "' disconnected.");
+  SSR_VERBOSE2("AudioPlayer::Soundfile: '" + _filename + "' disconnected.");
 }
 
 AudioPlayer::Soundfile::ptr_t AudioPlayer::Soundfile::create(
@@ -309,7 +309,7 @@ AudioPlayer::Soundfile::ptr_t AudioPlayer::Soundfile::create(
   }
   catch(soundfile_error& e)
   {
-    ERROR(e.what());
+    SSR_ERROR(e.what());
   }
   return temp;
 }

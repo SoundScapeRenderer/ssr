@@ -270,12 +270,13 @@ void BinauralRenderer::Source::_process()
 
   this->add_block(_input.begin());
 
-  auto ref_pos = _input.parent.state.reference_position
-    + _input.parent.state.reference_offset_position;
-  auto ref_ori = _input.parent.state.reference_orientation
-    + _input.parent.state.reference_offset_orientation;
+  auto ref_pos = Position(_input.parent.state.reference_position)
+    + Position(_input.parent.state.reference_position_offset);
+  auto ref_ori = Orientation(_input.parent.state.reference_rotation)
+    + Orientation(_input.parent.state.reference_rotation_offset)
+    - Orientation(90);
 
-  float source_distance = (this->position - ref_pos).length();
+  float source_distance = (Position(this->position) - ref_pos).length();
 
   if (this->weighting_factor != 0 && source_distance < 0.5f
         && this->model != "plane")
@@ -295,11 +296,11 @@ void BinauralRenderer::Source::_process()
   {
     // plane wave orientation points into direction of propagation
     // +180 degree has to be applied to select the hrtf correctly
-    rel_ori += this->orientation + Orientation(180);
+    rel_ori += Orientation(this->rotation) + Orientation(180);
   }
   else
   {
-    rel_ori += (this->position - ref_pos).orientation();
+    rel_ori += (Position(this->position) - ref_pos).orientation();
   }
 
   _hrtf_index = size_t(apf::math::wrap(

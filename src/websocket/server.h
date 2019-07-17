@@ -31,7 +31,7 @@
 #include <fstream>  // for std::ifstream
 #include <thread>
 
-#include "ssr_global.h"  // for ERROR(), VERBOSE(), ...
+#include "ssr_global.h"  // for SSR_ERROR(), SSR_VERBOSE(), ...
 #include "connection.h"  // for Connection
 
 namespace ssr
@@ -111,7 +111,7 @@ public:
     }
     else
     {
-      ERROR("Unknown file type: " << resource);
+      SSR_ERROR("Unknown file type: " << resource);
       con->set_status(websocketpp::http::status_code::not_implemented
           , "unknown file type");
       return;
@@ -123,7 +123,7 @@ public:
                      std::istreambuf_iterator<char>{}};
     if (body != "")
     {
-      VERBOSE("Serving " << resource);
+      SSR_VERBOSE("Serving " << resource);
       if (content_type != "")
       {
         con->append_header("Content-Type", content_type);
@@ -134,7 +134,7 @@ public:
     else
     {
       con->set_status(websocketpp::http::status_code::not_found);
-      ERROR("Not found: " << resource);
+      SSR_ERROR("Not found: " << resource);
     }
   }
 
@@ -144,7 +144,7 @@ public:
     const auto& subp_requests = websocket->get_requested_subprotocols();
     for (const auto& proto: subp_requests)
     {
-      VERBOSE2("Subprotocol \"" << proto << "\" requested");
+      SSR_VERBOSE2("Subprotocol \"" << proto << "\" requested");
       if (proto == _subprotocol)
       {
         websocket->select_subprotocol(proto);
@@ -152,7 +152,7 @@ public:
       }
     }
     // TODO: error status to client?
-    ERROR("Wrong subprotocol(s) requested");
+    SSR_ERROR("Wrong subprotocol(s) requested");
     return false;
   }
 
@@ -160,7 +160,7 @@ public:
   {
     assert(_connections.find(hdl) == _connections.end());
     _connections.try_emplace(hdl, hdl, _server, _controller);
-    VERBOSE("WebSocket opened");
+    SSR_VERBOSE("WebSocket opened");
   }
 
   void on_message(connection_hdl hdl, message_ptr msg)
@@ -172,7 +172,7 @@ public:
     }
     else
     {
-      ERROR("Invalid connection handle for incoming message");
+      SSR_ERROR("Invalid connection handle for incoming message");
     }
   }
 
@@ -181,11 +181,11 @@ public:
     auto result = _connections.erase(hdl);
     if (result == 1)
     {
-      VERBOSE("WebSocket closed");
+      SSR_VERBOSE("WebSocket closed");
     }
     else
     {
-      ERROR("Connection to be closed does not exist");
+      SSR_ERROR("Connection to be closed does not exist");
     }
   }
 

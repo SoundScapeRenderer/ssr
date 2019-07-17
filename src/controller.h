@@ -226,11 +226,11 @@ class Controller : public api::Publisher
       if (_leader)
       {
         try { (_leader->*member_function)(std::forward<Args>(args)...); }
-        catch (std::exception& e) { ERROR(e.what()); }
+        catch (std::exception& e) { SSR_ERROR(e.what()); }
       }
       else
       {
-        WARNING("Instance is configured as \"follower\", "
+        SSR_WARNING("Instance is configured as \"follower\", "
             "but no \"leader\" is connected");
       }
     }
@@ -257,7 +257,7 @@ class Controller : public api::Publisher
         if (subscriber != initiator)
         {
           try { (subscriber->*f)(std::forward<Args>(args)...); }
-          catch (std::exception& e) { ERROR(e.what()); }
+          catch (std::exception& e) { SSR_ERROR(e.what()); }
         }
       }
     }
@@ -270,7 +270,7 @@ class Controller : public api::Publisher
     {
       assert(_conf.follow);
       try { _call_leader(f, std::forward<Args>(args)...); }
-      catch (std::exception& e) { ERROR(e.what()); }
+      catch (std::exception& e) { SSR_ERROR(e.what()); }
     }
 
     /// Overload for all events without options to suppress own messages.
@@ -290,7 +290,7 @@ class Controller : public api::Publisher
       for (C* subscriber: std::get<Subscribers<C>>(_subscribers))
       {
         try { (subscriber->*f)(std::forward<Args>(args)...); }
-        catch (std::exception& e) { ERROR(e.what()); }
+        catch (std::exception& e) { SSR_ERROR(e.what()); }
       }
     }
 
@@ -369,8 +369,7 @@ class Controller : public api::Publisher
 
     bool _loop; ///< part of a quick-hack. should be removed some time.
 
-    std::unique_ptr<typename Renderer::template ScopedThread<
-      typename Renderer::QueryThread>> _query_thread;
+    std::unique_ptr<typename Renderer::QueryThread> _query_thread;
 
     std::mutex _m;
 
@@ -439,7 +438,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 
   if ((_conf.ip_server || _conf.websocket_server) && _conf.freewheeling)
   {
-    WARNING("Freewheel mode cannot be used together with "
+    SSR_WARNING("Freewheel mode cannot be used together with "
         "--ip-server or --websocket-server. Ignored.\n"
         "Type '" + _conf.exec_name + " --help' for more information.");
     _conf.freewheeling = false;
@@ -447,7 +446,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 
   if (_conf.freewheeling && _conf.gui)
   {
-    WARNING("In 'freewheeling' mode the GUI cannot be used! Disabled.\n"
+    SSR_WARNING("In 'freewheeling' mode the GUI cannot be used! Disabled.\n"
         "Type '" + _conf.exec_name + " --help' for more information.");
     _conf.gui = false;
   }
@@ -509,7 +508,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   if (_conf.ip_server)
   {
 
-    VERBOSE("Starting IP Server with port " << _conf.server_port
+    SSR_VERBOSE("Starting IP Server with port " << _conf.server_port
         << " and with end-of-message character with ASCII code " <<
         _conf.end_of_message_character << ".");
 
@@ -522,7 +521,7 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 #ifdef ENABLE_WEBSOCKET_INTERFACE
   if (_conf.websocket_server)
   {
-    VERBOSE("Starting WebSocket server with port " << _conf.websocket_port);
+    SSR_VERBOSE("Starting WebSocket server with port " << _conf.websocket_port);
     _websocket_interface = std::make_unique<ws::Server>(*this
         , _conf.websocket_port, _conf.websocket_resource_directory);
   }
@@ -674,8 +673,7 @@ template<typename Renderer>
 bool Controller<Renderer>::run()
 {
   // TODO: make sleep time customizable
-  _query_thread.reset(Renderer::new_scoped_thread(
-        typename Renderer::QueryThread(_renderer._query_fifo), 10 * 1000));
+  _query_thread = _renderer.make_query_thread(10 * 1000);
 
   _start_tracker(_conf.tracker, _conf.tracker_ports);
 
@@ -753,7 +751,7 @@ Controller<Renderer>::~Controller()
     // NB: Scene is save while holding the lock
     if (!_save_scene("ssr_scene_autosave.asd"))
     {
-      ERROR("Couldn't write XML scene! (It's an ugly hack anyway ...");
+      SSR_ERROR("Couldn't write XML scene! (It's an ugly hack anyway ...");
     }
   }
 }
@@ -813,7 +811,7 @@ get_position(const Node& node)
       }
       else
       {
-        ERROR("Invalid position!");
+        SSR_ERROR("Invalid position!");
         return temp; // return NULL
       } // if read operation successful
 
@@ -842,7 +840,7 @@ get_orientation(const Node& node)
       }
       else
       {
-        ERROR("Invalid orientation!");
+        SSR_ERROR("Invalid orientation!");
         return temp; // return NULL
       }
     }
@@ -940,11 +938,11 @@ public:
       if (auto_rotate)
       {
         _controller._orient_all_sources_toward_reference();
-        VERBOSE("Auto-rotation of sound sources is enabled.");
+        SSR_VERBOSE("Auto-rotation of sound sources is enabled.");
       }
       else
       {
-        VERBOSE("Auto-rotation of sound sources is disabled.");
+        SSR_VERBOSE("Auto-rotation of sound sources is disabled.");
       }
     }
   }
@@ -965,12 +963,12 @@ public:
       auto* src = _controller._scene.get_source(id);
       if (src == nullptr)
       {
-        WARNING("Source \"" << id << "\" does not exist.");
+        SSR_WARNING("Source \"" << id << "\" does not exist.");
         return;
       }
       else if (src->fixed)
       {
-        WARNING("Source \"" << id << "\" cannot be moved because it is fixed.");
+        SSR_WARNING("Source \"" << id << "\" cannot be moved because it is fixed.");
         return;
       }
     }
@@ -991,19 +989,19 @@ public:
     {
       if (_controller._scene.get_auto_rotation())
       {
-        VERBOSE2("Ignoring update of source rotation."
+        SSR_VERBOSE2("Ignoring update of source rotation."
             << " Auto-rotation is enabled.");
         return;
       }
       auto* src = _controller._scene.get_source(id);
       if (src == nullptr)
       {
-        WARNING("Source \"" << id << "\" does not exist.");
+        SSR_WARNING("Source \"" << id << "\" does not exist.");
         return;
       }
       if (src->fixed)
       {
-        WARNING("Source \"" << id
+        SSR_WARNING("Source \"" << id
             << "\" cannot be rotated because it is fixed.");
         return;
       }
@@ -1082,7 +1080,7 @@ public:
     }
     else
     {
-      ERROR("Amplitude reference distance cannot be smaller than 1.");
+      SSR_ERROR("Amplitude reference distance cannot be smaller than 1.");
     }
   }
 
@@ -1108,7 +1106,7 @@ public:
     {
       if (!_controller._load_scene(filename))
       {
-        WARNING("Loading scene \"" << filename << "\" failed");
+        SSR_WARNING("Loading scene \"" << filename << "\" failed");
       }
     }
     else
@@ -1123,7 +1121,7 @@ public:
     {
       if (!_controller._save_scene(filename))
       {
-        WARNING("Saving scene \"" << filename << "\" failed");
+        SSR_WARNING("Saving scene \"" << filename << "\" failed");
       }
     }
     else
@@ -1500,7 +1498,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 
   if (scene_file_name == "")
   {
-    VERBOSE("No scene file specified. Opening empty scene ...");
+    SSR_VERBOSE("No scene file specified. Opening empty scene ...");
     return true;
   }
 
@@ -1508,7 +1506,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 
   if (file_extension == "")
   {
-    ERROR("File name '" << scene_file_name << "' does not have an extension.");
+    SSR_ERROR("File name '" << scene_file_name << "' does not have an extension.");
     return false;
   }
   else if (file_extension == "asd")
@@ -1517,23 +1515,23 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     auto scene_file = xp.load_file(scene_file_name);
     if (!scene_file)
     {
-      ERROR("Unable to load scene setup file '" << scene_file_name << "'!");
+      SSR_ERROR("Unable to load scene setup file '" << scene_file_name << "'!");
       return false;
     }
 
     if (_conf.xml_schema == "")
     {
-      ERROR("No schema file specified!");
+      SSR_ERROR("No schema file specified!");
       // TODO: return true and continue anyway?
       return false;
     }
     else if (scene_file->validate(_conf.xml_schema))
     {
-      VERBOSE("Valid scene setup (" << scene_file_name << ").");
+      SSR_VERBOSE("Valid scene setup (" << scene_file_name << ").");
     }
     else
     {
-      ERROR("Error validating '" << scene_file_name << "' with schema '"
+      SSR_ERROR("Error validating '" << scene_file_name << "' with schema '"
       << _conf.xml_schema << "'!");
       return false;
     }
@@ -1548,11 +1546,11 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     if (xpath_result
         && !apf::str::S2A(get_content(xpath_result->node()), master_volume))
     {
-      WARNING("Invalid master volume specified in scene!");
+      SSR_WARNING("Invalid master volume specified in scene!");
       master_volume = 0.0f;
     }
 
-    VERBOSE("Setting master volume to " << master_volume << " dB.");
+    SSR_VERBOSE("Setting master volume to " << master_volume << " dB.");
     _publish(&api::SceneControlEvents::master_volume
         , apf::math::dB2linear(master_volume));
 
@@ -1564,12 +1562,12 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     {
       if (!apf::str::S2A(get_content(xpath_result->node()), exponent))
       {
-        WARNING("Invalid amplitude decay exponent!");
+        SSR_WARNING("Invalid amplitude decay exponent!");
       }
     }
 
     // always use default value when nothing is specified
-    VERBOSE("Setting amplitude decay exponent to " << exponent << ".");
+    SSR_VERBOSE("Setting amplitude decay exponent to " << exponent << ".");
     _publish(&api::SceneControlEvents::decay_exponent, exponent);
 
     // GET AMPLITUDE REFERENCE DISTANCE
@@ -1583,12 +1581,12 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     {
       if (!apf::str::S2A(get_content(xpath_result->node()), ref_dist))
       {
-        WARNING("Invalid amplitude reference distance!");
+        SSR_WARNING("Invalid amplitude reference distance!");
       }
     }
 
     // always use default value when nothing is specified
-    VERBOSE("Setting amplitude reference distance to "
+    SSR_VERBOSE("Setting amplitude reference distance to "
         << ref_dist << " meters.");
     _publish(&api::SceneControlEvents::amplitude_reference_distance, ref_dist);
 
@@ -1603,7 +1601,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       // there should be only one result:
       if (xpath_result->size() != 1)
       {
-        ERROR("More than one reference found in scene setup! Aborting.");
+        SSR_ERROR("More than one reference found in scene setup! Aborting.");
         return false;
       }
       pos_ptr = internal::get_position   (xpath_result->node());
@@ -1611,7 +1609,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     }
     else
     {
-      VERBOSE("No reference point given in XML file. "
+      SSR_VERBOSE("No reference point given in XML file. "
           "Using standard (= origin).");
     }
     if (!pos_ptr) pos_ptr.reset(new internal::PositionPlusBool());
@@ -1647,7 +1645,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 
         if (model == "")
         {
-          VERBOSE("Source model not defined!" << id_str << name_str
+          SSR_VERBOSE("Source model not defined!" << id_str << name_str
               << " Using default (= point source).");
           model = "point";
         }
@@ -1660,7 +1658,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 
         if (!pos_ptr || (!dir_ptr && !_scene.get_auto_rotation()))
         {
-          ERROR("Both position and orientation have to be specified for source"
+          SSR_ERROR("Both position and orientation have to be specified for source"
               << id_str << name_str << "! Not loaded");
           continue; // next source
         }
@@ -1689,15 +1687,15 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     }
     else
     {
-      WARNING("No sources found in \"" << scene_file_name << "\"!");
+      SSR_WARNING("No sources found in \"" << scene_file_name << "\"!");
     }
   }
   else // file_extension != "asd" -> try to open file as audio file
   {
-    WARNING("Trying to open specified file as audio file.");
+    SSR_WARNING("Trying to open specified file as audio file.");
     if (!_create_spontaneous_scene(scene_file_name))
     {
-      ERROR("\"" << scene_file_name << "\" could not be loaded as audio file!");
+      SSR_ERROR("\"" << scene_file_name << "\" could not be loaded as audio file!");
       return false;
     }
   }
@@ -1713,7 +1711,7 @@ Controller<Renderer>::_create_spontaneous_scene(
   assert(!_conf.follow);
 
 #ifndef ENABLE_ECASOUND
-  ERROR("Couldn't create scene from file \"" << audio_file_name
+  SSR_ERROR("Couldn't create scene from file \"" << audio_file_name
         << "\"! Ecasound was disabled at compile time.");
   return false;
 #else
@@ -1722,16 +1720,16 @@ Controller<Renderer>::_create_spontaneous_scene(
 
   if (no_of_audio_channels == 0)
   {
-    WARNING("No audio channels found in file \"" << audio_file_name << "\"!");
+    SSR_WARNING("No audio channels found in file \"" << audio_file_name << "\"!");
     return false;
   }
 
-  WARNING("Creating spontaneous scene from the audio file \""
+  SSR_WARNING("Creating spontaneous scene from the audio file \""
       << audio_file_name << "\".");
 
   if (_renderer.params.get("name", "") == "brs")
   {
-    WARNING("I don't have information on the BRIRs. I'll use default HRIRs. "
+    SSR_WARNING("I don't have information on the BRIRs. I'll use default HRIRs. "
             "Everything will sound in front.");
   }
 
@@ -1758,7 +1756,7 @@ Controller<Renderer>::_create_spontaneous_scene(
     case 1: // mono file
       {
         Pos pos{0, default_source_distance};
-        VERBOSE("Creating point source at x = " << pos.x
+        SSR_VERBOSE("Creating point source at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
         _new_source("", source_name, "point", audio_file_name, 1
@@ -1774,7 +1772,7 @@ Controller<Renderer>::_create_spontaneous_scene(
         const float pos_y = default_source_distance * std::sin(pi/3.0f);
 
         Pos pos{-pos_x, pos_y};
-        VERBOSE("Creating plane wave at x = " << pos.x
+        SSR_VERBOSE("Creating plane wave at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
 
@@ -1783,7 +1781,7 @@ Controller<Renderer>::_create_spontaneous_scene(
             , false, 1.0f, false, "");
 
         pos = Pos{pos_x, pos_y};
-        VERBOSE("Creating plane wave at x = " << pos.x
+        SSR_VERBOSE("Creating plane wave at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
 
@@ -1811,7 +1809,7 @@ Controller<Renderer>::_create_spontaneous_scene(
 
         Pos pos{pos_x, pos_y};
 
-        VERBOSE("Creating point source at x = " << pos.x
+        SSR_VERBOSE("Creating point source at x = " << pos.x
             << " mtrs, y = " << pos.y << " mtrs.");
         assert(pos.z == 0);
 
@@ -1846,7 +1844,7 @@ Controller<Renderer>::_start_gui(const std::string& path_to_gui_images
   // check if anti-aliasing is possible
   if (!_gui->format().sampleBuffers())
   {
-    WARNING("This system does not provide sample buffer support.\n"
+    SSR_WARNING("This system does not provide sample buffer support.\n"
         "I can not enable anti-aliasing for OpenGl stuff.");
   }
 
@@ -1868,7 +1866,7 @@ Controller<Renderer>::_start_tracker(const std::string& type, const std::string&
     _tracker = TrackerInterSense::create(*this, ports);
 
 #else
-    ERROR("The SSR was compiled without InterSense tracker support!");
+    SSR_ERROR("The SSR was compiled without InterSense tracker support!");
     (void)ports;  // avoid "unused parameter" warning
     return;
 #endif
@@ -1879,7 +1877,7 @@ Controller<Renderer>::_start_tracker(const std::string& type, const std::string&
 #if defined(ENABLE_POLHEMUS)
     _tracker = TrackerPolhemus::create(*this, type, ports);
 #else
-    ERROR("The SSR was compiled without Polhemus tracker support!");
+    SSR_ERROR("The SSR was compiled without Polhemus tracker support!");
     (void)ports;  // avoid "unused parameter" warning
     return;
 #endif
@@ -1889,7 +1887,7 @@ Controller<Renderer>::_start_tracker(const std::string& type, const std::string&
  #if defined(ENABLE_VRPN)
      _tracker = TrackerVrpn::create(*this, ports);
  #else
-     ERROR("The SSR was compiled without VRPN tracker support!");
+     SSR_ERROR("The SSR was compiled without VRPN tracker support!");
      (void)ports;  // avoid "unused parameter" warning
      return;
  #endif
@@ -1899,20 +1897,20 @@ Controller<Renderer>::_start_tracker(const std::string& type, const std::string&
 #if defined(ENABLE_RAZOR)
     _tracker = TrackerRazor::create(*this, ports);
 #else
-    ERROR("The SSR was compiled without Razor AHRS tracker support!");
+    SSR_ERROR("The SSR was compiled without Razor AHRS tracker support!");
     (void)ports;  // avoid "unused parameter" warning
     return;
 #endif
   }
   else
   {
-    ERROR("Unknown tracker type \"" << type << "\"!");
+    SSR_ERROR("Unknown tracker type \"" << type << "\"!");
     return;
   }
 
   if (!_tracker)
   {
-    WARNING("Cannot find tracker. "
+    SSR_WARNING("Cannot find tracker. "
             "Make sure that you have the appropriate access rights "
             "to read from the port. I continue without tracker.");
   }
@@ -1930,7 +1928,7 @@ Controller<Renderer>::_calibrate_client()
   }
   else
   {
-    WARNING("No tracker there to calibrate.");
+    SSR_WARNING("No tracker there to calibrate.");
   }
 #endif
 }
@@ -2001,7 +1999,7 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
 
   if (id != "" && !std::regex_match(id, _re_ncname))
   {
-    ERROR("Invalid source ID: " << id);
+    SSR_ERROR("Invalid source ID: " << id);
     return;
   }
 
@@ -2021,7 +2019,7 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
         , _loop);
     file_length = _audio_player->get_file_length(file_name_or_port_number);
 #else
-    ERROR("Couldn't open audio file \"" << file_name_or_port_number
+    SSR_ERROR("Couldn't open audio file \"" << file_name_or_port_number
         << "\"! Ecasound was disabled at compile time.");
     return;
 #endif
@@ -2038,7 +2036,7 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
 
   if (port_name == "")
   {
-    VERBOSE("No audio file or port specified for source");
+    SSR_VERBOSE("No audio file or port specified for source");
   }
 
   apf::parameter_map p;
@@ -2050,7 +2048,7 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
   }
   catch (std::exception& e)
   {
-    ERROR(e.what());
+    SSR_ERROR(e.what());
     return;
   }
   assert(requested_id.size() == 0 || requested_id == id);
@@ -2111,7 +2109,7 @@ Controller<Renderer>::_orient_source_toward_reference(id_t id)
   }
   else
   {
-    WARNING("Auto-rotation: Source \"" << id << "\" doesn't exist");
+    SSR_WARNING("Auto-rotation: Source \"" << id << "\" doesn't exist");
   }
 }
 

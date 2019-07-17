@@ -67,7 +67,7 @@ class VbapRenderer : public LoudspeakerRenderer<VbapRenderer>
       , _overhang_angle(
           params.get("vbap_overhang_angle", apf::math::deg2rad(30.0)))
       , _overhang_func(2 * _overhang_angle)
-      , _reference_offset_position(this->state.reference_offset_position.get())
+      , _reference_position_offset(this->state.reference_position_offset.get())
     {}
 
     void load_reproduction_setup();
@@ -76,14 +76,14 @@ class VbapRenderer : public LoudspeakerRenderer<VbapRenderer>
     {
       // WARNING: The reference offset is currently broken!
       // To make it work, we have to fiddle a bit.
-      auto temp = this->state.reference_offset_position.get();
+      auto temp = Position(this->state.reference_position_offset);
       temp.rotate(-90.0);
-      _reference_offset_position = temp;
+      _reference_position_offset = temp;
 
       // TODO: once the reference offset is implemented correctly, do only this:
-      //_reference_offset_position = this->state.reference_offset_position();
+      //_reference_position_offset = this->state.reference_position_offset.get();
 
-      if (_reference_offset_position.changed())
+      if (_reference_position_offset.changed())
       {
         // TODO: check if reference is 'inside' the array?
 
@@ -100,10 +100,10 @@ class VbapRenderer : public LoudspeakerRenderer<VbapRenderer>
         _update_valid_sections();
       }
 
-      _absolute_reference_offset_position
-        = Position(_reference_offset_position).rotate(
-            this->state.reference_orientation)
-        + this->state.reference_position;
+      _absolute_reference_position
+        = Position(_reference_position_offset).rotate(
+            Orientation(this->state.reference_rotation))
+        + Position(this->state.reference_position);
 
       _process_list(_source_list);
     }
@@ -147,8 +147,8 @@ class VbapRenderer : public LoudspeakerRenderer<VbapRenderer>
 
     std::vector<LoudspeakerEntry> _sorted_loudspeakers;
 
-    apf::BlockParameter<Position> _reference_offset_position;
-    Position _absolute_reference_offset_position;
+    apf::BlockParameter<Position> _reference_position_offset;
+    Position _absolute_reference_position;
 };
 
 class VbapRenderer::Source : public _base::Source
@@ -160,12 +160,12 @@ class VbapRenderer::Source : public _base::Source
 
     APF_PROCESS(Source, _base::Source)
     {
-      // NOTE: reference_offset_orientation doesn't affect rendering
+      // NOTE: reference_rotation_offset doesn't affect rendering
 
       float incidence_angle = apf::math::wrap_two_pi(apf::math::deg2rad(
-            ((this->position
-              - this->parent._absolute_reference_offset_position).orientation()
-             - this->parent.state.reference_orientation).azimuth));
+            ((Position(this->position)
+              - this->parent._absolute_reference_position).orientation()
+             - Orientation(this->parent.state.reference_rotation)).azimuth));
 
       auto l_begin = this->parent._sorted_loudspeakers.begin();
       auto l_end = this->parent._sorted_loudspeakers.end();
@@ -353,10 +353,10 @@ VbapRenderer::_update_angles()
 {
   for (auto& ls: _sorted_loudspeakers)
   {
-    // NOTE: reference_offset_orientation doesn't affect rendering
+    // NOTE: reference_rotation_offset doesn't affect rendering
 
     ls.angle = apf::math::wrap_two_pi(apf::math::deg2rad((ls.ls_ptr->position
-        - _reference_offset_position).orientation().azimuth));
+        - _reference_position_offset).orientation().azimuth));
   }
 }
 

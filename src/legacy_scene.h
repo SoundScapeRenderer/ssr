@@ -40,7 +40,7 @@
 #include "maptools.h" // for get_item()
 #include "legacy_source.h"
 #include "legacy_loudspeaker.h"
-#include "ssr_global.h"  // for VERBOSE()
+#include "ssr_global.h"  // for SSR_VERBOSE()
 
 namespace ssr
 {
@@ -256,9 +256,11 @@ class LegacyScene : public api::SceneControlEvents
     {
       if (auto iter = _source_id_map.find(id); iter != _source_id_map.end())
       {
+        SSR_VERBOSE("LegacyScene: deleting source \"" << iter->first << "\"");
         // this should call the destructor for the LegacySource object.
         // IMPORTANT: the map holds the Sources directly, no pointers!
         _source_map.erase(iter->second);
+        _source_id_map.erase(iter->first);
       }
     }
 
@@ -337,13 +339,13 @@ class LegacyScene : public api::SceneControlEvents
       {
         ++_next_source_id;
 
-        VERBOSE("LegacyScene: Adding source \"" << iter->first
+        SSR_VERBOSE("LegacyScene: Adding source \"" << iter->first
             << "\" to source map");
         _source_map[iter->second] = LegacySource(_loudspeakers.size());
       }
       else
       {
-        WARNING("LegacyScene: Source ID \"" << id << "\" already exists");
+        SSR_WARNING("LegacyScene: Source ID \"" << id << "\" already exists");
       }
     }
 
@@ -374,7 +376,7 @@ class LegacyScene : public api::SceneControlEvents
       }
       else
       {
-        WARNING("LegacyScene: Unknown property: \"" << key << "\"");
+        SSR_WARNING("LegacyScene: Unknown property: \"" << key << "\"");
       }
     }
 
@@ -452,13 +454,13 @@ class LegacyScene : public api::SceneControlEvents
           }
           else
           {
-            VERBOSE("LegacyScene: Wrong number of outputs");
+            SSR_VERBOSE("LegacyScene: Wrong number of outputs");
           }
         }
       }
       else
       {
-        VERBOSE("LegacyScene: Source ID \"" << id << "\" doesn't exist");
+        SSR_VERBOSE("LegacyScene: Source ID \"" << id << "\" doesn't exist");
       }
     }
 
@@ -500,7 +502,7 @@ class LegacyScene : public api::SceneControlEvents
           return;
         }
       }
-      VERBOSE("LegacyScene: Source ID \"" << id << "\" doesn't exist!");
+      SSR_VERBOSE("LegacyScene: Source ID \"" << id << "\" doesn't exist!");
     }
 
     /// helper function template for get_*()
@@ -510,7 +512,7 @@ class LegacyScene : public api::SceneControlEvents
       const LegacySource* source_ptr = maptools::get_item(_source_map, id);
       if (!source_ptr)
       {
-        VERBOSE("LegacyScene: Source " << id << " doesn't exist!");
+        SSR_VERBOSE("LegacyScene: Source " << id << " doesn't exist!");
         return false;
       }
       arg = source_ptr->*member;

@@ -81,17 +81,17 @@ AudioRecorder::AudioRecorder(const std::string& audio_file_name,
   }
   // use JACK transport (only receive), and set client name
   _eca.command("-G:jack," + this->client_name + ",recv");
-  VERBOSE_NOLF("AudioRecorder ('" + this->client_name
+  SSR_VERBOSE_NOLF("AudioRecorder ('" + this->client_name
       + "'): Trying to activate ... ");
   _eca.command("cs-connect");
   if (_eca.error())
   {
-    VERBOSE("failed!");
-    ERROR("File must be writable and needs an extension recognized by "
+    SSR_VERBOSE("failed!");
+    SSR_ERROR("File must be writable and needs an extension recognized by "
         "ecasound, e.g. \".wav\".");
     throw audiorecorder_error("ecasound: " + _eca.last_error());
   }
-  VERBOSE("done.");
+  SSR_VERBOSE("done.");
 
   if (!this->enable())
   {
@@ -109,7 +109,7 @@ AudioRecorder::AudioRecorder(const std::string& audio_file_name,
 AudioRecorder::~AudioRecorder()
 {
   _eca.command("cs-disconnect"); // implies "stop" and "engine-halt"
-  VERBOSE2("AudioRecorder dtor ('" + client_name + "').");
+  SSR_VERBOSE2("AudioRecorder dtor ('" + client_name + "').");
 }
 
 bool AudioRecorder::enable()
@@ -117,7 +117,7 @@ bool AudioRecorder::enable()
   _eca.command("engine-launch");
   if (_eca.error())
   {
-    ERROR("ecasound: " + _eca.last_error());
+    SSR_ERROR("ecasound: " + _eca.last_error());
     return false;
   }
   return true;
@@ -128,7 +128,7 @@ bool AudioRecorder::disable()
   _eca.command("engine-halt");
   if (_eca.error())
   {
-    ERROR("ecasound: " + _eca.last_error());
+    SSR_ERROR("ecasound: " + _eca.last_error());
     return false;
   }
   return true;

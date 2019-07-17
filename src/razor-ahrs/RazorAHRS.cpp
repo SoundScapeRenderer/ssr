@@ -276,7 +276,7 @@ RazorAHRS::_start()
 {
   // create thread
   _tracker_thread = std::thread(&RazorAHRS::_thread, this);
-  VERBOSE("Starting tracker ...");
+  SSR_VERBOSE("Starting tracker ...");
 }
 
 void
@@ -285,7 +285,7 @@ RazorAHRS::_stop()
   _stop_thread = true;
   if (_tracker_thread.joinable())
   {
-    VERBOSE2("Stopping tracker...");
+    SSR_VERBOSE2("Stopping tracker...");
     _tracker_thread.join();
   }
 }

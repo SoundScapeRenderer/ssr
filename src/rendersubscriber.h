@@ -31,9 +31,7 @@
 #define SSR_RENDERSUBSCRIBER_H
 
 #include "api.h"
-#include "legacy_position.h"  // legacy Position type
-#include "legacy_orientation.h"  // legacy Orientation type
-#include "ssr_global.h"  // for WARNING()
+#include "ssr_global.h"  // for SSR_WARNING()
 
 #include "rendererbase.h"  // for Source
 
@@ -72,7 +70,7 @@ private:
     auto* src = _renderer.get_source(id);
     if (!src)
     {
-      WARNING("Source \"" << id << "\" does not exist.");
+      SSR_WARNING("Source \"" << id << "\" does not exist.");
     }
     else
     {
@@ -111,7 +109,7 @@ private:
 
   void source_rotation(id_t id, const Rot& rot) override
   {
-    _set_source_member(id, &Source::orientation, rot);
+    _set_source_member(id, &Source::rotation, rot);
   }
 
   void source_volume(id_t id, float volume) override
@@ -141,13 +139,12 @@ private:
 
   void reference_position(const Pos& pos) override
   {
-    Position position{pos};
-    _renderer.state.reference_position = position;
+    _renderer.state.reference_position = pos;
   }
 
   void reference_rotation(const Rot& rot) override
   {
-    _renderer.state.reference_orientation = rot;
+    _renderer.state.reference_rotation = rot;
   }
 
   void master_volume(float volume) override
@@ -175,18 +172,13 @@ private:
 
   void reference_position_offset(const Pos& pos) override
   {
-    Position position{pos};
-    _renderer.state.reference_offset_position = position;
+    _renderer.state.reference_position_offset = pos;
     _reference_position_offset = pos;
   }
 
   void reference_rotation_offset(const Rot& rot) override
   {
-    Orientation orientation{rot};
-    // For backwards compatibility, 90 degrees are added when converting to
-    // Orientation.  This, however, should not be done for the reference offset.
-    orientation.azimuth -= 90.0f;
-    _renderer.state.reference_offset_orientation = orientation;
+    _renderer.state.reference_rotation_offset = rot;
     _reference_rotation_offset = rot;
   }
 

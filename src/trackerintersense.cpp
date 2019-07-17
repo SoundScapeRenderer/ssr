@@ -54,7 +54,7 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
   //int stderr_fileno = fileno(stderr);
   //int stderr_handle = dup(stderr_fileno);
 
-  VERBOSE("Looking for InterSense tracker.");
+  SSR_VERBOSE("Looking for InterSense tracker.");
 
   //close outputs of libisense.so
   //close(stdout_fileno);
@@ -69,7 +69,7 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
   {
     // switch working directory
     chdir("/tmp");
-    VERBOSE("Creating /tmp/isports.ini to configure InterSense tracker ports.");
+    SSR_VERBOSE("Creating /tmp/isports.ini to configure InterSense tracker ports.");
 
     // create isports.ini
     std::ofstream file;
@@ -87,12 +87,12 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
     }
     else
     {
-      ERROR("Could not create /tmp/isports.ini to configure InterSense tracker ports");
+      SSR_ERROR("Could not create /tmp/isports.ini to configure InterSense tracker ports");
     }
   }
   else
   {
-    VERBOSE("Letting InterSense tracker look for isports.ini in current working directory.");
+    SSR_VERBOSE("Letting InterSense tracker look for isports.ini in current working directory.");
   }
 
   // start tracker (will automatically try all listed ports in isports.ini file in
@@ -118,7 +118,7 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
   // if tracker is there
   else
   {
-    VERBOSE("InterSense tracker found.");
+    SSR_VERBOSE("InterSense tracker found.");
 
     _start();
 
@@ -147,7 +147,7 @@ ssr::TrackerInterSense::create(api::Publisher& controller
   }
   catch(std::runtime_error& e)
   {
-    ERROR(e.what());
+    SSR_ERROR(e.what());
   }
   return temp;
 }
@@ -162,7 +162,7 @@ ssr::TrackerInterSense::_start()
 {
   // create thread
   _tracker_thread = std::thread(&ssr::TrackerInterSense::_thread, this);
-  VERBOSE("Starting tracker ...");
+  SSR_VERBOSE("Starting tracker ...");
 }
 
 void
@@ -171,7 +171,7 @@ ssr::TrackerInterSense::_stop()
   _stop_thread = true;
   if (_tracker_thread.joinable())
   {
-    VERBOSE2("Stopping tracker...");
+    SSR_VERBOSE2("Stopping tracker...");
     _tracker_thread.join();
   }
 }

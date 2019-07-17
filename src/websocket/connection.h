@@ -69,7 +69,7 @@ namespace internal
   {
     if (!value.IsArray() || value.Size() != 3)
     {
-      ERROR("Position must be a JSON list with 3 elements, not " << value);
+      SSR_ERROR("Position must be a JSON list with 3 elements, not " << value);
       return std::nullopt;
     }
     const auto& x = value[0];
@@ -77,7 +77,7 @@ namespace internal
     const auto& z = value[2];
     if (!x.IsNumber() || !y.IsNumber() || !z.IsNumber())
     {
-      ERROR("Position must be a list of numbers, not " << value);
+      SSR_ERROR("Position must be a list of numbers, not " << value);
       return std::nullopt;
     }
     return Pos{static_cast<float>(x.GetDouble())
@@ -89,7 +89,7 @@ namespace internal
   {
     if (!value.IsArray() || value.Size() != 4)
     {
-      ERROR("Rotation must be a JSON list with 4 elements, not " << value);
+      SSR_ERROR("Rotation must be a JSON list with 4 elements, not " << value);
       return std::nullopt;
     }
     const auto& x = value[0];
@@ -98,7 +98,7 @@ namespace internal
     const auto& w = value[3];
     if (!x.IsNumber() || !y.IsNumber() || !z.IsNumber() || !w.IsNumber())
     {
-      ERROR("Rotation must be a list of numbers, not " << value);
+      SSR_ERROR("Rotation must be a list of numbers, not " << value);
       return std::nullopt;
     }
     return Rot{static_cast<float>(x.GetDouble())
@@ -186,7 +186,7 @@ private:
       Writer writer(buffer, &_out_allocator);
       commands.Accept(writer);
       _server.send(_hdl, buffer.GetString(), websocketpp::frame::opcode::text);
-      VERBOSE3("output allocator usage: " << _out_allocator.Size());
+      SSR_VERBOSE3("output allocator usage: " << _out_allocator.Size());
       _out_allocator.Clear();
     }
   }
@@ -503,13 +503,13 @@ Connection::on_message(message_ptr msg)
   command_list.ParseInsitu(payload.data());
   if (command_list.HasParseError())
   {
-    ERROR("Unable to parse JSON (error " << command_list.GetParseError()
+    SSR_ERROR("Unable to parse JSON (error " << command_list.GetParseError()
         << "): " << payload);
     return;
   }
   if (!command_list.IsArray())
   {
-    ERROR("JSON message must be an array, not " << payload);
+    SSR_ERROR("JSON message must be an array, not " << payload);
     return;
   }
   // NB: This can be re-used for multiple consecutive commands, but control has
@@ -521,7 +521,7 @@ Connection::on_message(message_ptr msg)
   {
     if (i + 1 == size)
     {
-      ERROR("Expected command/value pairs, not a single " << command_list[i]);
+      SSR_ERROR("Expected command/value pairs, not a single " << command_list[i]);
       return;
     }
     const auto& command = command_list[i];
@@ -530,7 +530,7 @@ Connection::on_message(message_ptr msg)
     {
       if (!value.IsArray())
       {
-        ERROR("Expected list of subscriptions, not " << value);
+        SSR_ERROR("Expected list of subscriptions, not " << value);
         return;
       }
       control.reset();
@@ -541,7 +541,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_scene_information_subscription || _scene_control_subscription)
           {
-            VERBOSE("Already subscribed: scene");
+            SSR_VERBOSE("Already subscribed: scene");
           }
           else
           {
@@ -556,7 +556,7 @@ Connection::on_message(message_ptr msg)
           if (_renderer_information_subscription
               || _renderer_control_subscription)
           {
-            VERBOSE("Already subscribed: renderer");
+            SSR_VERBOSE("Already subscribed: renderer");
           }
           else
           {
@@ -569,7 +569,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_transport_frame_subscription)
           {
-            VERBOSE("Already subscribed: transport-frame");
+            SSR_VERBOSE("Already subscribed: transport-frame");
           }
           else
           {
@@ -580,7 +580,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_source_metering_subscription)
           {
-            VERBOSE("Already subscribed: source-metering");
+            SSR_VERBOSE("Already subscribed: source-metering");
           }
           else
           {
@@ -591,7 +591,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_master_metering_subscription)
           {
-            VERBOSE("Already subscribed: master-metering");
+            SSR_VERBOSE("Already subscribed: master-metering");
           }
           else
           {
@@ -602,7 +602,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_output_activity_subscription)
           {
-            VERBOSE("Already subscribed: output-activity");
+            SSR_VERBOSE("Already subscribed: output-activity");
           }
           else
           {
@@ -613,7 +613,7 @@ Connection::on_message(message_ptr msg)
         {
           if (_cpu_load_subscription)
           {
-            VERBOSE("Already subscribed: cpu-load");
+            SSR_VERBOSE("Already subscribed: cpu-load");
           }
           else
           {
@@ -622,7 +622,7 @@ Connection::on_message(message_ptr msg)
         }
         else
         {
-          ERROR("Unknown subscription: " << subscription);
+          SSR_ERROR("Unknown subscription: " << subscription);
         }
       }
     }
@@ -630,7 +630,7 @@ Connection::on_message(message_ptr msg)
     {
       if (!value.IsArray())
       {
-        ERROR("Expected list of subscriptions to cancel, not " << value);
+        SSR_ERROR("Expected list of subscriptions to cancel, not " << value);
         return;
       }
       control.reset();
@@ -668,7 +668,7 @@ Connection::on_message(message_ptr msg)
         }
         else
         {
-          ERROR("Unknown subscription to cancel: " << subscription);
+          SSR_ERROR("Unknown subscription to cancel: " << subscription);
         }
       }
     }
@@ -676,7 +676,7 @@ Connection::on_message(message_ptr msg)
     {
       if (!value.IsObject())
       {
-        ERROR("Expected JSON object, not " << value);
+        SSR_ERROR("Expected JSON object, not " << value);
         return;
       }
       if (!control)
@@ -690,7 +690,7 @@ Connection::on_message(message_ptr msg)
         {
           if (!member.value.IsBool())
           {
-            ERROR("auto-rotate-sources needs a boolean value, not "
+            SSR_ERROR("auto-rotate-sources needs a boolean value, not "
                 << member.value);
             return;
           }
@@ -712,7 +712,7 @@ Connection::on_message(message_ptr msg)
         {
           if (!member.value.IsNumber())
           {
-            ERROR("master-volume needs a number, not " << member.value);
+            SSR_ERROR("master-volume needs a number, not " << member.value);
             return;
           }
           control->master_volume(member.value.GetDouble());
@@ -721,7 +721,7 @@ Connection::on_message(message_ptr msg)
         {
           if (!member.value.IsNumber())
           {
-            ERROR("decay-exponent needs a number, not " << member.value);
+            SSR_ERROR("decay-exponent needs a number, not " << member.value);
             return;
           }
           control->decay_exponent(member.value.GetDouble());
@@ -730,7 +730,7 @@ Connection::on_message(message_ptr msg)
         {
           if (!member.value.IsNumber())
           {
-            ERROR("amplitude-reference-distance needs a number, not "
+            SSR_ERROR("amplitude-reference-distance needs a number, not "
                 << member.value);
             return;
           }
@@ -741,7 +741,7 @@ Connection::on_message(message_ptr msg)
         {
           if (!member.value.IsBool())
           {
-            ERROR("processing needs a boolean value, not " << member.value);
+            SSR_ERROR("processing needs a boolean value, not " << member.value);
             return;
           }
           control->processing(member.value.GetBool());
@@ -763,7 +763,7 @@ Connection::on_message(message_ptr msg)
         {
           if (!member.value.IsBool())
           {
-            ERROR("transport-rolling needs a boolean value, not "
+            SSR_ERROR("transport-rolling needs a boolean value, not "
                 << member.value);
             return;
           }
@@ -780,7 +780,7 @@ Connection::on_message(message_ptr msg)
         {
           if (!member.value.IsInt())
           {
-            ERROR("Invalid transport frame: " << member.value);
+            SSR_ERROR("Invalid transport frame: " << member.value);
             return;
           }
           control->transport_locate_frames(member.value.GetInt());
@@ -790,14 +790,14 @@ Connection::on_message(message_ptr msg)
           if (!member.value.IsString()
               || member.value.GetString() != std::string("reset"))
           {
-            ERROR("Invalid value for tracker: " << member.value);
+            SSR_ERROR("Invalid value for tracker: " << member.value);
             return;
           }
           control->reset_tracker();
         }
         else
         {
-          ERROR("Unknown property: " << member.name);
+          SSR_ERROR("Unknown property: " << member.name);
         }
       }
     }
@@ -809,14 +809,14 @@ Connection::on_message(message_ptr msg)
       }
       if (!value.IsArray())
       {
-        ERROR("Expected list of new sources, not " << value);
+        SSR_ERROR("Expected list of new sources, not " << value);
         return;
       }
       for (const auto& source: value.GetArray())
       {
         if (!source.IsObject())
         {
-          ERROR("Expected list of objects, not " << value);
+          SSR_ERROR("Expected list of objects, not " << value);
           return;
         }
         std::string id;
@@ -837,7 +837,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsString())
             {
-              ERROR("Invalid source ID: " << member.value);
+              SSR_ERROR("Invalid source ID: " << member.value);
               return;
             }
             id = member.value.GetString();
@@ -846,7 +846,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsString())
             {
-              ERROR("Invalid source name: " << member.value);
+              SSR_ERROR("Invalid source name: " << member.value);
               return;
             }
             name = member.value.GetString();
@@ -855,7 +855,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsString())
             {
-              ERROR("Invalid source model: " << member.value);
+              SSR_ERROR("Invalid source model: " << member.value);
               return;
             }
             model = member.value.GetString();
@@ -864,7 +864,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsString())
             {
-              ERROR("Invalid audio file name: " << member.value);
+              SSR_ERROR("Invalid audio file name: " << member.value);
               return;
             }
             audio_file = member.value.GetString();
@@ -873,7 +873,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsInt())
             {
-              ERROR("Invalid port number: " << member.value);
+              SSR_ERROR("Invalid port number: " << member.value);
               return;
             }
             port_number = member.value.GetInt();
@@ -882,7 +882,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsInt())
             {
-              ERROR("Invalid channel number: " << member.value);
+              SSR_ERROR("Invalid channel number: " << member.value);
               return;
             }
             channel = member.value.GetInt();
@@ -901,7 +901,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsBool())
             {
-              ERROR("Invalid fixed state: " << member.value);
+              SSR_ERROR("Invalid fixed state: " << member.value);
               return;
             }
             fixed = member.value.GetBool();
@@ -910,7 +910,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsNumber())
             {
-              ERROR("Invalid volume: " << member.value);
+              SSR_ERROR("Invalid volume: " << member.value);
               return;
             }
             volume = member.value.GetDouble();
@@ -919,7 +919,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsBool())
             {
-              ERROR("Invalid mute state: " << member.value);
+              SSR_ERROR("Invalid mute state: " << member.value);
               return;
             }
             mute = member.value.GetBool();
@@ -928,25 +928,25 @@ Connection::on_message(message_ptr msg)
           {
             if (!member.value.IsString())
             {
-              ERROR("Invalid properties file name: " << member.value);
+              SSR_ERROR("Invalid properties file name: " << member.value);
               return;
             }
             properties_file = member.value.GetString();
           }
           else
           {
-            WARNING("Unknown source property: " << member.name);
+            SSR_WARNING("Unknown source property: " << member.name);
           }
         }
 
         if (audio_file && port_number)
         {
-          ERROR("New source cannot have both audio-file and port-number");
+          SSR_ERROR("New source cannot have both audio-file and port-number");
           return;
         }
         if (port_number && channel)
         {
-          ERROR("New source cannot have both port-number and channel number");
+          SSR_ERROR("New source cannot have both port-number and channel number");
           return;
         }
         if (!channel)
@@ -965,7 +965,7 @@ Connection::on_message(message_ptr msg)
         }
         else
         {
-          ERROR("Either audio-file or port-number needed for new source");
+          SSR_ERROR("Either audio-file or port-number needed for new source");
           return;
         }
         control->new_source(id, name, model, file_name_or_port_number, *channel
@@ -983,7 +983,7 @@ Connection::on_message(message_ptr msg)
       {
         if (!source.value.IsObject())
         {
-          ERROR("Source must be a JSON object, not " << source.value);
+          SSR_ERROR("Source must be a JSON object, not " << source.value);
           return;
         }
         assert(source.name.IsString());
@@ -1007,7 +1007,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!attr.value.IsNumber())
             {
-              ERROR("Invalid source volume: " << attr.value);
+              SSR_ERROR("Invalid source volume: " << attr.value);
               return;
             }
             control->source_volume(id, attr.value.GetDouble());
@@ -1016,7 +1016,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!attr.value.IsBool())
             {
-              ERROR("Invalid source mute state: " << attr.value);
+              SSR_ERROR("Invalid source mute state: " << attr.value);
               return;
             }
             control->source_mute(id, attr.value.GetBool());
@@ -1025,7 +1025,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!attr.value.IsString())
             {
-              ERROR("Invalid source name: " << attr.value);
+              SSR_ERROR("Invalid source name: " << attr.value);
               return;
             }
             control->source_name(id, attr.value.GetString());
@@ -1034,7 +1034,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!attr.value.IsString())
             {
-              ERROR("Invalid source model: " << attr.value);
+              SSR_ERROR("Invalid source model: " << attr.value);
               return;
             }
             control->source_model(id, attr.value.GetString());
@@ -1043,7 +1043,7 @@ Connection::on_message(message_ptr msg)
           {
             if (!attr.value.IsBool())
             {
-              ERROR("Invalid source fixed state: " << attr.value);
+              SSR_ERROR("Invalid source fixed state: " << attr.value);
               return;
             }
             control->source_fixed(id, attr.value.GetBool());
@@ -1055,7 +1055,7 @@ Connection::on_message(message_ptr msg)
     {
       if (!value.IsArray())
       {
-        ERROR("Expected list of source IDs to delete, not " << value);
+        SSR_ERROR("Expected list of source IDs to delete, not " << value);
         return;
       }
       if (!control)
@@ -1066,7 +1066,7 @@ Connection::on_message(message_ptr msg)
       {
         if (!delinquent.IsString())
         {
-          ERROR("Expected string ID of source to delete, not " << delinquent);
+          SSR_ERROR("Expected string ID of source to delete, not " << delinquent);
           return;
         }
         control->delete_source(delinquent.GetString());
@@ -1076,7 +1076,7 @@ Connection::on_message(message_ptr msg)
     {
       if (!value.IsString())
       {
-        ERROR("Expected scene file name, not " << value);
+        SSR_ERROR("Expected scene file name, not " << value);
         return;
       }
       if (!control)
@@ -1089,24 +1089,24 @@ Connection::on_message(message_ptr msg)
       }
       catch (std::exception& e)
       {
-        ERROR("Couldn't load scene: " << e.what());
+        SSR_ERROR("Couldn't load scene: " << e.what());
       }
     }
     else if (command == "save-scene")
     {
-      WARNING("save-scene not implemented (yet?)");
+      SSR_WARNING("save-scene not implemented (yet?)");
     }
     else if (command == "time")
     {
-      WARNING("Message timestamps might be implemented in the future ...");
+      SSR_WARNING("Message timestamps might be implemented in the future ...");
     }
     else
     {
-      ERROR("Unknown command: " << command);
+      SSR_ERROR("Unknown command: " << command);
       return;
     }
   }
-  VERBOSE3("input allocator usage: " << alloc.Size());
+  SSR_VERBOSE3("input allocator usage: " << alloc.Size());
 }
 
 }  // namespace ws

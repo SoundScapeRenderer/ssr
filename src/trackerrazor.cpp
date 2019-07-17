@@ -43,7 +43,7 @@ ssr::TrackerRazor::TrackerRazor(api::Publisher& controller
   {
     throw std::runtime_error("No serial port(s) specified!");
   }
-  VERBOSE("Initializing Razor AHRS ...");
+  SSR_VERBOSE("Initializing Razor AHRS ...");
 
   std::istringstream iss(ports);
   std::string port;
@@ -51,7 +51,7 @@ ssr::TrackerRazor::TrackerRazor(api::Publisher& controller
   {
     if (port != "")
     {
-      VERBOSE_NOLF("Trying port " << port << " ... ");
+      SSR_VERBOSE_NOLF("Trying port " << port << " ... ");
       try {
         _tracker = new RazorAHRS(port,
             std::bind(&TrackerRazor::on_data, this, std::placeholders::_1),
@@ -60,11 +60,11 @@ ssr::TrackerRazor::TrackerRazor(api::Publisher& controller
       }
       catch(std::runtime_error& e)
       {
-        VERBOSE("failure! (" << std::string(e.what()) + ")");
+        SSR_VERBOSE("failure! (" << std::string(e.what()) + ")");
         continue;
       }
 
-      VERBOSE("success!");
+      SSR_VERBOSE("success!");
       break; // stop trying
     }
   }
@@ -84,7 +84,7 @@ ssr::TrackerRazor::create(api::Publisher& controller, const std::string& ports)
   }
   catch(std::runtime_error& e)
   {
-    ERROR(e.what());
+    SSR_ERROR(e.what());
   }
   return temp;
 }

@@ -144,8 +144,9 @@ class BrsRenderer::Source : public _base::Source
 
       _weighting_factor = this->weighting_factor;
 
-      auto ori = _input.parent.state.reference_orientation
-        + _input.parent.state.reference_offset_orientation;
+      auto ori = Orientation(_input.parent.state.reference_rotation)
+        + Orientation(_input.parent.state.reference_rotation_offset)
+        - Orientation(90);
       float azi = ori.azimuth;
 
       // get BRTF index from listener orientation
