@@ -2,6 +2,16 @@
 
 set -euo pipefail
 
+git clone git://github.com/zaphoyd/websocketpp.git
+cd websocketpp
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+cd ..
+cd ..
+
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   # liblo-dev is still at 0.28 in trusty, but we require 0.29
   wget https://downloads.sourceforge.net/liblo/liblo-0.29.tar.gz
@@ -22,26 +32,6 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     cd ..
   fi
 
-  wget https://www.intersense.com/wp-content/uploads/2018/12/InterSense_SDK_4.2381.zip
-  unzip InterSense_SDK_4.2381.zip
-  sudo cp SDK/Linux/Sample/*.h /usr/local/include
-  sudo cp SDK/Linux/x86_64/libisense.so /usr/local/lib
-
-  sudo ldconfig
-fi
-
-git clone git://github.com/zaphoyd/websocketpp.git
-cd websocketpp
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-cd ..
-cd ..
-
-
-if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   git clone https://github.com/vrpn/vrpn.git
   cd vrpn
   mkdir build
@@ -51,7 +41,13 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
   sudo make install
   cd ..
   cd ..
-fi
 
+  wget https://www.intersense.com/wp-content/uploads/2018/12/InterSense_SDK_4.2381.zip
+  unzip InterSense_SDK_4.2381.zip
+  sudo cp SDK/Linux/Sample/*.h /usr/local/include
+  sudo cp SDK/Linux/x86_64/libisense.so /usr/local/lib
+
+  sudo ldconfig
+fi
 
 exit 0
