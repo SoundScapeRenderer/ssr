@@ -340,6 +340,15 @@ class JackClient
       throw jack_error("jack_process_callback() not implemented!");
     }
 
+    /// JACK sync callback function.
+    virtual int jack_sync_callback(jack_transport_state_t state
+        , jack_position_t *pos)
+    {
+      (void)state;
+      (void)pos;
+      return 1;
+    }
+
     /// JACK shutdown callback.
     /// By default, this is throwing a jack_error exception. If you don't like
     /// this, you can overwrite this function in your derived class.
@@ -391,6 +400,12 @@ class JackClient
     static int _jack_process_callback(nframes_t nframes, void* arg)
     {
       return static_cast<JackClient*>(arg)->jack_process_callback(nframes);
+    }
+
+    static int _jack_sync_callback(jack_transport_state_t state
+        , jack_position_t *pos, void* arg)
+    {
+      return static_cast<JackClient*>(arg)->jack_sync_callback(state, pos);
     }
 
     static void _jack_shutdown_callback(jack_status_t code
@@ -506,6 +521,14 @@ JackClient::JackClient(const std::string& name
     if (jack_set_process_callback(_client, _jack_process_callback, this))
     {
       throw jack_error("Could not set process callback function for '"
+          + _client_name + "'!");
+    }
+
+    // TODO: separate option to disable sync callback?
+
+    if (jack_set_sync_callback(_client, _jack_sync_callback, this))
+    {
+      throw jack_error("Could not set sync callback function for '"
           + _client_name + "'!");
     }
   }
