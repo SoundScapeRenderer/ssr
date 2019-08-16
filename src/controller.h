@@ -619,8 +619,11 @@ class Controller<Renderer>::query_state
       {
         for (auto& item: _source_levels)
         {
-          _controller._publish(&api::SourceMetering::source_level
-              , item.source_id, item.source_level);
+          if (!_controller._conf.follow)
+          {
+            _controller._publish(&api::SourceMetering::source_level
+                , item.source_id, item.source_level);
+          }
 
           // TODO: make this a compile-time decision:
           if (item.outputs_available)
