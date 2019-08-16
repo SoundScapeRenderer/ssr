@@ -961,6 +961,11 @@ public:
 
   void source_position(id_t id, const Pos& position) override
   {
+    if (id == "")
+    {
+      SSR_ERROR("Empty source ID");
+      return;
+    }
     if constexpr (_is_leader)
     {
       auto* src = _controller._scene.get_source(id);
