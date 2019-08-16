@@ -148,6 +148,10 @@ SSRSOURCES = \
 	xmlparser.h \
 	rendersubscriber.h
 
+if ENABLE_DYNAMIC_ASDF
+SSRSOURCES += dynamic_scene.h
+endif
+
 if ENABLE_INTERSENSE
 SSRSOURCES += trackerintersense.cpp trackerintersense.h
 endif

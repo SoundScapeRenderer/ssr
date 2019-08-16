@@ -596,6 +596,13 @@ ENABLE_AUTO([sofa], [SOFA support for binaural renderer],
   AC_SEARCH_LIBS([mysofa_open], [mysofa], , [have_sofa=no])
 ])
 
+ENABLE_FORCED([dynamic-asdf], [dynamic ASDF scenes],
+[
+  PKG_CHECK_MODULES([ASDF], [asdf], , [have_dynamic_asdf=no])
+  PKG_FLAGS="$PKG_FLAGS $ASDF_CFLAGS"
+  LIBS="$LIBS $ASDF_LIBS"
+])
+
 dnl Checking for Polhemus Fastrak/Patriot support
 ENABLE_AUTO([polhemus], [Polhemus Fastrak/Patriot tracker support],
 [
@@ -789,7 +796,6 @@ AS_IF([test x$have_intersense = xyes],
     [intersense_version="version < 4.04"]),
   [intersense_version=no])
 
-echo "|"
 echo "| Build with tracker support:"
 echo "|    InterSense .......................... : $intersense_version"
 echo "|    Polhemus Fastrak/Patriot ............ : $have_polhemus"
@@ -797,6 +803,7 @@ echo "|    Razor AHRS .......................... : $have_razor"
 echo "|    VRPN ................................ : $have_vrpn"
 echo "|"
 echo "| Ecasound/SOFA support .................. : $have_ecasound/$have_sofa"
+echo "| Dynamic ASDF scenes .................... : $have_dynamic_asdf"
 echo "| Network: legacy/WebSocket/FUDI ......... : $have_ip_interface/$have_websocket_interface/$have_fudi_interface"
 echo "| Qt GUI/Browser GUI ..................... : $have_gui/$have_browser_gui"
 echo "|"
@@ -816,7 +823,6 @@ AS_IF([test x$have_manpages != xyes],
   echo "|>  Disabling building of manpages"
 ])
 
-echo "|"
 echo
 echo 'If everything looks OK, continue with "make" and "make install".'
 echo

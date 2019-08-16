@@ -159,6 +159,10 @@ class Controller : public api::Publisher
     bool _load_scene(const std::string& filename);
     bool _save_scene(const std::string& filename) const;
 
+#ifdef ENABLE_DYNAMIC_ASDF
+    bool _load_dynamic_asdf(const std::string& scene_file_name);
+#endif
+
     void _new_source(const std::string& id, const std::string& name
       , const std::string& model, const std::string& file_name_or_port_number
       , int channel, const Pos& position, const Rot& rotation, bool fixed
@@ -431,21 +435,6 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   }
 #endif
 
-  if ((_conf.ip_server || _conf.websocket_server) && _conf.freewheeling)
-  {
-    SSR_WARNING("Freewheel mode cannot be used together with "
-        "--ip-server or --websocket-server. Ignored.\n"
-        "Type '" + _conf.exec_name + " --help' for more information.");
-    _conf.freewheeling = false;
-  }
-
-  if (_conf.freewheeling && _conf.gui)
-  {
-    SSR_WARNING("In 'freewheeling' mode the GUI cannot be used! Disabled.\n"
-        "Type '" + _conf.exec_name + " --help' for more information.");
-    _conf.gui = false;
-  }
-
   // NB: we don't need a lock here because nothing is publishing yet
 
   _subscribe<api::SceneControlEvents>(&_scene);
@@ -492,9 +481,23 @@ Controller<Renderer>::Controller(int argc, char* argv[])
 
   if (_conf.freewheeling)
   {
-    if (!_renderer.set_freewheel(1))
+    if ((_conf.ip_server || _conf.websocket_server || _conf.fudi_server))
     {
-      throw std::runtime_error("Unable to switch to freewheeling mode!");
+      SSR_WARNING("Freewheel mode: network interfaces are disabled");
+      _conf.ip_server = false;
+      _conf.websocket_server = false;
+      _conf.fudi_server = false;
+    }
+    if (_conf.gui)
+    {
+      SSR_WARNING("Freewheel mode: GUI is disabled");
+      _conf.gui = false;
+    }
+    if (_conf.tracker != "")
+    {
+      SSR_WARNING("Freewheel mode: Headtrackers are disabled");
+      _conf.tracker = "";
+      _conf.tracker_ports = "";
     }
   }
 
@@ -556,6 +559,9 @@ class Controller<Renderer>::query_state
       , _renderer(renderer)
     {}
 
+    // NB: query() and update() run in different threads, but they are
+    //     guaranteed not to run at the same time!
+
     // NB: This is executed in the audio thread
     void query()
     {
@@ -593,15 +599,105 @@ class Controller<Renderer>::query_state
         _discard_source_levels = true;
         _new_size = source_list.size();
       }
+#ifdef ENABLE_DYNAMIC_ASDF
+      if (_dynamic_sources)
+      {
+        // NB: Accessing this is safe because this runs serially in the audio
+        //     thread:
+        const auto& ptr = _renderer.dynamic_sources.get();
+        assert(ptr);
+        const auto& renderer_sources = *ptr;
+        auto& query_sources = *_dynamic_sources;
+        assert(renderer_sources.size() == query_sources.size());
+        std::copy(renderer_sources.begin(), renderer_sources.end()
+            , query_sources.begin());
+      }
+      _dynamic_reference = _renderer.dynamic_reference;
+#endif
     }
 
     // NB: This is executed in the control thread
     void update()
     {
-      auto control = _controller.take_control();  // Scoped bundle
+      // Start a scoped bundle, don't echo events to RenderSubscriber
+      auto control = _controller.take_control(&_controller._rendersubscriber);
 
       if (!_controller._conf.follow)
       {
+#ifdef ENABLE_DYNAMIC_ASDF
+        if (this->new_dynamic_sources)
+        {
+          // NB: A new scene was loaded, all old information can be discarded!
+
+          _dynamic_sources = std::move(this->new_dynamic_sources);
+          assert(this->new_dynamic_sources == nullptr);
+
+          // Make copy for later comparison
+          _old_dynamic_sources.assign(
+              _dynamic_sources->begin(), _dynamic_sources->end());
+        }
+        else if (_dynamic_sources)
+        {
+          assert(_dynamic_sources->size() == _old_dynamic_sources.size());
+          for (size_t i = 0; i < _dynamic_sources->size(); i++)
+          {
+            auto& old_source = _old_dynamic_sources[i];
+            const auto& new_source = (*_dynamic_sources)[i];
+            const auto& source_id = source_ids[i];
+            if (old_source)
+            {
+              if (!new_source)
+              {
+                control->source_active(source_id, false);
+                old_source = std::nullopt;
+                continue;
+              }
+
+              if (new_source->rot != old_source->rot)
+              {
+                control->source_rotation(source_id, new_source->rot);
+                old_source->rot = new_source->rot;
+              }
+              if (new_source->pos != old_source->pos)
+              {
+                control->source_position(source_id, new_source->pos);
+                old_source->pos = new_source->pos;
+              }
+              if (new_source->vol != old_source->vol)
+              {
+                control->source_volume(source_id, new_source->vol);
+                old_source->vol = new_source->vol;
+              }
+            }
+            else
+            {
+              if (!new_source) { continue; }
+              control->source_rotation(source_id, new_source->rot);
+              control->source_position(source_id, new_source->pos);
+              control->source_volume(source_id, new_source->vol);
+              control->source_active(source_id, true);
+              old_source = new_source;
+            }
+          }
+        }
+
+        if (_dynamic_reference.rot != _old_dynamic_reference.rot)
+        {
+          control->reference_rotation(_dynamic_reference.rot);
+          _old_dynamic_reference.rot = _dynamic_reference.rot;
+        }
+        if (_dynamic_reference.pos != _old_dynamic_reference.pos)
+        {
+          control->reference_position(_dynamic_reference.pos);
+          _old_dynamic_reference.pos = _dynamic_reference.pos;
+        }
+        if (_dynamic_reference.vol != _old_dynamic_reference.vol)
+        {
+          control->master_volume(_dynamic_reference.vol);
+          _old_dynamic_reference.vol = _dynamic_reference.vol;
+        }
+#endif
+
         auto [rolling, frame] = _renderer.get_transport_state();
         if (frame != _controller._transport_frame)
         {
@@ -651,6 +747,14 @@ class Controller<Renderer>::query_state
       }
     }
 
+#ifdef ENABLE_DYNAMIC_ASDF
+    using dynamic_source_list_t = std::vector<std::optional<ssr::Transform>>;
+
+    // NB: These public member must only be accessed with the main lock held
+    std::unique_ptr<dynamic_source_list_t> new_dynamic_sources;
+    std::vector<std::string> source_ids;
+#endif
+
   private:
     struct SourceLevel
     {
@@ -676,6 +780,12 @@ class Controller<Renderer>::query_state
     source_levels_t _source_levels;
     bool _discard_source_levels = true;
     size_t _new_size = 0;
+#ifdef ENABLE_DYNAMIC_ASDF
+    std::unique_ptr<dynamic_source_list_t> _dynamic_sources;
+    dynamic_source_list_t _old_dynamic_sources;
+    Transform _dynamic_reference{};
+    Transform _old_dynamic_reference{};
+#endif
 };
 
 template<typename Renderer>
@@ -698,7 +808,25 @@ bool Controller<Renderer>::run()
     }
   }
 
-  if (_conf.gui)
+  if (_conf.freewheeling)
+  {
+    if (!_renderer.set_freewheel(1))
+    {
+      throw std::runtime_error("Unable to switch to freewheeling mode!");
+    }
+
+    this->take_control()->transport_rolling(true);
+
+    SSR_VERBOSE("Freewheeling forever ...");
+
+    // TODO: wait for scene to end
+
+    while (true)
+    {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  }
+  else if (_conf.gui)
   {
 #ifdef ENABLE_GUI
     if (_start_gui(_conf.path_to_gui_images, _conf.path_to_scene_menu) != 0)
@@ -753,6 +881,14 @@ Controller<Renderer>::~Controller()
 
   _gui.release();  // Forget about the GUI.
 #endif
+
+  if (_conf.freewheeling)
+  {
+    if (!_renderer.set_freewheel(0))
+    {
+      SSR_ERROR("Unable to switch out of freewheeling mode!");
+    }
+  }
 
   _renderer.deactivate();
   if (!_conf.follow)
@@ -1516,7 +1652,8 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
 {
   assert(!_conf.follow);
 
-  // remove all existing sources (if any)
+  bool rolling = _renderer.get_transport_state().first;
+  _renderer.transport_stop();
   _delete_all_sources();
 
 #ifdef ENABLE_ECASOUND
@@ -1546,6 +1683,28 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       return false;
     }
 
+    XMLParser::xpath_t xpath_result;
+    xpath_result = scene_file->eval_xpath("/asdf[@version=\"0.4\"]");
+    if (xpath_result)
+    {
+#ifdef ENABLE_DYNAMIC_ASDF
+      SSR_VERBOSE("Trying to load ASDF v0.4 file: " << scene_file_name);
+      bool result = _load_dynamic_asdf(scene_file_name);
+      if (result)
+      {
+        _renderer.wait_for_rt_thread();
+        _renderer.transport_locate(0);
+        if (rolling) { _renderer.transport_start(); }
+      }
+      return result;
+    }
+    SSR_WARNING("ASDF version != 0.4, trying legacy ASDF ...");
+#else
+      SSR_WARNING("SSR was compiled without ASDF 0.4 support");
+      return false;
+    }
+#endif
+
     if (_conf.xml_schema == "")
     {
       SSR_ERROR("No schema file specified!");
@@ -1562,8 +1721,6 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       << _conf.xml_schema << "'!");
       return false;
     }
-
-    XMLParser::xpath_t xpath_result;
 
     // GET MASTER VOLUME
     float master_volume = 0.0f; // dB
@@ -1726,9 +1883,80 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       return false;
     }
   }
-  _transport_locate_frames(0);  // go to beginning of audio files
+
+  _renderer.wait_for_rt_thread();  // Wait for all sources to become available
+  _renderer.transport_locate(0);
+  if (rolling) { _renderer.transport_start(); }
   return true;
 }
+
+#ifdef ENABLE_DYNAMIC_ASDF
+template<typename Renderer>
+bool
+Controller<Renderer>::_load_dynamic_asdf(const std::string& scene_file_name)
+{
+  assert(!_conf.follow);
+
+  std::vector<DynamicSourceInfo> sources;
+  try
+  {
+    sources = _renderer.load_dynamic_scene(
+        scene_file_name, _conf.input_port_prefix);
+  }
+  catch (std::exception& e)
+  {
+    SSR_ERROR(e.what());
+    return false;
+  }
+
+  // TODO: get immutable scene properties
+
+  //_publish(&api::SceneControlEvents::master_volume, ???);
+  //_publish(&api::SceneControlEvents::decay_exponent, ???);
+  //_publish(&api::SceneControlEvents::amplitude_reference_distance, ???);
+
+  // TODO: scene_ptr->length();  // in samples
+
+  auto total = sources.size();
+
+  // NB: It is safe to write to _query_state here, because
+  //     query_state::update() also blocks on the controller lock.
+  _query_state.new_dynamic_sources =
+    std::make_unique<typename query_state::dynamic_source_list_t>(total);
+  _query_state.source_ids.clear();
+
+  for (size_t i = 0; i < total; i++)
+  {
+    const auto& source = sources[i];
+
+    _query_state.source_ids.push_back(source.id);
+
+    _publish(&api::SceneInformationEvents::new_source, source.id);
+
+    _publish(&api::SceneInformationEvents::source_property
+        , source.id, "port-name", "n/a");
+    _publish(&api::SceneInformationEvents::source_property
+        , source.id, "audio-file", "n/a");
+    _publish(&api::SceneInformationEvents::source_property
+        , source.id, "audio-file-channel", "n/a");
+    _publish(&api::SceneInformationEvents::source_property
+        , source.id, "audio-file-length", "n/a");
+
+    // TODO:
+    //_publish(&api::SceneInformationEvents::source_property
+    //    , id, "properties-file", properties_file);
+
+    _publish(&api::SceneControlEvents::source_name, source.id, source.name);
+    _publish(&api::SceneControlEvents::source_model, source.id, source.model);
+    //_publish(&api::SceneControlEvents::source_fixed, id, fixed);
+    //_publish(&api::SceneControlEvents::source_volume, id, volume);
+    //_publish(&api::SceneControlEvents::source_mute, id, mute);
+
+    // NB: Source is not activated!
+  }
+  return true;
+}
+#endif
 
 template<typename Renderer>
 bool
