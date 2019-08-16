@@ -140,12 +140,12 @@ class BrsRenderer::Source : public _base::Source
 
     APF_PROCESS(Source, _base::Source)
     {
-      _convolver_input->add_block(_input.begin());
+      _convolver_input->add_block(this->begin());
 
       _weighting_factor = this->weighting_factor;
 
-      auto ori = Orientation(_input.parent.state.reference_rotation)
-        + Orientation(_input.parent.state.reference_rotation_offset)
+      auto ori = Orientation(this->parent.state.reference_rotation)
+        + Orientation(this->parent.state.reference_rotation_offset)
         - Orientation(90);
       float azi = ori.azimuth;
 

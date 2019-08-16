@@ -123,7 +123,7 @@ class GenericRenderer::Source : public _base::Source
     {
       _weighting_factor = this->weighting_factor;
 
-      _convolver->add_block(_input.begin());
+      _convolver->add_block(this->begin());
 
       assert(_weighting_factor.exactly_one_assignment());
     }

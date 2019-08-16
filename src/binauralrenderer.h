@@ -268,12 +268,12 @@ void BinauralRenderer::Source::_process()
 {
   float interp_factor = 0.0f;
 
-  this->add_block(_input.begin());
+  this->add_block(this->begin());
 
-  auto ref_pos = Position(_input.parent.state.reference_position)
-    + Position(_input.parent.state.reference_position_offset);
-  auto ref_ori = Orientation(_input.parent.state.reference_rotation)
-    + Orientation(_input.parent.state.reference_rotation_offset)
+  auto ref_pos = Position(this->parent.state.reference_position)
+    + Position(this->parent.state.reference_position_offset);
+  auto ref_ori = Orientation(this->parent.state.reference_rotation)
+    + Orientation(this->parent.state.reference_rotation_offset)
     - Orientation(90);
 
   float source_distance = (Position(this->position) - ref_pos).length();
@@ -287,7 +287,7 @@ void BinauralRenderer::Source::_process()
   _interp_factor = interp_factor;  // Assign (once!) to BlockParameter
   _weight = this->weighting_factor;  // ... same here
 
-  auto angles = static_cast<float>(_input.parent._angles);
+  auto angles = static_cast<float>(this->parent._angles);
 
   // calculate relative orientation of sound source
   auto rel_ori = -ref_ori;
@@ -353,7 +353,7 @@ void BinauralRenderer::Source::_process()
     if (hrtf_changed)
     {
       // left and right channels are interleaved
-      auto& hrtf = (*_input.parent._hrtfs)[2 * _hrtf_index + i];
+      auto& hrtf = (*this->parent._hrtfs)[2 * _hrtf_index + i];
 
       if (_interp_factor == 0)
       {
@@ -363,7 +363,7 @@ void BinauralRenderer::Source::_process()
       {
         // Interpolate between selected HRTF and neutral filter (Dirac)
         apf::conv::transform_nested(hrtf
-            , *_input.parent._neutral_filter, channel.temporary_hrtf
+            , *this->parent._neutral_filter, channel.temporary_hrtf
             , [this] (sample_type one, sample_type two)
               {
                 return (1.0f - _interp_factor) * one + _interp_factor * two;

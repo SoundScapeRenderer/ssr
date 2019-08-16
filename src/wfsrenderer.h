@@ -258,7 +258,7 @@ void WfsRenderer::Source::_process()
   else
   {
     _focused = true;
-    for (const auto& out: rtlist_proxy<Output>(_input.parent.get_output_list()))
+    for (const auto& out: rtlist_proxy<Output>(this->parent.get_output_list()))
     {
       // subwoofers have to be ignored!
       if (out.model == LegacyLoudspeaker::subwoofer) continue;

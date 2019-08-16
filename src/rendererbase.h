@@ -445,7 +445,8 @@ class RendererBase<Derived>::Source
 
     void _level_helper(apf::enable_queries&)
     {
-      _pre_fader_level = apf::math::max_amplitude(_input.begin(), _input.end());
+      _pre_fader_level
+        = apf::math::max_amplitude(this->begin(), this->end());
       _level = _pre_fader_level * this->weighting_factor;
     }
 
@@ -461,7 +462,7 @@ void RendererBase<Derived>::Source::_process()
   this->_begin = _input.begin();
   this->_end = _input.end();
 
-  if (!_input.parent.state.processing || this->mute)
+  if (!this->parent.state.processing || this->mute)
   {
     this->weighting_factor = 0.0;
   }
@@ -470,8 +471,8 @@ void RendererBase<Derived>::Source::_process()
     this->weighting_factor = this->gain;
     // If the renderer does something nonlinear, the master volume should
     // be applied to the output signal ... TODO: shall we care?
-    this->weighting_factor *= _input.parent.state.master_volume;
-    this->weighting_factor *= _input.parent.master_volume_correction;
+    this->weighting_factor *= this->parent.state.master_volume;
+    this->weighting_factor *= this->parent.master_volume_correction;
 
     // apply distance attenuation
     if (std::strcmp(this->parent.name(), "BrsRenderer") != 0
@@ -480,27 +481,27 @@ void RendererBase<Derived>::Source::_process()
       if (this->model != "plane")
       {
         float source_distance = length(vec3{this->position}
-          - (vec3{_input.parent.state.reference_position}
-            + vec3{_input.parent.state.reference_position_offset}));
+          - (vec3{this->parent.state.reference_position}
+            + vec3{this->parent.state.reference_position_offset}));
 
         // no volume increase for sources closer than 0.5 m
         source_distance = std::max(source_distance, 0.5f);
 
        // standard 1/r: weight *= 1.0f / source_distance;
        this->weighting_factor *= 1.0f
-         / pow(source_distance, _input.parent.state.decay_exponent); // 1/r^e
+         / pow(source_distance, this->parent.state.decay_exponent); // 1/r^e
 
        // plane wave always have the same amplitude independent of the amplitude
        // reference distance and the decay exponent; normalize all other sources
        // accordingly
        this->weighting_factor *=
-         pow(_input.parent.state.amplitude_reference_distance,
-           _input.parent.state.decay_exponent);
+         pow(this->parent.state.amplitude_reference_distance,
+           this->parent.state.decay_exponent);
       } // if model::plane
     } // if != BRS or Generic
   } // if muted or not
 
-  _level_helper(_input.parent);
+  _level_helper(this->parent);
 
   assert(this->weighting_factor.exactly_one_assignment());
 }
