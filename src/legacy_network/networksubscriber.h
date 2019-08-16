@@ -62,6 +62,7 @@ class NetworkSubscriber : public api::SceneControlEvents
 
     void auto_rotate_sources(bool) override {}
     void delete_source(id_t id) override;
+    void source_active(id_t id, bool active) override;
     void source_position(id_t id, const Pos& position) override;
     void source_rotation(id_t id, const Rot& rotation) override;
     void source_volume(id_t id, float gain) override;

@@ -264,6 +264,11 @@ class LegacyScene : public api::SceneControlEvents
       }
     }
 
+    void source_active(id_t id, bool active) override
+    {
+      _set_source_member(id, &LegacySource::active, active);
+    }
+
     void source_position(id_t id, const Pos& position) override
     {
       _set_source_member(id, &LegacySource::position, position);

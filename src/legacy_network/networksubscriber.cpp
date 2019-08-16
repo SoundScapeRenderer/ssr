@@ -73,6 +73,12 @@ NetworkSubscriber::delete_source(id_t id)
       "<update><delete><source id='", id, "' /></delete></update>");
 }
 
+void
+NetworkSubscriber::source_active(id_t id, bool active)
+{
+  (void)active;
+  // not implemented
+}
 
 void
 NetworkSubscriber::source_position(id_t id, const Pos& pos)

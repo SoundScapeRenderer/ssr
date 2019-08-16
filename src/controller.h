@@ -959,6 +959,12 @@ public:
     // TODO: stop AudioPlayer if not needed anymore?
   }
 
+  void source_active(id_t id, bool active) override
+  {
+    _controller._publish(_initiator
+        , &api::SceneControlEvents::source_active, id, active);
+  }
+
   void source_position(id_t id, const Pos& position) override
   {
     if (id == "")
@@ -2084,6 +2090,7 @@ Controller<Renderer>::_new_source(id_t requested_id, const std::string& name
   _publish(&api::SceneControlEvents::source_fixed, id, fixed);
   _publish(&api::SceneControlEvents::source_volume, id, volume);
   _publish(&api::SceneControlEvents::source_mute, id, mute);
+  _publish(&api::SceneControlEvents::source_active, id, true);
 }
 
 template<typename Renderer>

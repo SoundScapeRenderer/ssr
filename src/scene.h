@@ -48,6 +48,8 @@ class Scene : public api::SceneControlEvents
 public:
   struct Source
   {
+    bool active{false};
+
     Pos position{};
     Rot rotation{};
     bool fixed{false};  ///< Static position/rotation or not
@@ -112,6 +114,7 @@ public:
     subscriber->amplitude_reference_distance(_amplitude_reference_distance);
 
     this->for_each_source([subscriber](auto id, auto& source) {
+        subscriber->source_active(id, source.active);
         subscriber->source_position(id, source.position);
         subscriber->source_rotation(id, source.rotation);
         subscriber->source_volume(id, source.volume);
@@ -170,6 +173,11 @@ private:
     {
       _source_ids.erase(std::find(_source_ids.begin(), _source_ids.end(), id));
     }
+  }
+
+  void source_active(id_t id, bool active) override
+  {
+    _set_source_member(id, &Source::active, active);
   }
 
   void source_position(id_t id, const Pos& position) override

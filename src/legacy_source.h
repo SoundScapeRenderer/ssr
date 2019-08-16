@@ -60,6 +60,7 @@ struct LegacySource : DirectionalPoint
       const Position&    position    = Position(),
       const Orientation& orientation = Orientation()) :
     DirectionalPoint(position, orientation), // base class ctor
+    active(0),
     audio_file_channel(0),
     file_length(0),
     model(LegacySource::point),
@@ -78,6 +79,7 @@ struct LegacySource : DirectionalPoint
       const Position&    position    = Position(),
       const Orientation& orientation = Orientation()) :
     DirectionalPoint(position, orientation), // base class ctor
+    active(0),
     audio_file_channel(0),
     file_length(0),
     model(LegacySource::point),
@@ -90,6 +92,7 @@ struct LegacySource : DirectionalPoint
     doppler_effect(false)
   {}
 
+  bool active;
   std::string name;               ///< source name
   std::string audio_file_name;    ///< audio file
   int audio_file_channel;         ///< channel of audio file

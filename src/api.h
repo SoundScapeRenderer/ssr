@@ -94,6 +94,11 @@ struct SceneControlEvents
   /// @param id ID of the source
   virtual void delete_source(id_t id) = 0;
 
+  /// Activate/deactivate source.
+  /// @param id ID of the source
+  /// @param active activate if @b true, deactivate if @b false
+  virtual void source_active(id_t id, bool active) = 0;
+
   /// Set source position.
   /// @param id ID of the source
   /// @param position new position

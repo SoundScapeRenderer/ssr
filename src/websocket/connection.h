@@ -203,6 +203,11 @@ private:
     _delete_source.PushBack(json::Value{id, _out_allocator}, _out_allocator);
   }
 
+  void source_active(id_t id, bool active) override
+  {
+    _set_source_property(id, "active", active);
+  }
+
   void source_position(id_t id, const Pos& position) override
   {
     _set_source_property(id, "pos", _to_list(position));
@@ -991,7 +996,16 @@ Connection::on_message(message_ptr msg)
         for (const auto& attr: source.value.GetObject())
         {
           // source-related SceneControlEvents (except delete_source)
-          if (attr.name == "pos")
+          if (attr.name == "active")
+          {
+            if (!attr.value.IsBool())
+            {
+              SSR_ERROR("Invalid source active state: " << attr.value);
+              return;
+            }
+            control->source_active(id, attr.value.GetBool());
+          }
+          else if (attr.name == "pos")
           {
             auto pos = internal::parse_position(attr.value);
             if (!pos) { return; }

@@ -398,6 +398,7 @@ class RendererBase<Derived>::Source
     explicit Source(const Params& p)
       : parent(*(p.parent ? p.parent : throw std::logic_error(
               "Bug (RendererBase::Source): parent == NULL!")))
+      , active(*p.fifo, false)
       , position(*(p.fifo ? p.fifo : throw std::logic_error(
               "Bug (RendererBase::Source): fifo == NULL!")))
       , rotation(*p.fifo)
@@ -427,6 +428,7 @@ class RendererBase<Derived>::Source
 
     Derived& parent;
 
+    apf::SharedData<bool> active;
     apf::SharedData<Pos> position;
     apf::SharedData<Rot> rotation;
     apf::SharedData<sample_type> gain;
@@ -462,7 +464,7 @@ void RendererBase<Derived>::Source::_process()
   this->_begin = _input.begin();
   this->_end = _input.end();
 
-  if (!this->parent.state.processing || this->mute)
+  if (!this->parent.state.processing || this->mute || !this->active)
   {
     this->weighting_factor = 0.0;
   }

@@ -102,6 +102,11 @@ private:
     _renderer.rem_source(id);
   }
 
+  void source_active(id_t id, bool active) override
+  {
+    _set_source_member(id, &Source::active, active);
+  }
+
   void source_position(id_t id, const Pos& pos) override
   {
     _set_source_member(id, &Source::position, pos);
