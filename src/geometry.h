@@ -46,7 +46,7 @@ struct vec3 : gml::vec3
   using gml::vec3::operator=;
   vec3(const gml::vec3& other) : gml::vec3{other} {}
   vec3(const Pos& pos) : gml::vec3{pos.x, pos.y, pos.z} {}
-  operator Pos()
+  operator Pos() const
   {
     return {(*this)[0], (*this)[1], (*this)[2]};
   }
@@ -60,7 +60,7 @@ struct quat : gml::quat
   using gml::quat::operator=;
   quat(const gml::quat& other) : gml::quat{other} {}
   quat(const Rot& rot) : gml::quat{rot.w, gml::vec3{rot.x, rot.y, rot.z}} {}
-  operator Rot()
+  operator Rot() const
   {
     return {this->imag[0], this->imag[1], this->imag[2], this->real};
   }
