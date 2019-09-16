@@ -27,12 +27,10 @@
 /// @file
 /// Main file for BinauralRenderer.
 
-#include "controller.h"
+#include "ssr_main.h"
 #include "binauralrenderer.h"
 
 int main(int argc, char* argv[])
 {
-  ssr::Controller<ssr::BinauralRenderer> controller(argc, argv);
-
-  controller.run();
+  return ssr::main<ssr::BinauralRenderer>(argc, argv);
 }

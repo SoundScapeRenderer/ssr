@@ -27,12 +27,10 @@
 /// @file
 /// Main file for WFS Renderer.
 
-#include "controller.h"
+#include "ssr_main.h"
 #include "wfsrenderer.h"
 
 int main(int argc, char* argv[])
 {
-  ssr::Controller<ssr::WfsRenderer> controller(argc, argv);
-
-  controller.run();
+  return ssr::main<ssr::WfsRenderer>(argc, argv);
 }

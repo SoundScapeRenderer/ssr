@@ -1,7 +1,5 @@
 /******************************************************************************
- * Copyright © 2012-2014 Institut für Nachrichtentechnik, Universität Rostock *
- * Copyright © 2006-2012 Quality & Usability Lab,                             *
- *                       Telekom Innovation Laboratories, TU Berlin           *
+ * Copyright © 2019 SSR Contributors                                          *
  *                                                                            *
  * This file is part of the SoundScape Renderer (SSR).                        *
  *                                                                            *
@@ -25,12 +23,39 @@
  ******************************************************************************/
 
 /// @file
-/// Main file for Generic Renderer.
+/// Main function used by all renderers.
 
-#include "ssr_main.h"
-#include "genericrenderer.h"
+#ifndef SSR_MAIN_H
+#define SSR_MAIN_H
 
+#include <iostream>
+
+#include "controller.h"
+
+namespace ssr
+{
+
+template<typename Renderer>
 int main(int argc, char* argv[])
 {
-  return ssr::main<ssr::GenericRenderer>(argc, argv);
+  try
+  {
+    ssr::Controller<Renderer> controller{argc, argv};
+    controller.run();
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << e.what() << std::endl;
+    return 1;
+  }
+  catch (...)
+  {
+    std::cerr << "Unknown error" << std::endl;
+    return 1;
+  }
+  return 0;
 }
+
+}  // namespace ssr
+
+#endif

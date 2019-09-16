@@ -27,12 +27,10 @@
 /// @file
 /// Main file for the AAP Renderer.
 
-#include "controller.h"
+#include "ssr_main.h"
 #include "aaprenderer.h"
 
 int main(int argc, char* argv[])
 {
-  ssr::Controller<ssr::AapRenderer> controller(argc, argv);
-
-  controller.run();
+  return ssr::main<ssr::AapRenderer>(argc, argv);
 }

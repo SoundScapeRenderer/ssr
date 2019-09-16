@@ -27,12 +27,10 @@
 /// @file
 /// Main file for the VBAP Renderer.
 
-#include "controller.h"
+#include "ssr_main.h"
 #include "vbaprenderer.h"
 
 int main(int argc, char* argv[])
 {
-  ssr::Controller<ssr::VbapRenderer> controller(argc, argv);
-
-  controller.run();
+  return ssr::main<ssr::VbapRenderer>(argc, argv);
 }

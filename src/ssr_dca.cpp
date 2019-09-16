@@ -27,12 +27,10 @@
 /// @file
 /// Main file for DCA renderer.
 
-#include "controller.h"
+#include "ssr_main.h"
 #include "dcarenderer.h"
 
 int main(int argc, char* argv[])
 {
-  ssr::Controller<ssr::DcaRenderer> controller(argc, argv);
-
-  controller.run();
+  return ssr::main<ssr::DcaRenderer>(argc, argv);
 }

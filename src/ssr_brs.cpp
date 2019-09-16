@@ -27,12 +27,10 @@
 /// @file
 /// Main file for Binaural Room Synthesis Renderer.
 
-#include "controller.h"
+#include "ssr_main.h"
 #include "brsrenderer.h"
 
 int main(int argc, char* argv[])
 {
-  ssr::Controller<ssr::BrsRenderer> controller(argc, argv);
-
-  controller.run();
+  return ssr::main<ssr::BrsRenderer>(argc, argv);
 }
