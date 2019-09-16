@@ -534,11 +534,14 @@ Controller<Renderer>::Controller(int argc, char* argv[])
         "Loading a scene as \"follower\" is not yet supported");
   }
 
-  auto control = this->take_control();  // Start a bundle for scene loading
-
-  if (_conf.scene_file_name != "" && !_load_scene(_conf.scene_file_name))
+  if (_conf.scene_file_name != "")
   {
-    throw std::runtime_error("Couldn't load scene!");
+    auto control = this->take_control();  // Start a bundle for scene loading
+    if (! _load_scene(_conf.scene_file_name))
+    {
+      throw std::runtime_error(
+          "Error loading scene file \"" + _conf.scene_file_name + "\"");
+    }
   }
 }
 
