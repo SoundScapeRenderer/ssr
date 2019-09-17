@@ -2,15 +2,18 @@
 
 set -euo pipefail
 
-git clone git://github.com/zaphoyd/websocketpp.git
-cd websocketpp
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-cd ..
-cd ..
+if [ "$TRAVIS_OS_NAME" = osx ]
+then
+  git clone git://github.com/zaphoyd/websocketpp.git
+  cd websocketpp
+  mkdir build
+  cd build
+  cmake ..
+  make
+  sudo make install
+  cd ..
+  cd ..
+fi
 
 if [ "$TRAVIS_OS_NAME" = linux ]
 then

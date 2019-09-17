@@ -49,6 +49,7 @@ addons:
       - clang-9
       - clang-8
       - libasio-dev
+      - libwebsocketpp-dev
       - qt5-default
       - libqt5opengl5-dev
       - libecasoundc-dev
