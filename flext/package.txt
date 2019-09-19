@@ -6,7 +6,7 @@ SSR_SRCS = legacy_position.cpp legacy_orientation.cpp \
            legacy_directionalpoint.cpp ssr_global.cpp xmlparser.cpp
 SRCS = $(MAIN_SOURCE) $(SSR_SRCS)
 
-INCPATH = -I../apf -I../src
+INCPATH = -I../apf -I../src -I../gml/include
 
 PKG_CONFIG ?= pkg-config
 

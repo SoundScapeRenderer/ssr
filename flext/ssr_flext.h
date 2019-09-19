@@ -49,9 +49,9 @@ class ssr_ ## name : public SsrFlext<renderer> { \
 FLEXT_NEW_DSP_V("ssr_" #name "~", ssr_ ## name)
 
 #include "apf/pointer_policy.h"
-#include "apf/cxx_thread_policy.h"
 
-#include "../src/legacy_source.h"
+#include "geometry.h"  // for ssr::quat
+#include <gml/util.hpp>  // for gml::radians()
 
 template<typename Renderer>
 class SsrFlext : public flext_dsp
@@ -221,7 +221,9 @@ class SsrFlext : public flext_dsp
 
       for (size_t i = 0; i < _in_channels; ++i)
       {
-        _source_ids.push_back(_engine.add_source(""));
+        auto id = _engine.add_source("");
+        _engine.get_source(id)->active = true;
+        _source_ids.push_back(id);
         AddInSignal();
       }
 
@@ -292,13 +294,13 @@ class SsrFlext : public flext_dsp
         }
         else if (cmd2 == "pos")
         {
-          if (argc != 2)
+          if (argc < 2)
           {
-            error("%s - src %d pos must be followed by exactly 2 coordinates!"
+            error("%s - src %d pos must be followed by at least 2 coordinates!"
                 , thisName(), src_id);
             return;
           }
-          float x, y;
+          float x, y, z{};
           if (!_get(argc, argv, x))
           {
             error("%s - x must be a float value!", thisName());
@@ -309,8 +311,20 @@ class SsrFlext : public flext_dsp
             error("%s - y must be a float value!", thisName());
             return;
           }
-          source->position = Position(x, y);
+          if (argc >= 1 && !_get(argc, argv, z))
+          {
+            error("%s - z must be a float value!", thisName());
+            return;
+          }
+          if (argc != 0)
+          {
+            error("%s - src %d pos must be followed by at most 3 coordinates!"
+                , thisName(), src_id);
+            return;
+          }
+          source->position = {x, y, z};
         }
+        // For backwards compatibility, use "rot" for 3D rotations
         else if (cmd2 == "azi")
         {
           if (argc != 1)
@@ -325,7 +339,43 @@ class SsrFlext : public flext_dsp
             error("%s - src azi expects a float value!", thisName());
             return;
           }
-          source->orientation = Orientation(azi);
+          source->rotation = ssr::quat(gml::qrotate(
+              gml::radians(azi), {0.0f, 0.0f, 1.0f}));
+        }
+        else if (cmd2 == "rot")
+        {
+          if (argc < 1)
+          {
+            error("%s - src %d rot must be followed by at least 1 angle!"
+                , thisName(), src_id);
+            return;
+          }
+          float azimuth, elevation{}, roll{};
+          if (!_get(argc, argv, azimuth))
+          {
+            error("%s - src rot expects float values!", thisName());
+            return;
+          }
+          if (argc >= 1 && !_get(argc, argv, elevation))
+          {
+            error("%s - src rot expects float values!", thisName());
+            return;
+          }
+          if (argc >= 1 && !_get(argc, argv, roll))
+          {
+            error("%s - src rot expects float values!", thisName());
+            return;
+          }
+          if (argc != 0)
+          {
+            error("%s - src %d rot must be followed by at most 3 angles!"
+                , thisName(), src_id);
+            return;
+          }
+          source->rotation = ssr::quat(
+              gml::qrotate(gml::radians(azimuth),   {0.0f, 0.0f, 1.0f}) *
+              gml::qrotate(gml::radians(elevation), {1.0f, 0.0f, 0.0f}) *
+              gml::qrotate(gml::radians(roll),      {0.0f, 1.0f, 0.0f}));
         }
         else if (cmd2 == "gain")
         {
@@ -374,14 +424,7 @@ class SsrFlext : public flext_dsp
             error("%s - src model expects a string value!", thisName());
             return;
           }
-          LegacySource::model_t model = LegacySource::unknown;
-          if (!apf::str::S2A(model_str, model))
-          {
-            error("%s - couldn't convert model string: %s"
-                , thisName(), model_str.c_str());
-            return;
-          }
-          source->model = model == LegacySource::plane ? "plane" : "point";
+          source->model = model_str;
         }
         else
         {
@@ -416,13 +459,13 @@ class SsrFlext : public flext_dsp
         }
         else if (cmd2 == "pos")
         {
-          if (argc != 2)
+          if (argc < 2)
           {
-            error("%s - ref%s pos must be followed by exactly 2 coordinates!"
+            error("%s - ref%s pos must be followed by at least 2 coordinates!"
                 , thisName(), offset_str);
             return;
           }
-          float x, y;
+          float x, y, z{};
           if (!_get(argc, argv, x))
           {
             error("%s - x must be a float value!", thisName());
@@ -433,15 +476,27 @@ class SsrFlext : public flext_dsp
             error("%s - y must be a float value!", thisName());
             return;
           }
+          if (argc >= 1 && !_get(argc, argv, z))
+          {
+            error("%s - z must be a float value!", thisName());
+            return;
+          }
+          if (argc != 0)
+          {
+            error("%s - ref%s pos must be followed by at most 3 coordinates!"
+                , thisName(), offset_str);
+            return;
+          }
           if (offset)
           {
-            _engine.state.reference_offset_position = Position(x, y);
+            _engine.state.reference_position_offset = {x, y, z};
           }
           else
           {
-            _engine.state.reference_position = Position(x, y);
+            _engine.state.reference_position = {x, y, z};
           }
         }
+        // For backwards compatibility, use "rot" for 3D rotations
         else if (cmd2 == "azi")
         {
           if (argc != 1)
@@ -457,13 +512,61 @@ class SsrFlext : public flext_dsp
                 , thisName(), offset_str);
             return;
           }
+          auto rotation = ssr::quat(
+              gml::qrotate(gml::radians(azi), {0.0f, 0.0f, 1.0f}));
           if (offset)
           {
-            _engine.state.reference_offset_orientation = Orientation(azi);
+            _engine.state.reference_rotation_offset = rotation;
           }
           else
           {
-            _engine.state.reference_orientation = Orientation(azi);
+            _engine.state.reference_rotation = rotation;
+          }
+        }
+        else if (cmd2 == "rot")
+        {
+          if (argc < 1)
+          {
+            error("%s - ref%s rot must be followed by at least 1 angle!"
+                , thisName(), offset_str);
+            return;
+          }
+          float azimuth, elevation{}, roll{};
+          if (!_get(argc, argv, azimuth))
+          {
+            error("%s - ref%s rot expects float values!"
+                , thisName(), offset_str);
+            return;
+          }
+          if (argc >= 1 && !_get(argc, argv, elevation))
+          {
+            error("%s - ref%s rot expects float values!"
+                , thisName(), offset_str);
+            return;
+          }
+          if (argc >= 1 && !_get(argc, argv, roll))
+          {
+            error("%s - ref%s rot expects float values!"
+                , thisName(), offset_str);
+            return;
+          }
+          if (argc != 0)
+          {
+            error("%s - ref%s rot must be followed by at most 3 angles!"
+                , thisName(), offset_str);
+            return;
+          }
+          auto rotation = ssr::quat(
+              gml::qrotate(gml::radians(azimuth),   {0.0f, 0.0f, 1.0f}) *
+              gml::qrotate(gml::radians(elevation), {1.0f, 0.0f, 0.0f}) *
+              gml::qrotate(gml::radians(roll),      {0.0f, 1.0f, 0.0f}));
+          if (offset)
+          {
+            _engine.state.reference_rotation_offset = rotation;
+          }
+          else
+          {
+            _engine.state.reference_rotation = rotation;
           }
         }
         else
