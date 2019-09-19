@@ -12,6 +12,7 @@ OBJECTS := ssr_global legacy_position legacy_orientation \
 LIBRARIES += libxml-2.0 fftw3f sndfile
 
 APF_DIR ?= ../apf
+GML_DIR ?= ../gml/include
 SRC_DIR ?= ../src
 MEX ?= mex -v
 OCT ?= mkoctfile --mex --verbose
@@ -40,8 +41,7 @@ CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -pedantic
 # warnings are errors
 CXXFLAGS += -pedantic-errors
-# TODO: re-enable when deprecated dynamic exception specifications are removed:
-#CXXFLAGS += -Werror
+CXXFLAGS += -Werror
 # even more warnings:
 CXXFLAGS += -Wpointer-arith
 CXXFLAGS += -Wcast-align
@@ -58,7 +58,7 @@ PKG_CONFIG ?= pkg-config
 LDLIBS += `$(PKG_CONFIG) --libs $(LIBRARIES)`
 CPPFLAGS += `$(PKG_CONFIG) --cflags $(LIBRARIES)`
 
-CPPFLAGS += -I$(APF_DIR) -I$(SRC_DIR)
+CPPFLAGS += -I$(APF_DIR) -I$(SRC_DIR) -I$(GML_DIR)
 
 OCTAVE_TARGETS := $(MEXFILES:%=%.octave)
 MATLAB_TARGETS := $(MEXFILES:%=%.matlab)

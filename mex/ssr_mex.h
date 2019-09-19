@@ -41,7 +41,6 @@
 #include "apf/mextools.h"
 #include "apf/stringtools.h"
 #include "apf/pointer_policy.h"
-#include "apf/cxx_thread_policy.h"
 #include "loudspeakerrenderer.h"
 
 #include "../src/legacy_source.h"
@@ -217,7 +216,9 @@ class SsrMex
         {
           source_params.set("properties_file", filename_list[i]);
         }
-        _source_ids.push_back(_engine->add_source("", source_params));
+        auto id = _engine->add_source("", source_params);
+        _source_ids.push_back(id);
+        _engine->get_source(id)->active = true;
       }
 
       _inputs.resize(_in_channels);
@@ -455,7 +456,7 @@ class SsrMex
       {
         auto* source = _engine->get_source(_get_source_id(i));
         // TODO: check if source == nullptr
-        source->orientation = Orientation(angles[i]);  // degree
+        source->rotation = Orientation(angles[i]);  // degree
       }
     }
 
@@ -554,7 +555,7 @@ class SsrMex
 
       --nrhs; ++prhs;
 
-      _engine->state.reference_orientation = Orientation(*angle);
+      _engine->state.reference_rotation = Orientation(*angle);
     }
 
     std::unique_ptr<Renderer> _engine;
