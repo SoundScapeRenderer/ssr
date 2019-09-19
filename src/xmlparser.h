@@ -57,9 +57,7 @@ struct XMLParser
   doc_t load_file(const std::string& file_name) const;
   doc_t load_string(const std::string& xml_string) const;
 
-  // we should put that outside of the class in the surrounding namespace, but
-  // we don't have one ...
-  std::string replace_entities(const std::string& input) const;
+  static std::string replace_entities(const std::string& input);
 
   Node new_node(const std::string& name);
 };

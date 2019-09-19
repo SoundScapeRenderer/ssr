@@ -69,7 +69,7 @@ XMLParser::doc_t XMLParser::load_string(const std::string& xml_string) const
   return temp;
 }
 
-std::string XMLParser::replace_entities(const std::string& input) const
+std::string XMLParser::replace_entities(const std::string& input)
 {
   xmlChar* xml_string;
   xml_string = xmlEncodeEntitiesReentrant(nullptr, BAD_CAST input.c_str());

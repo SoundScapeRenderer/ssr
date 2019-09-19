@@ -34,6 +34,7 @@
 #include "connection.h"
 #include "legacy_position.h"  // for Position
 #include "legacy_orientation.h"  // for Orientation
+#include "xmlparser.h"
 
 using apf::str::A2S;
 using ssr::legacy_network::NetworkSubscriber;
@@ -76,6 +77,7 @@ NetworkSubscriber::delete_source(id_t id)
 void
 NetworkSubscriber::source_active(id_t id, bool active)
 {
+  (void)id;
   (void)active;
   // not implemented
 }
@@ -115,6 +117,13 @@ NetworkSubscriber::source_mute(id_t id, bool mute)
 {
   _send_source_message("<update><source id='", id, "' mute='" + A2S(mute)
     + "'/></update>");
+}
+
+void
+NetworkSubscriber::source_name(id_t id, const std::string& name)
+{
+  _send_source_message("<update><source id='", id, "' name='"
+    + XMLParser::replace_entities(name) + "'/></update>");
 }
 
 void

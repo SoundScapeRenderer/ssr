@@ -67,7 +67,7 @@ class NetworkSubscriber : public api::SceneControlEvents
     void source_rotation(id_t id, const Rot& rotation) override;
     void source_volume(id_t id, float gain) override;
     void source_mute(id_t id, bool mute) override;
-    void source_name(id_t, const std::string&) override {}
+    void source_name(id_t, const std::string&) override;
     void source_model(id_t id, const std::string& model) override;
     void source_fixed(id_t id, bool fix) override;
 
