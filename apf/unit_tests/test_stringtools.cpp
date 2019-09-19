@@ -92,7 +92,7 @@ SECTION("S2RV", "String to Return Value")
   CHECK(S2RV<int>(" 42 ") == 42);
   CHECK(S2RV<float>(" 42 ") == 42.0);
   CHECK(S2RV<std::string>(" 42 ") == " 42 ");
-  CHECK_THROWS_AS(S2RV<int>(" 42.0 "), std::invalid_argument);
+  CHECK_THROWS_AS(S2RV<int>(" 42.0 "), std::invalid_argument&);
 }
 
 SECTION("convert_chars()", "")

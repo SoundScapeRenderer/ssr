@@ -199,7 +199,7 @@ SECTION("reserve() and emplace_back()", "")
   CHECK(fv.size() == 0);
   CHECK(fv.capacity() == 0);
 
-  CHECK_THROWS_AS(fv.emplace_back(666), std::logic_error);
+  CHECK_THROWS_AS(fv.emplace_back(666), std::logic_error&);
 
   fv.reserve(1);
   CHECK(fv.size() == 0);
@@ -208,9 +208,9 @@ SECTION("reserve() and emplace_back()", "")
   fv.emplace_back(1);
   CHECK(fv[0] == 1);
 
-  CHECK_THROWS_AS(fv.emplace_back(666), std::logic_error);
+  CHECK_THROWS_AS(fv.emplace_back(666), std::logic_error&);
 
-  CHECK_THROWS_AS(fv.reserve(42), std::logic_error);
+  CHECK_THROWS_AS(fv.reserve(42), std::logic_error&);
 }
 
 SECTION("fixed_vector of non-copyable type", "")
@@ -235,7 +235,7 @@ SECTION("fixed_vector of non-copyable type, emplace_back()", "")
   fv.emplace_back(27);
   CHECK(fv.front().x == 27);
 
-  CHECK_THROWS_AS(fv.emplace_back(23), std::logic_error);
+  CHECK_THROWS_AS(fv.emplace_back(23), std::logic_error&);
 }
 
 } // TEST_CASE fixed_vector
@@ -467,7 +467,7 @@ SECTION("distribute_list()", "... and undistribute_list()")
   CHECK(in.empty() == true);
   // lists have different size -> exception:
   CHECK_THROWS_AS(distribute_list(in, out, &ClassWithSublist::sublist)
-      , std::logic_error);
+      , std::logic_error&);
   CHECK(out[2].sublist.size() == 1);
   CHECK(out[2].sublist.front() == 3);
 
@@ -502,7 +502,7 @@ SECTION("distribute_list()", "... and undistribute_list()")
 
   // in and out have different size -> exception:
   CHECK_THROWS_AS(undistribute_list(in, out, &ClassWithSublist::sublist
-        , garbage), std::logic_error);
+        , garbage), std::logic_error&);
 
   CHECK(in.size() == 1);
 
@@ -511,7 +511,7 @@ SECTION("distribute_list()", "... and undistribute_list()")
 
   // list item is not found -> exception:
   CHECK_THROWS_AS(undistribute_list(in, out, &ClassWithSublist::sublist
-        , garbage), std::logic_error);
+        , garbage), std::logic_error&);
 
   CHECK(in.size() == 3);
 

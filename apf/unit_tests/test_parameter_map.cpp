@@ -32,7 +32,7 @@ SECTION("stuff", "")
   CHECK(val1 == "first value");
   val2 = params.get<int>("two");
   CHECK(val2 == 2);
-  CHECK_THROWS_AS(params.get<int>("one"), std::invalid_argument);
+  CHECK_THROWS_AS(params.get<int>("one"), std::invalid_argument&);
   val3 = params.get("one", 42); // default value 42 if conversion fails
   CHECK(val3 == 42);
   val4 = params.get("three", 3.0);
@@ -42,8 +42,8 @@ SECTION("stuff", "")
     // this is not done because there is no key named "four":
     CHECK(false);
   }
-  CHECK_THROWS_AS(params.get<std::string>("four"), std::out_of_range);
-  CHECK_THROWS_AS(params["four"], std::out_of_range);
+  CHECK_THROWS_AS(params.get<std::string>("four"), std::out_of_range&);
+  CHECK_THROWS_AS(params["four"], std::out_of_range&);
 }
 
 SECTION("more stuff", "")
