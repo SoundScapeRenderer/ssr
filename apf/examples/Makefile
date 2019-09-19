@@ -21,7 +21,7 @@ OPT ?= -O3
 CXXFLAGS += $(OPT)
 CXXFLAGS += -g
 
-CXXFLAGS += -std=c++11 -pthread
+CXXFLAGS += -std=c++14 -pthread
 
 # show all warnings
 CXXFLAGS += -Wall -Wextra

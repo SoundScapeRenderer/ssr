@@ -4,11 +4,8 @@
 #include "apf/mimoprocessor.h"
 #include "apf/combine_channels.h"  // for apf::CombineChannels
 #include "apf/jack_policy.h"
-#include "apf/cxx_thread_policy.h"
 
-class MyProcessor : public apf::MimoProcessor<MyProcessor
-                    , apf::jack_policy
-                    , apf::cxx_thread_policy>
+class MyProcessor : public apf::MimoProcessor<MyProcessor, apf::jack_policy>
 {
   public:
     using Input = MimoProcessorBase::DefaultInput;
@@ -49,6 +46,11 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
         apf::CombineChannels<rtlist_proxy<Input>, Output> _combiner;
     };
 };
+
+void sleep(int sec)
+{
+  std::this_thread::sleep_for(std::chrono::seconds(sec));
+}
 
 int main()
 {

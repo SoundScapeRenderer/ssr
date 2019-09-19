@@ -5,13 +5,11 @@
 
 #include "apf/mimoprocessor.h"
 #include "apf/jack_policy.h"
-#include "apf/cxx_thread_policy.h"
 #include "apf/shareddata.h"
 #include "apf/convolver.h"
 
 class MyProcessor : public apf::MimoProcessor<MyProcessor
-                    , apf::jack_policy
-                    , apf::cxx_thread_policy>
+                    , apf::jack_policy>
 {
   public:
     using Input = MimoProcessorBase::DefaultInput;

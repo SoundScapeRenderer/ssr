@@ -58,12 +58,11 @@ namespace ssr
 template<typename Derived>
 class RendererBase : public apf::MimoProcessor<Derived
                      , APF_MIMOPROCESSOR_INTERFACE_POLICY
-                     , APF_MIMOPROCESSOR_THREAD_POLICY
                      , SSR_QUERY_POLICY>
 {
   private:
     using _base = apf::MimoProcessor<Derived, APF_MIMOPROCESSOR_INTERFACE_POLICY
-      , APF_MIMOPROCESSOR_THREAD_POLICY, SSR_QUERY_POLICY>;
+      , SSR_QUERY_POLICY>;
 
   public:
     using typename _base::rtlist_t;
@@ -242,7 +241,7 @@ class RendererBase : public apf::MimoProcessor<Derived
 
     size_t _next_id_suffix = 0;
 
-    typename _base::Lock _lock;
+    std::mutex _lock;
 };
 
 /** Constructor.

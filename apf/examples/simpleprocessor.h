@@ -9,13 +9,11 @@
 #include "apf/stringtools.h"
 #include "apf/misc.h"
 
-// Make sure that APF_MIMOPROCESSOR_INTERFACE_POLICY and
-// APF_MIMOPROCESSOR_THREAD_POLICY are
+// Make sure that APF_MIMOPROCESSOR_INTERFACE_POLICY is
 // #define'd before #include'ing this header file!
 
 class SimpleProcessor : public apf::MimoProcessor<SimpleProcessor
-                      , APF_MIMOPROCESSOR_INTERFACE_POLICY
-                      , APF_MIMOPROCESSOR_THREAD_POLICY>
+                      , APF_MIMOPROCESSOR_INTERFACE_POLICY>
 {
   public:
     class Input : public MimoProcessorBase::Input

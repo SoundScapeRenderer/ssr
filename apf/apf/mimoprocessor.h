@@ -31,6 +31,7 @@
 #define APF_MIMOPROCESSOR_H
 
 #include <cassert>  // for assert()
+#include <mutex>
 #include <stdexcept>  // for std::logic_error
 
 #include "apf/rtlist.h"
@@ -38,9 +39,10 @@
 #include "apf/misc.h"  // for NonCopyable
 #include "apf/iterator.h" // for *_iterator, make_*_iterator(), cast_proxy_const
 #include "apf/container.h" // for fixed_vector
+#include "apf/threadtools.h" // for ScopedThread
 
-#define APF_MIMOPROCESSOR_TEMPLATES template<typename Derived, typename interface_policy, typename thread_policy, typename query_policy>
-#define APF_MIMOPROCESSOR_BASE MimoProcessor<Derived, interface_policy, thread_policy, query_policy>
+#define APF_MIMOPROCESSOR_TEMPLATES template<typename Derived, typename interface_policy, typename query_policy>
+#define APF_MIMOPROCESSOR_BASE MimoProcessor<Derived, interface_policy, query_policy>
 
 /** Macro to create a @c Process struct and a corresponding member function.
  * @param name Name of the containing class
@@ -102,15 +104,13 @@ class disable_queries
  * @tparam Derived Your derived class -> CRTP!
  * @tparam interface_policy Policy class. You can use existing policies (e.g.
  *   jack_policy, pointer_policy<T*>) or write your own policy class.
- * @tparam thread_policy Policy for threads, locks and semaphores.
  *
  * Example: @ref MimoProcessor
  **/
 template<typename Derived
-  , typename interface_policy, typename thread_policy
+  , typename interface_policy
   , typename query_policy = disable_queries>
 class MimoProcessor : public interface_policy
-                    , public thread_policy
                     , public query_policy
                     , public CRTP<Derived>
                     , NonCopyable
@@ -174,7 +174,7 @@ class MimoProcessor : public interface_policy
     class ScopedLock : NonCopyable
     {
       public:
-        explicit ScopedLock(typename thread_policy::Lock& obj)
+        explicit ScopedLock(std::mutex& obj)
           : _obj(obj)
         {
           _obj.lock();
@@ -183,7 +183,7 @@ class MimoProcessor : public interface_policy
         ~ScopedLock() { _obj.unlock(); }
 
       private:
-        typename thread_policy::Lock& _obj;
+        std::mutex& _obj;
     };
 
     class CleanupFunction
@@ -196,17 +196,15 @@ class MimoProcessor : public interface_policy
         CommandQueue& _fifo;
     };
 
-    struct QueryThread : thread_policy::template ScopedThread<CleanupFunction>
+    struct QueryThread : ScopedThread<CleanupFunction>
     {
-      QueryThread(CommandQueue& fifo
-          , typename thread_policy::useconds_type usleeptime)
-        : thread_policy::template ScopedThread<CleanupFunction>(
-            CleanupFunction(fifo), usleeptime)
+      QueryThread(CommandQueue& fifo, int usleeptime)
+        : ScopedThread<CleanupFunction>(CleanupFunction(fifo), usleeptime)
       {}
     };
 
     std::unique_ptr<QueryThread>
-    make_query_thread(typename thread_policy::useconds_type usleeptime)
+    make_query_thread(int usleeptime)
     {
       return std::make_unique<QueryThread>(_query_fifo, usleeptime);
     }
@@ -319,58 +317,60 @@ class MimoProcessor : public interface_policy
     CommandQueue _fifo;
 
   private:
-    class WorkerThreadFunction;
-
     class WorkerThread : NonCopyable
     {
-      private:
-        using DetachedThread = typename thread_policy::template DetachedThread<
-          WorkerThreadFunction>;
-
       public:
         WorkerThread(unsigned thread_number, MimoProcessor& parent)
-          : cont_semaphore(0)
-          , wait_semaphore(0)
-          , _thread(WorkerThreadFunction(thread_number, parent, *this))
+          : _thread_number(thread_number)
+          , _parent(parent)
+          , _thread(std::thread(&WorkerThread::_thread_function, this))
         {
           // Set thread priority from interface_policy, if available
           thread_traits<interface_policy
-            , typename DetachedThread::native_handle_type>::set_priority(parent
+            , std::thread::native_handle_type>::set_priority(parent
                 , _thread.native_handle());
         }
 
-        typename thread_policy::Semaphore cont_semaphore;
-        typename thread_policy::Semaphore wait_semaphore;
-
-      private:
-        DetachedThread _thread;  // Thread must be initialized after semaphores
-    };
-
-    class WorkerThreadFunction
-    {
-      public:
-        WorkerThreadFunction(unsigned thread_number, MimoProcessor& parent
-            , WorkerThread& thread)
-          : _thread_number(thread_number)
-          , _parent(parent)
-          , _thread(thread)
-        {}
-
-        void operator()()
+        WorkerThread(WorkerThread&& other)
+          : _parent{other._parent}
         {
-          // wait for main thread
-          _thread.cont_semaphore.wait();
-
-          _parent._process_selected_items_in_current_list(_thread_number);
-
-          // report to main thread
-          _thread.wait_semaphore.post();
+          // WorkerThread must be movable to be stored in a std::vector.
+          // We never actually move it, so this should never be called:
+          throw std::logic_error("This is just a work-around, don't move!");
         }
 
+        ~WorkerThread()
+        {
+          _keep_running.store(false, std::memory_order_release);
+          this->cont_semaphore.post();
+          _thread.join();
+        }
+
+        Semaphore cont_semaphore{0};
+        Semaphore wait_semaphore{0};
+
       private:
+        void _thread_function()
+        {
+          for (;;)
+          {
+            // wait for main audio thread
+            this->cont_semaphore.wait();
+
+            if (!_keep_running.load(std::memory_order_acquire)) { break; }
+
+            _parent._process_selected_items_in_current_list(_thread_number);
+
+            // report to main audio thread
+            this->wait_semaphore.post();
+          }
+        }
+
+        std::atomic<bool> _keep_running{true};
         unsigned _thread_number;
         MimoProcessor& _parent;
-        WorkerThread& _thread;
+
+        std::thread _thread;  // Thread must be initialized after semaphores
     };
 
     class Xput;
@@ -410,8 +410,7 @@ APF_MIMOPROCESSOR_BASE::MimoProcessor(const parameter_map& params_)
   , params(params_)
   , _fifo(params.get("fifo_size", size_t(1024)))
   , _current_list(nullptr)
-  , _num_threads(params.get("threads"
-        , thread_policy::default_number_of_threads()))
+  , _num_threads(params.get("threads", std::thread::hardware_concurrency()))
   , _input_list(_fifo)
   , _output_list(_fifo)
 {

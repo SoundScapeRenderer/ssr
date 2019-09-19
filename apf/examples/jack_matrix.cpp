@@ -6,12 +6,10 @@
 
 #include "apf/mimoprocessor.h"
 #include "apf/jack_policy.h"
-#include "apf/cxx_thread_policy.h"
 #include "apf/container.h"  // for fixed_matrix
 
 class MatrixProcessor : public apf::MimoProcessor<MatrixProcessor
-                        , apf::jack_policy
-                        , apf::cxx_thread_policy>
+                        , apf::jack_policy>
 {
   public:
     using matrix_t = apf::fixed_matrix<sample_type>;
@@ -278,5 +276,5 @@ int main()
   //p.set("channels", 120);
   p.set("threads", 2);
   MatrixProcessor engine(p);
-  sleep(60);
+  std::this_thread::sleep_for(std::chrono::seconds(60));
 }

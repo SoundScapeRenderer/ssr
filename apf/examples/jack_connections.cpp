@@ -2,10 +2,8 @@
 
 #include "apf/mimoprocessor.h"
 #include "apf/jack_policy.h"
-#include "apf/cxx_thread_policy.h"
 
-class MyProcessor : public apf::MimoProcessor<MyProcessor
-      , apf::jack_policy, apf::cxx_thread_policy>
+class MyProcessor : public apf::MimoProcessor<MyProcessor, apf::jack_policy>
 {
   public:
     MyProcessor()
@@ -31,6 +29,11 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
       this->add(out_params);
     }
 };
+
+void sleep(int sec)
+{
+  std::this_thread::sleep_for(std::chrono::seconds(sec));
+}
 
 int main()
 {

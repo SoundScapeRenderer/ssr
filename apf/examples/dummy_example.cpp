@@ -2,10 +2,9 @@
 
 #include "apf/mimoprocessor.h"
 #include "apf/pointer_policy.h"
-#include "apf/dummy_thread_policy.h"
 
 class MyProcessor : public apf::MimoProcessor<MyProcessor
-                    , apf::pointer_policy<float*>, apf::dummy_thread_policy>
+                    , apf::pointer_policy<float*>>
 {
   public:
     using Input = MimoProcessorBase::DefaultInput;

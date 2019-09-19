@@ -40,7 +40,6 @@
 #include <unordered_set>
 
 #include "apf/jack_policy.h"
-#include "apf/cxx_thread_policy.h"
 
 #define SSR_QUERY_POLICY apf::enable_queries
 
@@ -754,7 +753,7 @@ Controller<Renderer>::~Controller()
     // TODO: check if transport needs to be stopped
     control->transport_stop();
 
-    // NB: Scene is save while holding the lock
+    // NB: Scene is saved while holding the lock
     if (!_save_scene("ssr_scene_autosave.asd"))
     {
       SSR_ERROR("Couldn't write XML scene! (It's an ugly hack anyway ...");

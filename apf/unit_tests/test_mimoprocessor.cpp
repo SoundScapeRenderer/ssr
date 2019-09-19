@@ -3,15 +3,12 @@
 #include "catch/catch.hpp"
 
 #include "apf/pointer_policy.h"
-#include "apf/dummy_thread_policy.h"
 
-struct DummyProcessor : public apf::MimoProcessor<DummyProcessor
-                        , apf::pointer_policy<float*>
-                        , apf::dummy_thread_policy>
+struct DummyProcessor :
+  public apf::MimoProcessor<DummyProcessor, apf::pointer_policy<float*>>
 {
   DummyProcessor(const apf::parameter_map& p)
-    : apf::MimoProcessor<DummyProcessor, apf::pointer_policy<float*>
-      , apf::dummy_thread_policy>(p)
+    : apf::MimoProcessor<DummyProcessor, apf::pointer_policy<float*>>(p)
   {}
 
   void process() {}

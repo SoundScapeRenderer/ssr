@@ -28,7 +28,8 @@ endif
 
 OBJECTS = $(TESTS:=.o)
 
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++14
+CXXFLAGS += -pthread
 
 CXXFLAGS += -g
 

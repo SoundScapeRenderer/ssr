@@ -4,9 +4,8 @@
 
 #include "apf/stringtools.h"
 
-// First the policies ...
+// First the policy ...
 #include "apf/jack_policy.h"
-#include "apf/cxx_thread_policy.h"
 // ... then the SimpleProcessor.
 #include "simpleprocessor.h"
 
@@ -35,11 +34,11 @@ int main(int argc, char *argv[])
 
   SimpleProcessor engine(e);
 
-  sleep(2);
+  std::this_thread::sleep_for(std::chrono::seconds(2));
 
   SimpleProcessor::Input::Params p3;
   p3.set("port_name", "another_port_just_for_fun");
   engine.add(p3);
 
-  sleep(60);
+  std::this_thread::sleep_for(std::chrono::seconds(60));
 }

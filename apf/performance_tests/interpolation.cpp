@@ -3,15 +3,13 @@
 #include <cstdlib>  // for random()
 
 #include "apf/pointer_policy.h"
-#include "apf/cxx_thread_policy.h"
 #include "apf/mimoprocessor.h"
 #include "apf/combine_channels.h"  // for apf::CombineChannelsInterpolation
 #include "apf/container.h"  // for fixed_matrix
 #include "apf/stopwatch.h"
 
 class MyProcessor : public apf::MimoProcessor<MyProcessor
-                    , apf::pointer_policy<float*>
-                    , apf::cxx_thread_policy>
+                    , apf::pointer_policy<float*>>
 {
   public:
     using Input = DefaultInput;

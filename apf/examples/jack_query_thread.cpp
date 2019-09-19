@@ -4,12 +4,10 @@
 
 #include "apf/mimoprocessor.h"
 #include "apf/jack_policy.h"
-#include "apf/cxx_thread_policy.h"
 #include "apf/shareddata.h"
 
 class MyProcessor : public apf::MimoProcessor<MyProcessor
                     , apf::jack_policy
-                    , apf::cxx_thread_policy
                     , apf::enable_queries>
 {
   public:
@@ -17,7 +15,7 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
       : MimoProcessorBase()
       , ch(_fifo, '_')
       , _query(*this)
-      , _query_thread(QueryThread(_query_fifo), 1000*1000 / this->block_size())
+      , _query_thread(_query_fifo, 1000*1000 / this->block_size())
     {}
 
     // MyProcessor doesn't process anything, no Process struct needed
@@ -52,8 +50,13 @@ class MyProcessor : public apf::MimoProcessor<MyProcessor
         char _ch;
     } _query;
 
-    ScopedThread<QueryThread> _query_thread;
+    QueryThread _query_thread;
 };
+
+void sleep(int sec)
+{
+  std::this_thread::sleep_for(std::chrono::seconds(sec));
+}
 
 int main()
 {

@@ -4,9 +4,8 @@
 
 #include "apf/stringtools.h"
 
-// First the policies ...
+// First the policy ...
 #include "apf/portaudio_policy.h"
-#include "apf/cxx_thread_policy.h"
 // ... then the SimpleProcessor.
 #include "simpleprocessor.h"
 
@@ -37,5 +36,5 @@ int main(int argc, char *argv[])
 
   SimpleProcessor engine(e);
 
-  sleep(60);
+  std::this_thread::sleep_for(std::chrono::seconds(60));
 }

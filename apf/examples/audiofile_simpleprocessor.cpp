@@ -3,9 +3,8 @@
 
 #include "apf/mimoprocessor_file_io.h"
 
-// First the policies ...
+// First the policy ...
 #include "apf/pointer_policy.h"
-#include "apf/cxx_thread_policy.h"
 // ... then the SimpleProcessor.
 #include "simpleprocessor.h"
 
