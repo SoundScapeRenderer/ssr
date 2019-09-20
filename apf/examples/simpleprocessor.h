@@ -103,7 +103,7 @@ SimpleProcessor::SimpleProcessor(const apf::parameter_map& p)
     ip.set("id", i);
     if (in_port_prefix != "")
     {
-      ip.set("connect_to", in_port_prefix + apf::str::A2S(i));
+      ip.set("connect-to", in_port_prefix + apf::str::A2S(i));
     }
     this->add(ip);  // ignore return value
   }
@@ -116,7 +116,7 @@ SimpleProcessor::SimpleProcessor(const apf::parameter_map& p)
     op.set("id", i);
     if (out_port_prefix != "")
     {
-      op.set("connect_to", out_port_prefix + apf::str::A2S(i));
+      op.set("connect-to", out_port_prefix + apf::str::A2S(i));
     }
     this->add(op);  // ignore return value
   }

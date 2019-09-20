@@ -368,8 +368,6 @@ class Controller : public api::Publisher
 
     bool _loop; ///< part of a quick-hack. should be removed some time.
 
-    std::unique_ptr<typename Renderer::QueryThread> _query_thread;
-
     std::mutex _m;
 
     // "non-colonized name": https://www.w3.org/TR/xml-names11/#NT-NCName
@@ -677,20 +675,13 @@ class Controller<Renderer>::query_state
 template<typename Renderer>
 bool Controller<Renderer>::run()
 {
-  // TODO: make sleep time customizable
-  _query_thread = _renderer.make_query_thread(10 * 1000);
-
   _start_tracker(_conf.tracker, _conf.tracker_ports);
 
-  if (!_renderer.activate())
+  // TODO: make sleep time customizable
+  if (!_renderer.activate(_query_state, 10 * 1000))
   {
     return false;
   }
-
-  // CAUTION: this must be called after activate()!
-  // If not, an infinite recursion happens!
-
-  _renderer.new_query(_query_state);
 
   {
     auto control = this->take_control();
@@ -704,7 +695,7 @@ bool Controller<Renderer>::run()
   if (_conf.gui)
   {
 #ifdef ENABLE_GUI
-    if (!_start_gui(_conf.path_to_gui_images, _conf.path_to_scene_menu))
+    if (_start_gui(_conf.path_to_gui_images, _conf.path_to_scene_menu) != 0)
     {
       return false;
     }
@@ -746,6 +737,7 @@ bool Controller<Renderer>::run()
 template<typename Renderer>
 Controller<Renderer>::~Controller()
 {
+  _renderer.deactivate();
   if (!_conf.follow)
   {
     auto control = this->take_control();

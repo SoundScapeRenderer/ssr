@@ -84,15 +84,100 @@ struct thread_traits
 class enable_queries
 {
   protected:
-    enable_queries(size_t fifo_size) : _query_fifo(fifo_size) {}
+    enable_queries()
+      // NB: 1 should be sufficient, but it doesn't seem to work:
+      : _query_fifo(2)
+    {}
+
+    template<typename F>
+    void start_query_thread(F& query_function, int usleeptime)
+    {
+      _query_thread = std::make_unique<QueryThread>(_query_fifo, usleeptime);
+
+      // CAUTION: this must be called after interface_policy::activate()!
+      // If not, an infinite recursion happens!
+      _new_query(query_function);
+    }
+
+    // This is supposed to be called from the audio thread
+    void process_query_commands()
+    {
+      _query_fifo.process_commands();
+    }
+
+    void stop_query_thread()
+    {
+      _keep_running = false;
+      // Stop query thread:
+      _query_thread.reset();
+      // Empty query fifo in case there is still some cleanup to do:
+      _query_fifo.deactivate();
+    }
+
+  private:
+    class CleanupFunction
+    {
+      public:
+        CleanupFunction(CommandQueue& fifo) : _fifo(fifo) {};
+        void operator()() { _fifo.cleanup_commands(); }
+
+      private:
+        CommandQueue& _fifo;
+    };
+
+    struct QueryThread : ScopedThread<CleanupFunction>
+    {
+      QueryThread(CommandQueue& fifo, int usleeptime)
+        : ScopedThread<CleanupFunction>(CleanupFunction(fifo), usleeptime)
+      {}
+    };
+
+    template<typename F>
+    class QueryCommand : public CommandQueue::Command
+    {
+      public:
+        QueryCommand(F& query_function, enable_queries& parent)
+          : _query_function(query_function)
+          , _parent(parent)
+        {}
+
+        // This is called in the audio thread
+        virtual void execute()
+        {
+          _query_function.query();
+        }
+
+        // This is called in the query thread
+        virtual void cleanup()
+        {
+          if (_parent._keep_running)
+          {
+            _query_function.update();
+            _parent._new_query(_query_function);  // "recursive" call!
+          }
+        }
+
+      private:
+        F& _query_function;
+        enable_queries& _parent;
+    };
+
+    template<typename F>
+    void _new_query(F& query_function)
+    {
+      _query_fifo.push(new QueryCommand<F>(query_function, *this));
+    }
+
+    std::atomic<bool> _keep_running{true};
+    std::unique_ptr<QueryThread> _query_thread;
     CommandQueue _query_fifo;
 };
 
 class disable_queries
 {
   protected:
-    disable_queries(size_t) {}
-    struct { void process_commands() {} } _query_fifo;
+    void process_query_commands() {}
+    void stop_query_thread() {}
 };
 
 /** Multi-threaded multiple-input-multiple-output (MIMO) processor.
@@ -117,7 +202,6 @@ class MimoProcessor : public interface_policy
 {
   public:
     using typename interface_policy::sample_type;
-    using query_policy::_query_fifo;
 
     class Input;
     class Output;
@@ -186,68 +270,25 @@ class MimoProcessor : public interface_policy
         std::mutex& _obj;
     };
 
-    class CleanupFunction
-    {
-      public:
-        CleanupFunction(CommandQueue& fifo) : _fifo(fifo) {};
-        void operator()() { _fifo.cleanup_commands(); }
-
-      private:
-        CommandQueue& _fifo;
-    };
-
-    struct QueryThread : ScopedThread<CleanupFunction>
-    {
-      QueryThread(CommandQueue& fifo, int usleeptime)
-        : ScopedThread<CleanupFunction>(CleanupFunction(fifo), usleeptime)
-      {}
-    };
-
-    std::unique_ptr<QueryThread>
-    make_query_thread(int usleeptime)
-    {
-      return std::make_unique<QueryThread>(_query_fifo, usleeptime);
-    }
-
-    template<typename F>
-    class QueryCommand : public CommandQueue::Command
-    {
-      public:
-        QueryCommand(F& query_function, Derived& parent)
-          : _query_function(query_function)
-          , _parent(parent)
-        {}
-
-        virtual void execute()
-        {
-          _query_function.query();
-        }
-
-        virtual void cleanup()
-        {
-          _query_function.update();
-          _parent.new_query(_query_function);  // "recursive" call!
-        }
-
-      private:
-        F& _query_function;
-        Derived& _parent;
-    };
-
-    template<typename F>
-    void new_query(F& query_function)
-    {
-      _query_fifo.push(new QueryCommand<F>(query_function, this->derived()));
-    }
-
     bool activate()
     {
       _fifo.reactivate();  // no return value
       return interface_policy::activate();
     }
 
+    /// This is only available when enable_queries is used
+    template<typename F>
+    bool activate(F& query_function, int usleeptime)
+    {
+      auto result = this->activate();
+      this->start_query_thread(query_function, usleeptime);
+      return result;
+    }
+
     bool deactivate()
     {
+      this->stop_query_thread();
+
       if (!interface_policy::deactivate()) return false;
 
       // All audio threads should be stopped now.
@@ -382,7 +423,7 @@ class MimoProcessor : public interface_policy
       _process_list(_input_list);
       typename Derived::Process(this->derived());
       _process_list(_output_list);
-      _query_fifo.process_commands();
+      this->process_query_commands();
     }
 
     void _process_current_list_in_main_thread();
@@ -406,7 +447,7 @@ class MimoProcessor : public interface_policy
 APF_MIMOPROCESSOR_TEMPLATES
 APF_MIMOPROCESSOR_BASE::MimoProcessor(const parameter_map& params_)
   : interface_policy(params_)
-  , query_policy(params_.get("fifo_size", size_t(1024)))
+  , query_policy()
   , params(params_)
   , _fifo(params.get("fifo_size", size_t(1024)))
   , _current_list(nullptr)

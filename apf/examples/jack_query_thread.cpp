@@ -7,50 +7,43 @@
 #include "apf/shareddata.h"
 
 class MyProcessor : public apf::MimoProcessor<MyProcessor
-                    , apf::jack_policy
-                    , apf::enable_queries>
+                  , apf::jack_policy
+                  , apf::enable_queries>
 {
   public:
     MyProcessor()
       : MimoProcessorBase()
       , ch(_fifo, '_')
-      , _query(*this)
-      , _query_thread(_query_fifo, 1000*1000 / this->block_size())
     {}
 
     // MyProcessor doesn't process anything, no Process struct needed
 
-    void start_querying()
+    // To be assigned to in the main thread, read from in the audio thread
+    apf::SharedData<char> ch;
+};
+
+class MyQuery
+{
+  public:
+    MyQuery(MyProcessor& parent)
+      : _parent{parent}
+    {}
+
+    // This is called in the audio thread
+    void query()
     {
-      this->new_query(_query);
+      _ch = _parent.ch;
     }
 
-    apf::SharedData<char> ch;
+    // This is called in the query thread
+    void update()
+    {
+      std::cout << _ch << std::flush;
+    }
 
   private:
-    class my_query
-    {
-      public:
-        my_query(MyProcessor& parent)
-          : _parent(parent)
-        {}
-
-        void query()
-        {
-          _ch = _parent.ch;
-        }
-
-        void update()
-        {
-          std::cout << _ch << std::flush;
-        }
-
-      private:
-        MyProcessor& _parent;
-        char _ch;
-    } _query;
-
-    QueryThread _query_thread;
+    MyProcessor& _parent;
+    char _ch;
 };
 
 void sleep(int sec)
@@ -61,9 +54,9 @@ void sleep(int sec)
 int main()
 {
   MyProcessor processor;
-  processor.activate();
-  processor.start_querying();
-  sleep(3);
+  MyQuery query{processor};
+  processor.activate(query, 100 * 1000);
+  sleep(2);
   processor.ch = '*';
   sleep(1);
   processor.ch = '+';
