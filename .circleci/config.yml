@@ -1,0 +1,93 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+jobs:
+  build_docs:
+    docker:
+      # https://github.com/dante-ev/docker-texlive
+      - image: danteev/texlive
+
+    working_directory: ~/checkout
+
+    environment:
+      PIP_INSTALL: python3 -m pip install --user --progress-bar off --upgrade
+
+    steps:
+      - checkout
+
+      - run:
+          name: Checkout Submodules
+          command: |
+            git submodule update --init
+
+      - run:
+          name: Installing Python Packages
+          command: |
+            $PIP_INSTALL sphinx sphinx-rtd-theme
+
+      - run:
+          name: Installing apt Packages
+          command: |
+            apt-get update
+            apt-get install -y \
+              automake \
+              doxygen \
+              libfftw3-dev \
+              libjack-jackd2-dev \
+              libsndfile1-dev \
+              libxml2-dev \
+              pkg-config
+
+      - run:
+          name: Building HTML Manual
+          command: |
+            python3 -m sphinx doc/manual manual-html -d .doctrees -b html
+
+      - run:
+          name: Building LaTeX Files for Manual
+          command: |
+            python3 -m sphinx doc/manual manual-latex -d .doctrees -b latex
+
+      - run:
+          name: Building PDF Manual
+          command: |
+            cd manual-latex
+            latexmk -pdf
+
+      - run:
+          name: Configuring SSR
+          command: |
+            ./autogen.sh
+            ./configure \
+              --disable-ecasound \
+              --disable-gui \
+              --disable-ip-interface \
+              --disable-websocket-interface
+
+      - run:
+          name: Building Doxygen docs
+          command: |
+            make doc
+
+      - store_artifacts:
+          name: Uploading HTML Manual
+          path: manual-html
+          destination: manual
+
+      - store_artifacts:
+          name: Uploading PDF Manual
+          path: manual-latex/SoundScapeRenderer.pdf
+          destination: SoundScapeRenderer.pdf
+
+      - store_artifacts:
+          name: Uploading Doxygen HTML files
+          path: doc/doxygen/html
+          destination: doxygen
+
+workflows:
+  version: 2
+  i-would-like-some-docs:
+    jobs:
+      - build_docs
