@@ -980,6 +980,12 @@ Connection::on_message(message_ptr msg)
     }
     else if (command == "mod-src")
     {
+      if (!value.IsObject())
+      {
+        SSR_ERROR("Expected JSON object, not " << value);
+        return;
+      }
+      
       if (!control)
       {
         control = _controller.take_control();
