@@ -13,6 +13,15 @@ then
   sudo make install
   cd ..
   cd ..
+
+  git clone git://github.com/hoene/libmysofa.git
+  cd libmysofa
+  cd build
+  cmake -DCMAKE_BUILD_TYPE=Debug ..
+  make
+  sudo make install
+  cd ..
+  cd ..
 fi
 
 if [ "$TRAVIS_OS_NAME" = linux ]

@@ -24,6 +24,7 @@ addons:
       - jackd1
       - pkg-config
       - libtool
+      - libmysofa-dev
   homebrew:
     update: true
     packages:
@@ -37,6 +38,8 @@ addons:
       - libsndfile
       - libxml2
       - qt
+      # libmysofa needs this:
+      - cunit
       # using brew, it's not possible to install needed perl dependencies for
       # help2man (Locale::gettext), therefore best disabled for now
       #- help2man
