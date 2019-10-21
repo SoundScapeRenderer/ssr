@@ -37,8 +37,7 @@
 #include "apf/sndfiletools.h"  // for apf::load_sndfile
 #include "apf/combine_channels.h"  // for apf::raised_cosine_fade, ...
 
-#include "legacy_position.h"  // for Position
-#include "legacy_orientation.h"  // for Orientation
+#include "gml/util.hpp"  // for gml::radians(), gml::degrees()
 
 namespace ssr
 {
@@ -273,13 +272,18 @@ void BinauralRenderer::Source::_process()
 
   this->add_block(this->begin());
 
-  auto ref_pos = Position(this->parent.state.reference_position)
-    + Position(this->parent.state.reference_position_offset);
-  auto ref_ori = Orientation(this->parent.state.reference_rotation)
-    + Orientation(this->parent.state.reference_rotation_offset)
-    - Orientation(90);
+  const vec3 src_pos = this->position.get();
+  const quat src_rot = this->rotation.get();
+  vec3 ref_pos = this->parent.state.reference_position.get();
+  quat ref_rot = this->parent.state.reference_rotation.get();
+  const vec3 ref_pos_off = this->parent.state.reference_position_offset.get();
+  const quat ref_rot_off = this->parent.state.reference_rotation_offset.get();
 
-  float source_distance = (Position(this->position) - ref_pos).length();
+  // Apply offset
+  ref_pos += transform(ref_rot, ref_pos_off);
+  ref_rot *= ref_rot_off;
+
+  float source_distance = length(src_pos - ref_pos);
 
   if (this->weighting_factor != 0 && source_distance < 0.5f
         && this->model != "plane")
@@ -292,22 +296,36 @@ void BinauralRenderer::Source::_process()
 
   auto angles = static_cast<float>(this->parent._angles);
 
-  // calculate relative orientation of sound source
-  auto rel_ori = -ref_ori;
-
+  // Vector that points at the required HRIR direction
+  vec3 selector{};
+  // Rotation to compensate for the reference rotation
+  auto anti_ref_rot = conj(ref_rot);
   if (this->model == "plane")
   {
-    // plane wave orientation points into direction of propagation
-    // +180 degree has to be applied to select the hrtf correctly
-    rel_ori += Orientation(this->rotation) + Orientation(180);
+    // Relative source rotation, as seen from the reference
+    auto rel_rot = anti_ref_rot * src_rot;
+    // Vector corresponding to that rotation (roll angle is ignored)
+    selector = transform(rel_rot, {0.0f, 1.0f, 0.0f});
+    // Plane wave orientation points into direction of propagation,
+    // we want to point to where it comes from:
+    selector = -selector;
   }
   else
   {
-    rel_ori += (Position(this->position) - ref_pos).orientation();
+    // Vector of incidence, as seen from the reference
+    selector = transform(anti_ref_rot, (src_pos - ref_pos));
   }
+  // Rotate selector 90 degrees clockwise to align main direction with x-axis
+  selector = transform(
+      gml::qrotate(gml::radians(-90.0f), {0.0f, 0.0f, 1.0f}),
+      selector);
+  auto x = selector[0];
+  auto y = selector[1];
+  // NB: We ignore the z component selector[2]
+  auto angle = gml::degrees(std::atan2(y, x));
 
   _hrtf_index = size_t(apf::math::wrap(
-      rel_ori.azimuth * angles / 360.0f + 0.5f, angles));
+        angle * angles / 360.0f + 0.5f, angles));
 
   using namespace apf::CombineChannelsResult;
   auto crossfade_mode = apf::CombineChannelsResult::type();
