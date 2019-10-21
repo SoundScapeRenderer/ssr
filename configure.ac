@@ -570,6 +570,12 @@ AS_IF([test x$have_ecasound != xno],
   AC_CHECK_PROG([have_ecasound_program], [ecasound], [yes], [no])
 ])
 
+ENABLE_AUTO([sofa], [SOFA support for binaural renderer],
+[
+  AC_CHECK_HEADER([mysofa.h], , [have_sofa=no])
+  AC_SEARCH_LIBS([mysofa_open], [mysofa], , [have_sofa=no])
+])
+
 dnl Checking for Polhemus Fastrak/Patriot support
 ENABLE_AUTO([polhemus], [Polhemus Fastrak/Patriot tracker support],
 [
@@ -782,7 +788,7 @@ echo "|    Polhemus Fastrak/Patriot ............ : $have_polhemus"
 echo "|    Razor AHRS .......................... : $have_razor"
 echo "|    VRPN ................................ : $have_vrpn"
 echo "|"
-echo "| Build with Ecasound support ............ : $have_ecasound"
+echo "| Ecasound/SOFA support .................. : $have_ecasound/$have_sofa"
 echo "| Network: legacy/WebSocket .............. : $have_ip_interface/$have_websocket_interface"
 echo "| Build with GUI ......................... : $gui_string"
 echo "|"

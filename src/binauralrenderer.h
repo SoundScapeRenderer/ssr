@@ -39,6 +39,10 @@
 
 #include "gml/util.hpp"  // for gml::radians(), gml::degrees()
 
+#ifdef ENABLE_SOFA
+#include <mysofa.h>
+#endif
+
 namespace ssr
 {
 
@@ -73,6 +77,10 @@ class BinauralRenderer : public SourceToOutput<BinauralRenderer, RendererBase>
     using hrtf_set_t = apf::fixed_vector<apf::conv::Filter>;
 
     void _load_hrtfs(const std::string& filename, size_t size);
+    void _load_wav(const std::string& filename, size_t size);
+#ifdef ENABLE_SOFA
+    void _load_sofa(const std::string& filename, size_t size);
+#endif
 
     static bool _cmp_abs(sample_type left, sample_type right)
     {
@@ -84,6 +92,10 @@ class BinauralRenderer : public SourceToOutput<BinauralRenderer, RendererBase>
     size_t _angles;  // Number of angles in HRIR file
     std::unique_ptr<hrtf_set_t> _hrtfs;
     std::unique_ptr<apf::conv::Filter> _neutral_filter;
+#ifdef ENABLE_SOFA
+    std::unique_ptr<MYSOFA_LOOKUP, decltype(&mysofa_lookup_free)>
+      _filter_lookup{nullptr, &mysofa_lookup_free};
+#endif
 };
 
 class BinauralRenderer::SourceChannel : public apf::conv::Output
@@ -118,6 +130,30 @@ class BinauralRenderer::SourceChannel : public apf::conv::Output
 
 void
 BinauralRenderer::_load_hrtfs(const std::string& filename, size_t size)
+{
+  auto idx = filename.find_last_of(".");
+  if (idx != std::string::npos)
+  {
+    auto ext = filename.substr(idx + 1);
+    std::transform(ext.begin(), ext.end(), ext.begin()
+        , [](unsigned char c){ return std::tolower(c); });
+    if (ext == "wav")
+    {
+      _load_wav(filename, size);
+      return;
+    }
+  }
+#ifdef ENABLE_SOFA
+  _load_sofa(filename, size);
+#else
+  throw std::logic_error(
+      "Only WAV files are supported "
+      "(SOFA support was disabled at compile time)");
+#endif
+}
+
+void
+BinauralRenderer::_load_wav(const std::string& filename, size_t size)
 {
   auto hrir_file = apf::load_sndfile(filename, this->sample_rate(), 0);
 
@@ -169,6 +205,85 @@ BinauralRenderer::_load_hrtfs(const std::string& filename, size_t size)
   // Number of partitions may be different from _hrtfs!
 }
 
+#ifdef ENABLE_SOFA
+void
+BinauralRenderer::_load_sofa(const std::string& filename, size_t size)
+{
+  int err;
+  auto hrir_file = std::unique_ptr<MYSOFA_HRTF, decltype(&mysofa_free)>{
+    mysofa_load(filename.c_str(), &err),
+    &mysofa_free};
+  if (!hrir_file)
+  {
+    throw std::runtime_error("SOFA load error: " + std::to_string(err));
+  }
+  err = mysofa_check(hrir_file.get());
+  if (err != MYSOFA_OK)
+  {
+    throw std::runtime_error("SOFA check error: " + std::to_string(err));
+  }
+  for (unsigned int i = 0; i < hrir_file->DataDelay.elements; i++)
+  {
+    if (hrir_file->DataDelay.values[i] != 0.0)
+    {
+      throw std::logic_error("SOFA files with delays are not (yet?) supported");
+    }
+  }
+  err = mysofa_resample(hrir_file.get(), this->sample_rate());
+  if (err != MYSOFA_OK)
+  {
+    throw std::runtime_error("SOFA resample error: " + std::to_string(err));
+  }
+  // TODO: normalize with mysofa_loudness?
+  mysofa_tocartesian(hrir_file.get());
+  _filter_lookup = {mysofa_lookup_init(hrir_file.get()), &mysofa_lookup_free};
+	if (!_filter_lookup) {
+    throw std::runtime_error("SOFA lookup init error");
+	}
+	// TODO: mysofa_neighborhood_init_withstepdefine()?
+  if (size == 0)
+  {
+    size = hrir_file->N;
+  }
+  if (size != hrir_file->N)
+  {
+    throw std::logic_error("Filter length cannot (yet?) be specified");
+  }
+  _angles = hrir_file->M;
+  _partitions = apf::conv::min_partitions(this->block_size(), size);
+  auto temp = apf::conv::Transform(this->block_size());
+  _hrtfs = std::make_unique<hrtf_set_t>(
+      _angles * 2, this->block_size(), _partitions);
+  auto target = _hrtfs->begin();
+  assert(hrir_file->R == 2);  // Number of ears
+  assert(_angles * 2 * size == hrir_file->DataIR.elements);
+  for (unsigned int i = 0; i < _angles * 2; i++)
+  {
+    const auto* begin = hrir_file->DataIR.values + i * size;
+    temp.prepare_filter(begin, begin + size, *target++);
+  }
+
+  // prepare neutral filter (dirac impulse) for interpolation around the head
+
+  // Get frontal IR (left channel)
+  float y_unit[] = {0.0, 1.0, 0.0};
+  auto frontal_left = mysofa_lookup(_filter_lookup.get(), y_unit);
+  assert(frontal_left >= 0);
+  const auto* begin = hrir_file->DataIR.values + frontal_left;
+
+  // get index of absolute maximum
+  const auto* maximum = std::max_element(begin, begin + size, _cmp_abs);
+  int index = static_cast<int>(std::distance(begin, maximum));
+
+  auto impulse = apf::fixed_vector<sample_type>(index + 1);
+  impulse.back() = 1;
+
+  _neutral_filter = std::make_unique<apf::conv::Filter>(this->block_size()
+        , impulse.begin(), impulse.end());
+  // Number of partitions may be different from _hrtfs!
+}
+#endif
+
 class BinauralRenderer::RenderFunction
 {
   public:
@@ -217,7 +332,7 @@ void BinauralRenderer::load_reproduction_setup()
   {
     _load_hrtfs(this->params["hrir_file"], this->params.get("hrir_size", 0));
   }
-  catch (const std::logic_error& e)
+  catch (const std::exception& e)
   {
     throw std::logic_error("Error loading HRIR file: " + std::string(e.what()));
   }
@@ -319,13 +434,27 @@ void BinauralRenderer::Source::_process()
   selector = transform(
       gml::qrotate(gml::radians(-90.0f), {0.0f, 0.0f, 1.0f}),
       selector);
-  auto x = selector[0];
-  auto y = selector[1];
-  // NB: We ignore the z component selector[2]
-  auto angle = gml::degrees(std::atan2(y, x));
 
-  _hrtf_index = size_t(apf::math::wrap(
-        angle * angles / 360.0f + 0.5f, angles));
+#ifdef ENABLE_SOFA
+  auto* lookup = this->parent._filter_lookup.get();
+  if (lookup != nullptr)
+  {
+    auto sofa_idx = mysofa_lookup(lookup, selector.begin());
+    assert(sofa_idx >= 0);
+    _hrtf_index = sofa_idx;
+  }
+  else
+  {
+#endif
+    auto x = selector[0];
+    auto y = selector[1];
+    // NB: We ignore the z component selector[2]
+    auto angle = gml::degrees(std::atan2(y, x));
+    _hrtf_index = size_t(apf::math::wrap(
+          angle * angles / 360.0f + 0.5f, angles));
+#ifdef ENABLE_SOFA
+  }
+#endif
 
   using namespace apf::CombineChannelsResult;
   auto crossfade_mode = apf::CombineChannelsResult::type();
