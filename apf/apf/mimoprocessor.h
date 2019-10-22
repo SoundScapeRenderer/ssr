@@ -332,6 +332,9 @@ class MimoProcessor : public interface_policy
     const rtlist_t& get_input_list() const { return _input_list; }
     const rtlist_t& get_output_list() const { return _output_list; }
 
+    unsigned threads() const { return _num_threads; }
+
+    // TODO: make private?
     const parameter_map params;
 
   protected:
