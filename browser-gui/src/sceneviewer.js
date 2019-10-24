@@ -81,16 +81,32 @@ export class SceneViewer {
   constructor(dom) {
     this.animate = this.animate.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
+    this.switch_to_3d = this.switch_to_3d.bind(this);
+    this.switch_to_top = this.switch_to_top.bind(this);
+    this.switch_to_ego = this.switch_to_ego.bind(this);
     this.dom = dom;
 
-    this.camera = new THREE.PerspectiveCamera();
-    this.camera.fov = 50;
-    this.camera.near = 0.01;
-    this.camera.far = 1000;
+    this.camera_3d = new THREE.PerspectiveCamera();
+    this.camera_3d.fov = 50;
+    this.camera_3d.near = 0.01;
+    this.camera_3d.far = 1000;
     // TODO: store camera position in browser (localStorage)?
-    this.camera.position.set(0, -10, 5);
-    this.camera.up.set(0, 0, 1);
-    //this.camera.lookAt(new THREE.Vector3());
+    this.camera_3d.position.set(0, -10, 5);
+    this.camera_3d.up.set(0, 0, 1);
+
+    this.camera_ego = new THREE.PerspectiveCamera();
+    this.camera_ego.fov = 80;  // Slight fisheye effect
+    this.camera_ego.near = 0.01;
+    this.camera_ego.far = 1000;
+    this.camera_ego.lookAt(0, 1, 0);
+
+    this.frustum_height = 10;  // meters
+    this.camera_top = new THREE.OrthographicCamera();
+    this.camera_top.top = this.frustum_height / 2;
+    this.camera_top.bottom = -this.frustum_height / 2;
+    this.camera_top.near = -100000;
+    this.camera_top.far = 100000;
+    this.camera_top.zoom = 1;
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xaaaaaa);
@@ -127,17 +143,16 @@ export class SceneViewer {
     this.onWindowResize();
 
     // https://threejs.org/docs/#examples/controls/OrbitControls
-    this.controls = new THREE.OrbitControls(this.camera, this.dom);
-    this.controls.enabled = true;
-    //this.controls.minDistance = 0;
-    //this.controls.maxDistance = 1500;  // default: infinite
-    this.controls.enableDamping = true;
-    this.controls.enableKeys = true;  // only for panning (arrow keys)
-    this.controls.dampingFactor = 0.2;
-    this.controls.screenSpacePanning = true;
-    this.controls.panSpeed = 0.3;
-    this.controls.rotateSpeed = 0.1;
-    //this.controls.target = ???;
+    this.controls_3d = new THREE.OrbitControls(this.camera_3d, this.dom);
+    //this.controls_3d.minDistance = 0;
+    //this.controls_3d.maxDistance = 1500;  // default: infinite
+    this.controls_3d.enableDamping = true;
+    this.controls_3d.enableKeys = true;  // only for panning (arrow keys)
+    this.controls_3d.dampingFactor = 0.2;
+    this.controls_3d.screenSpacePanning = true;
+    this.controls_3d.panSpeed = 0.3;
+    this.controls_3d.rotateSpeed = 0.1;
+    //this.controls_3d.target = ???;
 
     //this.scene.add(pointLight());
     this.scene.add(directionalLight());
@@ -150,6 +165,25 @@ export class SceneViewer {
     this.reference_offset = new THREE.Mesh(
       kiteGeometry(), new THREE.MeshBasicMaterial({ wireframe: true }));
     this.reference.add(this.reference_offset);
+    this.reference_offset.add(this.camera_ego);
+
+    this.switch_to_3d();
+  }
+
+  switch_to_3d() {
+    this.camera = this.camera_3d;
+    this.controls_3d.enabled = true;
+  }
+
+  switch_to_top() {
+    this.controls_3d.enabled = false;
+    this.camera = this.camera_top;
+  }
+
+  switch_to_ego() {
+    this.controls_3d.enabled = false;
+    // TODO: get reference position/rotation, update camera
+    this.camera = this.camera_ego;
   }
 
   createReference() {
@@ -227,8 +261,14 @@ export class SceneViewer {
   }
 
   onWindowResize(event) {
-    this.camera.aspect = this.dom.offsetWidth / this.dom.offsetHeight;
-    this.camera.updateProjectionMatrix();
+    let aspect = this.dom.offsetWidth / this.dom.offsetHeight;
+    this.camera_3d.aspect = aspect;
+    this.camera_3d.updateProjectionMatrix();
+    this.camera_ego.aspect = aspect;
+    this.camera_ego.updateProjectionMatrix();
+    this.camera_top.left = -this.frustum_height * aspect / 2;
+    this.camera_top.right = this.frustum_height * aspect / 2;
+    this.camera_top.updateProjectionMatrix();
     this.renderer.setSize(this.dom.offsetWidth, this.dom.offsetHeight);
   }
 
@@ -238,9 +278,9 @@ export class SceneViewer {
     //this.sceneHelpers.updateMatrixWorld();
     //this.scene.updateMatrixWorld();
 
-    // TODO: switch camera: 3D, reference, top, ???
-
-    this.controls.update();  // needed for enableDamping
+    if (this.controls_3d.enabled) {
+      this.controls_3d.update();  // needed for enableDamping
+    }
     this.renderer.render(this.scene, this.camera);
     this.renderer.render(this.sceneHelpers, this.camera);
   }
