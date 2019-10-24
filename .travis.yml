@@ -108,7 +108,7 @@ matrix:
 
 before_install:
   # https://github.com/Homebrew/brew/issues/5068#issuecomment-429984836
-  - if [ "$BREW_WORKAROUND" = yes ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / ; fi
+  - if [ "$BREW_WORKAROUND" = yes ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / -allowUntrusted ; fi
 
 before_script:
   - ci/build-deps.sh
