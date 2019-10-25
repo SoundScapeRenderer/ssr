@@ -94,21 +94,17 @@ matrix:
           packages:
             - clang-8
             - *default-packages
-    - name: macOS with Xcode11/Clang
+    - name: macOS 10.14 with Xcode11/Clang
       os: osx
       osx_image: xcode11
-      env: BREW_WORKAROUND=yes
-    - name: macOS with Xcode10.3/Clang
+      env: LIBXML_CFLAGS=-I/Applications/Xcode-11.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include/libxml2
+    - name: macOS 10.14 with Xcode10.3/Clang
       os: osx
       osx_image: xcode10.3
-      env: BREW_WORKAROUND=yes
-    - name: macOS with Xcode10.1/Clang
+      env: LIBXML_CFLAGS=-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/libxml2
+    - name: macOS 10.13 with Xcode10.1/Clang
       os: osx
       osx_image: xcode10.1
-
-before_install:
-  # https://github.com/Homebrew/brew/issues/5068#issuecomment-429984836
-  - if [ "$BREW_WORKAROUND" = yes ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / ; fi
 
 before_script:
   - ci/build-deps.sh
