@@ -94,6 +94,10 @@ matrix:
           packages:
             - clang-8
             - *default-packages
+    - name: macOS 10.14 with Xcode11.2/Clang
+      os: osx
+      osx_image: xcode11.2
+      env: LIBXML_CFLAGS=-I/Applications/Xcode-11.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include/libxml2
     - name: macOS 10.14 with Xcode11/Clang
       os: osx
       osx_image: xcode11
