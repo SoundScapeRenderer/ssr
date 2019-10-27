@@ -79,11 +79,14 @@ function kiteGeometry() {
 
 export class SceneViewer {
   constructor(dom) {
+    this.send = undefined;  // This has to be set from outside
     this.animate = this.animate.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
     this.switch_to_3d = this.switch_to_3d.bind(this);
     this.switch_to_top = this.switch_to_top.bind(this);
     this.switch_to_ego = this.switch_to_ego.bind(this);
+    this.switch_to_translation = this.switch_to_translation.bind(this);
+    this.switch_to_rotation = this.switch_to_rotation.bind(this);
     this.dom = dom;
 
     this.camera_3d = new THREE.PerspectiveCamera();
@@ -125,9 +128,6 @@ export class SceneViewer {
     }
     this.sceneHelpers.add(grid);
 
-    //transformControls = new THREE.TransformControls(this.camera, this.dom);
-    //this.sceneHelpers.add(transformControls);
-
     // TODO: Viewport: box, selectionBox?
     // TODO: raycaster, mouse
 
@@ -152,7 +152,6 @@ export class SceneViewer {
     this.controls_3d.screenSpacePanning = true;
     this.controls_3d.panSpeed = 0.3;
     this.controls_3d.rotateSpeed = 0.1;
-    //this.controls_3d.target = ???;
 
     //this.scene.add(pointLight());
     this.scene.add(directionalLight());
@@ -161,29 +160,74 @@ export class SceneViewer {
 
     this.sources = {};
     // TODO: binaural vs. loudspeakers?
-    this.reference = this.createReference();
+    this.createReference();
     this.reference_offset = new THREE.Mesh(
       kiteGeometry(), new THREE.MeshBasicMaterial({ wireframe: true }));
     this.reference.add(this.reference_offset);
     this.reference_offset.add(this.camera_ego);
 
+    // https://threejs.org/docs/#examples/controls/TransformControls
+    this.transformControls = new THREE.TransformControls(this.camera_3d, this.dom);
+    this.transformControls.setSize(0.7);
+
+    this.sceneHelpers.add(this.transformControls);
+
+    let that = this;
+
+    this.transformControls.addEventListener('dragging-changed', function (event) {
+      that.controls_3d.enabled = !event.value;
+    });
+
+    this.transformControls.addEventListener('objectChange', function (event) {
+      // TODO: check for sources
+      if (event.target.object === that.reference) {
+        switch (event.target.mode) {
+          case 'translate':
+            let p = that.reference.temp_position;
+            that.send(["state", {"ref-pos": [p.x, p.y, p.z]}]);
+            break;
+          case 'rotate':
+            let q = that.reference.temp_quaternion;
+            that.send(["state", {"ref-rot": [q.x, q.y, q.z, q.w]}]);
+            break;
+          default:
+            console.log('Invalid mode: ' + event.target.mode);
+        }
+      }
+    });
+
     this.switch_to_3d();
+    this.switch_to_translation();
   }
 
   switch_to_3d() {
     this.camera = this.camera_3d;
+    this.transformControls.attach(this.reference);
     this.controls_3d.enabled = true;
   }
 
   switch_to_top() {
-    this.controls_3d.enabled = false;
+    // TODO: hide control-buttons?
     this.camera = this.camera_top;
+    this.controls_3d.enabled = false;
+    this.transformControls.detach();
   }
 
   switch_to_ego() {
-    this.controls_3d.enabled = false;
-    // TODO: get reference position/rotation, update camera
+    // TODO: hide control-buttons?
     this.camera = this.camera_ego;
+    this.controls_3d.enabled = false;
+    this.transformControls.detach();
+  }
+
+  switch_to_translation() {
+    this.transformControls.setMode('translate');
+    this.transformControls.setSpace('global');
+  }
+
+  switch_to_rotation() {
+    this.transformControls.setMode('rotate');
+    this.transformControls.setSpace('local');
   }
 
   createReference() {
@@ -192,8 +236,68 @@ export class SceneViewer {
     let mesh = new THREE.Mesh(kiteGeometry(), material);
     mesh.scale.set(0.6, 0.6, 0.6);
     reference.add(mesh);
-    this.scene.add(reference);
-    return reference;
+
+    this.real_reference = reference;
+    let that = this;
+
+    reference.temp_position = new THREE.Vector3();
+    reference.fake_position = new Proxy(reference.temp_position, {
+      get(target, name, receiver) {
+        switch (name) {
+          case 'copy':
+            return function (other) {
+              target.copy(other);
+              return receiver;
+            };
+          case 'add':
+            return function (other) {
+              target.add(other);
+              return receiver;
+            };
+          default:
+            return Reflect.get(that.real_reference.position, name, receiver);
+        }
+      }
+    });
+
+    reference.temp_quaternion = new THREE.Quaternion();
+    reference.fake_quaternion = new Proxy(reference.temp_quaternion, {
+      get(target, name, receiver) {
+        switch (name) {
+          case 'copy':
+            return function (other) {
+              target.copy(other);
+              return receiver;
+            };
+          case 'multiply':
+            return function (other) {
+              target.multiply(other);
+              return receiver;
+            };
+          case 'normalize':
+            return function () {
+              target.normalize();
+              return receiver;
+            }
+          default:
+            return Reflect.get(that.real_reference.quaternion, name, receiver);
+        }
+      }
+    });
+
+    this.reference = new Proxy(reference, {
+      get(target, name, receiver) {
+        switch (name) {
+          case 'position':
+            return that.real_reference.fake_position;
+          case 'quaternion':
+            return that.real_reference.fake_quaternion;
+          default:
+            return Reflect.get(target, name, receiver);
+        }
+      }
+    });
+    this.scene.add(this.reference);
   }
 
   createSource() {
@@ -312,13 +416,13 @@ export class SceneViewer {
                 this.createLoudspeakers(value);
                 break;
               case 'ref-pos':
-                this.reference.position.set(...value);
+                this.real_reference.position.set(...value);
                 break;
               case 'ref-pos-offset':
                 this.reference_offset.position.set(...value);
                 break;
               case 'ref-rot':
-                this.reference.quaternion.set(...value);
+                this.real_reference.quaternion.set(...value);
                 break;
               case 'ref-rot-offset':
                 this.reference_offset.quaternion.set(...value);

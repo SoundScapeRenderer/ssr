@@ -10,21 +10,33 @@ document.body.appendChild(viewport);
 let viewer = new SceneViewer(viewport);
 viewer.animate();
 
-let buttons = document.createElement('div');
-buttons.id = 'buttons';
-let button1 = document.createElement('button');
-button1.textContent = '3D';
-button1.onclick = viewer.switch_to_3d;
-buttons.appendChild( button1 );
-let button2 = document.createElement('button');
-button2.textContent = 'top';
-button2.onclick = viewer.switch_to_top;
-buttons.appendChild( button2 );
-let button3 = document.createElement('button');
-button3.textContent = 'ego';
-button3.onclick = viewer.switch_to_ego;
-buttons.appendChild( button3 );
-document.body.appendChild(buttons);
+let view_buttons = document.createElement('div');
+view_buttons.id = 'view-buttons';
+let button_3d = document.createElement('button');
+button_3d.textContent = '3D';
+button_3d.onclick = viewer.switch_to_3d;
+view_buttons.appendChild(button_3d);
+let button_top = document.createElement('button');
+button_top.textContent = 'top';
+button_top.onclick = viewer.switch_to_top;
+view_buttons.appendChild(button_top);
+let button_ego = document.createElement('button');
+button_ego.textContent = 'ego';
+button_ego.onclick = viewer.switch_to_ego;
+view_buttons.appendChild(button_ego);
+document.body.appendChild(view_buttons);
+
+let control_buttons = document.createElement('div');
+control_buttons.id = 'control-buttons';
+let button_translate = document.createElement('button');
+button_translate.textContent = 'move';
+button_translate.onclick = viewer.switch_to_translation;
+control_buttons.appendChild(button_translate);
+let button_rotate = document.createElement('button');
+button_rotate.textContent = 'rotate';
+button_rotate.onclick = viewer.switch_to_rotation;
+control_buttons.appendChild(button_rotate);
+document.body.appendChild(control_buttons);
 
 let socket = new WebSocket('ws://' + HOST + ':' + PORT, 'ssr-json');
 
@@ -48,3 +60,8 @@ socket.onclose = function(msg)
 {
   console.log('WebSocket closed');
 };
+
+viewer.send = function(data)
+{
+  socket.send(JSON.stringify(data));
+}
