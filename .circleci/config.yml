@@ -38,7 +38,8 @@ jobs:
               libjack-jackd2-dev \
               libsndfile1-dev \
               libxml2-dev \
-              pkg-config
+              pkg-config \
+              yarnpkg
 
       - run:
           name: Building HTML Manual
@@ -85,6 +86,23 @@ jobs:
           name: Uploading Doxygen HTML files
           path: doc/doxygen/html
           destination: doxygen
+
+      - run:
+          name: Installing npm Packages
+          command: |
+            cd browser-gui
+            yarnpkg install
+
+      - run:
+          name: Building Browser GUI
+          command: |
+            cd browser-gui
+            yarnpkg run build
+
+      - store_artifacts:
+          name: Uploading Browser GUI HTML files
+          path: browser-gui/dist
+          destination: browser-gui
 
 workflows:
   version: 2
