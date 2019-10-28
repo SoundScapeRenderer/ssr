@@ -164,9 +164,8 @@ function connectWebSocket()
     }
   };
 
-  SOCKET.onerror = function()
+  SOCKET.onerror = function(event)
   {
-    alert("WebSocket Error!");
   };
 
   SOCKET.onclose = function(msg)
@@ -195,21 +194,7 @@ function connectWebSocket()
 // TODO: function resetToDefaults() (clearing localStorage)
 function onLoad()
 {
-  var host = document.getElementById("input-host");
-  var port = document.getElementById("input-port");
-  if (localStorage.connection_data)
-  {
-    var data = localStorage.connection_data.split(":");
-    host.value = data[0];
-    port.value = data[1];
-  }
-  else
-  {
-    host.value = DEFAULT_HOST;
-    port.value = DEFAULT_PORT;
-  }
   document.getElementById("input-disconnect").disabled = true;
-
   for (const idx in examples)
   {
     var a = document.createElement("a");
@@ -220,6 +205,44 @@ function onLoad()
     document.getElementById("example-links").appendChild(br);
   }
   resetValues();
+  let host_input = document.getElementById("input-host");
+  let port_input = document.getElementById("input-port");
+  fetch('config.json')
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        let host = DEFAULT_HOST;
+        let port = DEFAULT_PORT;
+        if (localStorage.connection_data)
+        {
+          let data = localStorage.connection_data.split(":");
+          host = data[0];
+          port = data[1];
+        }
+        return {
+          "host": host,
+          "port": port,
+          "autoconnect": false
+        }
+      }}, error => {
+        // This happens when the HTML file was opened via file://
+        return {
+          "host": DEFAULT_HOST,
+          "port": DEFAULT_PORT,
+          "autoconnect": false
+        }
+      })
+    .then(config => {
+      host_input.value = config.host;
+      port_input.value = config.port;
+      if (config.autoconnect) {
+        document.getElementById('input-connect').click();
+      }
+    }, error => {
+      console.error(error);
+      alert('Error loading config.json: ' + error);
+    });
 }
 
 function handleSubscription(box)

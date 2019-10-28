@@ -84,6 +84,18 @@ public:
     auto con = _server.get_con_from_hdl(hdl);
     std::string resource = con->get_resource();
 
+    if (resource == "/config.json")
+    {
+      SSR_VERBOSE("Serving " << resource);
+      con->append_header("Content-Type", "application/json");
+      con->set_body(
+          "{\"host\":\"" + con->get_host() +
+          "\",\"port\":" + std::to_string(con->get_port()) +
+          ",\"autoconnect\":true}");
+      con->set_status(websocketpp::http::status_code::ok);
+      return;
+    }
+
     if (resource == "/") {
       // TODO: make configurable:
       resource = "/ssr-test-client.html";
