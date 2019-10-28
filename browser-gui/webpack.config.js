@@ -40,7 +40,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'SoundScape Renderer'
     }),
-    new webpack.HashedModuleIdsPlugin()
   ],
   devtool: 'source-map',
   devServer: {
@@ -48,8 +47,9 @@ module.exports = {
   },
   mode: 'production',
   optimization: {
-    //runtimeChunk: 'single',  // Separate chunk for webpack runtime
-    runtimeChunk: true,  // Separate chunk for webpack runtime (per entry)
+    moduleIds: 'hashed',
+    runtimeChunk: 'single',  // Separate chunk for webpack runtime
+    //runtimeChunk: true,  // Separate chunk for webpack runtime (per entry)
     splitChunks: {
       chunks: 'all',
       //chunks: 'initial',
