@@ -29,6 +29,7 @@
 #define SSR_WEBSOCKET_SERVER_H
 
 #include <fstream>  // for std::ifstream
+#include <regex>
 #include <thread>
 
 #include "ssr_global.h"  // for SSR_ERROR(), SSR_VERBOSE(), ...
@@ -100,48 +101,55 @@ public:
       // TODO: make configurable:
       resource = "/ssr-test-client.html";
     }
-    std::string content_type;
-    if (resource.substr(resource.find_last_of(".")) == ".html")
-    {
-      content_type = "text/html";
-    }
-    else if (resource.substr(resource.find_last_of(".")) == ".js")
-    {
-      content_type = "application/javascript";
-    }
-    else if (resource.substr(resource.find_last_of(".")) == ".css")
-    {
-      content_type = "text/css";
-    }
-    else if (resource.substr(resource.find_last_of(".")) == ".png")
-    {
-      content_type = "image/png";
-    }
-    else if (resource.substr(resource.find_last_of(".")) == ".ico")
-    {
-      content_type = "image/x-icon";
-    }
-    else if (resource.substr(resource.find_last_of(".")) == ".map")
-    {
-      content_type = "application/json";
-    }
-    else
-    {
-      SSR_ERROR("Unknown file type: " << resource);
-      con->set_status(websocketpp::http::status_code::not_implemented
-          , "unknown file type");
-      return;
-    }
-
     resource = _serve_dir + resource;
     std::ifstream file{resource};
     std::string body{std::istreambuf_iterator<char>{file},
                      std::istreambuf_iterator<char>{}};
     if (body != "")
     {
-      SSR_VERBOSE("Serving " << resource);
-      if (content_type != "")
+      std::string content_type;
+      std::smatch match;
+      if (std::regex_match(resource, match, _re_filename))
       {
+        if (match[1].str().size())
+        {
+          // If file name contains hash, cache expires after about 4 years:
+          con->append_header("Cache-Control", "public, max-age=123456789");
+        }
+        const std::string extension = match[2].str();
+        if (extension == "html")
+        {
+          content_type = "text/html";
+        }
+        else if (extension == "js")
+        {
+          content_type = "application/javascript";
+        }
+        else if (extension == "css")
+        {
+          content_type = "text/css";
+        }
+        else if (extension == "png")
+        {
+          content_type = "image/png";
+        }
+        else if (extension == "ico")
+        {
+          content_type = "image/x-icon";
+        }
+        else if (extension == "js.map")
+        {
+          content_type = "application/json";
+        }
+      }
+      SSR_VERBOSE_NOLF("Serving " << resource);
+      if (content_type == "")
+      {
+        SSR_VERBOSE(" (unknown file extension)");
+      }
+      else
+      {
+        SSR_VERBOSE(" as " << content_type);
         con->append_header("Content-Type", content_type);
       }
       con->set_body(body);
@@ -150,7 +158,7 @@ public:
     else
     {
       con->set_status(websocketpp::http::status_code::not_found);
-      SSR_ERROR("Not found: " << resource);
+      SSR_VERBOSE("Requested file is not available: " << resource);
     }
   }
 
@@ -213,6 +221,14 @@ private:
   std::map<connection_hdl, Connection, std::owner_less<connection_hdl>>
     _connections;
   std::thread _thread;
+
+  std::regex _re_filename{
+    // at least one character, non-greedy
+    ".+?"
+    // optional dot + hash
+    "(\\.[0-9a-f]{20})?"
+    // dot + known file extension
+    "\\.(html|js|css|png|ico|js\\.map)"};
 };
 
 }  // namespace ws
