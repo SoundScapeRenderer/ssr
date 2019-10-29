@@ -4,11 +4,13 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const DIST_PATH = 'dist';
+const NODE_MODULES = process.env.NODE_PATH || path.join(__dirname, 'node_modules');
 
 module.exports = {
   entry: './src/index.js',
   output: {
     filename: '[name].[contenthash].js',
+    // When called from the Makefile, this is ignored:
     path: path.resolve(__dirname, DIST_PATH),
     sourceMapFilename: 'sourcemaps/[file].map',
   },
@@ -30,10 +32,14 @@ module.exports = {
     ],
   },
   resolve: {
+    modules: [NODE_MODULES],
     alias: {
       // See https://stackoverflow.com/a/44960831/
-      'three-examples': path.join(__dirname, './node_modules/three/examples/js')
+      'three-examples': path.join(NODE_MODULES, 'three/examples/js')
     },
+  },
+  resolveLoader: {
+    modules: [NODE_MODULES],
   },
   plugins: [
     new CleanWebpackPlugin([DIST_PATH]),

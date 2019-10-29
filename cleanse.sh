@@ -23,7 +23,7 @@ fi
 echo $0: Removing miscellaneous files ...
 rm -rf autotools/
 rm -f src/config.h.in configure Makefile.in src/Makefile.in data/Makefile.in
-rm -f data/MacOSX/Makefile.in man/Makefile.in
+rm -f data/MacOSX/Makefile.in man/Makefile.in browser-gui/Makefile.in
 
 SSR_TARBALL=ssr-*.*.*.tar.gz
 SSR_USERMANUAL=doc/SoundScapeRenderer-*.*.*-manual.pdf

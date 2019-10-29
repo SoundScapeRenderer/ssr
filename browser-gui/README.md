@@ -1,20 +1,36 @@
 Browser-based 3D GUI for the SSR
 ================================
 
-All necessary files should be included in the official SSR releases.
-The following steps are only needed if you want to re-build those files from
-scratch.
+To use this, you need to install the [Yarn] package manager.
+Note that the official Debian/Ubuntu package is called `yarnpkg` and the
+executable is also called `yarnpkg` and not `yarn`!
 
+[Yarn]: https://yarnpkg.com/en/docs/install
 
-Install Yarn: https://yarnpkg.com/en/docs/install
-(Note that the official Debian/Ubuntu package is called `yarnpkg` and the
-executable is also called `yarnpkg` and not `yarn` like it is used below!)
+If `yarn` (or `yarnpkg`) is available, the GUI resources are automatically
+created when running `make` and installed with `make install`.
+If you want to make using the GUI explicit, use
 
-Install everything else:
+    ./configure --enable-browser-gui
+
+Given that the WebSocket interface is enabled, the SSR will automatically serve
+the resources for the 3D GUI.
+Simply connect with a browser to http://localhost:9422/index.html.
+
+You can change the server port with the option `--websocket-server=9999`
+(or whatever port you want to use).
+
+Development Build
+-----------------
+
+If you want to make changes to the source files, you can also build the GUI
+files locally.
+
+To install all necessary `npm` packages:
 
     yarn install
 
-To build the hole shebang, use:
+To build the GUI:
 
     yarn run build
 

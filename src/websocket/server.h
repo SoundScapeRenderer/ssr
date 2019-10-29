@@ -121,6 +121,10 @@ public:
     {
       content_type = "image/x-icon";
     }
+    else if (resource.substr(resource.find_last_of(".")) == ".map")
+    {
+      content_type = "application/json";
+    }
     else
     {
       SSR_ERROR("Unknown file type: " << resource);

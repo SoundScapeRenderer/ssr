@@ -23,6 +23,11 @@ jobs:
             git submodule update --init
 
       - run:
+          name: Set $PATH (for Python entry points)
+          command: |
+            echo 'export PATH=~/.local/bin:$PATH' >> $BASH_ENV
+
+      - run:
           name: Installing Python Packages
           command: |
             $PIP_INSTALL sphinx sphinx-rtd-theme
@@ -44,28 +49,47 @@ jobs:
       - run:
           name: Building HTML Manual
           command: |
-            python3 -m sphinx doc/manual manual-html -d .doctrees -b html
+            cd doc/manual
+            make html
 
-      - run:
-          name: Building LaTeX Files for Manual
-          command: |
-            python3 -m sphinx doc/manual manual-latex -d .doctrees -b latex
+      - store_artifacts:
+          name: Uploading HTML Manual
+          path: doc/manual/_build/html
+          destination: manual
 
       - run:
           name: Building PDF Manual
           command: |
-            cd manual-latex
-            latexmk -pdf
+            cd doc/manual
+            make latexpdf
+
+      - store_artifacts:
+          name: Uploading PDF Manual
+          path: doc/manual/_build/latex/SoundScapeRenderer.pdf
+          destination: SoundScapeRenderer.pdf
 
       - run:
-          name: Configuring SSR
+          name: Configuring SSR (only browser GUI)
           command: |
             ./autogen.sh
             ./configure \
+              --disable-all \
               --disable-ecasound \
               --disable-gui \
               --disable-ip-interface \
-              --disable-websocket-interface
+              --disable-websocket-interface \
+              --enable-browser-gui
+
+      - run:
+          name: Building the SSR (only browser GUI files)
+          command: |
+            make
+            make DESTDIR=~/install install
+
+      - store_artifacts:
+          name: Uploading Browser GUI files
+          path: ~/install/usr/local/share/ssr/websocket_resources
+          destination: browser-gui
 
       - run:
           name: Building Doxygen docs
@@ -73,36 +97,9 @@ jobs:
             make doc
 
       - store_artifacts:
-          name: Uploading HTML Manual
-          path: manual-html
-          destination: manual
-
-      - store_artifacts:
-          name: Uploading PDF Manual
-          path: manual-latex/SoundScapeRenderer.pdf
-          destination: SoundScapeRenderer.pdf
-
-      - store_artifacts:
           name: Uploading Doxygen HTML files
           path: doc/doxygen/html
           destination: doxygen
-
-      - run:
-          name: Installing npm Packages
-          command: |
-            cd browser-gui
-            yarnpkg install
-
-      - run:
-          name: Building Browser GUI
-          command: |
-            cd browser-gui
-            yarnpkg run build
-
-      - store_artifacts:
-          name: Uploading Browser GUI HTML files
-          path: browser-gui/dist
-          destination: browser-gui
 
 workflows:
   version: 2

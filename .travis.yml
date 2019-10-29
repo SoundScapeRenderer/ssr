@@ -119,7 +119,8 @@ install:
 
 before_script:
   - ./autogen.sh
-  - ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --enable-intersense
+  # NB: browser-gui is tested with CircleCI
+  - ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --enable-intersense --disable-browser-gui
 
 script:
   - make && sudo make install
