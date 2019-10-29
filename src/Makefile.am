@@ -100,8 +100,6 @@ SSRSOURCES = \
 	../apf/apf/commandqueue.h \
 	../apf/apf/container.h \
 	../apf/apf/convolver.h \
-	../apf/apf/cxx_thread_policy.h \
-	../apf/apf/dummy_thread_policy.h \
 	../apf/apf/fftwtools.h \
 	../apf/apf/iterator.h \
 	../apf/apf/jackclient.h \
@@ -113,13 +111,14 @@ SSRSOURCES = \
 	../apf/apf/misc.h \
 	../apf/apf/parameter_map.h \
 	../apf/apf/pointer_policy.h \
-	../apf/apf/posix_thread_policy.h \
 	../apf/apf/rtlist.h \
 	../apf/apf/shareddata.h \
 	../apf/apf/sndfiletools.h \
 	../apf/apf/stringtools.h \
+	../apf/apf/threadtools.h \
 	../gml/include/gml/vec.hpp \
 	../gml/include/gml/quaternion.hpp \
+	../gml/include/gml/util.hpp \
 	configuration.cpp \
 	configuration.h \
 	controller.h \
@@ -141,6 +140,7 @@ SSRSOURCES = \
 	legacy_source.h \
 	ssr_global.cpp \
 	ssr_global.h \
+	ssr_main.h \
 	timetools.h \
 	tracker.h \
 	xmlparser.cpp \
