@@ -38,30 +38,53 @@ button_rotate.onclick = viewer.switch_to_rotation;
 control_buttons.appendChild(button_rotate);
 document.body.appendChild(control_buttons);
 
-let socket = new WebSocket('ws://' + HOST + ':' + PORT, 'ssr-json');
+let socket;
 
-socket.onopen = function()
-{
-  console.log('WebSocket connected to ' + socket.url + ', subprotocol: ' + socket.protocol);
-  socket.send(JSON.stringify(["subscribe", ["scene", "renderer"]]));
-};
+fetch('config.json')
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      return {
+        "host": HOST,
+        "port": PORT,
+      }
+    }}, error => {
+      // This happens when index.html file was opened via file://
+      return {
+        "host": HOST,
+        "port": PORT,
+      }
+    })
+  .then(config => {
+    socket = new WebSocket('ws://' + config.host + ':' + config.port, 'ssr-json');
 
-socket.onmessage = function(msg)
-{
-  viewer.handle_message(msg.data);
-};
+    socket.onopen = function()
+    {
+      console.log('WebSocket connected to ' + socket.url + ', subprotocol: ' + socket.protocol);
+      socket.send(JSON.stringify(["subscribe", ["scene", "renderer"]]));
+    };
 
-socket.onerror = function()
-{
-  alert('WebSocket Error!');
-};
+    socket.onmessage = function(msg)
+    {
+      viewer.handle_message(msg.data);
+    };
 
-socket.onclose = function(msg)
-{
-  console.log('WebSocket closed');
-};
+    socket.onerror = function()
+    {
+      alert('WebSocket Error!');
+    };
 
-viewer.send = function(data)
-{
-  socket.send(JSON.stringify(data));
-}
+    socket.onclose = function(msg)
+    {
+      console.log('WebSocket closed');
+    };
+
+    viewer.send = function(data)
+    {
+      socket.send(JSON.stringify(data));
+    }
+  }, error => {
+    console.error(error);
+    alert('Error loading config.json: ' + error);
+  });
