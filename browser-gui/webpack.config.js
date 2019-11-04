@@ -44,7 +44,10 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin([DIST_PATH]),
     new HtmlWebpackPlugin({
-      title: 'SoundScape Renderer'
+      title: 'SoundScape Renderer',
+      meta: {
+        viewport: 'width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, shrink-to-fit=no',
+      }
     }),
   ],
   devtool: 'source-map',
