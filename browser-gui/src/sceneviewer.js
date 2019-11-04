@@ -232,7 +232,7 @@ export class SceneViewer {
 
   createReference() {
     let reference = new THREE.Group();
-    let material = new THREE.MeshPhongMaterial({ color: 0x2685AA });
+    let material = new THREE.MeshPhongMaterial({ color: 0x2685AA, precision: 'mediump' });
     let mesh = new THREE.Mesh(kiteGeometry(), material);
     mesh.scale.set(0.6, 0.6, 0.6);
     reference.add(mesh);
@@ -302,7 +302,7 @@ export class SceneViewer {
 
   createSource() {
     //let kiteMaterial = new THREE.MeshBasicMaterial({ color: 0x2685AA });
-    let kiteMaterial = new THREE.MeshPhongMaterial({ color: 0xBC7349 });
+    let kiteMaterial = new THREE.MeshPhongMaterial({ color: 0xBC7349, precision: 'mediump' });
     //let kiteMaterial = new THREE.MeshLambertMaterial({ color: 0xBC7349 });
 
     let mesh = new THREE.Mesh(kiteGeometry(), kiteMaterial);
@@ -349,7 +349,7 @@ export class SceneViewer {
     // TODO: check if loudspeakers is array
     // TODO: make sure no loudspeakers exist yet
 
-    let material = new THREE.MeshPhongMaterial({ color: 0x2685AA });
+    let material = new THREE.MeshPhongMaterial({ color: 0x2685AA, precision: 'mediump' });
     for (let ls of loudspeakers) {
       // TODO: check if ls is object?
 
