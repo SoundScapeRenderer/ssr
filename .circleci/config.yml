@@ -12,7 +12,7 @@ jobs:
 
     environment:
       PIP_INSTALL: python -m pip install --progress-bar off --upgrade
-      CONFIGURE_FLAGS: --disable-ecasound --disable-gui --disable-ip-interface --disable-websocket-interface --disable-fudi-interface --enable-browser-gui
+      CONFIGURE_FLAGS: --disable-ecasound --disable-dynamic-asdf --disable-gui --disable-ip-interface --disable-websocket-interface --disable-fudi-interface --enable-browser-gui
 
     steps:
       - checkout
