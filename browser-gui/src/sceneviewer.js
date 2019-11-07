@@ -77,11 +77,75 @@ function kiteGeometry() {
 }
 
 
+function create_proxy(object) {
+  object.temp_position = new THREE.Vector3();
+  object.fake_position = new Proxy(object.temp_position, {
+    get(target, name, receiver) {
+      switch (name) {
+        case 'copy':
+          return function (other) {
+            target.copy(other);
+            return receiver;
+          };
+        case 'add':
+          return function (other) {
+            target.add(other);
+            return receiver;
+          };
+        default:
+          return Reflect.get(object.position, name, receiver);
+      }
+    }
+  });
+
+  object.temp_quaternion = new THREE.Quaternion();
+  object.fake_quaternion = new Proxy(object.temp_quaternion, {
+    get(target, name, receiver) {
+      switch (name) {
+        case 'copy':
+          return function (other) {
+            target.copy(other);
+            return receiver;
+          };
+        case 'multiply':
+          return function (other) {
+            target.multiply(other);
+            return receiver;
+          };
+        case 'normalize':
+          return function () {
+            target.normalize();
+            return receiver;
+          }
+        default:
+          return Reflect.get(object.quaternion, name, receiver);
+      }
+    }
+  });
+
+  object.proxy = new Proxy(object, {
+    get(target, name, receiver) {
+      switch (name) {
+        case 'position':
+          return object.fake_position;
+        case 'quaternion':
+          return object.fake_quaternion;
+        default:
+          return Reflect.get(target, name, receiver);
+      }
+    }
+  });
+}
+
+
 export class SceneViewer {
   constructor(dom) {
     this.send = undefined;  // This has to be set from outside
     this.animate = this.animate.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.getMousePosition = this.getMousePosition.bind(this);
     this.switch_to_3d = this.switch_to_3d.bind(this);
     this.switch_to_top = this.switch_to_top.bind(this);
     this.switch_to_ego = this.switch_to_ego.bind(this);
@@ -115,9 +179,6 @@ export class SceneViewer {
     this.scene.background = new THREE.Color(0xaaaaaa);
     this.scene.fog = null;
 
-    // NB: "sceneHelpers" contains non-interactive objects
-    this.sceneHelpers = new THREE.Scene();
-
     let grid = new THREE.GridHelper(20, 20, 0x444444, 0x888888);
     grid.rotation.x = Math.PI/2;
     var array = grid.geometry.attributes.color.array;
@@ -126,15 +187,9 @@ export class SceneViewer {
         array[i + j] = 0.26;
       }
     }
-    this.sceneHelpers.add(grid);
-
-    // TODO: Viewport: box, selectionBox?
-    // TODO: raycaster, mouse
+    this.scene.add(grid);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    // Allow "scene" and "sceneHelpers":
-    this.renderer.autoClear = false;
-    //this.renderer.autoUpdateScene = false;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     if (this.renderer.shadowMap) this.renderer.shadowMap.enabled = true;
     this.dom.appendChild(this.renderer.domElement);
@@ -170,7 +225,11 @@ export class SceneViewer {
     this.transformControls = new THREE.TransformControls(this.camera_3d, this.dom);
     this.transformControls.setSize(0.7);
 
-    this.sceneHelpers.add(this.transformControls);
+    this.scene.add(this.transformControls);
+
+    this.raycaster = new THREE.Raycaster();
+    this.onDownPosition = new THREE.Vector2();
+    this.onUpPosition = new THREE.Vector2();
 
     let that = this;
 
@@ -179,8 +238,7 @@ export class SceneViewer {
     });
 
     this.transformControls.addEventListener('objectChange', function (event) {
-      // TODO: check for sources
-      if (event.target.object === that.reference) {
+      if (event.target.object === that.reference.proxy) {
         switch (event.target.mode) {
           case 'translate':
             let p = that.reference.temp_position;
@@ -193,8 +251,35 @@ export class SceneViewer {
           default:
             console.log('Invalid mode: ' + event.target.mode);
         }
+      } else {
+        let source = event.target.object;
+        switch (event.target.mode) {
+          case 'translate':
+            let p = source.temp_position;
+            that.send(["mod-src", {[source.ssr_id]: {"pos": [p.x, p.y, p.z]}}]);
+            break;
+          case 'rotate':
+            let q = source.temp_quaternion;
+            that.send(["mod-src", {[source.ssr_id]: {"rot": [q.x, q.y, q.z, q.w]}}]);
+            break;
+          default:
+            console.log('Invalid mode: ' + event.target.mode);
+        }
       }
     });
+
+    this.dom.addEventListener('mousedown', function (event) {
+      let array = that.getMousePosition(event.clientX, event.clientY);
+      that.onDownPosition.fromArray(array);
+      document.addEventListener('mouseup', that.onMouseUp, false );
+    }, false);
+
+    this.dom.addEventListener('touchstart', function (event) {
+      let touch = event.changedTouches[0];
+      let array = that.getMousePosition(touch.clientX, touch.clientY);
+      that.onDownPosition.fromArray(array);
+      document.addEventListener('touchend', that.onTouchEnd, false );
+    }, false);
 
     this.switch_to_3d();
     this.switch_to_translation();
@@ -202,7 +287,9 @@ export class SceneViewer {
 
   switch_to_3d() {
     this.camera = this.camera_3d;
-    this.transformControls.attach(this.reference);
+    if (this.selected) {
+      this.transformControls.attach(this.selected);
+    }
     this.controls_3d.enabled = true;
   }
 
@@ -237,77 +324,21 @@ export class SceneViewer {
     mesh.scale.set(0.6, 0.6, 0.6);
     reference.add(mesh);
 
-    this.real_reference = reference;
-    let that = this;
-
-    reference.temp_position = new THREE.Vector3();
-    reference.fake_position = new Proxy(reference.temp_position, {
-      get(target, name, receiver) {
-        switch (name) {
-          case 'copy':
-            return function (other) {
-              target.copy(other);
-              return receiver;
-            };
-          case 'add':
-            return function (other) {
-              target.add(other);
-              return receiver;
-            };
-          default:
-            return Reflect.get(that.real_reference.position, name, receiver);
-        }
-      }
-    });
-
-    reference.temp_quaternion = new THREE.Quaternion();
-    reference.fake_quaternion = new Proxy(reference.temp_quaternion, {
-      get(target, name, receiver) {
-        switch (name) {
-          case 'copy':
-            return function (other) {
-              target.copy(other);
-              return receiver;
-            };
-          case 'multiply':
-            return function (other) {
-              target.multiply(other);
-              return receiver;
-            };
-          case 'normalize':
-            return function () {
-              target.normalize();
-              return receiver;
-            }
-          default:
-            return Reflect.get(that.real_reference.quaternion, name, receiver);
-        }
-      }
-    });
-
-    this.reference = new Proxy(reference, {
-      get(target, name, receiver) {
-        switch (name) {
-          case 'position':
-            return that.real_reference.fake_position;
-          case 'quaternion':
-            return that.real_reference.fake_quaternion;
-          default:
-            return Reflect.get(target, name, receiver);
-        }
-      }
-    });
-    this.scene.add(this.reference);
+    create_proxy(reference);
+    this.scene.add(reference);
+    this.reference = reference;
   }
 
-  createSource() {
+  createSource(source_id) {
     //let kiteMaterial = new THREE.MeshBasicMaterial({ color: 0x2685AA });
     let kiteMaterial = new THREE.MeshPhongMaterial({ color: 0xBC7349, precision: 'mediump' });
     //let kiteMaterial = new THREE.MeshLambertMaterial({ color: 0xBC7349 });
 
     let mesh = new THREE.Mesh(kiteGeometry(), kiteMaterial);
     this.scene.add(mesh);
-    return mesh;
+    create_proxy(mesh);
+    mesh.ssr_id = source_id;
+    this.sources[source_id] = mesh;
   }
 
   updateSource(source_id, data) {
@@ -358,9 +389,6 @@ export class SceneViewer {
       mesh.position.set(...ls.pos);
       mesh.quaternion.set(...ls.rot);
       this.reference.add(mesh);
-      // TODO: loudspeakers should be non-interactive (i.e. in sceneHelpers),
-      //       but they should move together with the reference.
-      //this.sceneHelpers.add(mesh);
     }
   }
 
@@ -376,17 +404,71 @@ export class SceneViewer {
     this.renderer.setSize(this.dom.offsetWidth, this.dom.offsetHeight);
   }
 
+  getMousePosition(x, y) {
+    let rect = this.dom.getBoundingClientRect();
+    return [(x - rect.left) / rect.width, (y - rect.top) / rect.height];
+  }
+
+	onMouseUp(event) {
+		let array = this.getMousePosition(event.clientX, event.clientY);
+		this.onUpPosition.fromArray(array);
+		this.handleClick();
+		document.removeEventListener('mouseup', this.onMouseUp, false);
+	}
+
+	onTouchEnd(event) {
+		let touch = event.changedTouches[0];
+		let array = this.getMousePosition(touch.clientX, touch.clientY);
+		this.onUpPosition.fromArray(array);
+		this.handleClick();
+		document.removeEventListener('touchend', this.onTouchEnd, false);
+	}
+
+	getIntersects(point) {
+		this.raycaster.setFromCamera(
+      new THREE.Vector2((point.x * 2) - 1, -(point.y * 2) + 1), this.camera);
+    // TODO: Keep objects array around for re-use?
+    let objects = Object.values(this.sources);
+    let reference_mesh = this.reference.children[0];
+    objects.push(reference_mesh);
+		let intersects = this.raycaster.intersectObjects(objects);
+    if (intersects.length === 0) {
+      return null;
+    }
+    let object = intersects[0].object;
+    if (object === reference_mesh) {
+      return this.reference.proxy;
+    }
+    return object.proxy;
+	}
+
+	handleClick() {
+		if (this.onDownPosition.distanceTo(this.onUpPosition) === 0) {
+			let object = this.getIntersects(this.onUpPosition);
+      this.select(object);
+		}
+	}
+
+  select(object) {
+		if (this.selected === object) return;
+		this.selected = object;
+		this.transformControls.detach();
+		if (object !== null) {
+      if (this.camera === this.camera_3d) {
+        this.transformControls.attach(this.selected);
+      }
+		}
+  }
+
   animate() {
     requestAnimationFrame(this.animate);
 
-    //this.sceneHelpers.updateMatrixWorld();
     //this.scene.updateMatrixWorld();
 
     if (this.controls_3d.enabled) {
       this.controls_3d.update();  // needed for enableDamping
     }
     this.renderer.render(this.scene, this.camera);
-    this.renderer.render(this.sceneHelpers, this.camera);
   }
 
   handle_message(msg) {
@@ -416,13 +498,13 @@ export class SceneViewer {
                 this.createLoudspeakers(value);
                 break;
               case 'ref-pos':
-                this.real_reference.position.set(...value);
+                this.reference.position.set(...value);
                 break;
               case 'ref-pos-offset':
                 this.reference_offset.position.set(...value);
                 break;
               case 'ref-rot':
-                this.real_reference.quaternion.set(...value);
+                this.reference.quaternion.set(...value);
                 break;
               case 'ref-rot-offset':
                 this.reference_offset.quaternion.set(...value);
@@ -439,7 +521,7 @@ export class SceneViewer {
             if (this.sources.hasOwnProperty(source_id)) {
               throw Error(`Source "${source_id}" already exists`);
             }
-            this.sources[source_id] = this.createSource();
+            this.createSource(source_id);
             console.log(`Created source "${source_id}"`);
             this.updateSource(source_id, data[source_id]);
           }
