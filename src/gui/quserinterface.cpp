@@ -1203,7 +1203,7 @@ void ssr::QUserInterface::keyPressEvent(QKeyEvent *event)
         close();
       else
         break;}
-  case Qt::Key_Escape: close();
+  case Qt::Key_Q: {if (_ctrl_pressed) close();}
   } // switch
 }
 
