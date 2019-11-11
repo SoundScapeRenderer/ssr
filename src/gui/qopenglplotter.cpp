@@ -290,7 +290,7 @@ ssr::QOpenGLPlotter::paintGL()
   _draw_reference();
 
   _draw_objects();
-
+  
   _draw_rubber_band();
 }
 
@@ -491,11 +491,10 @@ void ssr::QOpenGLPlotter::_draw_objects()
 
   std::vector<float> output_levels;
 
-  if (_id_of_last_clicked_source > 0)
+  
+  if (_selected_sources_map.size() > 0)
   {
-    source_buffer_list_t::const_iterator temp = source_buffer_list.begin();
-    std::advance(temp, _id_of_last_clicked_source - 1);
-    output_levels = temp->output_levels;
+    output_levels = _scene.get_source(_selected_sources_map.rbegin()->second).output_levels;
   }
 
   _loudspeakers.clear();
@@ -1044,18 +1043,23 @@ void ssr::QOpenGLPlotter::_select_source(int source, bool add_to_selection)
     _scene.get_sources(source_buffer_list);
 
     // if source does not exist
-    if (source > static_cast<int>(source_buffer_list.size())) return;
+    if (source > static_cast<int>(source_buffer_list.size()))
+    { 
+      _id_of_last_clicked_source = 0;
+      return;
+    }
 
     source_buffer_list_t::iterator i = source_buffer_list.begin();
 
     // iterate to source
     for (int n = 1; n < source; n++) i++;
-
-    // store source and its id
-    _selected_sources_map[source] = i->id;
-
+    
     // make its id directly available
     _id_of_last_clicked_source = i->id;
+    
+    // store source and its id
+    _selected_sources_map[source] = _id_of_last_clicked_source; // TODO
+        
   }
   else if (!_alt_pressed)
   {
@@ -1064,6 +1068,7 @@ void ssr::QOpenGLPlotter::_select_source(int source, bool add_to_selection)
   }
   // if source is already selected then deselect it
   else if (_alt_pressed) _deselect_source(source);
+ 
 }
 
 void ssr::QOpenGLPlotter::_select_all_sources()
@@ -1107,3 +1112,4 @@ void ssr::QOpenGLPlotter::_deselect_all_sources()
   _selected_sources_map.clear();
   _id_of_last_clicked_source = 0;
 }
+
