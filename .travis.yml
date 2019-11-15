@@ -47,6 +47,11 @@ addons:
 
 matrix:
   include:
+    - name: distcheck with default Linux setup
+      os: linux
+      script:
+        - make
+        - make distcheck
     - name: Linux with GCC 9
       os: linux
       env: CC=gcc-9 CXX=g++-9
