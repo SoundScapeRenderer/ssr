@@ -13,6 +13,7 @@ jobs:
 
     environment:
       PIP_INSTALL: python3 -m pip install --user --progress-bar off --upgrade
+      CONFIGURE_FLAGS: --disable-ecasound --disable-gui --disable-ip-interface --disable-websocket-interface --enable-browser-gui
 
     steps:
       - checkout
@@ -69,19 +70,13 @@ jobs:
           destination: SoundScapeRenderer.pdf
 
       - run:
-          name: Configuring SSR (only browser GUI)
+          name: Configuring SSR
           command: |
             ./autogen.sh
-            ./configure \
-              --disable-all \
-              --disable-ecasound \
-              --disable-gui \
-              --disable-ip-interface \
-              --disable-websocket-interface \
-              --enable-browser-gui
+            ./configure $CONFIGURE_FLAGS
 
       - run:
-          name: Building the SSR (only browser GUI files)
+          name: Building the SSR
           command: |
             make
             make DESTDIR=~/install install
@@ -90,6 +85,18 @@ jobs:
           name: Uploading Browser GUI files
           path: ~/install/usr/local/share/ssr/websocket_resources
           destination: browser-gui
+
+      - run:
+          name: Creating tarball
+          command: |
+            make distcheck DISTCHECK_CONFIGURE_FLAGS="$CONFIGURE_FLAGS"
+            mkdir ~/tarball
+            cp ssr-*.tar.gz ~/tarball
+
+      - store_artifacts:
+          name: Uploading tarball
+          path: ~/tarball
+          destination: .
 
       - run:
           name: Building Doxygen docs

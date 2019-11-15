@@ -7,10 +7,6 @@ git:
 addons:
   apt:
     #update: true
-    sources:
-      # yarn is only available since Ubuntu 19.04 (disco)
-      - sourceline: 'deb https://dl.yarnpkg.com/debian/ stable main'
-        key_url: 'https://dl.yarnpkg.com/debian/pubkey.gpg'
     packages: &default-packages
       - libasio-dev
       - libwebsocketpp-dev
@@ -29,8 +25,6 @@ addons:
       - pkg-config
       - libtool
       - libmysofa-dev
-      # for browser GUI:
-      - yarn
   homebrew:
     update: true
     packages:
@@ -53,11 +47,6 @@ addons:
 
 matrix:
   include:
-    - name: distcheck with default Linux setup
-      os: linux
-      script:
-        - make
-        - make distcheck
     - name: Linux with GCC 9
       os: linux
       env: CC=gcc-9 CXX=g++-9
