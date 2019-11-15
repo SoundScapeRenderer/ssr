@@ -5,14 +5,14 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
-if ENABLE_BROWSER_GUI
-
 BROWSER_GUI_FILES = package.json yarn.lock webpack.config.js README.md \
 	src/index.js \
 	src/sceneviewer.js \
 	src/style.css
 
 EXTRA_DIST = $(BROWSER_GUI_FILES)
+
+if ENABLE_BROWSER_GUI
 
 export PATH := $(PATH):$(abs_builddir)/node_modules/.bin
 export NODE_PATH := $(abs_builddir)/node_modules
