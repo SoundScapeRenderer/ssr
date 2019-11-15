@@ -30,13 +30,46 @@
 #ifndef SSR_TRACKER_H
 #define SSR_TRACKER_H
 
-/// Class definition
-struct Tracker
-{
-  virtual ~Tracker() = default;  ///< destructor
+#include <atomic>
+#include <thread>
 
-  /// calibrate tracker; set the instantaneous position to be the reference
-  virtual void calibrate() = 0;
+#include "geometry.h"
+
+
+namespace ssr
+{
+
+/// Class definition
+class Tracker
+{
+  public:
+    Tracker(api::Publisher& controller) : _controller(controller){};  ///< constructor
+
+    virtual ~Tracker() = default;  ///< destructor
+
+    /// reset tracker; set the instantaneous position to be the reference
+    virtual void reset()
+    {
+      SSR_VERBOSE2("Tracker reset.");
+      this->_correction_rot = this->_current_rot;
+    }
+
+    // Update SSR
+    virtual void update()
+    {
+      ssr::quat r = inverse(_correction_rot) * inverse(_current_rot);
+      _controller.take_control()->reference_rotation_offset(r);
+    }
+
+    protected:
+      // Current tracker data (should be atomic)
+      ssr::quat _current_rot;
+      ssr::quat _correction_rot;
+
+    private:
+      api::Publisher& _controller;
 };
+
+}  // namespace ssr
 
 #endif

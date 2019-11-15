@@ -66,6 +66,14 @@ struct quat : gml::quat
   }
 };
 
+// Converting from yaw (around Z), pitch (around Y), roll (around X) to quaternions.
+// This a lot worse than the other way around and should be avoided.
+template <typename T>
+ssr::quat ypr2quaternion(T yaw, T pitch, T roll)
+{
+  return gml::qrotate(gml::vec3{roll, pitch, yaw});
+}
+
 /// Build a unit quaternion representing the rotation
 /// from u to v. The input vectors need not be normalised.
 /// From http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final

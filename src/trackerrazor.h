@@ -32,8 +32,9 @@
 #define SSR_TRACKERRAZOR_H
 
 #include "legacy_orientation.h"  // for Orientation
-#include "ssr_global.h"  // for ERROR
+#include "ssr_global.h"  // for ERROR, VERBOSE
 #include "tracker.h"  // base class
+#include "apf/math.h"  // for deg2rad()
 
 #include "razor-ahrs/RazorAHRS.h"
 
@@ -57,33 +58,23 @@ class TrackerRazor : public Tracker
       if (_tracker != nullptr) delete _tracker;
     }
 
-  virtual void calibrate() { _az_corr = _current_azimuth; }
-
   private:
     /// constructor
     TrackerRazor(api::Publisher& controller, const std::string& ports);
 
+    RazorAHRS* _tracker;
+
     /// Razor AHRS callback functions
     void on_data(const float ypr[])
     {
-      // TODO: get 3D rotation
-      _current_azimuth = ypr[0];
-      if (_init_az_corr)
-      {
-        calibrate();
-        _init_az_corr = false;
-      }
-      _controller.take_control()->reference_rotation_offset(
-          Orientation(-_current_azimuth + _az_corr));
+      Tracker::_current_rot = ypr2quaternion(apf::math::deg2rad(ypr[0]),
+                                             apf::math::deg2rad(ypr[1]),
+                                             apf::math::deg2rad(ypr[2]));
+      // Push updates to SSR
+      Tracker::update();
     }
     void on_error(const std::string &msg) { SSR_ERROR("Razor AHRS: " << msg); }
 
-    api::Publisher& _controller;
-    volatile float _current_azimuth;
-    volatile float _az_corr;
-    volatile bool _init_az_corr;
-
-    RazorAHRS* _tracker;
 };
 
 }  // namespace ssr

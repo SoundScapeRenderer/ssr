@@ -131,11 +131,9 @@ class RazorAHRS
 
     // thread related stuff
     std::thread _tracker_thread;
-
     std::atomic<bool> _stop_thread; // thread stop flag
     void _start(); ///< start the tracking thread
     void _stop();  ///< stop the tracking thread
-
     void _thread();  // thread main function
 };
 

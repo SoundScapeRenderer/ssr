@@ -36,7 +36,9 @@
 #include <memory>
 #include <stdexcept> // for std::runtime_error
 
-#include "tracker.h"
+#include "ssr_global.h"  // for ERROR, VERBOSE
+#include "tracker.h"  // base class
+
 
 namespace ssr
 {
@@ -55,48 +57,21 @@ class TrackerPolhemus : public Tracker
     static ptr_t create(api::Publisher& controller, const std::string& type
         , const std::string& ports);
 
-    virtual void calibrate();
-
   private:
     /// constructor
     TrackerPolhemus(api::Publisher& controller, const std::string& type
         , const std::string& ports);
 
-    struct tracker_data_t
-    {
-      float header;
-      float x;
-      float y;
-      float z;
-      float azimuth;
-      float elevation;
-      float roll;
-
-      // contructor
-      tracker_data_t()
-        : header(0.0f), x(0.0f), y(0.0f), z(0.0f)
-        , azimuth(0.0f), elevation(0.0f), roll(0.0f)
-      {}
-    };
-
-    api::Publisher& _controller;
-
-    tracker_data_t _current_data;
-
     int _tracker_port;
+
     int _open_serial_port(const char *portname);
-
-    float _az_corr; ///< correction of the azimuth due to calibration
-
     std::string::size_type _line_size;
 
     // thread related stuff
     std::thread _tracker_thread;
-
     std::atomic<bool> _stop_thread; // thread stop flag
     void _start(); ///< start the tracking thread
     void _stop();  ///< stop the tracking thread
-
     void _thread();  // thread main function
 };
 
