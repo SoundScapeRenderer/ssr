@@ -119,6 +119,7 @@ SSRSOURCES = \
 	../gml/include/gml/vec.hpp \
 	../gml/include/gml/quaternion.hpp \
 	../gml/include/gml/util.hpp \
+	../gml/include/gml/mat.hpp \
 	configuration.cpp \
 	configuration.h \
 	controller.h \

@@ -32,6 +32,7 @@
 
 #include <gml/vec.hpp>
 #include <gml/quaternion.hpp>
+#include <gml/mat.hpp>
 
 #include "api.h"  // for Pos and Rot
 
@@ -66,35 +67,25 @@ struct quat : gml::quat
   }
 };
 
-/// Build a unit quaternion representing the rotation
-/// from u to v. The input vectors need not be normalised.
-/// From http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
-inline quat fromtwovectors(vec3 u, vec3 v)
+inline std::optional<quat> look_rotation(vec3 from, vec3 to)
 {
-    float norm_u_norm_v = std::sqrt(gml::dot(u, u) * gml::dot(v, v));
-    float real_part = norm_u_norm_v + gml::dot(u, v);
-    vec3 w;
-
-    if (real_part < 1.e-6f * norm_u_norm_v)
-    {
-        /* If u and v are exactly opposite, rotate 180 degrees
-         * around an arbitrary orthogonal axis. Axis normalisation
-         * can happen later, when we normalise the quaternion. */
-        real_part = 0.0f;
-        w = std::abs(u[0]) > std::abs(u[2]) ? vec3(-u[1],  u[0], 0.f)
-                                            : vec3(  0.f, -u[2], u[1]);
-    }
-    else
-    {
-        /* Otherwise, build quaternion the standard way. */
-        w = gml::cross(u, v);
-    }
-    return gml::normalize(quat(real_part, w));
-}
-
-inline quat look_at(vec3 from, vec3 to)
-{
-  return fromtwovectors({0.0f, 1.0f, 0.0f}, to - from);
+  auto y = to - from;
+  auto y_length = length(y);
+  if (y_length < 0.000001f)
+  {
+    return std::nullopt;
+  }
+  y /= y_length;
+  vec3 up{0.0f, 0.0f, 1.0f};
+  if (std::abs(dot(y, up)) > 0.999999f)
+  {
+    return std::nullopt;
+  }
+  auto x = cross(y, up);
+  x = normalize(x);
+  auto z = cross(x, y);
+  auto rotation_matrix = gml::mat3x3{x, y, z};
+  return gml::qdecomposeRotate(gml::mat4x4{rotation_matrix});
 }
 
 }  // namespace ssr

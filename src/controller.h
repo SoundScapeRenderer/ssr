@@ -2113,8 +2113,10 @@ Controller<Renderer>::_orient_source_toward_reference(id_t id)
     // NB: Reference offset is not taken into account
     //     (because it is a property of the renderer, not the scene)
     auto ref_pos = _scene.get_reference_position();
-    _publish(&api::SceneControlEvents::source_rotation
-        , id, look_at(src->position, ref_pos));
+    if (auto rot = look_rotation(src->position, ref_pos))
+    {
+      _publish(&api::SceneControlEvents::source_rotation, id, *rot);
+    }
   }
   else
   {
