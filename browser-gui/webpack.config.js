@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const DIST_PATH = 'dist';
@@ -9,10 +8,10 @@ const NODE_MODULES = process.env.NODE_PATH || path.join(__dirname, 'node_modules
 module.exports = {
   entry: './src/index.js',
   output: {
-    filename: '[name].[contenthash].js',
-    // When called from the Makefile, this is ignored:
-    path: path.resolve(__dirname, DIST_PATH),
-    sourceMapFilename: 'sourcemaps/[file].map',
+    filename: 'chunks/[name].[contenthash].js',
+    // This is set when called from the Makefile:
+    path: undefined,
+    sourceMapFilename: '[file].map',
   },
   target: 'web',
   module: {
@@ -42,7 +41,6 @@ module.exports = {
     modules: [NODE_MODULES],
   },
   plugins: [
-    new CleanWebpackPlugin([DIST_PATH]),
     new HtmlWebpackPlugin({
       title: 'SoundScape Renderer',
       meta: {
@@ -51,9 +49,6 @@ module.exports = {
     }),
   ],
   devtool: 'source-map',
-  devServer: {
-    contentBase: DIST_PATH
-  },
   mode: 'production',
   optimization: {
     moduleIds: 'hashed',

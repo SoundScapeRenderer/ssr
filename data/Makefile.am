@@ -41,6 +41,9 @@ nobase_dist_pkgdata_DATA = \
 	images/ssr_logo.png \
 	websocket_resources/ssr-test-client.html
 
+## the whole directory is distributed, including browser GUI files
+EXTRA_DIST = websocket_resources
+
 ## stuff that will end up either in $prefix/share/ssr/ or in $bundledir/Extras
 nobase_dist_extras_DATA = \
 	reproduction_setups/2.0.asd \
