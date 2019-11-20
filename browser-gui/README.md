@@ -1,17 +1,12 @@
 Browser-based 3D GUI for the SSR
 ================================
 
-To use this, you need to install the [Yarn] package manager.
-Note that the official Debian/Ubuntu package is called `yarnpkg` and the
-executable is also called `yarnpkg` and not `yarn`!
+The auto-generated files for the browser GUI are contained in the tarball within
+the `data/websocket_resources` directory.
 
-[Yarn]: https://yarnpkg.com/en/docs/install
-
-If `yarn` (or `yarnpkg`) is available, the GUI resources are automatically
-created when running `make` and installed with `make install`.
-If you want to make using the GUI explicit, use
-
-    ./configure --enable-browser-gui
+When running `make install`, these files are copied to
+`/usr/local/share/ssr/websocket_resources`
+(unless a different `--prefix` has been specified).
 
 Given that the WebSocket interface is enabled, the SSR will automatically serve
 the resources for the 3D GUI.
@@ -20,19 +15,34 @@ Simply connect with a browser to http://localhost:9422/index.html.
 You can change the server port with the option `--websocket-server=9999`
 (or whatever port you want to use).
 
-Development Build
------------------
+Building the Files
+------------------
 
-If you want to make changes to the source files, you can also build the GUI
-files locally.
+If you want to build the files yourself,
+you need to install the [Yarn] package manager.
+Note that the official Debian/Ubuntu package is called `yarnpkg` and the
+executable is also called `yarnpkg` and not `yarn`!
 
-To install all necessary `npm` packages:
+[Yarn]: https://yarnpkg.com/en/docs/install
+
+If `yarn` (or `yarnpkg`) is available, the browser GUI resources are
+automatically created when running `make`.
+If you want to make generating the GUI files explicit, use
+
+    ./configure --enable-browser-gui
+
+If you make changes to the source files,
+you'll have to run `make` and `make install` again.
+
+During Development
+------------------
+
+You can also build the files outside the SSR build system,
+i.e. without using `make` and `make install`.
+
+Initially, you need to install all necessary `npm` packages:
 
     yarn install
-
-To build the GUI:
-
-    yarn run build
 
 During development, it is very handy if any change to the source files is
 detected and the generated files are updated automatically.

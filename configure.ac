@@ -58,7 +58,9 @@ dnl see http://sources.redhat.com/automake/automake.html#Options for options
 dnl
 dnl We use the option "foreign" because we do not provide a ChangeLog-file.
 dnl Major changes are documented in the NEWS file.
-AM_INIT_AUTOMAKE([foreign std-options subdir-objects -Wall])
+dnl
+dnl The tar-ustar option allows file names longer than 99 characters
+AM_INIT_AUTOMAKE([foreign std-options subdir-objects -Wall tar-ustar])
 
 dnl Check for pkg-config manually first. If it's not installed the
 dnl PKG_PROG_PKG_CONFIG macro won't be defined.
