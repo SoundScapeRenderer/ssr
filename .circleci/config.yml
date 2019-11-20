@@ -80,11 +80,10 @@ jobs:
           name: Building the SSR
           command: |
             make
-            make DESTDIR=~/install install
 
       - store_artifacts:
           name: Uploading Browser GUI files
-          path: ~/install/usr/local/share/ssr/websocket_resources
+          path: data/websocket_resources
           destination: browser-gui
 
       - run:
