@@ -194,7 +194,7 @@ function SsrClient:in_1(sel, atoms)
         return
     end
     str = str .. '</request>\0'  -- terminated with a binary zero
-    self:outlet(2, "list", {str:byte(1, #str)})  -- convert to ASCII numbers
+    self:outlet(2, "send", {str:byte(1, #str)})  -- convert to ASCII numbers
 end
 
 -- collect numbers in self.buffer. If a zero comes in, parse the whole string.
