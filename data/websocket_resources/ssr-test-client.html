@@ -269,14 +269,14 @@ function resetValues(subscription)
     [
       "auto-rotate-sources", "ref-pos", "ref-rot", "master-volume",
       "decay-exponent", "amplitude-reference-distance", "transport-rolling",
+      "sample-rate",
     ].forEach(id => document.getElementById(id).textContent = "n/a");
 
     document.getElementById("source-list").innerHTML = "";
   }
   if (!subscription || subscription === "renderer") {
     [
-      "renderer-name", "sample-rate", "processing",
-      "ref-pos-offset", "ref-rot-offset",
+      "renderer-name", "processing", "ref-pos-offset", "ref-rot-offset",
     ].forEach(id => document.getElementById(id).textContent = "n/a");
 
     document.getElementById("loudspeaker-list").innerHTML = "";
