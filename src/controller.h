@@ -243,9 +243,9 @@ class Controller : public api::Publisher
     /// SceneControlEvents, the rest are arguments to said member function.
     // NB: Args must be convertible to FuncArgs, but they don't necessarily have
     //     to be the same types.
-    template<typename R, typename... FuncArgs, typename... Args>
+    template<typename... FuncArgs, typename... Args>
     void _publish(api::SceneControlEvents* initiator
-        , R (api::SceneControlEvents::*f)(FuncArgs...), Args&&... args)
+        , void (api::SceneControlEvents::*f)(FuncArgs...), Args&&... args)
     {
       // TODO: check if sender is allowed to move source?
 
@@ -263,9 +263,9 @@ class Controller : public api::Publisher
 
     /// Overload for SceneControlEvents to be sent to the "leader".
     /// The first argument is a dummy argument for selecting this overload.
-    template<typename R, typename... FuncArgs, typename... Args>
+    template<typename... FuncArgs, typename... Args>
     void _publish(ToLeaderTag*
-        , R (api::SceneControlEvents::*f)(FuncArgs...), Args&&... args)
+        , void (api::SceneControlEvents::*f)(FuncArgs...), Args&&... args)
     {
       assert(_conf.follow);
       try { _call_leader(f, std::forward<Args>(args)...); }
@@ -275,8 +275,8 @@ class Controller : public api::Publisher
     /// Overload for all events without options to suppress own messages.
     /// Those are never sent to the "leader", therefore it is not allowed to use
     /// this for SceneControlEvents on a "follower".
-    template<typename R, typename C, typename... FuncArgs, typename... Args>
-    void _publish(R (C::*f)(FuncArgs...), Args&&... args)
+    template<typename C, typename... FuncArgs, typename... Args>
+    void _publish(void (C::*f)(FuncArgs...), Args&&... args)
     {
       // NB: Nothing is sent to the "leader"
 
