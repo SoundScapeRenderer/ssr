@@ -490,10 +490,6 @@ Controller<Renderer>::Controller(int argc, char* argv[])
         , _conf.auto_rotate_sources);
     _publish(&api::SceneInformationEvents::sample_rate
         , _renderer.sample_rate());
-    bool is_rolling;
-    std::tie(is_rolling, std::ignore) = _renderer.get_transport_state();
-    // This is may not be necessary since the renderer continuously sends this?
-    _publish(&api::SceneInformationEvents::transport_rolling, is_rolling);
   }
 
   if (_conf.freewheeling)
@@ -557,12 +553,6 @@ class Controller<Renderer>::query_state
     // NB: This is executed in the audio thread
     void query()
     {
-      if (!_controller._conf.follow)
-      {
-        _state = _renderer.get_transport_state();
-      }
-      _cpu_load = _renderer.get_cpu_load();
-
       auto output_list = output_list_t(_renderer.get_output_list());
 
       _master_level = {};
@@ -606,23 +596,24 @@ class Controller<Renderer>::query_state
 
       if (!_controller._conf.follow)
       {
-        if (_state.second != _controller._transport_frame)
+        auto [rolling, frame] = _renderer.get_transport_state();
+        if (frame != _controller._transport_frame)
         {
           _controller._publish(&api::TransportFrameEvents::transport_frame
-              , _state.second);
-          _controller._transport_frame = _state.second;
+              , frame);
+          _controller._transport_frame = frame;
         }
-        bool rolling{_state.first};
         if (rolling != _controller._scene.transport_is_rolling())
         {
-          _controller._publish(&api::SceneInformationEvents::transport_rolling
+          _controller._publish(&api::SceneControlEvents::transport_rolling
               , rolling);
         }
       }
-      if (_cpu_load != _controller._cpu_load)
+      auto cpu_load = _renderer.get_cpu_load();
+      if (cpu_load != _controller._cpu_load)
       {
-        _controller._publish(&api::CpuLoad::cpu_load, _cpu_load);
-        _controller._cpu_load = _cpu_load;
+        _controller._publish(&api::CpuLoad::cpu_load, cpu_load);
+        _controller._cpu_load = cpu_load;
       }
       _controller._publish(&api::MasterMetering::master_level, _master_level);
 
@@ -674,8 +665,6 @@ class Controller<Renderer>::query_state
 
     Controller& _controller;
     const Renderer& _renderer;
-    std::pair<bool, uint32_t> _state;
-    float _cpu_load;
     typename Renderer::sample_type _master_level;
 
     source_levels_t _source_levels;
@@ -717,7 +706,7 @@ bool Controller<Renderer>::run()
   }
   else // without GUI
   {
-    this->take_control()->transport_start();
+    this->take_control()->transport_rolling(true);
     bool keep_running = true;
     while (keep_running)
     {
@@ -728,7 +717,7 @@ bool Controller<Renderer>::run()
           this->take_control()->reset_tracker();
           break;
         case 'p':
-          this->take_control()->transport_start();
+          this->take_control()->transport_rolling(true);
           break;
         case 'q':
           keep_running = false;
@@ -737,7 +726,7 @@ bool Controller<Renderer>::run()
           this->take_control()->transport_locate_frames(0);
           break;
         case 's':
-          this->take_control()->transport_stop();
+          this->take_control()->transport_rolling(false);
           break;
       }
     }
@@ -754,7 +743,7 @@ Controller<Renderer>::~Controller()
     auto control = this->take_control();
 
     // TODO: check if transport needs to be stopped
-    control->transport_stop();
+    control->transport_rolling(false);
 
     // NB: Scene is saved while holding the lock
     if (!_save_scene("ssr_scene_autosave.asd"))
@@ -1179,30 +1168,6 @@ public:
     }
   }
 
-  void transport_start() override
-  {
-    if constexpr (_is_leader)
-    {
-      _controller._renderer.transport_start();
-    }
-    else
-    {
-      _controller._call_leader(&api::Controller::transport_start);
-    }
-  }
-
-  void transport_stop() override
-  {
-    if constexpr (_is_leader)
-    {
-      _controller._renderer.transport_stop();
-    }
-    else
-    {
-      _controller._call_leader(&api::Controller::transport_stop);
-    }
-  }
-
   void transport_locate_frames(uint32_t time) override
   {
     if constexpr (_is_leader)
@@ -1239,6 +1204,29 @@ public:
   std::string get_source_id(unsigned source_number) const override
   {
     return _controller._scene.get_source_id(source_number);
+  }
+
+  // SceneControlEvents are inherited from CommonInterface, except:
+
+  void transport_rolling(bool rolling) override
+  {
+    if constexpr (_is_leader)
+    {
+      // NB: If (and only if) the transport state changes, it will be published
+      //     in query_state::update().
+      if (rolling)
+      {
+        _controller._renderer.transport_start();
+      }
+      else
+      {
+        _controller._renderer.transport_stop();
+      }
+    }
+    else
+    {
+      _controller._call_leader(&api::Controller::transport_rolling, rolling);
+    }
   }
 
   // RendererControlEvents
@@ -1278,7 +1266,12 @@ public:
     : CommonInterface<>(nullptr, controller)
   {}
 
-  // SceneControlEvents are inherited from CommonInterface
+  // SceneControlEvents are inherited from CommonInterface, except:
+
+  void transport_rolling(bool rolling) override
+  {
+    _controller._publish(&api::SceneControlEvents::transport_rolling, rolling);
+  }
 
   // SceneInformationEvents
 
@@ -1297,12 +1290,6 @@ public:
   {
     _controller._publish(&api::SceneInformationEvents::source_property
         , id, key, value);
-  }
-
-  void transport_rolling(bool rolling) override
-  {
-    _controller._publish(&api::SceneInformationEvents::transport_rolling
-        , rolling);
   }
 
   // TransportFrameEvents

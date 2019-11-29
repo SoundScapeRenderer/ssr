@@ -155,6 +155,9 @@ struct SceneControlEvents
   /// Set amplitude reference distance.
   /// @param distance amplitude reference distance
   virtual void amplitude_reference_distance(float distance) = 0;
+
+  /// Start/stop the JACK transport.  @see TransportFrameEvents
+  virtual void transport_rolling(bool rolling) = 0;
 };
 
 
@@ -178,9 +181,6 @@ struct SceneInformationEvents
   /// @c port-name, @c properties-file.
   virtual void source_property(id_t id, const std::string& key
                                       , const std::string& value) = 0;
-
-  /// Whether the JACK transport is rolling or not.
-  virtual void transport_rolling(bool rolling) = 0;
 };
 
 
@@ -228,7 +228,7 @@ struct TransportFrameEvents
 
   /// Update transport frame.
   /// Whether or not the transport is "rolling" can be found out with
-  /// api::SceneInformationEvents::transport_rolling().
+  /// api::SceneControlEvents::transport_rolling().
   /// @param frame current transport time in frames.
   ///   Use api::SceneInformationEvents::sample_rate() to convert to seconds.
   /// @see http://www.jackaudio.org/files/docs/html/group__TransportControl.html
@@ -334,12 +334,6 @@ struct Controller : virtual SceneControlEvents
 
   /// Delete all sources.
   virtual void delete_all_sources() = 0;
-
-  /// Start JACK transport.  @see TransportFrameEvents
-  virtual void transport_start() = 0;
-
-  /// Stop JACK transport.  @see TransportFrameEvents
-  virtual void transport_stop() = 0;
 
   /// Skip the scene to a specified instant of time.
   /// @param time instant of time in frames.
@@ -478,7 +472,7 @@ struct Publisher
   /// exclusive control is automatically released.
   /// Use it like this for a single event:
   ///                                                                      @code
-  /// mypublisher.take_control()->transport_locate(0.0f);
+  /// mypublisher.take_control()->transport_locate_seconds(5.2f);
   ///                                                                   @endcode
   /// ... or in its own scope for multiple events:
   ///                                                                      @code

@@ -773,14 +773,7 @@ Connection::on_message(message_ptr msg)
                 << member.value);
             return;
           }
-          if (member.value.GetBool())
-          {
-            control->transport_start();
-          }
-          else
-          {
-            control->transport_stop();
-          }
+          control->transport_rolling(member.value.GetBool());
         }
         else if (member.name == "frame")
         {

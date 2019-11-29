@@ -491,7 +491,7 @@ class LegacyScene : public api::SceneControlEvents
     /// order of mirror sources. if 0, mirror sources are deactivated
     int mirror_order;
     bool _processing_state;  ///< is renderer processing?
-    bool           _transport_playing;
+    bool           _transport_playing{false};
     uint32_t _transport_position; ///< current position in the audio file in samples
     bool _auto_rotate_sources;
 

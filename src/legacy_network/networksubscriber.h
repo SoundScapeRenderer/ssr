@@ -77,6 +77,7 @@ class NetworkSubscriber : public api::SceneControlEvents
     void master_volume(float volume) override;
     void decay_exponent(float) override {}
     void amplitude_reference_distance(float) override {}
+    void transport_rolling(bool) override {}
 
     // RendererControlEvents
 

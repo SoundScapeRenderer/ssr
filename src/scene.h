@@ -112,6 +112,7 @@ public:
     subscriber->master_volume(_master_volume);
     subscriber->decay_exponent(_decay_exponent);
     subscriber->amplitude_reference_distance(_amplitude_reference_distance);
+    subscriber->transport_rolling(_transport_is_rolling);
 
     this->for_each_source([subscriber](auto id, auto& source) {
         subscriber->source_active(id, source.active);
@@ -128,7 +129,6 @@ public:
   void get_data(SceneInformationEvents* subscriber) const
   {
     subscriber->sample_rate(_sample_rate);
-    subscriber->transport_rolling(_transport_is_rolling);
     this->for_each_source([subscriber](auto id, auto& source) {
         // Sources have to be created first, then they can be updated
         subscriber->new_source(id);
@@ -240,6 +240,11 @@ private:
     _amplitude_reference_distance = distance;
   }
 
+  void transport_rolling(bool rolling) override
+  {
+    _transport_is_rolling = rolling;
+  }
+
   // SceneInformationEvents
 
   void sample_rate(int rate) override
@@ -273,11 +278,6 @@ private:
     {
       src->second.properties[key] = value;
     }
-  }
-
-  void transport_rolling(bool rolling) override
-  {
-    _transport_is_rolling = rolling;
   }
 
   std::map<std::string, Source, std::less<>> _source_map;

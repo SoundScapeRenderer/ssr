@@ -430,11 +430,11 @@ CommandParser::parse_cmd(const std::string& cmd)
       std::string transport = i.get_attribute("transport");
       if (transport == "start")
       {
-        control->transport_start();
+        control->transport_rolling(true);
       }
       else if (transport == "stop")
       {
-        control->transport_stop();
+        control->transport_rolling(false);
       }
       else if (transport == "rewind")
       {

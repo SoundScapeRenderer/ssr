@@ -167,6 +167,11 @@ private:
     _renderer.state.amplitude_reference_distance = distance;
   }
 
+  void transport_rolling(bool) override
+  {
+    // Nothing to be done here. Transport state is updated in the query thread.
+  }
+
   // RendererControlEvents
 
   void processing(bool state) override
