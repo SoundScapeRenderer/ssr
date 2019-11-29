@@ -184,6 +184,7 @@ private:
     {
       StringBuffer buffer{&_out_allocator};
       Writer writer(buffer, &_out_allocator);
+      writer.SetMaxDecimalPlaces(5);
       commands.Accept(writer);
       _server.send(_hdl, buffer.GetString(), websocketpp::frame::opcode::text);
       SSR_VERBOSE3("output allocator usage: " << _out_allocator.Size());
@@ -985,7 +986,7 @@ Connection::on_message(message_ptr msg)
         SSR_ERROR("Expected JSON object, not " << value);
         return;
       }
-      
+
       if (!control)
       {
         control = _controller.take_control();
