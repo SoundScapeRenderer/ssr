@@ -436,6 +436,7 @@ struct SubscribeHelper
   virtual std::unique_ptr<Subscription> renderer_information(
       RendererInformationEvents* subscriber) = 0;
   /// Subscribe to TransportFrameEvents.
+  /// Additionally, this sends the current transport frame to the @a subscriber.
   virtual std::unique_ptr<Subscription> transport_frame(
       TransportFrameEvents* subscriber) = 0;
   /// Subscribe to SourceMetering.

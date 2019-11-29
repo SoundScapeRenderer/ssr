@@ -321,6 +321,9 @@ class Controller : public api::Publisher
     Scene _scene;
     LegacyScene _legacy_scene;
 
+    float _cpu_load{};
+    uint32_t _transport_frame{};
+
     std::tuple<
       Subscribers<api::BundleEvents>,
       Subscribers<api::SceneControlEvents>,
@@ -603,8 +606,12 @@ class Controller<Renderer>::query_state
 
       if (!_controller._conf.follow)
       {
-        _controller._publish(&api::TransportFrameEvents::transport_frame
-            , _state.second);
+        if (_state.second != _controller._transport_frame)
+        {
+          _controller._publish(&api::TransportFrameEvents::transport_frame
+              , _state.second);
+          _controller._transport_frame = _state.second;
+        }
         bool rolling{_state.first};
         if (rolling != _controller._scene.transport_is_rolling())
         {
@@ -612,7 +619,11 @@ class Controller<Renderer>::query_state
               , rolling);
         }
       }
-      _controller._publish(&api::CpuLoad::cpu_load, _cpu_load);
+      if (_cpu_load != _controller._cpu_load)
+      {
+        _controller._publish(&api::CpuLoad::cpu_load, _cpu_load);
+        _controller._cpu_load = _cpu_load;
+      }
       _controller._publish(&api::MasterMetering::master_level, _master_level);
 
       if (!_discard_source_levels)
@@ -1391,7 +1402,9 @@ private:
   std::unique_ptr<api::Subscription>
   transport_frame(api::TransportFrameEvents* subscriber) override
   {
-    return _subscribe_helper(subscriber);
+    return _subscribe_helper(subscriber, [this, subscriber]() {
+      subscriber->transport_frame(_controller._transport_frame);
+    });
   }
 
   std::unique_ptr<api::Subscription>
@@ -1415,7 +1428,9 @@ private:
   std::unique_ptr<api::Subscription>
   cpu_load(api::CpuLoad* subscriber) override
   {
-    return _subscribe_helper(subscriber);
+    return _subscribe_helper(subscriber, [this, subscriber]() {
+      subscriber->cpu_load(_controller._cpu_load);
+    });
   }
 
   Controller<Renderer>& _controller;
