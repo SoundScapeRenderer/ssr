@@ -1,7 +1,7 @@
 -- Pure Data (Pd) external for remote-controlling the SoundScape Renderer (SSR)
 -- Matthias Geier, Sept. 2014
 
-local SsrClient = pd.Class:new():register("ssrclient")
+local SsrClient = pd.Class:new():register("legacy_ssrclient")
 
 -- XML parser from http://github.com/Phrogz/SLAXML
 local SLAXML = require("slaxml")
