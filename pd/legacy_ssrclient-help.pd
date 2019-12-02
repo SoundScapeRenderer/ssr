@@ -1,5 +1,5 @@
 #N canvas 983 61 764 592 10;
-#X obj 98 174 ssrclient;
+#X obj 98 174 legacy_ssrclient;
 #X msg 183 71 connect localhost 4711;
 #X obj 204 178 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1
 -1 1 1;
@@ -28,7 +28,7 @@
 #X obj 359 237 print other_commands;
 #X text 16 72 First \, connect to the SSR:;
 #X text 16 109 to send messages:;
-#X text 15 13 Help patch for ssrclient;
+#X text 15 13 Help patch for legacy_ssrclient;
 #X text 14 30 Remote-control the SoundScape Renderer via network interface
 ;
 #X obj 98 375 route pos azi model vol mute level weights;
