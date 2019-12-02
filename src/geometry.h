@@ -28,11 +28,12 @@
 #ifndef SSR_GEOMETRY_H
 #define SSR_GEOMETRY_H
 
-#include <cmath>  // for std::sin, std::cos, std::sqrt, ...
+#include <cmath>  // for std::asin(), std::atan2()
 
 #include <gml/vec.hpp>
 #include <gml/quaternion.hpp>
 #include <gml/mat.hpp>
+#include <gml/util.hpp>  // for gml::degrees(), gml::radians()
 
 #include "api.h"  // for Pos and Rot
 
@@ -67,6 +68,50 @@ struct quat : gml::quat
   }
 };
 
+inline quat normalize(const quat& q)
+{
+  return gml::normalize(q);
+}
+
+/// See https://AudioSceneDescriptionFormat.readthedocs.io/quaternions.html
+inline quat angles2quat(float azimuth, float elevation, float roll)
+{
+  return normalize(
+    gml::qrotate(gml::radians(azimuth),   {0.0f, 0.0f, 1.0f}) *
+    gml::qrotate(gml::radians(elevation), {1.0f, 0.0f, 0.0f}) *
+    gml::qrotate(gml::radians(roll),      {0.0f, 1.0f, 0.0f}));
+}
+
+/// See https://AudioSceneDescriptionFormat.readthedocs.io/quaternions.html
+inline std::array<float, 3> quat2angles(const Rot& rot)
+{
+  // NB: Rot uses xyzw convention, math derivations use abcd (= wxyz):
+  auto [b, c, d, a] = rot;
+  auto sin_elevation = 2 * (a * b + c * d);
+  if (0.999999f < sin_elevation)
+  {
+    // elevation ~= 90°
+    return {
+      gml::degrees(std::atan2(2 * (a * c + b * d), 2 * (a * b - c * d))),
+      90.0f,
+      0.0f};
+  }
+  else if (sin_elevation < -0.999999f)
+  {
+    // elevation ~= -90°
+    return {
+      gml::degrees(std::atan2(-2 * (a * c + b * d), 2 * (c * d - a * b))),
+      -90.0f,
+      0.0f
+    };
+  }
+  return {
+    gml::degrees(std::atan2(2 * (a * d - b * c), 1 - 2 * (b*b + d*d))),
+    gml::degrees(std::asin(sin_elevation)),
+    gml::degrees(std::atan2(2 * (a * c - b * d), 1 - 2 * (b*b + c*c)))
+  };
+}
+
 inline std::optional<quat> look_rotation(vec3 from, vec3 to)
 {
   auto y = to - from;
@@ -77,7 +122,7 @@ inline std::optional<quat> look_rotation(vec3 from, vec3 to)
   }
   y /= y_length;
   vec3 up{0.0f, 0.0f, 1.0f};
-  if (std::abs(dot(y, up)) > 0.999999f)
+  if (0.999999f < std::abs(dot(y, up)))
   {
     return std::nullopt;
   }
@@ -85,7 +130,7 @@ inline std::optional<quat> look_rotation(vec3 from, vec3 to)
   x = normalize(x);
   auto z = cross(x, y);
   auto rotation_matrix = gml::mat3x3{x, y, z};
-  return gml::qdecomposeRotate(gml::mat4x4{rotation_matrix});
+  return normalize(gml::qdecomposeRotate(gml::mat4x4{rotation_matrix}));
 }
 
 }  // namespace ssr
