@@ -377,22 +377,21 @@ class SsrFlext : public flext_dsp
               gml::qrotate(gml::radians(elevation), {1.0f, 0.0f, 0.0f}) *
               gml::qrotate(gml::radians(roll),      {0.0f, 1.0f, 0.0f}));
         }
-        else if (cmd2 == "gain")
+        else if (cmd2 == "vol")
         {
           if (argc != 1)
           {
-            error("%s - src %d gain must be followed by exactly 1 value!"
+            error("%s - src %d vol must be followed by exactly 1 value!"
                 , thisName(), src_id);
             return;
           }
-          float gain;
-          if (!_get(argc, argv, gain))
+          float volume;
+          if (!_get(argc, argv, volume))
           {
-            error("%s - src %d gain expects a float value!"
-                , thisName(), src_id);
+            error("%s - src %d vol expects a float value!", thisName(), src_id);
             return;
           }
-          source->gain = gain;
+          source->gain = volume;
         }
         else if (cmd2 == "mute")
         {
@@ -409,6 +408,22 @@ class SsrFlext : public flext_dsp
             return;
           }
           source->mute = mute;
+        }
+        else if (cmd2 == "active")
+        {
+          if (argc != 1)
+          {
+            error("%s - src %d active must be followed by exactly 1 argument!"
+                , thisName(), src_id);
+            return;
+          }
+          bool active;
+          if (!_get(argc, argv, active))
+          {
+            error("%s - src active expects a boolean value!", thisName());
+            return;
+          }
+          source->active = active;
         }
         else if (cmd2 == "model")
         {
@@ -580,8 +595,7 @@ class SsrFlext : public flext_dsp
       {
         if (argc != 1)
         {
-          error("%s - vol must be followed by exactly 1 value (in dB)!"
-              , thisName());
+          error("%s - vol must be followed by exactly 1 value!", thisName());
           return;
         }
         float master_volume;

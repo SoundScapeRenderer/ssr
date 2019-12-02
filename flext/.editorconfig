@@ -1,0 +1,5 @@
+# https://editorconfig.org
+
+[package.txt]
+indent_style = tab
+indent_size = 8
