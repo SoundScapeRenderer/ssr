@@ -1349,7 +1349,7 @@ private:
   std::unique_ptr<api::Subscription>
   bundle(api::BundleEvents* subscriber) override
   {
-    return _subscribe_helper(subscriber, [this, subscriber]() {
+    return _subscribe_helper(subscriber, [subscriber]() {
         subscriber->bundle_start();
     });
   }
