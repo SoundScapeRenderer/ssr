@@ -147,6 +147,8 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   conf.websocket_server = false;
 #endif
   conf.websocket_port = 9422;
+  conf.fudi_server = false;
+  conf.fudi_port = 1174;
 
   conf.follow = false;
 
@@ -276,6 +278,18 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 "      --no-websocket-server\n"
 "                      Don't start WebSocket server (default)\n"
 #endif
+#ifdef ENABLE_FUDI_INTERFACE
+"      --fudi-server[=PORT]\n"
+"                      Start FUDI server (default off),\n"
+"                      a port number can be specified (default 1174)\n"
+"      --no-fudi-server\n"
+"                      Don't start FUDI server (default)\n"
+#else
+"      --fudi-server\n"
+"                      Start FUDI server (not enabled at compile time!)\n"
+"      --no-fudi-server\n"
+"                      Don't start FUDI server (default)\n"
+#endif
 "      --follow        Wait for another SSR instance to connect\n"
 "      --no-follow     Don't follow another SSR instance (default)\n"
 #ifdef ENABLE_GUI
@@ -353,6 +367,8 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     {"end-of-message-character", required_argument, nullptr, 0},
     {"websocket-server", optional_argument, nullptr, 0},
     {"no-websocket-server", no_argument, nullptr, 0},
+    {"fudi-server",  optional_argument, nullptr,  0 },
+    {"no-fudi-server", no_argument,     nullptr,  0 },
     {"follow",       no_argument,       nullptr,  0 },
     {"no-follow",    no_argument,       nullptr,  0 },
     {"gui",          no_argument,       nullptr, 'g'},
@@ -457,6 +473,23 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
         else if (strcmp("no-websocket-server", longopts[longindex].name) == 0)
         {
           conf.websocket_server = false;
+        }
+        else if (strcmp("fudi-server", longopts[longindex].name) == 0)
+        {
+          conf.fudi_server = true;
+#ifdef ENABLE_FUDI_INTERFACE
+          if (optarg)
+          {
+            if (!S2A(optarg, conf.fudi_port))
+            {
+              SSR_ERROR("Invalid FUDI port specified!");
+            }
+          }
+#endif
+        }
+        else if (strcmp("no-fudi-server", longopts[longindex].name) == 0)
+        {
+          conf.fudi_server = false;
         }
         else if (strcmp("follow", longopts[longindex].name) == 0)
         {
@@ -882,6 +915,19 @@ int ssr::load_config_file(const char *filename, conf_struct& conf){
     {
       #ifdef ENABLE_WEBSOCKET_INTERFACE
       conf.websocket_port = atoi(value);
+      #endif
+    }
+    else if (!strcmp(key, "FUDI_INTERFACE"))
+    {
+      #ifdef ENABLE_FUDI_INTERFACE
+      if (!strcasecmp(value, "on")) conf.fudi_server= true;
+      else conf.fudi_server= false;
+      #endif
+    }
+    else if (!strcmp(key, "FUDI_PORT"))
+    {
+      #ifdef ENABLE_FUDI_INTERFACE
+      conf.fudi_port = atoi(value);
       #endif
     }
     else if (!strcmp(key, "FOLLOW"))

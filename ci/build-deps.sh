@@ -42,6 +42,17 @@ then
   cd ..
   cd ..
 
+  # libfmt >= 5 is needed, which is in Ubuntu disco
+  git clone https://github.com/fmtlib/fmt.git
+  cd fmt
+  mkdir build
+  cd build
+  cmake ..
+  make
+  sudo make install
+  cd ..
+  cd ..
+
   sudo cp SDK/Linux/Sample/*.h /usr/local/include
   sudo cp SDK/Linux/x86_64/libisense.so /usr/local/lib
   sudo ldconfig
