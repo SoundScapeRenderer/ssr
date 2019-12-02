@@ -1,4 +1,4 @@
-#N canvas 403 410 333 223 10;
+#N canvas 941 199 333 223 10;
 #X obj 29 162 dac~;
 #X obj 47 77 osc~ 440;
 #X obj 47 101 *~ 0.2;
@@ -7,6 +7,7 @@
 #X obj 30 135 ssr_binaural~ 2 hrirs_fabian_min_phase_eq.wav;
 #X text 115 21 <-- open this!;
 #X obj 30 22 ssr_messages;
+#X text 127 167 SOFA files can also be used!;
 #X connect 1 0 2 0;
 #X connect 2 0 5 0;
 #X connect 3 0 5 1;

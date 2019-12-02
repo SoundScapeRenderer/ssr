@@ -1,10 +1,15 @@
 # NAME and MAIN_SOURCE are set in Makefile!
 
-vpath %.cpp ../src
+SSR_SRCS = \
+	legacy_position.cpp \
+	legacy_orientation.cpp \
+	legacy_directionalpoint.cpp \
+	ssr_global.cpp \
+	xmlparser.cpp
 
-SSR_SRCS = legacy_position.cpp legacy_orientation.cpp \
-           legacy_directionalpoint.cpp ssr_global.cpp xmlparser.cpp
 SRCS = $(MAIN_SOURCE) $(SSR_SRCS)
+
+HDRS = ssr_flext.h
 
 INCPATH = -I../apf -I../src -I../gml/include
 
@@ -15,5 +20,8 @@ INCPATH += `$(PKG_CONFIG) --cflags libxml-2.0`
 CXXFLAGS = -std=c++17
 
 LIBS = -lfftw3f -lsndfile -lxml2
+
+CXXFLAGS += -DENABLE_SOFA
+LIBS += -lmysofa
 
 # vim:filetype=make
