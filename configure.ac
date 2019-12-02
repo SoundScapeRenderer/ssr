@@ -544,6 +544,14 @@ ENABLE_FORCED([websocket-interface], [WebSocket interface (needs WebSocket++ and
   AC_CHECK_HEADER([rapidjson/document.h], , [have_websocket_interface=no])
 ])
 
+ENABLE_AUTO([fudi-interface], [FUDI interface (needs Asio and {fmt})],
+[
+  CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
+  AC_CHECK_HEADER([asio.hpp], , [have_fudi_interface=no])
+  AC_CHECK_HEADER([fmt/format.h], , [have_fudi_interface=no])
+  LIBS="$LIBS -lfmt"
+])
+
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
 [
   dnl Checking for libecasoundc. It does not provide pkg-config and installs
@@ -796,7 +804,7 @@ echo "|    Razor AHRS .......................... : $have_razor"
 echo "|    VRPN ................................ : $have_vrpn"
 echo "|"
 echo "| Ecasound/SOFA support .................. : $have_ecasound/$have_sofa"
-echo "| Network: legacy/WebSocket .............. : $have_ip_interface/$have_websocket_interface"
+echo "| Network: legacy/WebSocket/FUDI ......... : $have_ip_interface/$have_websocket_interface/$have_fudi_interface"
 echo "| Qt GUI/Browser GUI ..................... : $have_gui/$have_browser_gui"
 echo "|"
 echo "| Enable debugging/optimization .......... : $have_debugging/$have_optimization"

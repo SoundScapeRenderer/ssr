@@ -67,6 +67,9 @@
 #ifdef ENABLE_WEBSOCKET_INTERFACE
 #include "websocket/server.h"  // for ws::Server
 #endif
+#ifdef ENABLE_FUDI_INTERFACE
+#include "fudi/server.h"  // for fudi::Server
+#endif
 
 #include "tracker.h"
 #ifdef ENABLE_INTERSENSE
@@ -355,6 +358,9 @@ class Controller : public api::Publisher
 #ifdef ENABLE_WEBSOCKET_INTERFACE
     std::unique_ptr<ws::Server> _websocket_interface;
 #endif
+#ifdef ENABLE_FUDI_INTERFACE
+    std::unique_ptr<fudi::Server> _fudi_interface;
+#endif
     std::unique_ptr<Tracker> _tracker;
 
     void _add_master_volume(Node& node) const;
@@ -522,6 +528,14 @@ Controller<Renderer>::Controller(int argc, char* argv[])
         , _conf.websocket_port, _conf.websocket_resource_directory);
   }
 #endif // ENABLE_WEBSOCKET_INTERFACE
+
+#ifdef ENABLE_FUDI_INTERFACE
+  if (_conf.fudi_server)
+  {
+    SSR_VERBOSE("Starting FUDI server with port " << _conf.fudi_port);
+    _fudi_interface = std::make_unique<fudi::Server>(*this, _conf.fudi_port);
+  }
+#endif // ENABLE_FUDI_INTERFACE
 
   if (_conf.follow && _conf.scene_file_name != "")
   {

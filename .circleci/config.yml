@@ -13,7 +13,7 @@ jobs:
 
     environment:
       PIP_INSTALL: python3 -m pip install --user --progress-bar off --upgrade
-      CONFIGURE_FLAGS: --disable-ecasound --disable-gui --disable-ip-interface --disable-websocket-interface --enable-browser-gui
+      CONFIGURE_FLAGS: --disable-ecasound --disable-gui --disable-ip-interface --disable-websocket-interface --disable-fudi-interface --enable-browser-gui
 
     steps:
       - checkout

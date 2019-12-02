@@ -218,6 +218,16 @@ SSRSOURCES += \
 	../rapidjson/include/rapidjson/internal/strfunc.h
 endif
 
+if ENABLE_FUDI_INTERFACE
+SSRSOURCES += \
+	fudi/server.h \
+	fudi/server.cpp \
+	fudi/connection.h \
+	fudi/parser.h \
+	fudi/subscriber.h \
+	fudi/subscriber.cpp
+endif
+
 if ENABLE_GUI
 AM_CPPFLAGS += -I$(srcdir)/gui
 
