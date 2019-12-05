@@ -802,23 +802,20 @@ Connection::on_message(message_ptr msg)
     }
     else if (command == "new-src")
     {
+      if (!value.IsObject())
+      {
+        SSR_ERROR("Expected JSON object with new sources, not " << value);
+        return;
+      }
       if (!control)
       {
         control = _controller.take_control();
       }
-      if (!value.IsArray())
+      for (const auto& source: value.GetObject())
       {
-        SSR_ERROR("Expected list of new sources, not " << value);
-        return;
-      }
-      for (const auto& source: value.GetArray())
-      {
-        if (!source.IsObject())
-        {
-          SSR_ERROR("Expected list of objects, not " << value);
-          return;
-        }
-        std::string id;
+        assert(source.name.IsString());
+        const std::string id = source.name.GetString();
+
         std::string name;
         std::string model;
         std::optional<std::string> audio_file;
@@ -830,18 +827,15 @@ Connection::on_message(message_ptr msg)
         float volume{1};
         bool mute{false};
         std::string properties_file;
-        for (const auto& member: source.GetObject())
+
+        if (!source.value.IsObject())
         {
-          if (member.name == "id")
-          {
-            if (!member.value.IsString())
-            {
-              SSR_ERROR("Invalid source ID: " << member.value);
-              return;
-            }
-            id = member.value.GetString();
-          }
-          else if (member.name == "name")
+          SSR_ERROR("New source must be a JSON object, not " << source.value);
+          return;
+        }
+        for (const auto& member: source.value.GetObject())
+        {
+          if (member.name == "name")
           {
             if (!member.value.IsString())
             {
