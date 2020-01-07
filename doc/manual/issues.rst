@@ -24,13 +24,20 @@
  * http://spatialaudio.net/ssr                           ssr@spatialaudio.net *
  ******************************************************************************
 
-.. _issues:
+Known Issues
+------------
 
-Issues
-------
+This page describes a few open issues and -- if available -- possible
+work-arounds.
+Resolved issues are also listed here, in case you want to use an old version
+of the SSR for some reason.
 
-Also visit https://github.com/SoundScapeRenderer/ssr/wiki/Known-Issues for
-updated known issues.
+Please also visit https://github.com/SoundScapeRenderer/ssr/issues to check for
+even more issues.
+If you want to report a problem, please open a new issue there.
+
+Open Issues
+^^^^^^^^^^^
 
 ``make dmg`` on Mac OS X chokes on symbolic links
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -251,6 +258,29 @@ To get some information about a library, you can try something like those::
   otool -l /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
   otool -D /opt/local/Library/Frameworks/QtOpenGL.framework/QtOpenGL
 
+Second instance of SSR crashes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This happens when two or more instances of the SSR are started with the IP server enabled.
+Start all (or at least all instances higher than 1) with the ``-I`` flag to disable the
+IP interface.
+
+Error ``ValueError: unknown locale: UTF-8`` when building the manual
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This can happen on non-US Macs. Go to your home folder ``/Users/YOUR_USER_NAME``, open (or
+create) the file ``.bash_profile`` and add the following to this file::
+
+  export LC_ALL=en_US.UFT-8
+  export LANG=en_US.UTF-8
+  export LANGUAGE=en_US.UTF-8
+  export LC_CTYPE=en_US.UTF-8
+
+You might have to re-open the terminal or log out and in again to see the effect.
+
+
+Resolved Issues
+^^^^^^^^^^^^^^^
+
 SSR for Mac OS X: qt_menu.nib not found
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -329,28 +359,9 @@ For older builds, you might need to add the ``-lpthread`` flag::
 
   ./configure LIBS=-lpthread
 
-Second instance of SSR crashes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This happens when two or more instances of the SSR are started with the IP server enabled.
-Start all (or at least all instances higher than 1) with the ``-I`` flag to disable the
-IP interface.
-
 Audio files with spaces
 ~~~~~~~~~~~~~~~~~~~~~~~
 This issue was resolved in version 0.3.2.
 
 Please do not use audio files with spaces for scenes. Neither the filename nor
 the directory referenced in the scene (asd-file) should contain spaces.
-
-Error ``ValueError: unknown locale: UTF-8`` when building the manual
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This can happen on non-US Macs. Go to your home folder ``/Users/YOUR_USER_NAME``, open (or
-create) the file ``.bash_profile`` and add the following to this file::
-
-  export LC_ALL=en_US.UFT-8
-  export LANG=en_US.UTF-8
-  export LANGUAGE=en_US.UTF-8
-  export LC_CTYPE=en_US.UTF-8
-
-You might have to re-open the terminal or log out and in again to see the effect.
