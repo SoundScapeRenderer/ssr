@@ -155,7 +155,7 @@ or, if you prefer, you can put it into your ``$HOME/.bashrc``
 Ecasound cannot open a JACK port
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sometimes, when Ecasound is installed via Homebrew_, it can have trouble finding JACK. As
+Sometimes, when Ecasound is installed via :ref:`Homebrew <Homebrew>`, it can have trouble finding JACK. As
 a result SSR displays the sound source symbols in the GUI, but they don't play audio, and
 an according error message is posted in the SSR terminal.
 
@@ -177,7 +177,8 @@ Refer also to :ref:`ecasound` for instructions on how to compile Ecasound.
 Using SSR on Mac OS X El Capitan
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SSR works well on El Capitan. JACK is what can cause headache. See `JACK on Mac OS X`_ .
+SSR works well on El Capitan. JACK is what can cause headache.
+See :ref:`jack_mac_os_x`.
 
 Long paths to audio files on Mac OS X
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

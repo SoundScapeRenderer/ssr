@@ -303,6 +303,8 @@ can easily remove it from your system again using:
 Mac OS X
 --------
 
+.. _jack_mac_os_x:
+
 JACK on Mac OS X
 ________________
 
