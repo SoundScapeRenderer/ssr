@@ -62,7 +62,9 @@ SSR source files. Instead of ``/tmp`` you can of course use something else,
 but with ``/tmp`` it should work on most systems out there.
 
 If you don't like this work-around, you may also play around with ``fsaclctl``.
+
 Only ``WAVE_FORMAT_PCM`` and ``WAVE_FORMAT_IEEE_FLOAT`` are supported.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Multi-channel WAV files would normally use the format
 ``WAVE_FORMAT_EXTENSIBLE``, see
