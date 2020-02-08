@@ -9,6 +9,8 @@ if [ "$TRAVIS_OS_NAME" = osx ]
 then
   git clone git://github.com/zaphoyd/websocketpp.git
   cd websocketpp
+  # https://github.com/zaphoyd/websocketpp/issues/794
+  git checkout develop
   mkdir build
   cd build
   cmake ..
