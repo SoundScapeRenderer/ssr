@@ -1,0 +1,4 @@
+# https://editorconfig.org
+
+[*.rst]
+indent_size = 4

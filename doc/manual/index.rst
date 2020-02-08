@@ -29,10 +29,10 @@ SoundScape Renderer User Manual
 
 .. toctree::
 
-   general
-   installation
-   operation
-   renderers
-   gui
-   network
-   issues
+    general
+    installation
+    operation
+    renderers
+    gui
+    network
+    issues
