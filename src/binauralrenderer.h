@@ -209,10 +209,12 @@ BinauralRenderer::_load_wav(const std::string& filename, size_t size)
 void
 BinauralRenderer::_load_sofa(const std::string& filename, size_t size)
 {
-  if (this->threads() != 1)
+  int major, minor, patch;
+  mysofa_getversion(&major, &minor, &patch);
+  if (std::tuple{major, minor, patch} < std::tuple{0, 9, 1}
+      && this->threads() != 1)
   {
-    throw std::logic_error(
-        "SOFA files cannot be used with multiple threads (for now)");
+    throw std::logic_error("libmysofa >= 0.9.1 is needed for multi-threading");
   }
   int err;
   auto hrir_file = std::unique_ptr<MYSOFA_HRTF, decltype(&mysofa_free)>{
