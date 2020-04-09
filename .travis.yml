@@ -105,7 +105,7 @@ matrix:
     - name: macOS 10.14 with Xcode11/Clang
       os: osx
       osx_image: xcode11
-      env: LIBXML_CFLAGS=-I/Applications/Xcode-11.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include/libxml2
+      env: LIBXML_CFLAGS=-I/Applications/Xcode-11.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include/libxml2
     - name: macOS 10.14 with Xcode10.3/Clang
       os: osx
       osx_image: xcode10.3
