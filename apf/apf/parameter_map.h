@@ -32,6 +32,8 @@
 
 #include <map>
 #include <stdexcept> // for std::out_of_range
+#include <utility>  // for std::forward
+
 #include "stringtools.h"
 
 namespace apf

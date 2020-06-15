@@ -28,6 +28,7 @@
 #ifndef SSR_GEOMETRY_H
 #define SSR_GEOMETRY_H
 
+#include <array>  // for std::array
 #include <optional>
 #include <cmath>  // for std::asin(), std::atan2()
 
