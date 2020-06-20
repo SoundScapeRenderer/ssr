@@ -1,0 +1,55 @@
+name: Build Pd Externals for Linux
+on: [push, pull_request]
+jobs:
+  flext:
+    runs-on: ubuntu-latest
+    steps:
+    - name: install Ubuntu packages
+      run: |
+        sudo apt-get install puredata-dev libcunit1-dev libfftw3-dev libsndfile1-dev
+
+    - name: checkout flext
+      uses: actions/checkout@v2
+      with:
+        repository:  grrrr/flext
+        path: flext
+
+    - name: build and install flext
+      working-directory: flext
+      run: |
+        ./build.sh pd gcc || true
+        ./build.sh pd gcc || true
+        ./build.sh pd gcc
+        sudo ./build.sh pd gcc install
+
+    - name: checkout ssr
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+        path: ssr
+
+    # A sufficiently recent version of the package libmysofa-dev
+    # will be available in Ubuntu focal (20.04LTS)
+    - name: checkout libmysofa
+      uses: actions/checkout@v2
+      with:
+        repository: hoene/libmysofa
+        path: libmysofa
+
+    - name: build libmysofa
+      working-directory: libmysofa/build
+      run: |
+        cmake ..
+        make
+        sudo make install
+
+    - name: build externals
+      working-directory: ssr/flext
+      run: |
+        make FLEXTPATH="$GITHUB_WORKSPACE/flext"
+
+    - name: upload Linux externals
+      uses: actions/upload-artifact@v2
+      with:
+        name: linux-externals
+        path: ssr/flext/pd-linux/release-single/*.pd_linux

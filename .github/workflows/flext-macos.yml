@@ -1,22 +1,18 @@
-name: Build Pd Externals for Linux and macOS
+name: Build Pd Externals for macOS
 on: [push, pull_request]
 jobs:
   flext:
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     steps:
-    - name: install Ubuntu packages
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get install puredata-dev libfftw3-dev libsndfile1-dev libmysofa-dev
-
     - name: install macOS packages
-      if: matrix.os == 'macos-latest'
       run: |
-        brew cask install pd
         brew install fftw libsndfile cunit pkg-config
+
+    - name: checkout pure-data
+      uses: actions/checkout@v2
+      with:
+        repository:  pure-data/pure-data
+        path: pure-data
 
     - name: checkout flext
       uses: actions/checkout@v2
@@ -28,6 +24,7 @@ jobs:
       working-directory: flext
       run: |
         ./build.sh pd gcc || true
+        echo "PDPATH=$GITHUB_WORKSPACE/pure-data" >> buildsys/config-mac-pd-gcc.txt
         ./build.sh pd gcc || true
         ./build.sh pd gcc
         sudo ./build.sh pd gcc install
@@ -39,14 +36,12 @@ jobs:
         path: ssr
 
     - name: checkout libmysofa
-      if: matrix.os == 'macos-latest'
       uses: actions/checkout@v2
       with:
         repository: hoene/libmysofa
         path: libmysofa
 
     - name: build libmysofa
-      if: matrix.os == 'macos-latest'
       working-directory: libmysofa/build
       run: |
         cmake ..
@@ -58,15 +53,7 @@ jobs:
       run: |
         make FLEXTPATH="$GITHUB_WORKSPACE/flext"
 
-    - name: upload Linux externals
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v2
-      with:
-        name: linux-externals
-        path: ssr/flext/pd-linux/release-single/*.pd_linux
-
     - name: upload macOS externals
-      if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v2
       with:
         name: macos-externals
