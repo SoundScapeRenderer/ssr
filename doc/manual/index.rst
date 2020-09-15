@@ -27,6 +27,27 @@
 SoundScape Renderer User Manual
 ===============================
 
+The SoundScape Renderer (SSR) is a tool for real-time spatial audio reproduction
+providing a variety of rendering algorithms, e.g. Wave Field Synthesis,
+Higher-Order Ambisonics and binaural techniques.
+
+homepage
+    http://spatialaudio.net/ssr/
+
+downloads
+    http://spatialaudio.net/ssr/download/
+
+user manual
+    https://ssr.readthedocs.io/
+
+mailing list
+    https://groups.google.com/forum/#!forum/SoundScapeRenderer
+
+source code and issue tracker
+    https://github.com/SoundScapeRenderer/ssr
+
+----
+
 .. toctree::
 
     general
