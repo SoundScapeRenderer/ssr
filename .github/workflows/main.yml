@@ -1,0 +1,162 @@
+name: Build SSR with different compilers
+on: [push, pull_request]
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            compiler-pkg: g++-10
+            env:
+              CC: gcc-10
+              CXX: g++-10
+          - os: ubuntu-latest
+            compiler-pkg: g++-9
+            env:
+              CC: gcc-9
+              CXX: g++-9
+          - os: ubuntu-latest
+            compiler-pkg: g++-8
+            env:
+              CC: gcc-8
+              CXX: g++-8
+          - os: ubuntu-latest
+            compiler-pkg: g++-7
+            env:
+              CC: gcc-7
+              CXX: g++-7
+          - os: ubuntu-latest
+            compiler-pkg: clang-10
+            env:
+              CC: clang-10
+              CXX: clang++-10
+          - os: ubuntu-latest
+            compiler-pkg: clang-9
+            env:
+              CC: clang-9
+              CXX: clang++-9
+          - os: macos-latest
+            xcode: Xcode_12
+            env: {}
+          - os: macos-latest
+            xcode: Xcode_11.7
+            env: {}
+          - os: macos-latest
+            xcode: Xcode_11.4
+            env: {}
+          - os: macos-latest
+            xcode: Xcode_11.3.1
+            env:
+              LIBXML_CFLAGS: -I/Applications/Xcode_11.3.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include/libxml2
+          - os: macos-latest
+            xcode: Xcode_10.3
+            env:
+              LIBXML_CFLAGS: -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/libxml2
+    runs-on: ${{ matrix.os }}
+    env: ${{ matrix.env }}
+    steps:
+      - name: Clone Git repo
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Select Xcode
+        if: matrix.xcode
+        run: |
+          sudo xcode-select --switch /Applications/${{ matrix.xcode }}.app
+      - name: Install Ubuntu packages
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            ecasound \
+            help2man \
+            jackd1 \
+            libasio-dev \
+            libecasoundc-dev \
+            libfftw3-dev \
+            libjack-dev \
+            libjack0 \
+            libmysofa-dev \
+            libqt5opengl5-dev \
+            libsndfile1-dev \
+            libtool \
+            libwebsocketpp-dev \
+            libxml2-dev \
+            pkg-config \
+            qt5-default \
+            --
+      - name: Install homebrew packages
+        if: startsWith(matrix.os, 'macos')
+        # using brew, it's not possible to install needed perl dependencies for
+        # help2man (Locale::gettext)
+        run: |
+          brew install \
+            asio \
+            automake \
+            cunit \
+            ecasound \
+            fftw \
+            fmt \
+            jack \
+            liblo \
+            libsndfile \
+            pkg-config \
+            qt \
+            vrpn \
+            --
+          brew link qt --force
+      - name: Install compiler
+        if: matrix.compiler-pkg
+        run: |
+          sudo apt-get install ${{ matrix.compiler-pkg }}
+      - name: Check compiler versions
+        run: |
+          which ${CC:-gcc}
+          ${CC:-gcc} --version
+          which ${CXX:-g++}
+          ${CXX:-g++} --version
+      - name: Build some Linux dependencies from source
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          ci/build-deps-ubuntu.sh
+      - name: Build some macOS dependencies from source
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          ci/build-deps-macos.sh
+      - name: upload VRPN logs
+        if: failure() && startsWith(matrix.os, 'ubuntu')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} VRPN logs
+          path: "vrpn/build/CMakeFiles/*.log"
+      - name: Download and unzip InterSense SDK
+        run: |
+          wget https://www.intersense.com/wp-content/uploads/2018/12/InterSense_SDK_4.2381.zip
+          unzip InterSense_SDK_4.2381.zip
+      - name: Install InterSense SDK
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo cp SDK/Linux/Sample/*.h /usr/local/include
+          sudo cp SDK/Linux/x86_64/libisense.so /usr/local/lib
+          sudo ldconfig
+      - name: Install InterSense SDK
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          sudo cp SDK/MacOSX/Sample/*.h /usr/local/include
+          sudo cp SDK/MacOSX/UniversalLib/libisense.dylib /usr/local/lib
+      - run: |
+          ./autogen.sh
+      - name: configure
+        # NB: browser-gui is tested with CircleCI
+        run: |
+          ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-fudi-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --enable-intersense --disable-browser-gui
+      - name: upload config.log
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} configure log
+          path: config.log
+      - run: |
+          make
+      - run: |
+          sudo make install
