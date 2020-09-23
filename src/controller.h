@@ -1651,7 +1651,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       {
         std::string name  = node.get_attribute("name");
         std::string id    = node.get_attribute("id");
-        std::string properties_file = node.get_attribute("properties-file");
+        std::string properties_file = node.get_attribute("properties_file");
 
         properties_file = posixpathtools::make_path_relative_to_current_dir(
             properties_file, scene_file_name);
