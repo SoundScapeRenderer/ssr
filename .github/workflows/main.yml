@@ -36,22 +36,21 @@ jobs:
               CC: clang-9
               CXX: clang++-9
           - os: macos-latest
+            xcode: Xcode_12.2
+            env: {}
+          - os: macos-latest
             xcode: Xcode_12
             env: {}
           - os: macos-latest
             xcode: Xcode_11.7
             env: {}
           - os: macos-latest
-            xcode: Xcode_11.4
+            xcode: Xcode_11.4.1
             env: {}
           - os: macos-latest
             xcode: Xcode_11.3.1
             env:
               LIBXML_CFLAGS: -I/Applications/Xcode_11.3.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include/libxml2
-          - os: macos-latest
-            xcode: Xcode_10.3
-            env:
-              LIBXML_CFLAGS: -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/libxml2
     runs-on: ${{ matrix.os }}
     env: ${{ matrix.env }}
     steps:
