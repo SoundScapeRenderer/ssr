@@ -4,3 +4,6 @@
 [submodule "rapidjson"]
 	path = rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "apf"]
+	path = apf
+	url = https://github.com/AudioProcessingFramework/apf.git

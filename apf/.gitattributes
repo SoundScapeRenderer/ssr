@@ -1,4 +1,0 @@
-*.cpp diff=cpp
-*.h diff=cpp
-/git* export-ignore
-/.* export-ignore

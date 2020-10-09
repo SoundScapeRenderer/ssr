@@ -1,9 +1,0 @@
-NAME = simpleprocessor~
-
-SRCS = flext_simpleprocessor.cpp
-
-INCPATH = -I..
-
-CXXFLAGS = -std=c++11
-
-# vim:filetype=make
