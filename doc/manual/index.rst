@@ -56,4 +56,5 @@ source code and issue tracker
     renderers
     gui
     network
+    ssr-as-library
     issues

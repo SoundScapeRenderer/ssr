@@ -28,6 +28,12 @@ Controlling the SSR from Pure Data
 Have a look at the Pd patch :download:`ssrclient.pd <../../pd/ssrclient.pd>`
 in the ``pd/`` directory.
 
+.. note::
+
+    If you are using Pure Data to control the stand-alone SSR application,
+    you might want to consider using the SSR externals for Pure Data instead,
+    see :doc:`ssr-as-library`.
+
 Controlling the SSR from a Terminal
 -----------------------------------
 
