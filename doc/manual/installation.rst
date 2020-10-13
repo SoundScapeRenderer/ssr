@@ -30,7 +30,7 @@ Installation
 ============
 
 The following sections describe how to build and/or install the SSR on your
-computer. The SSR can be used on GNU/Linux and Mac OS X and (experimentally) on
+computer. The SSR can be used on GNU/Linux and macOS and (experimentally) on
 MS Windows.
 
 GNU/Linux
@@ -300,12 +300,12 @@ can easily remove it from your system again using:
 
 .. _mac_os_x:
 
-Mac OS X
+macOS
 --------
 
 .. _jack_mac_os_x:
 
-JACK on Mac OS X
+JACK on macOS
 ________________
 
 Tested with version 0.87 (64 bit) which includes:
@@ -327,11 +327,10 @@ X.
 Application Bundle
 __________________
 
-This assumes that you are using the precompiled SSR application bundle for Mac OS
-X. If you want to build the SSR yourself, have a look at `Building from Source`_.
+This assumes that you are using the precompiled SSR application bundle for macOS. If you want to build the SSR yourself, have a look at `Building from Source`_.
 
 You can download the application bundle from http://spatialaudio.net/ssr. You will need
-JACK as prerequisite. Refer to `JACK on Mac OS X`_ for instructions how to obtain and
+JACK as prerequisite. Refer to `JACK on macOS`_ for instructions how to obtain and
 install it.
 
 The installation should be straightforward. Just double-click on the ``.dmg`` file and
@@ -342,12 +341,12 @@ installed on your computer, then simply ignore this step and drag the SSR folder
 ``Applications`` folder.
 
 The application bundle can be placed anywhere, but spaces in path names might
-cause trouble, so it's better to avoid them. Another thing is that Mac OS X
+cause trouble, so it's better to avoid them. Another thing is that macOS
 sort of adds applications placed in the ``/Applications`` folder to the
 environment, so lets assume you put the SSR there (This also works for
 ``$HOME/Applications``).
 
-Under new versions of Mac OS (Sierra and up) the SoundScapeRenderer executable might be stuck in quarantine resulting in files not being loaded properly. The corresponding error message might look like this::
+Under new versions of macOS (Sierra and up) the SoundScapeRenderer executable might be stuck in quarantine resulting in files not being loaded properly. The corresponding error message might look like this::
 
 /private/var/folders/_t/67rf88lx507btn91x6g_vfk40000gp/T/AppTranslocation/42F7F94E-AED9-4F39-8647-41D898CCE032/d/SoundScapeRenderer.app/Contents/MacOS/ssr: line 48: 36804 Abort trap: 6           $SSR_EXECUTABLE "${OPTIONS[@]}"
 
@@ -364,7 +363,8 @@ It is a bug outside of SSR.
 Building from Source
 ____________________
 
-The following is an overview on how to set up the build environment for SSR on Mac OS X.
+The following is an overview on how to set up the build environment for SSR on
+macOS.
 
 What to install first?
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -528,7 +528,7 @@ find the installed JACK version::
 You now have two options:
 
 \1) If you want to build a clickable application bundle and wrap it into a
-``.dmg image``, you can build the SSR in *Mac OS X* style::
+``.dmg image``, you can build the SSR in *macOS* style::
 
   ./configure --enable-app-bundle
   make
@@ -543,7 +543,7 @@ You can also name the ``.dmg``::
 
 The resulting ``.dmg`` is output to the SSR source folder. The application
 bundle inside contains all non-system dynamic libraries needed by the SSR,
-except the JACK libs. So it should run on every Mac OS X 10.6.x with JACK
+except the JACK libs. So it should run on every macOS 10.6.x with JACK
 installed.
 
 \2) If you want to build and install in *Linux* style::

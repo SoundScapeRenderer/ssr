@@ -39,7 +39,7 @@ If you want to report a problem, please open a new issue there.
 Open Issues
 ^^^^^^^^^^^
 
-``make dmg`` on Mac OS X chokes on symbolic links
+``make dmg`` on macOS chokes on symbolic links
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On some file system (e.g. network shares with ACLs) you might get an error
@@ -135,8 +135,8 @@ on 64 bit systems leading to an error (terminating the SSR) similar to this::
  last_cnt=5.
 
 We experienced this error on 64 bit systems with ecasound version 2.4.6.1 and 2
-.7.0 in combination with JACK version 0.118.0. A similar error occured on Mac
-OS X with ecasound version 2.7.2 and JackOSX version 0.89 (with Jackdmp 1.9.8).
+.7.0 in combination with JACK version 0.118.0. A similar error occured on macOS
+with ecasound version 2.7.2 and JackOSX version 0.89 (with Jackdmp 1.9.8).
 
 Please try to update to the newest ecasound and JACK versions.
 
@@ -183,14 +183,8 @@ The last line might have to be ::
 
 Refer also to :ref:`ecasound` for instructions on how to compile Ecasound.
 
-Using SSR on Mac OS X El Capitan
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-SSR works well on El Capitan. JACK is what can cause headache.
-See :ref:`jack_mac_os_x`.
-
-Long paths to audio files on Mac OS X
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Long paths to audio files on macOS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It can happen that SSR displays this error message when loading audio files directily::
 
@@ -281,7 +275,7 @@ You might have to re-open the terminal or log out and in again to see the effect
 Resolved Issues
 ^^^^^^^^^^^^^^^
 
-SSR for Mac OS X: qt_menu.nib not found
+SSR for macOS: qt_menu.nib not found
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This was fixed in MacPorts, see https://trac.macports.org/ticket/37662. Thanks to Chris Pike!
@@ -297,7 +291,7 @@ beginning)::
 
     #include <GL/glu.h>
 
-On Mac OS X you'll need this instead::
+On macOS you'll need this instead::
 
     #include <OpenGL/glu.h>
 
@@ -334,7 +328,7 @@ To overcome this limitation, we provide two GUI variants:
 - Traditional GUI, can be used up to Qt 4.6.x
 - Floating control panel, which is used with Qt 4.7 and above
 
-The floating control panel is the default setting on Mac OS X, for Linux it
+The floating control panel is the default setting on macOS, for Linux it
 can be activated with::
 
     ./configure --enable-floating-control-panel
