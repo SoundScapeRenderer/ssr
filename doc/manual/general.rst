@@ -31,7 +31,7 @@ Introduction
 ------------
 
 The SoundScape Renderer (SSR) is a software framework for real-time
-spatial audio reproduction running under GNU/Linux, Mac OS X and
+spatial audio reproduction running under GNU/Linux, macOS and
 possibly some other UNIX variants. The MS Windows version is experimental.
 
 The current implementation provides:

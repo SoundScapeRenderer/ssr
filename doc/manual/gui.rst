@@ -213,14 +213,14 @@ etc. them).
 Click on the SSR logo and you'll see the *About the SSR* information.
 
 .. [1]
-   On a touchpad on Mac OS, swipe up and down with two finger to zoom in and out (don't
+   On a touchpad on macOS, swipe up and down with two finger to zoom in and out (don't
    click!).
 
 .. [2]
-   On a touchpad on Mac OS, click with two fingers simultaneously.
+   On a touchpad on macOS, click with two fingers simultaneously.
 
 .. [3]
-   On a touchpad on Mac OS, click with two fingers simultaneously, hold the click and move
+   On a touchpad on macOS, click with two fingers simultaneously, hold the click and move
    one finger, or both fingers simultaneously, or use a third finger to operate the rubber
    band.
 
