@@ -37,7 +37,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env: ${{ matrix.env || fromJSON('{}') }}
     steps:
-      - name: Clone Git repo
+      - name: Clone SSR repo
         uses: actions/checkout@v3
         with:
           submodules: true
@@ -128,12 +128,30 @@ jobs:
         run: |
           sudo cp SDK/MacOSX/Sample/*.h /usr/local/include
           sudo cp SDK/MacOSX/UniversalLib/libisense.dylib /usr/local/lib
+      - name: Install cargo-c
+        run: |
+          cargo install cargo-c --force
+      - name: Clone ASDF repo
+        uses: actions/checkout@v3
+        with:
+          repository:  AudioSceneDescriptionFormat/asdf-rust
+          submodules: true
+          path: asdf-rust
+      - name: Build and install ASDF library
+        working-directory: asdf-rust
+        run: |
+          cargo cinstall --release --prefix=/usr/local --destdir=temp
+          sudo cp -r temp/usr/local/* /usr/local/
+      - name: Update dynamic linker cache for libasdf
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo ldconfig
       - run: |
           ./autogen.sh
       - name: configure
         # NB: browser-gui is tested with CircleCI
         run: |
-          ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-fudi-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --enable-intersense --disable-browser-gui --disable-dependency-tracking
+          ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-fudi-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --enable-intersense --disable-browser-gui --enable-dynamic-asdf --disable-dependency-tracking
       - name: upload config.log
         if: failure()
         uses: actions/upload-artifact@v3
