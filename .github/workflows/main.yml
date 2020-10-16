@@ -65,44 +65,47 @@ jobs:
       - name: Install Ubuntu packages
         if: startsWith(matrix.os, 'ubuntu')
         run: |
+          PACKAGES=(
+            ecasound
+            help2man
+            jackd1
+            libasio-dev
+            libecasoundc-dev
+            libfftw3-dev
+            libjack-dev
+            libjack0
+            libmysofa-dev
+            libqt5opengl5-dev
+            libsndfile1-dev
+            libtool
+            libwebsocketpp-dev
+            libxml2-dev
+            pkg-config
+            qt5-default
+          )
           sudo apt-get update
-          sudo apt-get install \
-            ecasound \
-            help2man \
-            jackd1 \
-            libasio-dev \
-            libecasoundc-dev \
-            libfftw3-dev \
-            libjack-dev \
-            libjack0 \
-            libmysofa-dev \
-            libqt5opengl5-dev \
-            libsndfile1-dev \
-            libtool \
-            libwebsocketpp-dev \
-            libxml2-dev \
-            pkg-config \
-            qt5-default \
-            --
+          sudo apt-get install ${PACKAGES[@]}
       - name: Install homebrew packages
         if: startsWith(matrix.os, 'macos')
-        # using brew, it's not possible to install needed perl dependencies for
-        # help2man (Locale::gettext)
         run: |
-          brew install \
-            asio \
-            automake \
-            cunit \
-            ecasound \
-            fftw \
-            fmt \
-            jack \
-            liblo \
-            libsndfile \
-            pkg-config \
-            qt \
-            vrpn \
-            --
+          PACKAGES=(
+            asio
+            automake
+            cunit
+            ecasound
+            fftw
+            fmt
+            # using brew, it's not possible to install the needed
+            # Perl dependencies for help2man (Locale::gettext)
+            #help2man
+            jack
+            liblo
+            libsndfile
+            pkg-config
+            qt
+            vrpn
+          )
+          brew install ${PACKAGES[@]}
           brew link qt --force
       - name: Install compiler
         if: matrix.compiler-pkg
