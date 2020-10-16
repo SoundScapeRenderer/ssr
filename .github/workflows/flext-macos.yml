@@ -7,13 +7,7 @@ jobs:
     - name: install macOS packages
       run: |
         brew install fftw libsndfile cunit pkg-config
-
-    - name: checkout pure-data
-      uses: actions/checkout@v2
-      with:
-        repository:  pure-data/pure-data
-        path: pure-data
-
+        brew cask install pd
     - name: checkout flext
       uses: actions/checkout@v2
       with:
@@ -24,7 +18,8 @@ jobs:
       working-directory: flext
       run: |
         ./build.sh pd gcc || true
-        echo "PDPATH=$GITHUB_WORKSPACE/pure-data" >> buildsys/config-mac-pd-gcc.txt
+        PD_APP=$(ls -d /Applications/Pd-*.app)
+        echo "PDPATH=$PD_APP/Contents/Resources" >> buildsys/config-mac-pd-gcc.txt
         ./build.sh pd gcc || true
         ./build.sh pd gcc
         sudo ./build.sh pd gcc install
