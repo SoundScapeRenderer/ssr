@@ -95,9 +95,7 @@ jobs:
             ecasound
             fftw
             fmt
-            # using brew, it's not possible to install the needed
-            # Perl dependencies for help2man (Locale::gettext)
-            #help2man
+            help2man
             jack
             liblo
             libsndfile
@@ -107,6 +105,8 @@ jobs:
           )
           brew install ${PACKAGES[@]}
           brew link qt --force
+          # Perl module needed for help2man
+          cpan Locale::gettext
       - name: Install compiler
         if: matrix.compiler-pkg
         run: |
