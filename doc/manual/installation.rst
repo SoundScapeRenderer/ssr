@@ -55,7 +55,7 @@ __________
 
 The SSR is available in the official repositories and can be installed using:
 
-  .. code:: shell
+.. code:: shell
 
     sudo pacman -S ssr
 
@@ -74,7 +74,7 @@ Building and installing with makepkg
 The recommended way of building package scripts from the `AUR`_ and installing
 the resulting packages is to use `makepkg`_ in a `manual build process`_.
 
-  .. code:: shell
+.. code:: shell
 
     # make sure to have the base-devel group installed
     $ pacman -Sy base-devel
@@ -99,7 +99,7 @@ The SSR is available as `Debian package`_ and `Ubuntu package`_. It is called
 manager/ package manager frontend (*apt-get*, *aptitude*, *synaptic*, ...), all
 dependencies should be installed automatically.
 
-  .. code:: shell
+.. code:: shell
 
     # install example using aptitude
     $ sudo aptitude update
@@ -118,7 +118,7 @@ repository`_.
 You can downloaded the tarball (the file that ends with ``.tar.gz``), unpack it
 and change to the newly created directory:
 
-  .. code:: shell
+.. code:: shell
 
     tar xvzf ssr-*.tar.gz
     cd ssr-*
@@ -126,7 +126,7 @@ and change to the newly created directory:
 Alternatively, if you wish to build from source, you can clone directly from
 one of the upstream repositories and change to the newly created directory:
 
-  .. code:: shell
+.. code:: shell
 
     git clone https://github.com/SoundScapeRenderer/ssr.git
     cd ssr
@@ -136,9 +136,9 @@ one of the upstream repositories and change to the newly created directory:
     If using the `git repository`_ directly, make sure to generate the
     configure script, before proceeding with `Configuring and compiling`_:
 
-  .. code:: shell
+    .. code:: shell
 
-    autoreconf -vfi
+        autoreconf -vfi
 
 .. _git repository: https://github.com/SoundScapeRenderer/ssr/
 
@@ -185,7 +185,7 @@ information.
 
 To use a different compiler, you can specify it with ``CXX``:
 
-  .. code:: shell
+.. code:: shell
 
     ./configure CXX=clang++
 
@@ -200,7 +200,7 @@ To build the SSR from source you have to configure first. Open a shell
 and change to the directory containing the source code of the package
 and type:
 
-  .. code:: shell
+.. code:: shell
 
     ./configure
 
@@ -218,7 +218,7 @@ appropriate argument to the call to the `` configure`` script so that you do
 not need to bother with the dependencies.
 Examples are:
 
-  .. code:: shell
+.. code:: shell
 
     ./configure --disable-ip-interface
     ./configure --disable-gui
@@ -228,7 +228,7 @@ See Section :ref:`Hints on configuration <hints_conf>` for details.
 
 If everything went smoothly, you can continue with the next step:
 
-  .. code:: shell
+.. code:: shell
 
     make
 
@@ -276,7 +276,7 @@ Until now, everything was happening in the source directory (something like ssr
 -x.x.x/). To be used by other users on the system, the SSR has to be installed
 system-wide, using:
 
-  .. code:: shell
+.. code:: shell
 
     make install
 
@@ -292,7 +292,7 @@ Uninstalling
 If the SSR didn't meet your expectations, we are very sorry, but of course you
 can easily remove it from your system again using:
 
-  .. code:: shell
+.. code:: shell
 
     make uninstall
 
