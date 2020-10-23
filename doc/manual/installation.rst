@@ -77,13 +77,13 @@ the resulting packages is to use `makepkg`_ in a `manual build process`_.
 .. code:: shell
 
     # make sure to have the base-devel group installed
-    $ pacman -Sy base-devel
+    pacman -Sy base-devel
     # clone the sources of the package script
-    $ git clone https://aur.archlinux.org/ssr-git
+    git clone https://aur.archlinux.org/ssr-git
     # go to the directory with the package script
-    $ cd ssr-git
+    cd ssr-git
     # make and install the package and all of its dependencies
-    $ makepkg -csi
+    makepkg -csi
 
 .. _AUR: https://aur.archlinux.org
 .. _makepkg: https://wiki.archlinux.org/index.php/Makepkg
@@ -102,8 +102,8 @@ dependencies should be installed automatically.
 .. code:: shell
 
     # install example using aptitude
-    $ sudo aptitude update
-    $ sudo aptitude install soundscaperenderer
+    sudo aptitude update
+    sudo aptitude install soundscaperenderer
 
 .. _`Debian package`: https://packages.debian.org/search?keywords=soundscaperenderer
 .. _`Ubuntu package`: http://packages.ubuntu.com/search?keywords=soundscaperenderer
