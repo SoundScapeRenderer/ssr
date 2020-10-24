@@ -37,6 +37,7 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation': False,
 }
+html_favicon = 'favicon.svg'
 
 html_domain_indices = False
 html_use_index = False
