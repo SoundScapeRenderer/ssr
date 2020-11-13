@@ -1,0 +1,4 @@
+*.asd linguist-language=XML
+/src/laplace_coeffs_*.h linguist-language=C++
+/pd/slaxml.lua linguist-vendored
+/data/MacOSX/dylibbundler/** linguist-vendored
