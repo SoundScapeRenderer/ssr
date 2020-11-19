@@ -98,8 +98,6 @@ Download the Ecasound source code from http://nosignal.fi/ecasound/download.php.
   ./configure
   make
 
-Refer also to :ref:`ecasound` for instructions on how to compile Ecasound. The executable ``ecasound/ecasound`` will be created.
-
 Finally, replace the Ecasound executable in the SSR bundle with something like this::
 
   sudo cp ecasound/ecasound /Applications/SoundScapeRenderer-0.4.2-74-gb99f8b2/SoundScapeRenderer.app/Contents/MacOS/
@@ -164,7 +162,7 @@ or, if you prefer, you can put it into your ``$HOME/.bashrc``
 Ecasound cannot open a JACK port
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sometimes, when Ecasound is installed via :ref:`Homebrew <Homebrew>`, it can have trouble finding JACK. As
+Sometimes, when Ecasound is installed via Homebrew, it can have trouble finding JACK. As
 a result SSR displays the sound source symbols in the GUI, but they don't play audio, and
 an according error message is posted in the SSR terminal.
 
@@ -180,8 +178,6 @@ http://nosignal.fi/ecasound/download.php, and ::
 The last line might have to be ::
 
   sudo make install
-
-Refer also to :ref:`ecasound` for instructions on how to compile Ecasound.
 
 Long paths to audio files on macOS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

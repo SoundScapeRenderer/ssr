@@ -52,6 +52,7 @@ source code and issue tracker
 
     general
     installation
+    building-from-source
     operation
     renderers
     gui

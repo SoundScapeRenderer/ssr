@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-git clone git://github.com/zaphoyd/websocketpp.git
+git clone https://github.com/zaphoyd/websocketpp.git
 cd websocketpp
 mkdir build
 cd build
@@ -12,7 +12,7 @@ sudo make install
 cd ..
 cd ..
 
-git clone git://github.com/hoene/libmysofa.git
+git clone https://github.com/hoene/libmysofa.git
 cd libmysofa
 cd build
 cmake ..

@@ -186,12 +186,13 @@ Head Tracking
 -------------
 
 We provide integration of the *InterSense InertiaCube3* tracking sensor,
-the *Polhemus Fastrak* and the *Polhemus Patriot*. They are used to update the orientation of
+the *Polhemus Fastrak* and the *Polhemus Patriot* as well as all trackers
+supported by *VRPN*.
+The head trackers are used to update the orientation of
 the reference (in binaural reproduction this is the listener) in
-real-time. Please read Sections :ref:`Preparing Intersense <prep_isense>` and
-:ref:`Preparing Polhemus <prp_pol>` if you want to compile the SSR with the
-support
-for these trackers.
+real-time.
+
+See :ref:`dependencies` for how to compile the SSR with head tracking support.
 
 Note that on startup, the SSR tries to find the tracker. If it fails, it
 continues without it. If you use a tracker, make sure that you have the
@@ -205,28 +206,6 @@ straight forward, i.e. upwards on the screen (:math:`\alpha = 90^\circ`\ ).
 
 Preparing InterSense InertiaCube3
 _________________________________
-
-If you want to compile the SSR with support for the *InterSense
-InertiaCube3* tracking sensor, please download the *InterSense Software
-Development Kit* (SDK) from the InterSense website (http://www.intersense.com;
-Support |arrow| Downloads |arrow| Development and Troubleshooting Tools).
-Unpack the archive and place the files
-
-.. |arrow| unicode:: U+2192 .. RIGHTWARDS ARROW
-
--  ``isense.h`` and ``types.h`` to ``/usr/local/include``, and
-
--  ``libisense.so`` (the version appropriate for your processor type) to
-   ``usr/local/lib``.
-
-The SSR ``configuration`` script will automatically detect the presence
-of the files described above and if they are found, enable the
-compilation for the support of this tracker. To disable this tracker,
-use ``./configure --disable-intersense`` and recompile.
-
-If you encounter an error-message similar to
-``libisense.so: cannot open shared object file: No such file or directory``,
-but the file is placed correctly, run ``ldconfig``.
 
 Make sure that you have the required access rights to the tracker before
 starting SSR. For you are using the USB connection type ::
@@ -247,8 +226,7 @@ the highest number.
 Preparing Polhemus Fastrak/Patriot
 __________________________________
 
-For incorporation of the *Polhemus Fastrak/Patriot*
-with serial connection, no additional libraries are required. Make sure that
+Make sure that
 you have the required access rights to the tracker before starting SSR by
 typing something like ::
 
@@ -470,9 +448,10 @@ Running with InterSense tracker support
 _______________________________________
 
 Due to copyright reasons, the SSR does not come with a built-in InterSense
-tracker support. So first you have to build the SSR with :ref:`InterSense
-tracker support <mac_intersense_support>` yourself or ask someone to do it for
-you.
+tracker support. So first you have to build the SSR with InterSense
+tracker support yourself (see the CI configuration file
+:download:`.github/workflows/main.yml <../../.github/workflows/main.yml>`
+for instructions).
 
 If you are using a USB-to-Serial interface with your tracker, you need to
 install drivers for that. This seems to work fine for the interface made by

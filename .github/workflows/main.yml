@@ -66,12 +66,15 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           PACKAGES=(
+            automake
             ecasound
             help2man
             jackd1
             libasio-dev
             libecasoundc-dev
             libfftw3-dev
+            # libfmt >= 5 is needed, which is in Ubuntu disco
+            #libfmt-dev
             libjack-dev
             libjack0
             libmysofa-dev
@@ -81,24 +84,24 @@ jobs:
             libwebsocketpp-dev
             libxml2-dev
             pkg-config
-            qt5-default
           )
           sudo apt-get update
           sudo apt-get install ${PACKAGES[@]}
+          echo QT_SELECT=qt5 >> $GITHUB_ENV
       - name: Install homebrew packages
         if: startsWith(matrix.os, 'macos')
         run: |
           PACKAGES=(
             asio
             automake
-            cunit
+            cunit  # for libmysofa
             ecasound
             fftw
             fmt
             help2man
             jack
-            liblo
             libsndfile
+            libtool
             pkg-config
             qt
             vrpn

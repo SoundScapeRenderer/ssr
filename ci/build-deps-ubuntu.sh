@@ -12,7 +12,7 @@ sudo make install
 cd ..
 cd ..
 
-# libfmt >= 5 is needed, which is in Ubuntu disco
+# libfmt-dev >= 5 is needed, which is in Ubuntu disco
 git clone https://github.com/fmtlib/fmt.git
 cd fmt
 mkdir build
