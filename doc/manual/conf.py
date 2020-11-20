@@ -6,6 +6,7 @@ from subprocess import check_output
 # -- General configuration -----------------------------------------------------
 
 extensions = [
+    'sphinx_last_updated_by_git',
 ]
 
 master_doc = 'index'
@@ -33,15 +34,14 @@ highlight_language = 'sh'
 
 # -- Options for HTML output ---------------------------------------------------
 
-html_theme = 'sphinx_rtd_theme'
-html_theme_options = {
-    'collapse_navigation': False,
-}
+html_theme = 'insipid'
 html_favicon = 'favicon.svg'
 
 html_domain_indices = False
 html_use_index = False
 html_show_copyright = False
+html_copy_source = False
+html_add_permalinks = '\N{SECTION SIGN}'
 
 # -- Options for LaTeX output --------------------------------------------------
 

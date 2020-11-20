@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Installing Python Packages
           command: |
-            $PIP_INSTALL sphinx sphinx-rtd-theme
+            $PIP_INSTALL -r doc/manual/requirements.txt
 
       - run:
           name: Installing apt Packages
