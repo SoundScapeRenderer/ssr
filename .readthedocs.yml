@@ -1,0 +1,15 @@
+# https://docs.readthedocs.io/en/stable/config-file/v2.html
+
+version: 2
+
+python:
+  version: 3
+  install:
+    - requirements: doc/manual/requirements.txt
+  system_packages: true
+
+sphinx:
+  configuration: doc/manual/conf.py
+
+formats:
+  - pdf
