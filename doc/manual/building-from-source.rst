@@ -129,16 +129,10 @@ For a concrete list of Ubuntu and Homebrew packages,
 see the CI configuration file
 :download:`.github/workflows/main.yml <../../.github/workflows/main.yml>`.
 
-To compile and install ``websocketpp`` and ``libmysofa`` on macOS,
-use ``git clone https://github.com/zaphoyd/websocketpp.git`` and
-``git clone https://github.com/hoene/libmysofa.git``, respectively,
-change into the cloned directory and run those commands
-in each of the directories (``cmake`` must be installed)::
-
-    cd build
-    cmake ..
-    make
-    sudo make install
+For instructions to compile and install ``websocketpp`` and ``libmysofa``
+on macOS, have a look at the file
+:download:`ci/build-deps-macos.sh <../../ci/build-deps-macos.sh>`
+(``cmake`` must be installed).
 
 If the Qt5 library cannot be found during configuration, try using ::
 
