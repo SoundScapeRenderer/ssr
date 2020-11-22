@@ -30,9 +30,20 @@ https://github.com/SoundScapeRenderer/ssr/.
 
 You can *clone* it and change to the newly created directory like this::
 
-    git clone https://github.com/SoundScapeRenderer/ssr.git
+    git clone https://github.com/SoundScapeRenderer/ssr.git --recursive
     cd ssr
 
+.. note::
+
+    The SSR repository uses multiple `Git submodules`__.
+    If you use the ``--recursive`` flag as shown above,
+    they will be automatically downloaded.
+    If you didn't use the ``--recursive`` flag, you can get them
+    by running the command::
+
+        git submodule update --init
+
+    __ https://git-scm.com/book/en/v2/Git-Tools-Submodules
 
 To generate the ``configure`` script
 (which is already contained in the tarball),
