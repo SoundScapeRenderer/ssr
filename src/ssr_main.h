@@ -28,19 +28,29 @@
 #ifndef SSR_MAIN_H
 #define SSR_MAIN_H
 
+#include <csignal>
 #include <iostream>
 
 #include "controller.h"
 
+extern "C" inline void signal_handler(int signal)
+{
+  std::cerr << "\nInterrupted by signal " << signal << std::endl;
+  std::exit(EXIT_FAILURE);
+}
+ 
 namespace ssr
 {
 
 template<typename Renderer>
 int main(int argc, char* argv[])
 {
+  std::signal(SIGINT, signal_handler);
+  std::signal(SIGTERM, signal_handler);
   try
   {
-    ssr::Controller<Renderer> controller{argc, argv};
+    // NB: This is static to be cleaned up automatically when exit() is called.
+    static ssr::Controller<Renderer> controller{argc, argv};
     controller.run();
   }
   catch (std::exception& e)

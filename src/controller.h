@@ -408,8 +408,6 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   , _query_state(query_state(*this, _renderer))
   , _loop(_conf.loop)  // temporary solution
 {
-  // TODO: signal handling?
-
   internal::print_about_message();
 
 #ifndef ENABLE_IP_INTERFACE
