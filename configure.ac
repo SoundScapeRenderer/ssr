@@ -265,7 +265,10 @@ abs_srcdir=`(cd $srcdir && pwd)`
 
 dnl https://github.com/ilmola/gml
 CPPFLAGS="$CPPFLAGS -I$abs_srcdir/gml/include"
-AC_CHECK_HEADER([gml/vec.hpp], , [AC_MSG_ERROR([GML library cannot be found.])])
+AC_CHECK_HEADER([gml/vec.hpp], , [AC_MSG_ERROR([GML library cannot be found.  Update your Git submodules with:
+
+    git submodule update --init
+])])
 
 ENABLE_AUTO([optimization], [code optimization],
 [
