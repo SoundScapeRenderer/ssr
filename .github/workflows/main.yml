@@ -86,7 +86,7 @@ jobs:
             pkg-config
           )
           sudo apt-get update
-          sudo apt-get install ${PACKAGES[@]}
+          sudo apt-get install --no-install-recommends ${PACKAGES[@]}
           echo QT_SELECT=qt5 >> $GITHUB_ENV
       - name: Install homebrew packages
         if: startsWith(matrix.os, 'macos')
@@ -113,7 +113,7 @@ jobs:
       - name: Install compiler
         if: matrix.compiler-pkg
         run: |
-          sudo apt-get install ${{ matrix.compiler-pkg }}
+          sudo apt-get install --no-install-recommends ${{ matrix.compiler-pkg }}
       - name: Check compiler versions
         run: |
           which ${CC:-gcc}
