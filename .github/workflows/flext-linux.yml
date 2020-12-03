@@ -6,7 +6,13 @@ jobs:
     steps:
     - name: install Ubuntu packages
       run: |
-        sudo apt-get install puredata-dev libcunit1-dev libfftw3-dev libsndfile1-dev
+        PACKAGES=(
+          libcunit1-dev
+          libfftw3-dev
+          libsndfile1-dev
+          puredata-dev
+        )
+        sudo apt-get install --no-install-recommends ${PACKAGES[@]}
 
     - name: checkout flext
       uses: actions/checkout@v2
