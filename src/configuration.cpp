@@ -621,8 +621,13 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 
   conf.renderer_params.set("xml_schema", conf.xml_schema);
 
-  if (!conf.freewheeling)
+  if (conf.freewheeling)
   {
+    conf.renderer_params.set("freewheeling", true);
+  }
+  else
+  {
+    conf.renderer_params.set("freewheeling", false);
     conf.renderer_params.set("system_output_prefix", conf.output_port_prefix);
   }
 
