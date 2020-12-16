@@ -35,6 +35,7 @@ jobs:
             env:
               CC: clang-9
               CXX: clang++-9
+              CXXFLAGS: -fno-builtin
           - os: macos-latest
             xcode: Xcode_12.2
             env: {}
