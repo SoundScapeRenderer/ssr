@@ -43,6 +43,12 @@ You can *clone* it and change to the newly created directory like this::
 
         git submodule update --init
 
+    When switching branches or when pulling changes from the server,
+    the local submodules might get outdated.
+    In such a case they can be updated with::
+
+        git submodule update
+
     __ https://git-scm.com/book/en/v2/Git-Tools-Submodules
 
 To generate the ``configure`` script
