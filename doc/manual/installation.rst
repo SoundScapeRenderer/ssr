@@ -76,7 +76,7 @@ the resulting packages is to use `makepkg`_ in a `manual build process`_.
 
 .. _AUR: https://aur.archlinux.org
 .. _makepkg: https://wiki.archlinux.org/index.php/Makepkg
-.. _`manual build process`: https://wiki.archlinux.org/index.php/Arch_User_Repository#Installing_packages
+.. _`manual build process`: https://wiki.archlinux.org/index.php/Arch_User_Repository#Installing_and_upgrading_packages
 
 
 .. _debian_package:
@@ -149,7 +149,7 @@ Tested with version 0.87 (64 bit) which includes:
 - JackRouter 0.9.3
 - JackPilot 1.7.0
 
-Note that the site http://www.jackosx.com/ is outdated. The latest version of JACK is
+Note that the site ``http://www.jackosx.com/`` is outdated. The latest version of JACK is
 available from http://jackaudio.org/downloads/.
 
 Or, you can install JACK using Homebrew_.

@@ -32,6 +32,10 @@ exclude_patterns = ['_build']
 
 highlight_language = 'sh'
 
+linkcheck_ignore = [
+    r'http://localhost:\d+',
+]
+
 # -- Options for HTML output ---------------------------------------------------
 
 html_theme = 'insipid'

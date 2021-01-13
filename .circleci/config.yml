@@ -110,6 +110,12 @@ jobs:
           path: doc/doxygen/html
           destination: doxygen
 
+      - run:
+          name: Check for broken links in User Manual
+          command: |
+            cd doc/manual
+            make linkcheck
+
 workflows:
   version: 2
   i-would-like-some-docs:
