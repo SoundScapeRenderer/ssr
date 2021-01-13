@@ -29,87 +29,180 @@
 Running the SSR
 ===============
 
-Common Options
---------------
+
+Starting the JACK Audio Server
+------------------------------
 
 Before you start the SSR, start JACK, e.g. by typing
 ``jackd -d alsa -r 44100`` in a shell or using the graphical user
-interface "qjackctl". Now, the easiest way to get a signal out of the
+interface ``qjackctl``.
+
+
+SSR binaries
+------------
+
+After installing the SSR, each renderer (see :doc:`renderers`)
+is available as a separate binary:
+``ssr-binaural``,
+``ssr-brs``,
+``ssr-vbap``,
+``ssr-wfs``,
+``ssr-aap``,
+``ssr-dca`` (the renderer formerly known as ``ssr-nfc-hoa``)
+and
+``ssr-generic``.
+
+The following examples use ``ssr-binaural``,
+but you can of course you any renderer you want!
+
+
+Loading a Single Audio File
+---------------------------
+
+The easiest way to get a signal out of the
 SSR is by passing a sound-file directly::
 
-    ssr YOUR_AUDIO_FILE
+    ssr-binaural YOUR_AUDIO_FILE
 
-By default, the SSR starts with the binaural renderer; please use
-headphones for listening with this renderer. Type ``ssr --help`` to get
-an overview of the command line options and various renderers:
+Make sure that your amplifiers are not turned too loud…
+
+To stop the SSR use either the options provided by the GUI (Section
+:ref:`gui`) or type ``Crtl+c`` in the shell in which you started the SSR.
+
+
+Loading an Audio Scene File
+---------------------------
+
+You can also load :ref:`audio_scenes`::
+
+    ssr-binaural YOUR_AUDIO_SCENE_FILE.asd
+
+
+Command Line Options
+--------------------
+
+There are a lot of options that are available for all renderers
+and only a few that are only available for certain renderers.
+
+Type ``ssr-binaural --help`` to get
+an overview of the command line options
+(the help text is the same for all renderers):
 
 .. code-block:: none
 
-    USAGE: ssr [OPTIONS] <scene-file>
+    Usage: ssr-binaural [OPTIONS] <scene-file>
 
-    The SoundScape Renderer (SSR) is a tool for real-time spatial audio
-    reproduction providing a variety of rendering algorithms.
+    The SoundScape Renderer (SSR) is a tool for real-time spatial audio reproduction
+    providing a variety of rendering algorithms.
 
-    OPTIONS:
-
-    Choose a rendering algorithm:
-        --binaural         Binaural (using HRIRs)
-        --brs              Binaural Room Synthesis (using BRIRs)
-        --wfs              Wave Field Synthesis
-        --aap              Ambisonics Amplitude Panning
-        --dca              Distance-coded Ambisonics (experimental!)
-        --vbap             Stereophonic (Vector Base Amplitude Panning)
-        --generic          Generic Renderer
+    Options:
 
     Renderer-specific options:
-        --hrirs=FILE       Load the HRIRs for binaural renderer from FILE
-        --hrir-size=VALUE  Maximum IR length (binaural and BRS renderer)
-        --prefilter=FILE   Load WFS prefilter from FILE
-    -o, --ambisonics-order=VALUE Ambisonics order to use (default: maximum)
-        --in-phase-rendering     Use in-phase rendering for Ambisonics
+          --hrirs=FILE    Load HRIRs for binaural renderer from FILE
+          --hrir-size=N   Truncate HRIRs to length N
+          --prefilter=FILE
+                          Load WFS prefilter from FILE
+      -o, --ambisonics-order=VALUE
+                          Ambisonics order to use for AAP (default: maximum)
+          --in-phase-rendering
+                          Use in-phase rendering for AAP renderer
 
     JACK options:
-    -n, --name=NAME        Set JACK client name to NAME
-        --input-prefix=PREFIX    Input  port prefix (default: "system:capture_")
-        --output-prefix=PREFIX   Output port prefix (default: "system:playback_")
-    -f, --freewheel        Use JACK in freewheeling mode
+      -n, --name=NAME     Set JACK client name to NAME
+          --input-prefix=PREFIX
+                          Input port prefix (default: "system:capture_")
+          --output-prefix=PREFIX
+                          Output port prefix (default: "system:playback_")
+      -f, --freewheel     Use JACK in freewheeling mode
 
     General options:
-    -c, --config=FILE      Read configuration from FILE
-    -s, --setup=FILE       Load reproduction setup from FILE
-        --threads=N        Number of audio threads (default N=1)
-    -r, --record=FILE      Record the audio output of the renderer to FILE
-        --loop             Loop all audio files
-        --master-volume-correction=VALUE
-                           Correction of the master volume in dB (default: 0 dB)
-        --auto-rotation    Auto-rotate sound sources' orientation toward the reference
-        --no-auto-rotation Don't auto-rotate sound sources' orientation toward the reference
-    -i, --ip-server[=PORT] Start IP server (default on)
-                           A port can be specified: --ip-server=5555
-    -I, --no-ip-server     Don't start IP server
-        --end-of-message-character=VALUE
-                           ASCII code for character to end messages with
-                           (default 0 = binary zero)
-    -g, --gui              Start GUI (default)
-    -G, --no-gui           Don't start GUI
-    -t, --tracker=TYPE     Start tracker, possible value(s):
-                           fastrak patriot vrpn razor
-        --tracker-port=PORT
-                           A serial port can be specified, e.g. /dev/ttyS1
-    -T, --no-tracker       Don't start tracker
+      -c, --config=FILE   Read configuration from FILE
+      -s, --setup=FILE    Load reproduction setup from FILE
+          --threads=N     Number of audio threads (default: auto)
+      -r, --record=FILE   Record the audio output of the renderer to FILE
+          --decay-exponent=VALUE
+                          Exponent that determines the amplitude decay (default: 1)
+          --loop          Loop all audio files
+          --master-volume-correction=VALUE
+                          Correction of the master volume in dB (default: 0 dB)
+          --auto-rotation Auto-rotate sound sources' orientation toward the
+                          reference
+          --no-auto-rotation
+                          Don't auto-rotate sound sources' orientation toward the
+                          reference
+      -i, --ip-server[=PORT]
+                          Start IP server (default off),
+                          a port number can be specified (default 4711)
+      -I, --no-ip-server  Don't start IP server (default)
+          --end-of-message-character=VALUE
+                          ASCII code for character to end messages with
+                          (default 0 = binary zero)
+          --websocket-server[=PORT]
+                          Start WebSocket server (default on),
+                          a port number can be specified (default 9422)
+          --no-websocket-server
+                          Don't start WebSocket server
+          --fudi-server[=PORT]
+                          Start FUDI server (default off),
+                          a port number can be specified (default 1174)
+          --no-fudi-server
+                          Don't start FUDI server (default)
+          --follow        Wait for another SSR instance to connect
+          --no-follow     Don't follow another SSR instance (default)
+      -g, --gui           Start GUI (default)
+      -G, --no-gui        Don't start GUI
+      -t, --tracker=TYPE  Select head tracker, possible value(s):
+                          fastrak patriot vrpn intersense razor
+          --tracker-port=PORT
+                          Port name/number of head tracker, e.g. /dev/ttyS1
+      -T, --no-tracker    Don't use a head tracker (default)
 
-    -h, --help             Show this very help information. You just typed that!
-    -v, --verbose          Increase verbosity level (up to -vvv)
-    -V, --version          Show version information and exit
+      -h, --help          Show help and exit
+      -v, --verbose       Increase verbosity level (up to -vvv)
+      -V, --version       Show version information and exit
 
-Choose the appropriate arguments and make sure that your amplifiers are
-not turned too loud…
 
-To stop the SSR use either the options provided by the GUI (Section
-:ref:`GUI <gui>`) or type ``Crtl+c`` in the shell in which you started the SSR.
+.. _ssr_configuration_file:
 
-Keyboard actions in non-GUI mode
-________________________________
+Configuration Files
+-------------------
+
+The general configuration of the SSR (whether GUI is enabled, which tracker
+to use, and most other command line arguments) can be specified in a
+configuration file (e.g.
+``ssr.conf``). By specifying your settings in such a file, you avoid
+having to give explicit command line options every time you start the
+SSR. We have added the example
+:download:`data/ssr.conf.example <../../data/ssr.conf.example>`,
+which mentions
+all possible parameters. Take a look inside, it is rather
+self-explanatory.
+
+Configuration files are loaded in the following order, if certain options are
+specified more than once, the last occurrence counts. This means that it is
+not the last file that is loaded that counts but rather the last occurrence at
+which a given setting is specified.
+
+1. ``/Library/SoundScapeRenderer/ssr.conf``
+2. ``/etc/ssr.conf``
+3. ``$HOME/Library/SoundScapeRenderer/ssr.conf``
+4. ``$HOME/.ssr/ssr.conf``
+5. the path(s) specified with the ``--config``/``-c`` option(s) (e.g.,
+   ``ssr-binaural -c my_config.file``)
+
+We explicitly mention one parameter here that might be of immediate
+interest for you: ``MASTER_VOLUME_CORRECTION``. This a correction in
+dB (!) that is applied -- as you might guess -- to the master volume. The
+motivation is to have means to adopt the general perceived loudness of
+the reproduction of a given system. Factors like the distance of the
+loudspeakers to the listener or the typical distance of virtual sound
+sources influence the resulting loudness, which can be adjusted to the
+desired level by means of the ``MASTER_VOLUME_CORRECTION``. Of course,
+there's also a command line alternative (``--master-volume-correction``).
+
+
+Keyboard Actions in Non-GUI Mode
+--------------------------------
 
 If you start SSR without GUI (option ``--no-gui``), it starts
 automatically replaying the scene that you have loaded. You can have some
@@ -129,8 +222,9 @@ followed by ``Return``):
 Note that in non-GUI mode, audio processing is always taking place. Live
 inputs are processed even if you pause playback.
 
-Recording the SSR output
-________________________
+
+Recording the SSR Output
+------------------------
 
 You can record the audio output of the SSR using the
 ``--record=FILE`` command line option. All output signals
@@ -139,46 +233,8 @@ named ``FILE``. The order of channels corresponds to the order of loudspeakers
 specifed in the reproduction setup (see Sections
 :ref:`Reproduction Setups <reproduction_setups>` and
 :ref:`ASDF <asdf>`). The recording can then be used to analyze the SSR output or
-to replay it without the SSR using a software player like "ecaplay" (http://eca.cx/ecasound/).
+to replay it without the SSR using a software player like ``ecaplay`` (http://eca.cx/ecasound/).
 
-.. _ssr_configuration_file:
-
-Configuration Files
--------------------
-
-The general configuration of the SSR (whether GUI is enabled, which tracker
-to use, and most other command line arguments) can be specified in a
-configuration file (e.g.
-``ssr.conf``). By specifying your settings in such a file, you avoid
-having to give explicit command line options every time you start the
-SSR. We have added the example
-:download:`data/ssr.conf.example <../../data/ssr.conf.example>`,
-which mentions
-all possible parameters. Take a look inside, it is rather
-self-explanatory. There are three possibilities to specify a
-configuration file:
-
-Configuration files are loaded in the following order, if certain options are
-specified more than once, the last occurrence counts. This means that it is
-not the last file that is loaded that counts but rather the last occurrence at
-which a given setting is specified.
-
-1. ``/Library/SoundScapeRenderer/ssr.conf``
-2. ``/etc/ssr.conf``
-3. ``$HOME/Library/SoundScapeRenderer/ssr.conf``
-4. ``$HOME/.ssr/ssr.conf``
-5. the path(s) specified with the ``--config``/``-c`` option(s) (e.g.,
-   ``ssr -c my_config.file``)
-
-We explicitly mention one parameter here that might be of immediate
-interest for you: ``MASTER_VOLUME_CORRECTION``. This a correction in
-dB (!) that is applied -- as you might guess -- to the master volume. The
-motivation is to have means to adopt the general perceived loudness of
-the reproduction of a given system. Factors like the distance of the
-loudspeakers to the listener or the typical distance of virtual sound
-sources influence the resulting loudness, which can be adjusted to the
-desired level by means of the ``MASTER_VOLUME_CORRECTION``. Of course,
-there's also a command line alternative (``--master-volume-correction``).
 
 .. _head_tracking:
 
@@ -205,7 +261,7 @@ straight forward, i.e. upwards on the screen (:math:`\alpha = 90^\circ`\ ).
 .. _prep_isense:
 
 Preparing InterSense InertiaCube3
-_________________________________
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure that you have the required access rights to the tracker before
 starting SSR. For you are using the USB connection type ::
@@ -224,7 +280,7 @@ the highest number.
 .. _prp_pol:
 
 Preparing Polhemus Fastrak/Patriot
-__________________________________
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure that
 you have the required access rights to the tracker before starting SSR by
@@ -242,7 +298,7 @@ If you want to disable this tracker, use ``./configure --disable-polhemus``
 and recompile.
 
 Preparing VRPN
-______________
+^^^^^^^^^^^^^^
 
 In order to use *Virtual Reality Peripheral Network* (VRPN_) compatible
 trackers create a config file ``vrpn.cfg`` with one of the following lines (or
@@ -293,13 +349,13 @@ This page contains some short description how to connect your own audio files
 with the SSR using different audio players.
 
 VLC Media Player
-________________
+^^^^^^^^^^^^^^^^
 
 How to connect the SSR in binaural playback mode with the own audio library
 using Jack and VLC Media Player:
 
-After installing Jack and the SSR (with all needed components: see :ref:`
-Configuring and Compiling <configuring>`) it is necessary to install the VLC
+After installing Jack and the SSR (with all needed components: see
+:ref:`configuring`) it is necessary to install the VLC
 Media Player with its Jack plugin (for example UBUNTU):
 
 1. ``sudo apt-get install vlc vlc-plugin-jack``
@@ -327,25 +383,16 @@ file using jack.)
 
 5. Start everything together using the command line::
 
-    qjackctl -s & vlc & ssr --gui /"path_of_your_scene_file(s)"/stereo.asd &
+    qjackctl -s & vlc & ssr-binaural --gui /"path_of_your_scene_file(s)"/stereo.asd &
 
     This will start jack, vlc and the ssr with the GUI and a provided stereo
     scene (TODO: LINK) (stereo.asd)
 
 6. Open an audio file in vlc and press play
 
-iTunes
-______
 
-TODO
-
-mPlayer
-_______
-
-TODO
-
-Using the GUI
--------------
+Using the macOS App Bundle
+--------------------------
 
 1. Run the JackPilot and hit start.
 2. Double-click the SoundScape Renderer icon |icon|, select the renderer type,
@@ -364,8 +411,9 @@ More options can be specified by using the config file. The details of using
 the config file is described on the Section
 :ref:`ssr_configuration_file`.
 
+
 Running via the Command Line (Terminal)
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The application bundle is more convenient, but brings limitations when using
 the command line. The included start script changes the working directory to
@@ -442,7 +490,7 @@ of ``open`` for all instances other than the first one::
     open -n -a SoundScapeRenderer --binaural
 
 Using a Head-Tracker
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Running with InterSense tracker support
 _______________________________________
