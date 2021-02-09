@@ -7,7 +7,7 @@ jobs:
     - name: install macOS packages
       run: |
         brew install fftw libsndfile cunit pkg-config
-        brew cask install pd
+        brew install --cask pd
     - name: checkout flext
       uses: actions/checkout@v2
       with:
