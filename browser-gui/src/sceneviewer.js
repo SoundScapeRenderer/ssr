@@ -50,25 +50,45 @@ function hemisphereLight() {
 function kiteGeometry() {
   // object is pointing in positive x direction
   // positive z is top!
-  var kite = new THREE.Geometry();
-  kite.vertices.push(new THREE.Vector3(.8, 0, 0));  // 0: front
-  kite.vertices.push(new THREE.Vector3(0, .4, 0));  // 1: left
-  kite.vertices.push(new THREE.Vector3(-.2, 0, 0));  // 2: back
-  kite.vertices.push(new THREE.Vector3(0, -.4, 0));  // 3: right
-  kite.vertices.push(new THREE.Vector3(0, 0, .2));  // 4: top
-  kite.vertices.push(new THREE.Vector3(0, 0, -.1));  // 5: bottom
 
-  kite.faces.push(new THREE.Face3(0, 1, 4));
-  kite.faces.push(new THREE.Face3(1, 2, 4));
-  kite.faces.push(new THREE.Face3(2, 3, 4));
-  kite.faces.push(new THREE.Face3(3, 0, 4));
+  let vertices = new Float32Array([
+    .8, 0, 0,  // 0: front
+    0, .4, 0,  // 1: left
+    0, 0, .2,  // 4: top
 
-  kite.faces.push(new THREE.Face3(1, 0, 5));
-  kite.faces.push(new THREE.Face3(2, 1, 5));
-  kite.faces.push(new THREE.Face3(3, 2, 5));
-  kite.faces.push(new THREE.Face3(0, 3, 5));
+    0, .4, 0,  // 1: left
+    -.2, 0, 0,  // 2: back
+    0, 0, .2,  // 4: top
 
-  kite.computeFaceNormals();
+    -.2, 0, 0,  // 2: back
+    0, -.4, 0,  // 3: right
+    0, 0, .2,  // 4: top
+
+    0, -.4, 0,  // 3: right
+    .8, 0, 0,  // 0: front
+    0, 0, .2,  // 4: top
+
+    0, .4, 0,  // 1: left
+    .8, 0, 0,  // 0: front
+    0, 0, -.1,  // 5: bottom
+
+    -.2, 0, 0,  // 2: back
+    0, .4, 0,  // 1: left
+    0, 0, -.1,  // 5: bottom
+
+    0, -.4, 0,  // 3: right
+    -.2, 0, 0,  // 2: back
+    0, 0, -.1,  // 5: bottom
+
+    .8, 0, 0,  // 0: front
+    0, -.4, 0,  // 3: right
+    0, 0, -.1,  // 5: bottom
+  ]);
+
+  var kite = new THREE.BufferGeometry();
+  kite.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+  kite.computeVertexNormals();
 
   // object is pointing in positive y direction
   kite.rotateZ(Math.PI / 2);
