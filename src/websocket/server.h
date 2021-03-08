@@ -97,8 +97,12 @@ public:
       return;
     }
 
-    if (resource == "/") {
-      // TODO: make configurable:
+    if (resource == "/")
+    {
+      resource = "/index.html";
+    }
+    else if (resource == "/test" || resource == "/test/")
+    {
       resource = "/ssr-test-client.html";
     }
     resource = _serve_dir + resource;
