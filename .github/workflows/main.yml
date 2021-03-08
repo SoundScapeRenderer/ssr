@@ -104,11 +104,11 @@ jobs:
             libsndfile
             libtool
             pkg-config
-            qt
+            qt@5
             vrpn
           )
           brew install ${PACKAGES[@]}
-          brew link qt --force
+          brew link qt@5 --force
           # Perl module needed for help2man
           cpan Locale::gettext
       - name: Install compiler
