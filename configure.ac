@@ -552,6 +552,10 @@ ENABLE_AUTO([fudi-interface], [FUDI interface (needs Asio and {fmt})],
   CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
   AC_CHECK_HEADER([asio.hpp], , [have_fudi_interface=no])
   AC_CHECK_HEADER([fmt/format.h], , [have_fudi_interface=no])
+])
+
+AS_IF([test x$have_fudi_interface = xyes],
+[
   LIBS="$LIBS -lfmt"
 ])
 
