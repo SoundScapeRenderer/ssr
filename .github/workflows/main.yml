@@ -26,6 +26,11 @@ jobs:
               CC: gcc-7
               CXX: g++-7
           - os: ubuntu-latest
+            compiler-pkg: clang-11
+            env:
+              CC: clang-11
+              CXX: clang++-11
+          - os: ubuntu-latest
             compiler-pkg: clang-10
             env:
               CC: clang-10
