@@ -551,8 +551,12 @@ ENABLE_AUTO([fudi-interface], [FUDI interface (needs Asio and {fmt})],
 [
   CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
   AC_CHECK_HEADER([asio.hpp], , [have_fudi_interface=no])
-  AC_CHECK_HEADER([fmt/format.h], , [have_fudi_interface=no])
-  LIBS="$LIBS -lfmt"
+  PKG_CHECK_MODULES([FMT], [fmt >= 5.0],
+  [
+    PKG_FLAGS="$PKG_FLAGS $FMT_CFLAGS"
+    LIBS="$LIBS $FMT_LIBS"
+  ],
+  [have_fudi_interface=no])
 ])
 
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
