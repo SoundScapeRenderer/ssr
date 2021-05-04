@@ -12,7 +12,7 @@ extensions = [
 master_doc = 'index'
 
 project = u'SoundScape Renderer'
-copyright = u'2018, SSR Team'
+copyright = u'2021, SSR Team'
 
 try:
     release = check_output(['git', 'describe', '--tags', '--always'])
@@ -56,3 +56,18 @@ latex_elements = {
 latex_documents = [
    ('index', 'SoundScapeRenderer.tex', project, u'SSR Team', 'manual'),
 ]
+
+def gh_link_role(rolename, rawtext, text, lineno, inliner,
+                     options={}, content=()):
+    from docutils import nodes, utils
+    github_url = 'https://github.com/SoundScapeRenderer/ssr'
+    blob_url = github_url + '/blob/' + release
+    base_url = blob_url + '/%s'
+    text = utils.unescape(text)
+    full_url = base_url % text
+    pnode = nodes.reference(internal=False, refuri=full_url)
+    pnode += nodes.literal(text, text, classes=['file'])
+    return [pnode], []
+
+def setup(app):
+    app.add_role('gh-link', gh_link_role)

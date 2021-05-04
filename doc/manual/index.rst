@@ -59,4 +59,5 @@ source code and issue tracker
     browser-gui
     network
     ssr-as-library
+    use-cases
     issues

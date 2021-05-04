@@ -1,0 +1,129 @@
+#N canvas 151 209 1219 931 10;
+#X obj 682 708 * 360;
+#X obj 682 737 int;
+#X obj 682 778 clip 0 359;
+#X floatatom 778 799 5 0 0 0 - - -;
+#X obj 682 652 + 0.4;
+#X obj 682 680 / 0.8;
+#X obj 682 843 + 90;
+#X obj 75 315 hsl 128 15 -0.4 0.4 0 0 empty empty empty -2 -8 0 10
+-262144 -1 -1 0 1;
+#X text 739 738 Cut everything after the comma;
+#X text 777 774 This is the index of the impulse response:;
+#X obj 682 894 s ssr_message;
+#X obj 681 55 r ssr_message;
+#X obj 681 215 netsend;
+#X obj 681 100 list trim;
+#X obj 681 76 list prepend send;
+#X msg 765 187 disconnect;
+#X msg 682 867 ref rot \$1;
+#X obj 925 66 r ssr_message;
+#X obj 925 210 netsend;
+#X obj 925 111 list trim;
+#X obj 925 87 list prepend send;
+#X msg 1009 182 disconnect;
+#X obj 682 307 r ssr_message;
+#X obj 682 470 netsend;
+#X obj 682 352 list trim;
+#X obj 682 328 list prepend send;
+#X msg 766 442 disconnect;
+#X obj 951 311 r ssr_message;
+#X obj 952 471 netsend;
+#X obj 951 356 list trim;
+#X obj 951 332 list prepend send;
+#X msg 1036 443 disconnect;
+#X obj 681 243 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1
+-1 0 1;
+#X obj 925 239 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1
+-1 0 1;
+#X obj 682 501 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1
+-1 0 1;
+#X obj 952 498 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1
+-1 0 1;
+#X text 71 78 Make sure that you start 4 SSR instances with the shell
+script that we provide.;
+#X text 70 121 1 Click here to connect to all 4 SSRs;
+#X obj 72 141 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 765 107 r connect;
+#X obj 1011 118 r connect;
+#X obj 766 374 r connect;
+#X obj 1036 380 r connect;
+#X obj 72 167 s connect;
+#X obj 69 470 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X text 67 450 3 Click here to disconnect from all 4 SSRs;
+#X obj 69 496 s disconnect;
+#X obj 765 166 r disconnect;
+#X obj 1009 161 r disconnect;
+#X obj 766 421 r disconnect;
+#X obj 1036 423 r disconnect;
+#X text 71 244 2 Play around with the slider;
+#X text 70 275 It mimics the tracker that senses the user's poition
+along the x-axis in the range -0.4 <= x <= 0.4;
+#X obj 72 373 s user_position;
+#X obj 682 581 r user_position;
+#X floatatom 88 345 5 0 0 0 - - -;
+#X text 696 606 The following logic converts the position into an impulse
+response index.;
+#X msg 765 130 connect 127.0.0.1 1147;
+#X msg 766 394 connect 127.0.0.1 1148;
+#X msg 1011 137 connect 127.0.0.1 1149;
+#X msg 1036 401 connect 127.0.0.1 1150;
+#X text 129 345 current x-coordinate of user position;
+#X text 726 823 Convert the impulse response index into an SSR message
+that calls the head tracker interface (it "rotates the listener").
+Mind the default 90 deg offset that SSR assumes.;
+#X text 737 680 0.8 m is overall range. There are 360 possible indices
+(0-359).;
+#X text 733 653 -0.4 m is the lower limit of the permissible range
+;
+#X text 71 17 Refer to SSR manual \, Sec. "Use Cases" -> "Multiple
+Input Multiple Output" for an explanation of what this patch does.
+;
+#X text 70 52 Pd needs to have the iemlib external installed.;
+#X connect 0 0 1 0;
+#X connect 1 0 2 0;
+#X connect 2 0 3 0;
+#X connect 2 0 6 0;
+#X connect 4 0 5 0;
+#X connect 5 0 0 0;
+#X connect 6 0 16 0;
+#X connect 7 0 53 0;
+#X connect 7 0 55 0;
+#X connect 11 0 14 0;
+#X connect 12 0 32 0;
+#X connect 13 0 12 0;
+#X connect 14 0 13 0;
+#X connect 15 0 12 0;
+#X connect 16 0 10 0;
+#X connect 17 0 20 0;
+#X connect 18 0 33 0;
+#X connect 19 0 18 0;
+#X connect 20 0 19 0;
+#X connect 21 0 18 0;
+#X connect 22 0 25 0;
+#X connect 23 0 34 0;
+#X connect 24 0 23 0;
+#X connect 25 0 24 0;
+#X connect 26 0 23 0;
+#X connect 27 0 30 0;
+#X connect 28 0 35 0;
+#X connect 29 0 28 0;
+#X connect 30 0 29 0;
+#X connect 31 0 28 0;
+#X connect 38 0 43 0;
+#X connect 39 0 57 0;
+#X connect 40 0 59 0;
+#X connect 41 0 58 0;
+#X connect 42 0 60 0;
+#X connect 44 0 46 0;
+#X connect 47 0 15 0;
+#X connect 48 0 21 0;
+#X connect 49 0 26 0;
+#X connect 50 0 31 0;
+#X connect 54 0 4 0;
+#X connect 57 0 12 0;
+#X connect 58 0 23 0;
+#X connect 59 0 18 0;
+#X connect 60 0 28 0;

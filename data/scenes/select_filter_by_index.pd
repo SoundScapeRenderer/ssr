@@ -1,0 +1,39 @@
+#N canvas 586 200 533 587 12;
+#X obj 35 508 netsend;
+#X obj 53 392 list trim;
+#X obj 53 368 list prepend send;
+#X msg 54 462 disconnect;
+#X obj 35 538 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1 -1
+0 1;
+#X text 20 159 1 Connect to the SSR;
+#X text 49 230 2 Select the index of the filter that you would like
+to use (0..359);
+#X msg 54 276 0;
+#X text 155 278 ...;
+#X text 218 277 ...;
+#X text 64 439 3 Disconnect;
+#X msg 53 344 ref rot \$1;
+#X text 282 277 ...;
+#X msg 250 276 117;
+#X text 21 75 Pd needs to have the iemlib external installed.;
+#X msg 314 276 5;
+#X msg 187 277 211;
+#X msg 119 276 358;
+#X msg 86 276 359;
+#X text 21 100 The SSR has to be running with the FUDI flag: --fudi-server=1174
+;
+#X text 21 31 See the SSR manual Sec. "Use Cases" for a explanation
+of what this patch does.;
+#X msg 34 192 connect 127.0.0.1 1147;
+#X connect 0 0 4 0;
+#X connect 1 0 0 0;
+#X connect 2 0 1 0;
+#X connect 3 0 0 0;
+#X connect 7 0 11 0;
+#X connect 11 0 2 0;
+#X connect 13 0 11 0;
+#X connect 15 0 11 0;
+#X connect 16 0 11 0;
+#X connect 17 0 11 0;
+#X connect 18 0 11 0;
+#X connect 21 0 0 0;

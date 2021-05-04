@@ -269,7 +269,7 @@ Examples
 ~~~~~~~~
 
 We provide an audio scene example in ASDF with this release. You find it
-in ``data/scenes/live_input.asd``. If you load this file into the SSR it
+in :gh-link:`data/scenes/live_input.asd`. If you load this file into the SSR it
 will create 4 sound sources which will be connected to the first four
 channels of your sound card. If your sound card happens to have less
 than four outputs, less sources will be created accordingly. More
