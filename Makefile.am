@@ -53,13 +53,13 @@ dist_noinst_DATA = \
 	mex/test_ssr.m \
 	flext/README.md \
 	flext/Makefile \
-	flext/package.txt \
+	flext/objects.txt \
 	flext/ssr_flext.h \
-	flext/ssr_aap.cpp \
-	flext/ssr_binaural.cpp \
-	flext/ssr_dca.cpp \
-	flext/ssr_vbap.cpp \
-	flext/ssr_wfs.cpp \
+	flext/ssr_aap~.cpp \
+	flext/ssr_binaural~.cpp \
+	flext/ssr_dca~.cpp \
+	flext/ssr_vbap~.cpp \
+	flext/ssr_wfs~.cpp \
 	flext/ssr_messages.pd \
 	flext/ssr_aap~-help.pd \
 	flext/ssr_binaural~-help.pd \
@@ -82,8 +82,6 @@ dist_noinst_DATA = \
 	pd/slaxml.lua \
 	pd/legacy_ssrclient-help.pd \
 	pd/legacy_ssrclient.pd_lua
-
-dist_noinst_SCRIPTS = flext/startpd.sh
 
 # these files are deleted on "make maintainer-clean":
 MAINTAINERCLEANFILES = aclocal.m4 stamp-h.in \

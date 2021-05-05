@@ -1,35 +1,39 @@
 # Makefile to generate externals for Puredata
 
-# see also package.txt
+PKG_CONFIG ?= pkg-config
 
-# The flext build system doesn't support compiling multiple externals at once,
-# so we work around this with PD_TARGETS and specify NAME here.
+cflags += \
+       -DFLEXT_INLINE \
+       -Iflext/source \
+       -I../apf \
+       -I../src \
+       -I../gml/include \
+       `$(PKG_CONFIG) --cflags libxml-2.0` \
+       -std=c++17 \
+       -DENABLE_SOFA \
 
-EXTERNALS ?= ssr_binaural ssr_dca ssr_aap ssr_wfs ssr_vbap
+ldlibs = -lfftw3f -lsndfile -lmysofa `$(PKG_CONFIG) --libs libxml-2.0`
 
-PD_TARGETS := $(EXTERNALS:%=%_pd)
+class.sources = \
+	ssr_aap~.cpp \
+	ssr_binaural~.cpp \
+	ssr_dca~.cpp \
+	ssr_wfs~.cpp \
+	ssr_vbap~.cpp \
 
-FLEXTPATH ?= /usr/local/src/flext
+common.sources = \
+	legacy_position.cpp \
+	legacy_orientation.cpp \
+	legacy_directionalpoint.cpp \
+	ssr_global.cpp \
+	xmlparser.cpp \
 
-all: pd
+datafiles = \
+	$(wildcard *-help.pd) \
+	ssr_messages.pd \
+	8channels.asd \
+	circle.asd \
+	hrirs_fabian_min_phase_eq.wav \
+	wfs_prefilter_120_1500_44100.wav \
 
-pd: $(PD_TARGETS)
-
-%_pd: %.cpp check_flext_path
-	NAME='$(@:%_pd=%~)' MAIN_SOURCE='$<' $(FLEXTPATH)/build.sh pd gcc
-
-check_flext_path:
-	@test -n '$(FLEXTPATH)' || ( echo \"FLEXTPATH\" is empty! ; false )
-	@test -d '$(FLEXTPATH)' || \
-		( echo \"$(FLEXTPATH)\" not found! Set FLEXTPATH! ; false )
-
-clean: $(EXTERNALS:%=%_pd_clean)
-
-%_pd_clean: check_flext_path
-	NAME='$(@:%_pd_clean=%~)' $(FLEXTPATH)/build.sh pd gcc clean
-	@rmdir pd-linux 2> /dev/null || true
-
-.PHONY: all pd clean check_flext_path
-
-# TODO: When adding $(PD_TARGETS) to .PHONY, it ceases to work ... why?
-
+include pd-lib-builder/Makefile.pdlibbuilder

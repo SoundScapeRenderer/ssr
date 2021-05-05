@@ -1,0 +1,5 @@
+ssr_aap~	Ambisonics Amplitude Panning renderer of the SSR
+ssr_binaural~	Binaural renderer of the SSR
+ssr_dca~	Distance-Coded Ambisonics (a.k.a. NFC-HOA) renderer of the SSR
+ssr_vbap~	Vector Base Amplitude Panning renderer of the SSR
+ssr_wfs~	Wave Field Synthesis renderer of the SSR

@@ -7,3 +7,12 @@
 [submodule "apf"]
 	path = apf
 	url = https://github.com/AudioProcessingFramework/apf.git
+[submodule "flext/pd-lib-builder-iem-ci"]
+	path = flext/pd-lib-builder-iem-ci
+	url = https://git.iem.at/pd/iem-ci.git
+[submodule "flext/pd-lib-builder"]
+	path = flext/pd-lib-builder
+	url = https://github.com/pure-data/pd-lib-builder.git
+[submodule "flext/flext"]
+	path = flext/flext
+	url = https://github.com/grrrr/flext.git
