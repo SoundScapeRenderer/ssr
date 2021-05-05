@@ -7,9 +7,9 @@ jobs:
     - name: install Ubuntu packages
       run: |
         PACKAGES=(
-          libcunit1-dev
           libfftw3-dev
           libsndfile1-dev
+          libmysofa-dev
           puredata-dev
         )
         sudo apt-get install --no-install-recommends ${PACKAGES[@]}
@@ -33,21 +33,6 @@ jobs:
       with:
         submodules: true
         path: ssr
-
-    # A sufficiently recent version of the package libmysofa-dev
-    # will be available in Ubuntu focal (20.04LTS)
-    - name: checkout libmysofa
-      uses: actions/checkout@v2
-      with:
-        repository: hoene/libmysofa
-        path: libmysofa
-
-    - name: build libmysofa
-      working-directory: libmysofa/build
-      run: |
-        cmake ..
-        make
-        sudo make install
 
     - name: build externals
       working-directory: ssr/flext
