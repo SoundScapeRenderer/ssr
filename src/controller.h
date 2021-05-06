@@ -469,6 +469,9 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   // End of initial subscriptions, start publishing ...
 
   _publish(&api::RendererInformationEvents::renderer_name
+      , _renderer.client_name());
+
+  _publish(&api::RendererInformationEvents::renderer_type
       , _renderer.name());
 
   _renderer.load_reproduction_setup();

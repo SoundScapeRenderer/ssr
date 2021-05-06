@@ -210,8 +210,11 @@ struct RendererInformationEvents
 {
   virtual ~RendererInformationEvents() = default;
 
-  /// Name of the renderer.
+  /// Name of the renderer instance (e.g. JACK client)..
   virtual void renderer_name(const std::string& name) = 0;
+
+  /// Type of the renderer.
+  virtual void renderer_type(const std::string& type) = 0;
 
   /// List of loudspeakers.  Doesn't change during the lifetime of a renderer.
   virtual void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) = 0;

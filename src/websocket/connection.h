@@ -316,6 +316,11 @@ private:
     _update_object(_state, "renderer-name", name);
   }
 
+  void renderer_type(const std::string& type) override
+  {
+    _update_object(_state, "renderer-type", type);
+  }
+
   void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
   {
     json::Value loudspeaker_list{json::kArrayType};

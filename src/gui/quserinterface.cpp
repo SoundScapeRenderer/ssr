@@ -97,18 +97,13 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
     _controlsParent(this)
 {
   // set window title
-  std::string type = _scene.get_renderer_name();
-  if      (type == "wfs")        setWindowTitle("SSR - WFS");
-  else if (type == "binaural")   setWindowTitle("SSR - Binaural");
-  else if (type == "brs")        setWindowTitle("SSR - BRS");
-  else if (type == "vbap")       setWindowTitle("SSR - VBAP");
-  else if (type == "aap")        setWindowTitle("SSR - AAP");
-  else if (type == "generic")    setWindowTitle("SSR - Generic Renderer");
-  else if (type == "ambisonics") setWindowTitle("SSR - Ambisonics");
-  else if (type == "") setWindowTitle("SSR");
-  else setWindowTitle(type.c_str());
+  std::string type = _scene.get_renderer_type();
+  // append JACK client name
+  type.append(" (JACK Client: ");
+  type.append(_scene.get_renderer_name());
+  type.append(")");
 
-  setWindowIcon(QIcon("images/ssr_logo.png"));
+  setWindowTitle(type.c_str());
 
   // make sure that buttons look good
   setMinimumSize(580, 215);
@@ -140,8 +135,8 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
   _source_properties->hide();
 
   // set window icon
-  QString path_to_image( _path_to_gui_images.c_str() ) ;
-  setWindowIcon(QIcon(QPixmap(path_to_image.append("/ssr_logo_large.png"))));
+  QString path_to_image(_path_to_gui_images.c_str());
+  setWindowIcon(QIcon(path_to_image.append("/ssr_logo.png")));
 
   // build up buttons etc.
   _file_menu_label = new QFileMenuLabel(_controlsParent);
@@ -1296,7 +1291,11 @@ void ssr::QUserInterface::_show_about_window()
     "<EM>Website</EM>:&nbsp;" PACKAGE_URL "<BR>"
     "<EM>e-Mail</EM>:&nbsp;&nbsp;" PACKAGE_BUGREPORT "<BR>"
     "<BR>"
-    "Copyright &copy; 2012-2014 Institut f&uuml;r Nachrichtentechnik<BR>"
+    "Copyright &copy; 2016-2021 Division of Applied Acoustics<BR>"
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    "&nbsp;&nbsp;&nbsp;Chalmers University of Technology<BR>"
+    "Copyright &copy; 2012-2016 Institut f&uuml;r Nachrichtentechnik<BR>"
     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
     "&nbsp;&nbsp;&nbsp;Universit&auml;t Rostock<BR>"
@@ -1324,10 +1323,10 @@ void ssr::QUserInterface::_show_about_window()
   ssr_logo.setGeometry(20, 30, 310, 211); // the SSR Logo has 310x211 pixels
   ssr_logo.setScaledContents(true);
 
-  QString path_to_image( _path_to_gui_images.c_str() );
+  QString path_to_image(_path_to_gui_images.c_str());
   path_to_image.append("/ssr_logo_large.png");
 
-  ssr_logo.setPixmap( QPixmap( path_to_image ) );
+  ssr_logo.setPixmap(QPixmap(path_to_image));
 
   // text_label.setGeometry(0, 261, 350, 370);
   text_label.setText(about_string.c_str());

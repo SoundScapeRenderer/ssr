@@ -410,6 +410,13 @@ private:
     _append(";\n");
   }
 
+  void renderer_type(const std::string& type) override
+  {
+    _append("renderer-type ");
+    _escaped_string(type);
+    _append(";\n");
+  }
+
   void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
   {
     (void)loudspeakers;
