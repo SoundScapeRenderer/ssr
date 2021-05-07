@@ -8,9 +8,9 @@ jobs:
         run: |
           PACKAGES=(
             libfftw3-dev
-            libsndfile1-dev
             libmysofa-dev
             puredata-dev
+            autogen
           )
           sudo apt-get install --no-install-recommends ${PACKAGES[@]}
       - name: checkout ssr
@@ -18,6 +18,13 @@ jobs:
         with:
           submodules: true
           path: ssr
+      - name: Build dependencies
+        working-directory: ssr/ci
+        run: |
+          sudo chown -R $(whoami):admin /usr/local
+          ./build-small-libsndfile.sh
+          ./build-small-libxml2.sh
+          sudo ldconfig
       - name: build externals
         working-directory: ssr/flext
         run: |
@@ -39,13 +46,24 @@ jobs:
     steps:
       - name: install macOS packages
         run: |
-          brew install fftw libsndfile cunit pkg-config
+          PACKAGES=(
+            autogen
+            automake
+            cunit  # for libmysofa
+            fftw
+            pkg-config
+          )
+          brew install ${PACKAGES[@]}
           brew install --cask pd
       - name: checkout ssr
         uses: actions/checkout@v2
         with:
           submodules: true
           path: ssr
+      - name: Build dependencies
+        working-directory: ssr/ci
+        run: |
+          ./build-small-libsndfile.sh
       - name: checkout libmysofa
         uses: actions/checkout@v2
         with:
@@ -56,7 +74,7 @@ jobs:
         run: |
           cmake ..
           make
-          sudo make install
+          make install
       - name: build externals
         working-directory: ssr/flext
         run: |
@@ -81,9 +99,9 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           release: false
+          path-type: inherit
           install: >-
             mingw-w64-x86_64-fftw
-            mingw-w64-x86_64-libsndfile
             mingw-w64-x86_64-libmysofa
             mingw-w64-x86_64-ntldd-git
       - name: Install Pd
@@ -94,58 +112,18 @@ jobs:
           mv -v "${PROGRAMFILES}/pd"/*/* "${PROGRAMFILES}/pd"
           rm -f Pd.zip
           export PD="${PROGRAMFILES}/pd/bin/pd.com"
-      - name: Checkout libxml2 source code
-        shell: bash
-        run: |
-          git clone https://gitlab.gnome.org/GNOME/libxml2.git
-          cd libxml2
-          git checkout v2.9.10
-      - name: Build libxml2
-        working-directory: libxml2
-        run: |
-          ./autogen.sh \
-            --without-c14n \
-            --without-catalog \
-            --without-debug \
-            --without-docbook \
-            --without-fexceptions \
-            --without-ftp \
-            --without-history \
-            --without-html \
-            --without-http \
-            --without-iconv \
-            --without-icu \
-            --without-iso8859x \
-            --without-legacy \
-            --with-minimum \
-            --with-output \
-            --without-pattern \
-            --without-push \
-            --without-python \
-            --without-reader \
-            --without-readline \
-            --without-regexps \
-            --with-sax1 \
-            --with-schemas \
-            --without-schematron \
-            --without-threads \
-            --without-tree \
-            --without-valid \
-            --without-writer \
-            --without-xinclude \
-            --with-xpath \
-            --without-xptr \
-            --without-modules \
-            --without-zlib \
-            --without-lzma \
-            --
-          make
-          make install
       - name: checkout ssr
         uses: actions/checkout@v2
         with:
           submodules: true
           path: ssr
+      - name: Build dependencies
+        working-directory: ssr/ci
+        run: |
+          # https://github.com/msys2/MINGW-packages/issues/5803
+          export LIBS=-lssp
+          ./build-small-libsndfile.sh
+          ./build-small-libxml2.sh
       - name: build externals
         working-directory: ssr/flext
         run: |
