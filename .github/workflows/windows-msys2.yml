@@ -1,0 +1,98 @@
+name: SSR for Windows, using MSYS2
+on: [push, pull_request]
+jobs:
+  build-win:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    env:
+      MSYS: winsymlinks:native
+    steps:
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          install: >-
+            git
+          pacboy: >-
+            asio:p
+            autotools:p
+            fftw:p
+            fmt:p
+            jack2:p
+            libsndfile:p
+            libmysofa:p
+            libxml2:p
+            mesa:p
+            nsis:p
+            qt5-base:p
+            vrpn:p
+            yarn:p
+      - name: checkout websocketpp
+        uses: actions/checkout@v3
+        with:
+          repository: zaphoyd/websocketpp
+          path: websocketpp
+      - name: Get SSR source code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          # This is required to be able to fetch tags,
+          # see https://github.com/actions/checkout/issues/290:
+          fetch-depth: 0
+          path: ssr
+      - name: autogen
+        working-directory: ssr
+        run: |
+          ./autogen.sh
+      - name: fetch Git tags
+        working-directory: ssr
+        run: |
+          # Fetch tags for obtaining the version number,
+          # see https://github.com/actions/checkout/issues/290:
+          git fetch --tags --force
+      - name: configure
+        working-directory: ssr
+        run: |
+          CONFIGURE_OPTIONS=(
+            --enable-browser-gui
+            --enable-fudi-interface
+            --enable-gui
+            --enable-ip-interface
+            #--enable-polhemus
+            #--enable-razor
+            --enable-sofa
+            #--enable-vrpn
+            --enable-websocket-interface
+            --enable-windows-installer
+            --disable-ecasound
+            --disable-intersense
+            CPPFLAGS="-I/ucrt64/include -I`pwd`/../websocketpp -D_WEBSOCKETPP_CPP11_THREAD_"
+            # TODO: move this to configure.ac:
+            CFLAGS=-mwin32
+            LDFLAGS=-L/ucrt64/lib
+            # TODO: move this to configure.ac:
+            LIBS="-lws2_32 -lwsock32 -lglu32 -lopengl32"
+          )
+          ./configure --disable-dependency-tracking "${CONFIGURE_OPTIONS[@]}"
+      - name: upload config.log
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: config.log
+          path: ssr/config.log
+      - name: make
+        working-directory: ssr
+        run: |
+          make
+      - name: make nsis
+        working-directory: ssr
+        run: |
+          make nsis
+      - name: upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          # TODO: upload the actual installer
+          name: ssr-installer
+          path: ssr/windows-installer
