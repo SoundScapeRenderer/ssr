@@ -132,43 +132,43 @@ ENABLE_AUTO([all],
 ENABLE_AUTO([binaural], [binaural renderer (using HRIRs)],
 [
   AS_IF([test x$enable_binaural = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-binaural"])
+    [SSR_executables="$SSR_executables ssr-binaural$EXEEXT"])
 ])
 
 ENABLE_AUTO([brs], [Binaural Room Synthesis renderer (using BRIRs)],
 [
   AS_IF([test x$enable_brs = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-brs"])
+    [SSR_executables="$SSR_executables ssr-brs$EXEEXT"])
 ])
 
 ENABLE_AUTO([wfs], [Wave Field Synthesis renderer],
 [
   AS_IF([test x$enable_wfs = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-wfs"])
+    [SSR_executables="$SSR_executables ssr-wfs$EXEEXT"])
 ])
 
 ENABLE_AUTO([vbap], [Vector Base Amplitude Panning renderer],
 [
   AS_IF([test x$enable_vbap = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-vbap"])
+    [SSR_executables="$SSR_executables ssr-vbap$EXEEXT"])
 ])
 
 ENABLE_AUTO([aap], [Ambisonics Amplitude Panning renderer],
 [
   AS_IF([test x$enable_aap = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-aap"])
+    [SSR_executables="$SSR_executables ssr-aap$EXEEXT"])
 ])
 
 ENABLE_AUTO([generic], [generic renderer],
 [
   AS_IF([test x$enable_generic = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-generic"])
+    [SSR_executables="$SSR_executables ssr-generic$EXEEXT"])
 ])
 
 ENABLE_AUTO([dca],[Distance-coded Ambisonics renderer],
 [
   AS_IF([test x$enable_dca = xyes -o x$have_all = xyes],
-    [SSR_executables="$SSR_executables ssr-dca"])
+    [SSR_executables="$SSR_executables ssr-dca$EXEEXT"])
 ])
 
 dnl Note: For what happens with SSR_executables see src/Makefile.am
