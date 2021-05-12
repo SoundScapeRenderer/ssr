@@ -54,11 +54,11 @@ FLEXT_NEW_DSP_V("ssr_" #name "~", ssr_ ## name)
 #include <gml/util.hpp>  // for gml::radians()
 
 template<typename Renderer>
-class SsrFlext : public flext_dsp
+class SsrFlextBase : public flext_dsp
 {
-  FLEXT_HEADER_S(SsrFlext<Renderer>, flext_dsp, setup)
+  FLEXT_HEADER_S(SsrFlextBase<Renderer>, flext_dsp, setup)
 
-  private:
+  protected:
     // TODO: put these functions somewhere else?
     static bool _get(int& argc, const t_atom*& argv, int& out)
     {
@@ -99,105 +99,26 @@ class SsrFlext : public flext_dsp
       return result;
     }
 
-    apf::parameter_map _get_parameters(int argc, const t_atom* argv)
+  public:
+    SsrFlextBase(apf::parameter_map&& params)
+      : _engine(_update_params(std::move(params)))
     {
-      _in_channels = 0;
-      int threads = 0;
-      std::string first_string = "", second_string = "";
+      _engine.load_reproduction_setup();
+    }
 
-      while (argc > 0)
-      {
-        // Note: IsInt(*argv) doesn't work in Pd
-        if (IsFloat(*argv))
-        {
-          int arg;
-          if (!_get(argc, argv, arg))
-          {
-            throw std::invalid_argument("Numeric arguments must be integers!");
-          }
-          if (!_in_channels)
-          {
-            if (arg < 0)
-            {
-              throw std::invalid_argument("A negative number of sources ... "
-                  "how is this supposed to work?");
-            }
-            _in_channels = arg;
-          }
-          else if (!threads)
-          {
-            if (arg < 0)
-            {
-              throw std::invalid_argument("A negative number of threads ... "
-                  "how is this supposed to work?");
-            }
-            threads = arg;
-          }
-          else
-          {
-            throw std::invalid_argument("Too many numeric arguments!");
-          }
-        }
-        else if (IsSymbol(*argv))
-        {
-          if (first_string == "")
-          {
-            first_string = _get(argc, argv);
-          }
-          else if (second_string == "")
-          {
-            second_string = _get(argc, argv);
-          }
-          else
-          {
-            throw std::invalid_argument("Too many string arguments!");
-          }
-        }
-        else
-        {
-          throw std::invalid_argument("Unsupported argument type!");
-        }
-      }
+    static void setup(t_classid c)
+    {
+      FLEXT_CADDMETHOD(c, 0, _handle_messages);
 
-      if (!_in_channels)
-      {
-        post("%s - first numeric argument should specify number of sources! "
-            "None given, creating one source by default ...", thisName());
-        _in_channels = 1;
-      }
+      post("Thanks for using the SoundScape Renderer (SSR)!");
+      post("For more information, visit http://spatialaudio.net/ssr/");
+    }
 
-      if (first_string == "")
-      {
-        throw std::invalid_argument(
-            "At least one string must be specified as argument!");
-      }
-
-      apf::parameter_map params;
-
-      params.set("reproduction_setup", first_string);
-      params.set("hrir_file", first_string);
-
-      // TODO: At some point, "prefilter_file" should become part of the
-      // configuration file for the reproduction setup.
-      // As soon as this happens, "second_string" should be removed!
-
-      if (second_string != "")
-      {
-        params.set("prefilter_file", second_string);
-      }
-
-      if (threads)
-      {
-        params.set("threads", threads);
-      }
-
+  protected:
+    apf::parameter_map _update_params(apf::parameter_map&& params)
+    {
       params.set("block_size", Blocksize());
       params.set("sample_rate", Samplerate());
-
-      // TODO: let the user choose those values:
-      params.set("delayline_size", 100000);  // in samples
-      params.set("initial_delay", 1000);  // in samples
-
       std::string info;
       for (auto it: params)
       {
@@ -207,38 +128,17 @@ class SsrFlext : public flext_dsp
         info += ": ";
         info += it.second;
       }
-      post("%s - trying to start with following options:\n * sources: %d%s"
-          , thisName(), _in_channels, info.c_str());
-
+      post("%s - trying to start with following options:%s"
+          , thisName(), info.c_str());
       return params;
     }
 
-  public:
-    SsrFlext(int argc, const t_atom* argv)
-      : _engine(_get_parameters(argc, argv))
+    void _init()
     {
-      _engine.load_reproduction_setup();
-
-      for (size_t i = 0; i < _in_channels; ++i)
-      {
-        auto id = _engine.add_source("");
-        _engine.get_source(id)->active = true;
-        _source_ids.push_back(id);
-        AddInSignal();
-      }
-
       AddOutSignal(_engine.get_output_list().size());
       _engine.activate();  // start parallel processing (if threads > 1)
       post("%s - initialization of %s completed, %d outputs available"
           , thisName(), _engine.name(), CntOut());
-    }
-
-    static void setup(t_classid c)
-    {
-      FLEXT_CADDMETHOD(c, 0, _handle_messages);
-
-      post("Thanks for using the SoundScape Renderer (SSR)!");
-      post("For more information, visit http://spatialaudio.net/ssr/");
     }
 
   private:
@@ -631,9 +531,130 @@ class SsrFlext : public flext_dsp
       }
     }
 
-    int _in_channels;
+  protected:
     Renderer _engine;
     std::vector<std::string> _source_ids;
+};
+
+template<typename Renderer>
+class SsrFlext : public SsrFlextBase<Renderer>
+{
+  public:
+    SsrFlext(int argc, const t_atom* argv)
+      : SsrFlextBase<Renderer>(_get_parameters(argc, argv))
+    {
+      post("%s - trying to create %d sources", this->thisName(), _in_channels);
+      for (size_t i = 0; i < _in_channels; ++i)
+      {
+        auto id = this->_engine.add_source("");
+        this->_engine.get_source(id)->active = true;
+        this->_source_ids.push_back(id);
+        this->AddInSignal();
+      }
+      this->_init();
+    }
+
+  private:
+    apf::parameter_map _get_parameters(int argc, const t_atom* argv)
+    {
+      _in_channels = 0;
+      int threads = 0;
+      std::string first_string = "", second_string = "";
+
+      while (argc > 0)
+      {
+        // Note: IsInt(*argv) doesn't work in Pd
+        if (this->IsFloat(*argv))
+        {
+          int arg;
+          if (!this->_get(argc, argv, arg))
+          {
+            throw std::invalid_argument("Numeric arguments must be integers!");
+          }
+          if (!_in_channels)
+          {
+            if (arg < 0)
+            {
+              throw std::invalid_argument("A negative number of sources ... "
+                  "how is this supposed to work?");
+            }
+            _in_channels = arg;
+          }
+          else if (!threads)
+          {
+            if (arg < 0)
+            {
+              throw std::invalid_argument("A negative number of threads ... "
+                  "how is this supposed to work?");
+            }
+            threads = arg;
+          }
+          else
+          {
+            throw std::invalid_argument("Too many numeric arguments!");
+          }
+        }
+        else if (this->IsSymbol(*argv))
+        {
+          if (first_string == "")
+          {
+            first_string = this->_get(argc, argv);
+          }
+          else if (second_string == "")
+          {
+            second_string = this->_get(argc, argv);
+          }
+          else
+          {
+            throw std::invalid_argument("Too many string arguments!");
+          }
+        }
+        else
+        {
+          throw std::invalid_argument("Unsupported argument type!");
+        }
+      }
+
+      if (!_in_channels)
+      {
+        post("%s - first numeric argument should specify number of sources! "
+            "None given, creating one source by default ...", this->thisName());
+        _in_channels = 1;
+      }
+
+      if (first_string == "")
+      {
+        throw std::invalid_argument(
+            "At least one string must be specified as argument!");
+      }
+
+      apf::parameter_map params;
+
+      params.set("reproduction_setup", first_string);
+      params.set("hrir_file", first_string);
+
+      // TODO: At some point, "prefilter_file" should become part of the
+      // configuration file for the reproduction setup.
+      // As soon as this happens, "second_string" should be removed!
+
+      if (second_string != "")
+      {
+        params.set("prefilter_file", second_string);
+      }
+
+      if (threads)
+      {
+        params.set("threads", threads);
+      }
+
+      // TODO: let the user choose those values:
+      params.set("delayline_size", 100000);  // in samples
+      params.set("initial_delay", 1000);  // in samples
+
+      return params;
+    }
+
+    int _in_channels;
 };
 
 #endif

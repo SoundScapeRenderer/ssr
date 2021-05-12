@@ -17,6 +17,7 @@ ldlibs = -lfftw3f -lsndfile -lmysofa `$(PKG_CONFIG) --libs libxml-2.0`
 class.sources = \
 	ssr_aap~.cpp \
 	ssr_binaural~.cpp \
+	ssr_brs~.cpp \
 	ssr_dca~.cpp \
 	ssr_wfs~.cpp \
 	ssr_vbap~.cpp \
@@ -35,5 +36,7 @@ datafiles = \
 	circle.asd \
 	hrirs_fabian_min_phase_eq.wav \
 	wfs_prefilter_120_1500_44100.wav \
+	brirs_1.wav \
+	brirs_2.wav \
 
 include pd-lib-builder/Makefile.pdlibbuilder

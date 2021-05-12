@@ -31,6 +31,7 @@
 #define SSR_BRSRENDERER_H
 
 #include "rendererbase.h"
+#include "legacy_orientation.h"
 
 #include "apf/convolver.h"  // for apf::conv::*
 #include "apf/sndfiletools.h"  // for apf::load_sndfile

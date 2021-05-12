@@ -1,0 +1,42 @@
+#N canvas 698 359 736 441 12;
+#X obj 109 366 dac~;
+#X obj 110 339 ssr_brs~ brirs_1.wav brirs_2.wav;
+#X obj 436 371 ssr_brs~ 4 brirs_1.wav;
+#X text 432 327 First argument can be used to specify;
+#X text 432 348 the number of audio threads;
+#X obj 127 281 osc~ 440;
+#X obj 127 305 *~ 0.2;
+#X obj 299 304 *~ 0.1;
+#X obj 300 280 noise~;
+#X obj 424 160 hsl 128 15 80 -80 0 1 empty empty empty -2 -8 0 10 -262144
+-1 -1 6350 1;
+#X msg 421 208 ref rot \$1;
+#X floatatom 421 182 5 0 0 0 - - -;
+#X text 463 181 degrees;
+#X obj 91 190 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X msg 91 216 src 1 mute \$1;
+#X obj 203 190 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X msg 203 216 src 2 mute \$1;
+#X text 7 10 binaural room synthesis (BRS) renderer;
+#X text 7 31 of the SoundScape Renderer (SSR);
+#X text 6 53 http://spatialaudio.net/ssr/;
+#X text 379 105 connect your head tracker here!;
+#X text 296 146 positive angles;
+#X text 563 143 negative angles;
+#X text 336 167 look left;
+#X text 563 164 look right;
+#X connect 1 0 0 0;
+#X connect 1 1 0 1;
+#X connect 5 0 6 0;
+#X connect 6 0 1 0;
+#X connect 7 0 1 1;
+#X connect 8 0 7 0;
+#X connect 9 0 11 0;
+#X connect 10 0 1 0;
+#X connect 11 0 10 0;
+#X connect 13 0 14 0;
+#X connect 14 0 1 0;
+#X connect 15 0 16 0;
+#X connect 16 0 1 0;
