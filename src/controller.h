@@ -749,6 +749,17 @@ bool Controller<Renderer>::run()
 template<typename Renderer>
 Controller<Renderer>::~Controller()
 {
+#ifdef ENABLE_GUI
+  // NB: we are not cleaning up the GUI here!
+
+  // This is to avoid problems with the Static Initialization Order Fiasco, see
+  // https://en.cppreference.com/w/cpp/language/siof
+
+  // If we ever upgrade to Qt6, this might not be necessary anymore.
+
+  _gui.release();  // Forget about the GUI.
+#endif
+
   _renderer.deactivate();
   if (!_conf.follow)
   {
