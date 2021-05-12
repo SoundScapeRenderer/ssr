@@ -45,7 +45,7 @@ html_domain_indices = False
 html_use_index = False
 html_show_copyright = False
 html_copy_source = False
-html_add_permalinks = '\N{SECTION SIGN}'
+html_permalinks_icon = '\N{SECTION SIGN}'
 
 # -- Options for LaTeX output --------------------------------------------------
 
