@@ -122,14 +122,14 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
   setGeometry(200, 70, 900, 700);
 
   setAcceptDrops(true);
-
+/*
   _controlsParent = new QLabel(this, Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
   _controlsParent->setFixedSize(900, 75);
   _controlsParent->move(200, 780);
   _controlsParent->setWindowTitle("Controls");
   _controlsParent->installEventFilter(this);
   _controlsParent->show();
-  _controlsParent->raise();
+  _controlsParent->raise();*/
 
   _source_properties = new QSourceProperties(this);
   connect(_source_properties, SIGNAL(signal_set_source_mute(bool)), this, SLOT(_set_source_mute(bool)));
@@ -141,6 +141,7 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
   QString path_to_image( _path_to_gui_images.c_str() ) ;
   setWindowIcon(QIcon(QPixmap(path_to_image.append("/ssr_logo_large.png"))));
 
+/*
   // build up buttons etc.
   _file_menu_label = new QFileMenuLabel(_controlsParent);
   //  _file_menu_label->setStyleSheet("border-width: 1px; border-color: black; border-style: solid");
@@ -234,7 +235,7 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
   _play_button->setGeometry(DEFAULTFRAMELEFT+FILEMENUWIDTH+
                            3*(BETWEENBUTTONSPACE+BUTTONWIDTH)+
                            BETWEENBUTTONSPACE, 20,
-                           BUTTONWIDTH, BUTTONHEIGHT);
+                           BUTTONWIDTH, BUTTONHEIGHT);*/
 
   // functional inits
   _deselect_all_sources(); // no source selected
@@ -250,7 +251,9 @@ ssr::QUserInterface::QUserInterface(api::Publisher& controller
 
   _set_zoom(100);
 
+/*
   _resizeControls(_controlsParent->width());
+  */
 }
 
 /// Dtor.
@@ -616,7 +619,7 @@ void ssr::QUserInterface::_load_scene(const QString& path_to_scene)
 void ssr::QUserInterface::_update_screen()
 {
     this->set_device_pixel_ratio();
-
+/*
     // update time line
     _time_line->set_progress(static_cast<float>(_scene.get_transport_position())/
                             static_cast<float>(_scene.get_sample_rate()));
@@ -653,7 +656,7 @@ void ssr::QUserInterface::_update_screen()
       _source_properties->update_displays(_scene.get_source(_id_of_last_clicked_source),
 					  _scene.get_reference());
     } // if
-
+*/
     // refresh screen
     update();
 }
@@ -668,6 +671,7 @@ void ssr::QUserInterface::resizeEvent(QResizeEvent *event)
 
 void ssr::QUserInterface::_resizeControls(int newWidth)
 {
+/*
   const int _time_line_position_x = DEFAULTFRAMELEFT+FILEMENUWIDTH+
   4*(BETWEENBUTTONSPACE+BUTTONWIDTH)+
   BETWEENLABELSPACE - 12; // the 12 is due to LEFTMARGIN in qssrtimeline.cpp
@@ -738,6 +742,7 @@ void ssr::QUserInterface::_resizeControls(int newWidth)
       no_of_scenes++;
     }
   }
+  */
 }
 
 /** Handles Qt mouse press events.
