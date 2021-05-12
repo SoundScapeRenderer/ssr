@@ -457,7 +457,8 @@ manikin in one of our mid-size meeting rooms called Sputnik with 8
 different source positions. Due to the file size, we have not included
 them in the release. You can obtain the data from [BRIRs]_.
 
-.. [BRIRs] The Sputnik BRIRs can be obtained from here: https://dev.qu.tu-berlin.de/projects/measurements/wiki/Impulse_Response_Measurements.
+.. [BRIRs] The Sputnik BRIRs can be obtained from here:
+    https://github.com/ssr-scenes/tu-berlin/tree/master/sputnik.
     More BRIR repositories are compiled here: http://www.soundfieldsynthesis.org/other-resources/#impulse-responses.
 
 .. _vbap:
