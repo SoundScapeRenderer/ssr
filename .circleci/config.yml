@@ -29,11 +29,6 @@ jobs:
             echo 'export PATH=~/.local/bin:$PATH' >> $BASH_ENV
 
       - run:
-          name: Installing Python Packages
-          command: |
-            $PIP_INSTALL -r doc/manual/requirements.txt
-
-      - run:
           name: Installing apt Packages
           command: |
             curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
@@ -48,7 +43,13 @@ jobs:
               libsndfile1-dev \
               libxml2-dev \
               pkg-config \
+              python3-pip \
               yarn
+
+      - run:
+          name: Installing Python Packages
+          command: |
+            $PIP_INSTALL -r doc/manual/requirements.txt
 
       - run:
           name: Building HTML Manual
