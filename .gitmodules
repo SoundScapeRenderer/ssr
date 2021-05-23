@@ -16,3 +16,6 @@
 [submodule "flext/flext"]
 	path = flext/flext
 	url = https://github.com/grrrr/flext.git
+[submodule "example-scenes"]
+	path = example-scenes
+	url = https://github.com/SoundScapeRenderer/example-scenes.git
