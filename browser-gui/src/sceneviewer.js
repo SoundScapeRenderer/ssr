@@ -1,7 +1,6 @@
 import * as THREE from 'three';
-// See https://stackoverflow.com/a/44960831/
-import 'three-examples/controls/OrbitControls';
-import 'three-examples/controls/TransformControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 
 function directionalLight() {
@@ -50,25 +49,45 @@ function hemisphereLight() {
 function kiteGeometry() {
   // object is pointing in positive x direction
   // positive z is top!
-  var kite = new THREE.Geometry();
-  kite.vertices.push(new THREE.Vector3(.8, 0, 0));  // 0: front
-  kite.vertices.push(new THREE.Vector3(0, .4, 0));  // 1: left
-  kite.vertices.push(new THREE.Vector3(-.2, 0, 0));  // 2: back
-  kite.vertices.push(new THREE.Vector3(0, -.4, 0));  // 3: right
-  kite.vertices.push(new THREE.Vector3(0, 0, .2));  // 4: top
-  kite.vertices.push(new THREE.Vector3(0, 0, -.1));  // 5: bottom
 
-  kite.faces.push(new THREE.Face3(0, 1, 4));
-  kite.faces.push(new THREE.Face3(1, 2, 4));
-  kite.faces.push(new THREE.Face3(2, 3, 4));
-  kite.faces.push(new THREE.Face3(3, 0, 4));
+  let vertices = new Float32Array([
+    .8, 0, 0,  // 0: front
+    0, .4, 0,  // 1: left
+    0, 0, .2,  // 4: top
 
-  kite.faces.push(new THREE.Face3(1, 0, 5));
-  kite.faces.push(new THREE.Face3(2, 1, 5));
-  kite.faces.push(new THREE.Face3(3, 2, 5));
-  kite.faces.push(new THREE.Face3(0, 3, 5));
+    0, .4, 0,  // 1: left
+    -.2, 0, 0,  // 2: back
+    0, 0, .2,  // 4: top
 
-  kite.computeFaceNormals();
+    -.2, 0, 0,  // 2: back
+    0, -.4, 0,  // 3: right
+    0, 0, .2,  // 4: top
+
+    0, -.4, 0,  // 3: right
+    .8, 0, 0,  // 0: front
+    0, 0, .2,  // 4: top
+
+    0, .4, 0,  // 1: left
+    .8, 0, 0,  // 0: front
+    0, 0, -.1,  // 5: bottom
+
+    -.2, 0, 0,  // 2: back
+    0, .4, 0,  // 1: left
+    0, 0, -.1,  // 5: bottom
+
+    0, -.4, 0,  // 3: right
+    -.2, 0, 0,  // 2: back
+    0, 0, -.1,  // 5: bottom
+
+    .8, 0, 0,  // 0: front
+    0, -.4, 0,  // 3: right
+    0, 0, -.1,  // 5: bottom
+  ]);
+
+  var kite = new THREE.BufferGeometry();
+  kite.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+  kite.computeVertexNormals();
 
   // object is pointing in positive y direction
   kite.rotateZ(Math.PI / 2);
@@ -198,7 +217,7 @@ export class SceneViewer {
     this.onWindowResize();
 
     // https://threejs.org/docs/#examples/controls/OrbitControls
-    this.controls_3d = new THREE.OrbitControls(this.camera_3d, this.dom);
+    this.controls_3d = new OrbitControls(this.camera_3d, this.dom);
     //this.controls_3d.minDistance = 0;
     //this.controls_3d.maxDistance = 1500;  // default: infinite
     this.controls_3d.enableDamping = true;
@@ -222,7 +241,7 @@ export class SceneViewer {
     this.reference_offset.add(this.camera_ego);
 
     // https://threejs.org/docs/#examples/controls/TransformControls
-    this.transformControls = new THREE.TransformControls(this.camera_3d, this.dom);
+    this.transformControls = new TransformControls(this.camera_3d, this.dom);
     this.transformControls.setSize(0.7);
 
     this.scene.add(this.transformControls);
@@ -268,10 +287,10 @@ export class SceneViewer {
       }
     });
 
-    this.dom.addEventListener('mousedown', function (event) {
+    this.dom.addEventListener('pointerdown', function (event) {
       let array = that.getMousePosition(event.clientX, event.clientY);
       that.onDownPosition.fromArray(array);
-      document.addEventListener('mouseup', that.onMouseUp, false );
+      document.addEventListener('pointerup', that.onMouseUp, false );
     }, false);
 
     this.dom.addEventListener('touchstart', function (event) {
@@ -413,7 +432,7 @@ export class SceneViewer {
 		let array = this.getMousePosition(event.clientX, event.clientY);
 		this.onUpPosition.fromArray(array);
 		this.handleClick();
-		document.removeEventListener('mouseup', this.onMouseUp, false);
+		document.removeEventListener('pointerup', this.onMouseUp, false);
 	}
 
 	onTouchEnd(event) {

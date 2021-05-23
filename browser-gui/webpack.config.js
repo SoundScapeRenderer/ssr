@@ -2,7 +2,6 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const DIST_PATH = 'dist';
 const NODE_MODULES = process.env.NODE_PATH || path.join(__dirname, 'node_modules');
 
 module.exports = {
@@ -22,20 +21,11 @@ module.exports = {
           'style-loader',
           'css-loader'
         ]
-      },
-      {
-        // See https://stackoverflow.com/a/44960831/
-        test: /three\/examples\/js/,
-        use: 'imports-loader?THREE=three',
       }
     ],
   },
   resolve: {
     modules: [NODE_MODULES],
-    alias: {
-      // See https://stackoverflow.com/a/44960831/
-      'three-examples': path.join(NODE_MODULES, 'three/examples/js')
-    },
   },
   resolveLoader: {
     modules: [NODE_MODULES],
@@ -51,12 +41,15 @@ module.exports = {
   devtool: 'source-map',
   mode: 'production',
   optimization: {
-    moduleIds: 'hashed',
     runtimeChunk: 'single',  // Separate chunk for webpack runtime
-    //runtimeChunk: true,  // Separate chunk for webpack runtime (per entry)
     splitChunks: {
-      chunks: 'all',
-      //chunks: 'initial',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      }
     }
   },
   performance: {

@@ -44,18 +44,26 @@ Initially, you need to install all necessary `npm` packages:
 
     yarn install
 
+You can build the GUI files with:
+
+    yarn run build
+
 During development, it is very handy if any change to the source files is
 detected and the generated files are updated automatically.
 You can achieve that by running:
 
     yarn run serve
 
-This will open your favorite web browser and show the freshly built SSR GUI.
-And it will automatically update the browser whenever changes are made to any
-source file.
+This will build the GUI, serve it at http://localhost:8080/ and automatically
+update the browser whenever changes are made to any source file.
+If you want this to automatically open your favorite web browser
+and show the freshly built SSR GUI, use:
+
+    yarn run serve --open
+
 If you want to use a different browser, just pass it along, e.g.:
 
-    yarn run serve chromium
+    yarn run serve --open chromium
 
 Maintenance
 -----------
@@ -66,7 +74,7 @@ Just for the record, the original `package.json` was:
 {
   "private": true,
   "scripts": {
-    "serve": "webpack-dev-server --open",
+    "serve": "webpack serve",
     "build": "webpack"
   }
 }

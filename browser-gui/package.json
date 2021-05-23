@@ -1,19 +1,19 @@
 {
   "private": true,
   "scripts": {
-    "serve": "webpack-dev-server --open",
+    "serve": "webpack serve",
     "build": "webpack"
   },
   "devDependencies": {
-    "css-loader": "^2.1.0",
-    "html-webpack-plugin": "^3.2.0",
-    "imports-loader": "^0.8.0",
-    "style-loader": "^0.23.1",
-    "webpack": "^4.29.1",
-    "webpack-cli": "^3.2.1",
-    "webpack-dev-server": "^3.1.14"
+    "css-loader": "^5.2.5",
+    "html-webpack-plugin": "^5.3.1",
+    "imports-loader": "^3.0.0",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.37.1",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.1"
   },
   "dependencies": {
-    "three": "^0.101.1"
+    "three": "^0.128.0"
   }
 }
