@@ -28,6 +28,7 @@
 /// Audio player using ecasound (implementation).
 
 #include <algorithm>
+#include <cassert>  // assert()
 #include <thread>   // std::this_thread::sleep_for
 #include <chrono>   // std::chrono::microseconds
 #include <jack/jack.h> // for jack_client_name_size()
@@ -36,7 +37,7 @@
 #include "maptools.h"
 #include "ssr_global.h"
 #include "apf/stringtools.h"
-#include "posixpathtools.h"
+#include "pathtools.h"
 
 using maptools::get_item;
 
@@ -121,8 +122,7 @@ AudioPlayer::Soundfile::get_format(const std::string& filename
   eca.command("cs-add dummy_chainsetup");
   eca.command("c-add dummy_chain");
 
-  eca.command("ai-add sndfile,"
-      + posixpathtools::get_escaped_filename(filename));
+  eca.command("ai-add sndfile," + pathtools::get_escaped_filename(filename));
   eca.command("ao-add null");
   eca.command("cs-connect");
   if (eca.error())
@@ -229,7 +229,7 @@ AudioPlayer::Soundfile::Soundfile(const std::string& filename, bool loop,
   }
 
   ai_add += "sndfile,";
-  ai_add += posixpathtools::get_escaped_filename(filename);
+  ai_add += pathtools::get_escaped_filename(filename);
 
   _eca.command(ai_add);
   _eca.command("ao-add jack_generic," + this->output_prefix);

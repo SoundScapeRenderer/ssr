@@ -27,6 +27,7 @@
 /// @file
 /// TODO: add description
 #include <string>
+#include <filesystem>
 #include <fstream>
 #include <cmath>
 
@@ -49,7 +50,6 @@ using apf::math::dB2linear;
 using apf::math::linear2dB;
 
 #include "apf/stringtools.h"
-#include "posixpathtools.h"
 #include "legacy_scene.h"  // for LegacyScene
 
 #define FILEMENUWIDTH 128
@@ -74,6 +74,8 @@ using apf::math::linear2dB;
 #define MAXVOLUME 12.0f
 // given by qvolumeslider
 #define MINVOLUME -50.0f
+
+namespace fs = std::filesystem;
 
 /** ctor.
  * @param controller this can be either the Controller or, if the IP interface
@@ -564,7 +566,7 @@ void ssr::QUserInterface::_save_file_as()
     std::string file_name_std = file_name.toStdString();
 
     // check file extension
-    if ( posixpathtools::get_file_extension(file_name_std) != "asd" )
+    if ( fs::path{file_name_std}.extension() != ".asd" )
     {
       file_name_std.append(".asd");
     }

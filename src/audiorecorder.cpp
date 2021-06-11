@@ -32,7 +32,7 @@
 
 #include "audiorecorder.h"
 #include "ssr_global.h"
-#include "posixpathtools.h"
+#include "pathtools.h"
 
 /** _.
  * @param audio_file_name name of audio file which will store the recording.
@@ -67,8 +67,7 @@ AudioRecorder::AudioRecorder(const std::string& audio_file_name,
   _eca.command("c-add recorder_chain");
   // TODO: check if audiofile already exists. If it exists, audio data is added
   // TODO: to the end. This is not wanted!
-  _eca.command("ao-add "
-      + posixpathtools::get_escaped_filename(audio_file_name));
+  _eca.command("ao-add " + pathtools::get_escaped_filename(audio_file_name));
   if (record_source == "")
   {
     // do not make any connections

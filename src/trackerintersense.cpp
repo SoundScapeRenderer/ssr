@@ -33,13 +33,16 @@
 
 #include <thread>   // std::this_thread::sleep_for
 #include <chrono>   // std::chrono::milliseconds
+#include <filesystem>
 #include <fstream>
+#include <sstream>
 
 #include "trackerintersense.h"
 #include "api.h"  // for Publisher
 #include "legacy_orientation.h"  // for Orientation
 #include "ssr_global.h"
-#include "posixpathtools.h"
+
+namespace fs = std::filesystem;
 
 ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
     , const std::string& ports, const unsigned int read_interval)
@@ -61,14 +64,13 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
   //close(stderr_fileno);
 
   // save current working directory
-  std::string current_path;
-  posixpathtools::getcwd(current_path);
+  auto current_path = fs::current_path();
 
   // if specific serial ports were given: use them
   if (ports != "")
   {
     // switch working directory
-    chdir("/tmp");
+    fs::current_path("/tmp");
     SSR_VERBOSE("Creating /tmp/isports.ini to configure InterSense tracker ports.");
 
     // create isports.ini
@@ -102,7 +104,7 @@ ssr::TrackerInterSense::TrackerInterSense(api::Publisher& controller
   if (ports != "")
   {
     // restore working directory
-    chdir(current_path.c_str());
+    fs::current_path(current_path);
   }
 
   // restore stdout and stderr

@@ -42,6 +42,8 @@ DOXYGEN_DOC_DIR = ../doc/doxygen
 dist_noinst_DATA = Doxyfile coding_style.txt \
 	../apf/misc/Makefile.dependencies \
 	../apf/apf/mextools.h \
+	../apf/unit_tests/catch/README \
+	../apf/unit_tests/catch/catch.hpp \
 	../gml/README.md \
 	../gml/LICENSE.txt \
 	../rapidjson/readme.md \
@@ -130,7 +132,7 @@ SSRSOURCES = \
 	legacy_orientation.h \
 	legacy_position.cpp \
 	legacy_position.h \
-	posixpathtools.h \
+	pathtools.h \
 	api.h \
 	geometry.h \
 	rendererbase.h \

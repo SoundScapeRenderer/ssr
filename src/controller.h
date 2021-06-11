@@ -90,7 +90,7 @@
 #include "rendersubscriber.h"  // for RenderSubscriber
 
 #include "geometry.h"  // for look_at()
-#include "posixpathtools.h"
+#include "pathtools.h"
 #include "apf/math.h"
 #include "apf/stringtools.h"
 
@@ -1535,14 +1535,14 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     return true;
   }
 
-  std::string file_extension = posixpathtools::get_file_extension(scene_file_name);
+  std::string file_extension = fs::path(scene_file_name).extension();
 
   if (file_extension == "")
   {
     SSR_ERROR("File name '" << scene_file_name << "' does not have an extension.");
     return false;
   }
-  else if (file_extension == "asd")
+  else if (file_extension == ".asd")
   {
     XMLParser xp; // load XML parser
     auto scene_file = xp.load_file(scene_file_name);
@@ -1662,7 +1662,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
         std::string id    = node.get_attribute("id");
         std::string properties_file = node.get_attribute("properties_file");
 
-        properties_file = posixpathtools::make_path_relative_to_current_dir(
+        properties_file = pathtools::make_path_relative_to_current_dir(
             properties_file, scene_file_name);
 
         pos_ptr.reset(); dir_ptr.reset();
@@ -1703,7 +1703,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
         if (channel != 0)  // --> soundfile
         {
           file_name_or_port_number
-            = posixpathtools::make_path_relative_to_current_dir(
+            = pathtools::make_path_relative_to_current_dir(
               file_name_or_port_number, scene_file_name);
         }
 
@@ -1723,7 +1723,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
       SSR_WARNING("No sources found in \"" << scene_file_name << "\"!");
     }
   }
-  else // file_extension != "asd" -> try to open file as audio file
+  else // file_extension != ".asd" -> try to open file as audio file
   {
     SSR_WARNING("Trying to open specified file as audio file.");
     if (!_create_spontaneous_scene(scene_file_name))
@@ -2315,7 +2315,7 @@ Controller<Renderer>::_add_sources(Node& node
       if (source.audio_file_name != "")
       {
         _add_audio_file_name(source_node
-            , posixpathtools::make_path_relative_to_file(source.audio_file_name
+            , pathtools::make_path_relative_to_file(source.audio_file_name
               , scene_file_name), source.audio_file_channel);
       }
     }
@@ -2349,7 +2349,7 @@ Controller<Renderer>::_add_sources(Node& node
     if (source.properties_file != "")
     {
       source_node.new_attribute("properties-file"
-          , posixpathtools::make_path_relative_to_file(source.properties_file
+          , pathtools::make_path_relative_to_file(source.properties_file
             , scene_file_name));
     }
   });

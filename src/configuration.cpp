@@ -38,14 +38,15 @@
 #include <stdio.h>
 #include <thread>   // std::this_thread::sleep_for
 #include <chrono>   // std::chrono::seconds
+#include <unistd.h> // isatty
 
 #include "configuration.h"
-#include "posixpathtools.h"
+#include "pathtools.h"
 #include "apf/stringtools.h"
 #include "ssr_global.h" // for ssr::verbose, SSR_WARNING(), ...
 #include "xmlparser.h"  // TODO: move this somewhere else
 
-using posixpathtools::make_path_relative_to_current_dir;
+using pathtools::make_path_relative_to_current_dir;
 using apf::str::S2A;
 
 // only needed in this file
