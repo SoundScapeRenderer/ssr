@@ -21,11 +21,6 @@ jobs:
               CC: gcc-8
               CXX: g++-8
           - os: ubuntu-latest
-            compiler-pkg: g++-7
-            env:
-              CC: gcc-7
-              CXX: g++-7
-          - os: ubuntu-latest
             compiler-pkg: clang-11
             env:
               CC: clang-11
