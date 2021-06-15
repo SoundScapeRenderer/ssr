@@ -227,6 +227,11 @@ class LegacyScene : public api::SceneControlEvents
       return _renderer_name;
     }
 
+   std::string get_instance_name() const
+    {
+      return _instance_name;
+    }
+
     std::string string_id(legacy_id_t id) const
     {
       for (const auto& [str, num]: _source_id_map)
@@ -416,6 +421,11 @@ class LegacyScene : public api::SceneControlEvents
       _renderer_name = name;
     }
 
+    void instance_name(const std::string& name) override
+    {
+      _instance_name = name;
+    }
+
     void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
     {
       _loudspeakers.assign(loudspeakers.begin(), loudspeakers.end());
@@ -487,6 +497,7 @@ class LegacyScene : public api::SceneControlEvents
     float _master_signal_level; ///< instantaneous overall signal level (linear)
     float _cpu_load;              ///< CPU load in percent
     std::string _renderer_name;
+    std::string _instance_name;
     int _sample_rate;  ///< sample rate
     /// order of mirror sources. if 0, mirror sources are deactivated
     int mirror_order;

@@ -480,6 +480,9 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   _publish(&api::RendererInformationEvents::renderer_name
       , _renderer.name());
 
+  _publish(&api::RendererInformationEvents::instance_name
+      , _renderer.client_name());
+
   _renderer.load_reproduction_setup();
 
   _publish(&api::RendererInformationEvents::loudspeakers, _get_loudspeakers());

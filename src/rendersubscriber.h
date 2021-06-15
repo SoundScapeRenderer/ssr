@@ -58,6 +58,7 @@ public:
   void get_data(api::RendererInformationEvents* subscriber)
   {
     subscriber->renderer_name(_renderer_name);
+    subscriber->instance_name(_instance_name);
     subscriber->loudspeakers(_loudspeakers);
   }
 
@@ -199,6 +200,10 @@ private:
     _renderer_name = name;
   }
 
+  void instance_name(const std::string& name) override
+  {
+    _instance_name = name;
+  }
   void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
   {
     _loudspeakers = loudspeakers;
@@ -210,6 +215,7 @@ private:
   Pos _reference_position_offset;
   Rot _reference_rotation_offset;
   std::string _renderer_name;
+  std::string _instance_name;
   std::vector<Loudspeaker> _loudspeakers;
 };
 

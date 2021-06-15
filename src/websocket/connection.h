@@ -316,6 +316,11 @@ private:
     _update_object(_state, "renderer-name", name);
   }
 
+  void instance_name(const std::string& name) override
+  {
+    _update_object(_state, "instance-name", name);
+  }
+
   void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
   {
     json::Value loudspeaker_list{json::kArrayType};

@@ -213,6 +213,9 @@ struct RendererInformationEvents
   /// Name of the renderer.
   virtual void renderer_name(const std::string& name) = 0;
 
+  /// Name of the instance (e.g. JACK client).
+  virtual void instance_name(const std::string& name) = 0;
+
   /// List of loudspeakers.  Doesn't change during the lifetime of a renderer.
   virtual void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) = 0;
 };

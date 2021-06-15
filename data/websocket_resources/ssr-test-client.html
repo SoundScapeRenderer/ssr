@@ -276,7 +276,7 @@ function resetValues(subscription)
   }
   if (!subscription || subscription === "renderer") {
     [
-      "renderer-name", "processing", "ref-pos-offset", "ref-rot-offset",
+      "renderer-name", "instance-name", "processing", "ref-pos-offset", "ref-rot-offset",
     ].forEach(id => document.getElementById(id).textContent = "n/a");
 
     document.getElementById("loudspeaker-list").innerHTML = "";
@@ -418,6 +418,7 @@ textarea {
 
   <ul>
     <li>name: <span id="renderer-name"></span></li>
+    <li>instance name: <span id="instance-name"></span></li>
     <li>processing: <span id="processing"></span></li>
     <li>reference position offset: <span id="ref-pos-offset"></span></li>
     <li>reference rotation offset: <span id="ref-rot-offset"></span></li>
