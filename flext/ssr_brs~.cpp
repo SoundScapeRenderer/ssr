@@ -51,7 +51,7 @@ class SsrFlext<ssr::BrsRenderer> : public SsrFlextBase<ssr::BrsRenderer>
         }
         std::string file_name = _get(argc, argv);
         apf::parameter_map params;
-        params.set("properties-file", file_name);
+        params.set("properties-file", _canvasdir / file_name);
         auto id = _engine.add_source("", params);
         _engine.get_source(id)->active = true;
         _source_ids.push_back(id);

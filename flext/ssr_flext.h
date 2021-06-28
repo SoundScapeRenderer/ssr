@@ -30,6 +30,7 @@
 #ifndef SSR_FLEXT_H
 #define SSR_FLEXT_H
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -52,6 +53,10 @@ FLEXT_NEW_DSP_V("ssr_" #name "~", ssr_ ## name)
 
 #include "geometry.h"  // for ssr::quat
 #include <gml/util.hpp>  // for gml::radians()
+
+#if !defined(MAXPDSTRING)
+#define MAXPDSTRING 1000
+#endif
 
 template<typename Renderer>
 class SsrFlextBase : public flext_dsp
@@ -103,6 +108,10 @@ class SsrFlextBase : public flext_dsp
     SsrFlextBase(apf::parameter_map&& params)
       : _engine(_update_params(std::move(params)))
     {
+      char buf[MAXPDSTRING];
+      this->GetCanvasDir(buf, sizeof(buf));
+      _canvasdir = std::filesystem::path{buf};
+
       _engine.load_reproduction_setup();
     }
 
@@ -117,6 +126,14 @@ class SsrFlextBase : public flext_dsp
   protected:
     apf::parameter_map _update_params(apf::parameter_map&& params)
     {
+      for (const char* key: {"reproduction_setup", "hrir_file", "prefilter_file"})
+      {
+        if (params.has_key(key))
+        {
+          params.set(key, _canvasdir / params.get<std::string>(key));
+        }
+      }
+
       params.set("block_size", Blocksize());
       params.set("sample_rate", Samplerate());
       std::string info;
@@ -130,7 +147,7 @@ class SsrFlextBase : public flext_dsp
       }
       post("%s - trying to start with following options:%s"
           , thisName(), info.c_str());
-      return params;
+      return std::move(params);
     }
 
     void _init()
@@ -533,6 +550,7 @@ class SsrFlextBase : public flext_dsp
 
   protected:
     Renderer _engine;
+    std::filesystem::path _canvasdir;
     std::vector<std::string> _source_ids;
 };
 
