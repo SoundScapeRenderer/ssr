@@ -152,7 +152,8 @@ Tested with version 0.87 (64 bit) which includes:
 Note that the site ``http://www.jackosx.com/`` is outdated. The latest version of JACK is
 available from http://jackaudio.org/downloads/.
 
-Or, you can install JACK using Homebrew_.
+Or, you can install JACK using Homebrew_, which is what we recommend. You can
+also obtain QJackCtl from there, which is a very useful GUI for JACK.
 
 .. _Homebrew: https://brew.sh/
 

@@ -1,9 +1,7 @@
 GETTING (THE SSR) STARTED
 
-You should have a proper version of Jack installed by now (32 or 64 bit - matching the architecture of the SSR build you are using). If not, get it from http://www.jackosx.com/
+You should have a proper version of Jack installed by now (32 or 64 bit - matching the architecture of the SSR build you are using). If not, get it from https://jackaudio.org/ or from Homebrew. You can also obtain QJackCtl from there. 
 
-Run JackPilot from the Jack folder located inside your Applications folder. In JackPilot press START. This will start the Jack server process in background, which is needed by the SSR.
+Open QJackCtl and hit "play". This will start the Jack server process in background, which is needed by the SSR.
 
-You can now quit JackPilot if you want - the Jack server will continue to run in background.
-
-Run the SSR itself. It consists of a GUI and a terminal window giving you information about interesting things (e.g. if you forgot to start Jack). If something is not working, have a look there.
+Start SSR. It consists of a GUI and a terminal window. The latter provides information about interesting things (e.g. if you forgot to start Jack). If something is not working, have a look there.

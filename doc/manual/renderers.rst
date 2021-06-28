@@ -767,8 +767,9 @@ test advanced methods before implementing them in real-time or to
 compare two different rendering methods by having one sound source in
 one method and another sound source in the other method.
 
-Download the ASDF examples from http://spatialaudio.net/ssr/ and check out the
-file ``generic_renderer_example.asd`` which comes with all required data.
+Download the ASDF examples from https://github.com/SoundScapeRenderer/example-scenes and check out the file ``generic_renderer_example.asd`` which comes with all required data.
+
+Look also :ref:`here <mimo>` for more general signal processing examples using SSR.
 
 .. _loudspeaker_properties:
 
