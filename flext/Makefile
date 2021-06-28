@@ -12,6 +12,10 @@ cflags += \
        -std=c++17 \
        -DENABLE_SOFA \
 
+define forDarwin
+  cflags += -mmacosx-version-min=10.15
+endef
+
 ldlibs = -lfftw3f -lsndfile -lmysofa `$(PKG_CONFIG) --libs libxml-2.0`
 
 class.sources = \
