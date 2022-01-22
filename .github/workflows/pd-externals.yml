@@ -101,6 +101,10 @@ jobs:
           release: false
           path-type: inherit
           install: >-
+            unzip
+            autogen
+            autotools
+            mingw-w64-x86_64-gcc
             mingw-w64-x86_64-fftw
             mingw-w64-x86_64-libmysofa
             mingw-w64-x86_64-ntldd-git
