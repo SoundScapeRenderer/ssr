@@ -105,7 +105,7 @@ jobs:
           brew install ${PACKAGES[@]}
           brew link qt@5 --force
           # Perl module needed for help2man
-          cpan Locale::gettext
+          #cpan Locale::gettext
       - name: Install compiler
         if: matrix.compiler-pkg
         run: |
