@@ -130,7 +130,7 @@ class SsrFlextBase : public flext_dsp
       {
         if (params.has_key(key))
         {
-          params.set(key, _canvasdir / params.get<std::string>(key));
+          params.set(key, (_canvasdir / params.get<std::string>(key)).string());
         }
       }
 
