@@ -194,8 +194,7 @@ private:
   template <typename... Args>
   void _append(Args&&... args) {
     assert(_buffer);
-    // TODO: use fmt::appender() or std::back_inserter()?
-    fmt::format_to(fmt::appender(*_buffer), std::forward<Args>(args)...);
+    fmt::format_to(std::back_inserter(*_buffer), std::forward<Args>(args)...);
   }
 
   void _send_buffer(std::shared_ptr<buffer_t>);
