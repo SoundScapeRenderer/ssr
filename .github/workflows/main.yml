@@ -6,6 +6,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            compiler-pkg: g++-11
+            env:
+              CC: gcc-11
+              CXX: g++-11
+          - os: ubuntu-latest
             compiler-pkg: g++-10
             env:
               CC: gcc-10
@@ -20,6 +25,11 @@ jobs:
             env:
               CC: gcc-8
               CXX: g++-8
+          - os: ubuntu-latest
+            compiler-pkg: clang-12
+            env:
+              CC: clang-12
+              CXX: clang++-12
           - os: ubuntu-latest
             compiler-pkg: clang-11
             env:
