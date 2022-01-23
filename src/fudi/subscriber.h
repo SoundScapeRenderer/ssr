@@ -191,57 +191,58 @@ public:
   void quaternions(bool value) { _quaternions = value; }
 
 private:
+  template <typename... Args>
+  void _append(Args&&... args) {
+    assert(_buffer);
+    // TODO: use fmt::appender() or std::back_inserter()?
+    fmt::format_to(fmt::appender(*_buffer), std::forward<Args>(args)...);
+  }
+
   void _send_buffer(std::shared_ptr<buffer_t>);
 
   void _source_id(id_t id)
   {
-    assert(_buffer);
     if (_source_numbers)
     {
       unsigned int number = _controller.get_source_number(id);
-      fmt::format_to(*_buffer, "src {} ", number);
+      _append("src {} ", number);
     }
     else
     {
-      fmt::format_to(*_buffer, "src {} ", id);
+      _append("src {} ", id);
     }
   }
 
   void _escaped_string(std::string_view str)
   {
-    assert(_buffer);
     for (size_t idx = 0; idx < str.size(); ++idx)
     {
       auto previous_idx = idx;
       idx = str.find_first_of(" \n\t\r\\;", idx);
-      fmt::format_to(*_buffer, str.substr(previous_idx, idx - previous_idx));
+      _append(str.substr(previous_idx, idx - previous_idx));
       if (idx == std::string_view::npos)
       {
         break;
       }
-      fmt::format_to(*_buffer, "\\{}", str[idx]);
+      _append("\\{}", str[idx]);
     }
   }
 
   void _pos(const Pos& pos)
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "pos {:f} {:f} {:f};\n", pos.x, pos.y, pos.z);
+    _append("pos {:f} {:f} {:f};\n", pos.x, pos.y, pos.z);
   }
 
   void _rot(const Rot& rot)
   {
-    assert(_buffer);
     if (_quaternions)
     {
-      fmt::format_to(*_buffer, "quat {:f} {:f} {:f} {:f};\n"
-          , rot.x, rot.y, rot.z, rot.w);
+      _append("quat {:f} {:f} {:f} {:f};\n", rot.x, rot.y, rot.z, rot.w);
     }
     else
     {
       auto [azimuth, elevation, roll] = quat2angles(rot);
-      fmt::format_to(*_buffer, "rot {:f} {:f} {:f};\n"
-          , azimuth, elevation, roll);
+      _append("rot {:f} {:f} {:f};\n", azimuth, elevation, roll);
     }
   }
 
@@ -279,8 +280,7 @@ private:
   void source_active(id_t id, bool active) override
   {
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "active {:d};\n", active);
+    _append("active {:d};\n", active);
   }
 
   void source_position(id_t id, const Pos& position) override
@@ -298,58 +298,50 @@ private:
   void source_volume(id_t id, float volume) override
   {
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "vol {:f};\n", volume);
+    _append("vol {:f};\n", volume);
   }
 
   void source_mute(id_t id, bool mute) override
   {
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "mute {:d};\n", mute);
+    _append("mute {:d};\n", mute);
   }
 
   void source_name(id_t id, const std::string& name) override
   {
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "name ");
+    _append("name ");
     _escaped_string(name);
-    fmt::format_to(*_buffer, ";\n");
+    _append(";\n");
   }
 
   void source_model(id_t id, const std::string& model) override
   {
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "model {};\n", model);
+    _append("model {};\n", model);
   }
 
   void source_fixed(id_t id, bool fixed) override
   {
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "fixed {:d};\n", fixed);
+    _append("fixed {:d};\n", fixed);
   }
 
   void reference_position(const Pos& position) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "ref ");
+    _append("ref ");
     _pos(position);
   }
 
   void reference_rotation(const Rot& rotation) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "ref ");
+    _append("ref ");
     _rot(rotation);
   }
 
   void master_volume(float volume) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "vol {:f};\n", volume);
+    _append("vol {:f};\n", volume);
   }
 
   void decay_exponent(float exponent) override
@@ -366,16 +358,14 @@ private:
 
   void transport_rolling(bool rolling) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "transport {:d};\n", rolling);
+    _append("transport {:d};\n", rolling);
   }
 
   // SceneInformationEvents
 
   void sample_rate(int rate) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "samplerate {:d};\n", rate);
+    _append("samplerate {:d};\n", rate);
   }
 
   void new_source(id_t id) override
@@ -397,21 +387,18 @@ private:
 
   void processing(bool processing_state) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "processing {:d};\n", processing_state);
+    _append("processing {:d};\n", processing_state);
   }
 
   void reference_position_offset(const Pos& position) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "ref offset ");
+    _append("ref offset ");
     _pos(position);
   }
 
   void reference_rotation_offset(const Rot& rotation) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "ref offset ");
+    _append("ref offset ");
     _rot(rotation);
   }
 
@@ -419,10 +406,9 @@ private:
 
   void renderer_name(const std::string& name) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "renderer-name ");
+    _append("renderer-name ");
     _escaped_string(name);
-    fmt::format_to(*_buffer, ";\n");
+    _append(";\n");
   }
 
   void loudspeakers(const std::vector<Loudspeaker>& loudspeakers) override
@@ -435,8 +421,7 @@ private:
 
   void transport_frame(uint32_t frame) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "frame {:d};\n", frame);
+    _append("frame {:d};\n", frame);
   }
 
   // SourceMetering
@@ -444,16 +429,14 @@ private:
   void source_level(id_t id, float level) override
   {
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "level {:f};\n", level);
+    _append("level {:f};\n", level);
   }
 
   // MasterMetering
 
   void master_level(float level) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "level {:f};\n", level);
+    _append("level {:f};\n", level);
   }
 
   // OutputActivity
@@ -462,21 +445,19 @@ private:
   {
     if (begin == end) { return; }
     _source_id(id);
-    assert(_buffer);
-    fmt::format_to(*_buffer, "output-activity");
+    _append("output-activity");
     for (auto* ptr = begin; ptr != end; ++ptr)
     {
-      fmt::format_to(*_buffer, " {:f}", *ptr);
+      _append(" {:f}", *ptr);
     }
-    fmt::format_to(*_buffer, ";\n");
+    _append(";\n");
   }
 
   // CpuLoad
 
   void cpu_load(float load) override
   {
-    assert(_buffer);
-    fmt::format_to(*_buffer, "cpu-load {:.2f};\n", load);
+    _append("cpu-load {:.2f};\n", load);
   }
 
   Connection& _connection;
