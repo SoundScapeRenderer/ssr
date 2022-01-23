@@ -13,19 +13,17 @@ Source positions and other parameters can be controlled by sending messages to
 the leftmost inlet of the external.
 
 Each renderer is available as a separate external, namely
-`ssr_binaural~`, `ssr_dca~`, `ssr_aap~`, `ssr_wfs~` and `ssr_vbap~`.
+`ssr_binaural~`, `ssr_brs~`, `ssr_dca~`, `ssr_aap~`, `ssr_wfs~` and `ssr_vbap~`.
 
 
 Requirements
 ------------
 
-Get the [flext][] submodule:
+Get the submodules:
 
     git submodule update --init
 
-[flext]: http://grrrr.org/research/software/flext/
-
-Once that's available, the SSR externals can be compiled with:
+Once those are available, the SSR externals can be compiled with:
 
     make
 
@@ -41,19 +39,25 @@ Usage
 See the files `ssr_*-help.pd` for how to use the SSR externals.
 
 The externals support up to two numeric arguments and up to two string
-arguments.
-The first numeric argument specifies the number of sources (default 1), the
-second argument sets the number of threads to be used (default 1).
+arguments (`ssr_brs~` expects different arguments, see below).
+The first numeric argument specifies the number of sources (default: 1),
+the second argument sets the number of threads to be used
+(default: as many as processor cores).
 The string arguments are renderer-specific. The loudspeaker-based renderers
-expect the name for the reproduction setup file, the binaural renderer
+expect the name of the reproduction setup file, the binaural renderer
 (`ssr_binaural~`) expects the name of the HRIR file.
 The WFS renderer (`ssr_wfs~`) expects a second string argument with the name of
 the prefilter file.
+
+The `ssr_brs~` external does *not* expect a numeric argument for the number of
+sources.  Instead, a list of BRIR file names can be specified, each of which
+will create a source.
+The number of threads can be specified as an optional first argument
+(again, by default as many threads as available processors are used).
 
 
 Supported Platforms
 -------------------
 
-Currently, the externals should work with Pd on Linux and macOS.
-Theoretically they could also work on Windows, but probably some further
-modifications are necessary.
+All externals *should* work with Pd on Linux, macOS and Windows.  If not,
+please open an issue at <https://github.com/SoundScapeRenderer/ssr/issues>.
