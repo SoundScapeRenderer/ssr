@@ -106,12 +106,9 @@ class SsrFlextBase : public flext_dsp
 
   public:
     SsrFlextBase(apf::parameter_map&& params)
-      : _engine(_update_params(std::move(params)))
+      : _canvasdir{_init_canvasdir()}
+      , _engine(_update_params(std::move(params)))
     {
-      char buf[MAXPDSTRING];
-      this->GetCanvasDir(buf, sizeof(buf));
-      _canvasdir = std::filesystem::path{buf};
-
       _engine.load_reproduction_setup();
     }
 
@@ -124,6 +121,14 @@ class SsrFlextBase : public flext_dsp
     }
 
   protected:
+    // NB: This has to be called before _update_params()!
+    std::filesystem::path _init_canvasdir()
+    {
+      char buf[MAXPDSTRING];
+      this->GetCanvasDir(buf, sizeof(buf));
+      return {buf};
+    }
+
     apf::parameter_map _update_params(apf::parameter_map&& params)
     {
       for (const char* key: {"reproduction_setup", "hrir_file", "prefilter_file"})
@@ -549,8 +554,8 @@ class SsrFlextBase : public flext_dsp
     }
 
   protected:
-    Renderer _engine;
     std::filesystem::path _canvasdir;
+    Renderer _engine;
     std::vector<std::string> _source_ids;
 };
 
