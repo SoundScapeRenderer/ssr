@@ -28,6 +28,7 @@
 #ifndef SSR_FUDI_SUBSCRIBER_H
 #define SSR_FUDI_SUBSCRIBER_H
 
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #include "api.h"
