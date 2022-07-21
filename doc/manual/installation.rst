@@ -52,10 +52,10 @@ tracking the master branch, is available in the `Arch User Repository`_
 (`AUR`_). This requires to be built manually, as is explained in the following
 subsection.
 
-.. _`Arch Linux`: https://www.archlinux.org
+.. _`Arch Linux`: https://archlinux.org
 .. _`package script`: https://aur.archlinux.org/packages/ssr-git/
-.. _`PKGBUILD`: https://wiki.archlinux.org/index.php/PKGBUILD
-.. _`Arch User Repository`: https://wiki.archlinux.org/index.php/Arch_User_Repository
+.. _`PKGBUILD`: https://wiki.archlinux.org/title/PKGBUILD
+.. _`Arch User Repository`: https://wiki.archlinux.org/title/Arch_User_Repository
 
 Building and installing with makepkg
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -75,8 +75,8 @@ the resulting packages is to use `makepkg`_ in a `manual build process`_.
     makepkg -csi
 
 .. _AUR: https://aur.archlinux.org
-.. _makepkg: https://wiki.archlinux.org/index.php/Makepkg
-.. _`manual build process`: https://wiki.archlinux.org/index.php/Arch_User_Repository#Installing_and_upgrading_packages
+.. _makepkg: https://wiki.archlinux.org/title/Makepkg
+.. _`manual build process`: https://wiki.archlinux.org/title/Arch_User_Repository#Installing_and_upgrading_packages
 
 
 .. _debian_package:
@@ -95,7 +95,7 @@ dependencies should be installed automatically.
     sudo aptitude install soundscaperenderer
 
 .. _`Debian package`: https://packages.debian.org/search?keywords=soundscaperenderer
-.. _`Ubuntu package`: http://packages.ubuntu.com/search?keywords=soundscaperenderer
+.. _`Ubuntu package`: https://packages.ubuntu.com/search?keywords=soundscaperenderer
 
 If you don't need the :doc:`gui`, there is also the GUI-less package
 ``soundscaperenderer-nox`` with fewer dependencies.
@@ -150,7 +150,7 @@ Tested with version 0.87 (64 bit) which includes:
 - JackPilot 1.7.0
 
 Note that the site ``http://www.jackosx.com/`` is outdated. The latest version of JACK is
-available from http://jackaudio.org/downloads/.
+available from https://jackaudio.org/downloads/.
 
 Or, you can install JACK using Homebrew_.
 

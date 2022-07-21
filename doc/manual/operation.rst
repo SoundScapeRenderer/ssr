@@ -503,7 +503,7 @@ for instructions).
 
 If you are using a USB-to-Serial interface with your tracker, you need to
 install drivers for that. This seems to work fine for the interface made by
-InterSense: http://www.ftdichip.com/Drivers/VCP.htm
+InterSense: https://ftdichip.com/drivers/vcp-drivers/
 
 To check if the system sees the tracker do::
 
@@ -541,7 +541,7 @@ tracking, an alternative would be to use our DIY low-cost `Razor AHRS tracker`_.
   https://github.com/Razor-AHRS/razor-9dof-ahrs/wiki/Tutorial
 
 If you have Arduino installed on you machine, FTDI drivers will be there too.
-Otherwise get the driver from http://www.ftdichip.com/Drivers/VCP.htm .
+Otherwise get the driver from https://ftdichip.com/drivers/vcp-drivers/.
 
 To check if the system sees the tracker do::
 
