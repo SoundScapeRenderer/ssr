@@ -19,7 +19,7 @@ jobs:
           submodules: true
           path: 'test path with spaces/ssr'
       - name: Build dependencies
-        working-directory: ssr/ci
+        working-directory: 'test path with spaces/ssr/ci'
         run: |
           sudo chown -R $(whoami):admin /usr/local
           ./build-small-libsndfile.sh
@@ -61,7 +61,7 @@ jobs:
           submodules: true
           path: 'test path with spaces/ssr'
       - name: Build dependencies
-        working-directory: ssr/ci
+        working-directory: 'test path with spaces/ssr/ci'
         run: |
           ./build-small-libsndfile.sh
       - name: checkout libmysofa
