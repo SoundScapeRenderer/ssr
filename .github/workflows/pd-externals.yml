@@ -14,7 +14,7 @@ jobs:
           )
           sudo apt-get install --no-install-recommends ${PACKAGES[@]}
       - name: checkout ssr
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
           path: ssr
@@ -34,7 +34,7 @@ jobs:
         run: |
           sh pd-lib-builder-iem-ci/pd-lib-builder/localdeps.linux.sh build/ssr_*.pd_linux
       - name: upload Linux externals
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux-externals
           path: ssr/flext/build/*
@@ -56,7 +56,7 @@ jobs:
           brew install ${PACKAGES[@]}
           brew install --cask pd
       - name: checkout ssr
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
           path: ssr
@@ -65,7 +65,7 @@ jobs:
         run: |
           ./build-small-libsndfile.sh
       - name: checkout libmysofa
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: hoene/libmysofa
           path: libmysofa
@@ -84,7 +84,7 @@ jobs:
         run: |
           sh pd-lib-builder-iem-ci/pd-lib-builder/localdeps.macos.sh build/ssr_*.pd_darwin
       - name: upload macOS externals
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: macos-externals
           path: ssr/flext/build/*
@@ -117,7 +117,7 @@ jobs:
           rm -f Pd.zip
           export PD="${PROGRAMFILES}/pd/bin/pd.com"
       - name: checkout ssr
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
           path: ssr
@@ -137,7 +137,7 @@ jobs:
         run: |
           sh pd-lib-builder-iem-ci/pd-lib-builder/localdeps.win.sh build/ssr_*.dll
       - name: upload Windows externals
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: windows-externals
           path: ssr/flext/build/*
@@ -147,22 +147,22 @@ jobs:
     needs: [linux, macos, windows]
     steps:
       - name: Clone Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # check out all tags to get proper version in Deken package
           fetch-depth: 0
       - name: Retrieve Linux externals
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: linux-externals
           path: ssr
       - name: Retrieve macOS external
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: macos-externals
           path: ssr
       - name: Retrieve Windows external
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: windows-externals
           path: ssr
@@ -176,7 +176,7 @@ jobs:
         run: |
           deken package -v $(git describe --tags --always) --objects flext/objects.txt ssr
       - name: Upload deken package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Deken package
           path: "*.dek*"
