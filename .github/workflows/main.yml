@@ -48,6 +48,9 @@ jobs:
               CXX: clang++-9
               CXXFLAGS: -fno-builtin
           - os: macos-latest
+            xcode: Xcode_14
+            env: {}
+          - os: macos-latest
             xcode: Xcode_13.2.1
             env: {}
           - os: macos-latest
