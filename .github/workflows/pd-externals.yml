@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
-          path: ssr
+          path: 'test path with spaces/ssr'
       - name: Build dependencies
         working-directory: ssr/ci
         run: |
@@ -26,18 +26,18 @@ jobs:
           ./build-small-libxml2.sh
           sudo ldconfig
       - name: build externals
-        working-directory: ssr/flext
+        working-directory: 'test path with spaces/ssr/flext'
         run: |
           make install DESTDIR=build PDLIBDIR=
       - name: Fix pd_linux dependencies
-        working-directory: ssr/flext
+        working-directory: 'test path with spaces/ssr/flext'
         run: |
           sh pd-lib-builder-iem-ci/pd-lib-builder/localdeps.linux.sh build/ssr_*.pd_linux
       - name: upload Linux externals
         uses: actions/upload-artifact@v3
         with:
           name: linux-externals
-          path: ssr/flext/build/*
+          path: 'test path with spaces/ssr/flext/build/*'
 
   macos:
     runs-on: macos-latest
@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
-          path: ssr
+          path: 'test path with spaces/ssr'
       - name: Build dependencies
         working-directory: ssr/ci
         run: |
@@ -68,26 +68,26 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: hoene/libmysofa
-          path: libmysofa
+          path: 'test path with spaces/libmysofa'
       - name: build libmysofa
-        working-directory: libmysofa/build
+        working-directory: 'test path with spaces/libmysofa/build'
         run: |
           cmake ..
           make
           make install
       - name: build externals
-        working-directory: ssr/flext
+        working-directory: 'test path with spaces/ssr/flext'
         run: |
           make install DESTDIR=build PDLIBDIR=
       - name: Fix pd_darwin dependencies
-        working-directory: ssr/flext
+        working-directory: 'test path with spaces/ssr/flext'
         run: |
           sh pd-lib-builder-iem-ci/pd-lib-builder/localdeps.macos.sh build/ssr_*.pd_darwin
       - name: upload macOS externals
         uses: actions/upload-artifact@v3
         with:
           name: macos-externals
-          path: ssr/flext/build/*
+          path: 'test path with spaces/ssr/flext/build/*'
 
   windows:
     runs-on: windows-latest
@@ -120,27 +120,27 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
-          path: ssr
+          path: 'test path with spaces/ssr'
       - name: Build dependencies
-        working-directory: ssr/ci
+        working-directory: 'test path with spaces/ssr/ci'
         run: |
           # https://github.com/msys2/MINGW-packages/issues/5803
           export LIBS=-lssp
           ./build-small-libsndfile.sh
           ./build-small-libxml2.sh
       - name: build externals
-        working-directory: ssr/flext
+        working-directory: 'test path with spaces/ssr/flext'
         run: |
           make install DESTDIR=build PDLIBDIR=
       - name: Fix dll dependencies
-        working-directory: ssr/flext
+        working-directory: 'test path with spaces/ssr/flext'
         run: |
           sh pd-lib-builder-iem-ci/pd-lib-builder/localdeps.win.sh build/ssr_*.dll
       - name: upload Windows externals
         uses: actions/upload-artifact@v3
         with:
           name: windows-externals
-          path: ssr/flext/build/*
+          path: 'test path with spaces/ssr/flext/build/*'
 
   deken-package:
     runs-on: ubuntu-latest
