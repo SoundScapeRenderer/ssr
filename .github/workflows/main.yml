@@ -77,7 +77,6 @@ jobs:
         run: |
           pwd
           cd 'test path with spaces'
-          pwd
           ls
       - name: Select Xcode
         if: matrix.xcode
@@ -143,10 +142,16 @@ jobs:
       - name: Build some Linux dependencies from source
         if: startsWith(matrix.os, 'ubuntu')
         run: |
+          pwd
+          cd 'test path with spaces'
+          pwd
           ci/build-deps-ubuntu.sh
       - name: Build some macOS dependencies from source
         if: startsWith(matrix.os, 'macos')
         run: |
+          pwd
+          cd 'test path with spaces'
+          pwd
           ci/build-deps-macos.sh
       - name: upload VRPN logs
         if: failure() && startsWith(matrix.os, 'ubuntu')
