@@ -73,6 +73,9 @@ jobs:
         with:
           submodules: true
           path: 'test path with spaces'
+      - name: Change into nasty path
+        run: |
+          cd 'test path with spaces'
       - name: Select Xcode
         if: matrix.xcode
         run: |
