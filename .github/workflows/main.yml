@@ -75,7 +75,10 @@ jobs:
           path: 'test path with spaces'
       - name: Change into nasty path
         run: |
+          pwd
           cd 'test path with spaces'
+          pwd
+          ls
       - name: Select Xcode
         if: matrix.xcode
         run: |
