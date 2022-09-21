@@ -2,6 +2,9 @@ name: Build SSR with different compilers
 on: [push, pull_request]
 jobs:
   build:
+    defaults:
+      run:
+        working-directory: 'test path with spaces'
     strategy:
       fail-fast: false
       matrix:
@@ -72,12 +75,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
-          path: 'test path with spaces'
-      - name: Change into nasty path
-        run: |
-          pwd
-          cd 'test path with spaces'
-          ls
       - name: Select Xcode
         if: matrix.xcode
         run: |
@@ -143,14 +140,10 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           pwd
-          cd 'test path with spaces'
-          pwd
           ci/build-deps-ubuntu.sh
       - name: Build some macOS dependencies from source
         if: startsWith(matrix.os, 'macos')
         run: |
-          pwd
-          cd 'test path with spaces'
           pwd
           ci/build-deps-macos.sh
       - name: upload VRPN logs
