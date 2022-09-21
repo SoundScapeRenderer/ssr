@@ -2,9 +2,6 @@ name: Build SSR with different compilers
 on: [push, pull_request]
 jobs:
   build:
-    defaults:
-      run:
-        working-directory: 'test path with spaces'
     strategy:
       fail-fast: false
       matrix:
@@ -70,11 +67,15 @@ jobs:
             env: {}
     runs-on: ${{ matrix.os }}
     env: ${{ matrix.env }}
+    defaults:
+      run:
+        working-directory: 'test path with spaces'
     steps:
       - name: Clone Git repo
         uses: actions/checkout@v3
         with:
           submodules: true
+          path: 'test path with spaces'
       - name: Select Xcode
         if: matrix.xcode
         run: |
@@ -151,7 +152,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} VRPN logs
-          path: "vrpn/build/CMakeFiles/*.log"
+          path: 'test path with spaces/vrpn/build/CMakeFiles/*.log'
       - name: Download and unzip InterSense SDK
         run: |
           wget https://www.intersense.com/wp-content/uploads/2018/12/InterSense_SDK_4.2381.zip
@@ -178,7 +179,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} configure log
-          path: config.log
+          path: 'test path with spaces/config.log'
       - run: |
           make
       - run: |
