@@ -28,7 +28,7 @@ AM_CPPFLAGS += -I$(srcdir)/../rapidjson/include
 if ENABLE_APP_BUNDLE
 AM_CPPFLAGS += -DSSR_DATA_DIR=\"SoundScapeRenderer.app/Contents/Resources\"
 else
-AM_CPPFLAGS += -DSSR_DATA_DIR=\"$(pkgdatadir)\"
+AM_CPPFLAGS += -DSSR_DATA_DIR="\"$(pkgdatadir)\""
 endif
 
 ## this is somehow needed for Solaris (or not?)
