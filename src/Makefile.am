@@ -20,8 +20,10 @@ EXTRA_PROGRAMS = ssr-binaural ssr-wfs ssr-generic ssr-brs ssr-dca ssr-vbap ssr-a
 
 AM_CPPFLAGS =
 
-## Add Audio Processing Framework (APF) path
+## Add include paths for Git submodules
 AM_CPPFLAGS += -I$(srcdir)/../apf
+AM_CPPFLAGS += -I$(srcdir)/../gml/include
+AM_CPPFLAGS += -I$(srcdir)/../rapidjson/include
 
 if ENABLE_APP_BUNDLE
 AM_CPPFLAGS += -DSSR_DATA_DIR=\"SoundScapeRenderer.app/Contents/Resources\"
