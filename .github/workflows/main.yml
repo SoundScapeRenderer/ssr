@@ -46,16 +46,19 @@ jobs:
               CC: clang-9
               CXX: clang++-9
               CXXFLAGS: -fno-builtin
-          - os: macos-latest
+          - os: macos-12
+            xcode: Xcode_14.1
+            env: {}
+          - os: macos-12
+            xcode: Xcode_13.4.1
+            env: {}
+          - os: macos-11
             xcode: Xcode_13.2.1
             env: {}
-          - os: macos-latest
-            xcode: Xcode_13.1
-            env: {}
-          - os: macos-latest
+          - os: macos-11
             xcode: Xcode_12.5.1
             env: {}
-          - os: macos-latest
+          - os: macos-11
             xcode: Xcode_11.7
             env: {}
     runs-on: ${{ matrix.os }}
