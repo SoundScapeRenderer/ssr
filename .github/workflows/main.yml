@@ -64,9 +64,6 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.1
             env: {}
-          - os: macos-12
-            xcode: Xcode_13.4.1
-            env: {}
           - os: macos-11
             xcode: Xcode_13.2.1
             env: {}
