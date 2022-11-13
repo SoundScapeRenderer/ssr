@@ -80,7 +80,7 @@ jobs:
     env: ${{ matrix.env }}
     steps:
       - name: Clone Git repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
       - name: Select Xcode
@@ -154,7 +154,7 @@ jobs:
           ci/build-deps-macos.sh
       - name: upload VRPN logs
         if: failure() && startsWith(matrix.os, 'ubuntu')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} VRPN logs
           path: "vrpn/build/CMakeFiles/*.log"
@@ -181,7 +181,7 @@ jobs:
           ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-fudi-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --enable-intersense --disable-browser-gui
       - name: upload config.log
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} configure log
           path: config.log
