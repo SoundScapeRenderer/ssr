@@ -57,6 +57,11 @@ jobs:
             ./autogen.sh
             ./configure $CONFIGURE_FLAGS
 
+      - store_artifacts:
+          name: Uploading config.log
+          path: config.log
+          destination: config.log
+
       - run:
           name: Building the SSR
           command: |
