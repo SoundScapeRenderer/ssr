@@ -36,6 +36,7 @@ jobs:
             apt-get update
             apt-get install -y \
               automake \
+              binutils \
               doxygen \
               help2man \
               libfftw3-dev \
