@@ -74,6 +74,19 @@ jobs:
           destination: browser-gui
 
       - run:
+          name: Building HTML Manual
+          command: |
+            cd doc/manual
+            make html -W --keep-going
+
+      - run:
+          name: Building PDF Manual
+          command: |
+            cd doc/manual
+            make latexpdf
+
+      # NB: The PDF manual must be built before creating the tarball!
+      - run:
           name: Creating tarball
           command: |
             make distcheck DISTCHECK_CONFIGURE_FLAGS="$CONFIGURE_FLAGS"
@@ -95,22 +108,10 @@ jobs:
           path: doc/doxygen/html
           destination: doxygen
 
-      - run:
-          name: Building HTML Manual
-          command: |
-            cd doc/manual
-            make html -W --keep-going
-
       - store_artifacts:
           name: Uploading HTML Manual
           path: doc/manual/_build/html
           destination: manual
-
-      - run:
-          name: Building PDF Manual
-          command: |
-            cd doc/manual
-            make latexpdf
 
       - store_artifacts:
           name: Uploading PDF Manual
