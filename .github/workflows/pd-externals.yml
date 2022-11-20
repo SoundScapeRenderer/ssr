@@ -152,17 +152,17 @@ jobs:
           # check out all tags to get proper version in Deken package
           fetch-depth: 0
       - name: Retrieve Linux externals
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: linux-externals
           path: ssr
       - name: Retrieve macOS external
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: macos-externals
           path: ssr
       - name: Retrieve Windows external
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: windows-externals
           path: ssr
