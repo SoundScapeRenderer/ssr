@@ -38,18 +38,14 @@ jobs:
               CXXFLAGS: -fno-builtin
           - os: macos-12
             xcode: Xcode_14.1
-            env: {}
           - os: macos-11
             xcode: Xcode_13.2.1
-            env: {}
           - os: macos-11
             xcode: Xcode_12.5.1
-            env: {}
           - os: macos-11
             xcode: Xcode_11.7
-            env: {}
     runs-on: ${{ matrix.os }}
-    env: ${{ matrix.env }}
+    env: ${{ matrix.env || fromJSON('{}') }}
     steps:
       - name: Clone Git repo
         uses: actions/checkout@v3
