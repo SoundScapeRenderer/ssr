@@ -36,26 +36,11 @@ jobs:
               CC: clang-14
               CXX: clang++-14
           - os: ubuntu-22.04
-            compiler-pkg: clang-13
-            env:
-              CC: clang-13
-              CXX: clang++-13
-          - os: ubuntu-latest
             compiler-pkg: clang-12
             env:
               CC: clang-12
               CXX: clang++-12
-          - os: ubuntu-latest
-            compiler-pkg: clang-11
-            env:
-              CC: clang-11
-              CXX: clang++-11
-          - os: ubuntu-latest
-            compiler-pkg: clang-10
-            env:
-              CC: clang-10
-              CXX: clang++-10
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             compiler-pkg: clang-9
             env:
               CC: clang-9
