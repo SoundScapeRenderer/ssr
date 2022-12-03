@@ -10,22 +10,12 @@ jobs:
             env:
               CC: gcc-12
               CXX: g++-12
-          - os: ubuntu-latest
-            compiler-pkg: g++-11
-            env:
-              CC: gcc-11
-              CXX: g++-11
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             compiler-pkg: g++-10
             env:
               CC: gcc-10
               CXX: g++-10
-          - os: ubuntu-latest
-            compiler-pkg: g++-9
-            env:
-              CC: gcc-9
-              CXX: g++-9
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             compiler-pkg: g++-8
             env:
               CC: gcc-8
