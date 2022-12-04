@@ -18,11 +18,11 @@ export PATH := $(PATH):$(abs_builddir)/node_modules/.bin
 export NODE_PATH := $(abs_builddir)/node_modules
 
 YARN_OPTIONS = --no-progress --non-interactive \
-	--cwd $(abs_srcdir) \
-	--modules-folder $(NODE_PATH)
+	--cwd "$(abs_srcdir)" \
+	--modules-folder "$(NODE_PATH)"
 
-WEBPACK_PATH = $(abs_builddir)/../data/websocket_resources
-INSTALL_PATH = $(DESTDIR)$(pkgdatadir)/websocket_resources
+WEBPACK_PATH = "$(abs_builddir)/../data/websocket_resources"
+INSTALL_PATH = "$(DESTDIR)$(pkgdatadir)/websocket_resources"
 
 all-local: $(WEBPACK_PATH)/index.html
 

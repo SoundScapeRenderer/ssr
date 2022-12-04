@@ -233,7 +233,8 @@ named ``FILE``. The order of channels corresponds to the order of loudspeakers
 specifed in the reproduction setup (see Sections
 :ref:`Reproduction Setups <reproduction_setups>` and
 :ref:`ASDF <asdf>`). The recording can then be used to analyze the SSR output or
-to replay it without the SSR using a software player like ``ecaplay`` (http://eca.cx/ecasound/).
+to replay it without the SSR using a software player like ``ecaplay``
+(http://nosignal.fi/ecasound/).
 
 
 .. _head_tracking:

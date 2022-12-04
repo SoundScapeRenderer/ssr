@@ -261,14 +261,14 @@ dnl NOTE: -pthread works on GCC, other compilers may need differnt flags!
 AS_IF([test x$GCC = xyes],
       [CXXFLAGS="$CXXFLAGS -pthread"])
 
-abs_srcdir=`(cd $srcdir && pwd)`
-
 dnl https://github.com/ilmola/gml
-CPPFLAGS="$CPPFLAGS -I$abs_srcdir/gml/include"
+CPPFLAGS_backup="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -I$srcdir/gml/include"
 AC_CHECK_HEADER([gml/vec.hpp], , [AC_MSG_ERROR([GML library cannot be found.  Update your Git submodules with:
 
     git submodule update --init
 ])])
+CPPFLAGS="$CPPFLAGS_backup"
 
 ENABLE_AUTO([optimization], [code optimization],
 [
@@ -543,8 +543,10 @@ ENABLE_FORCED([websocket-interface], [WebSocket interface (needs WebSocket++ and
   CPPFLAGS="$CPPFLAGS -DASIO_STANDALONE"
   AC_CHECK_HEADER([asio.hpp], , [have_websocket_interface=no])
   AC_CHECK_HEADER([websocketpp/server.hpp], , [have_websocket_interface=no])
-  CPPFLAGS="$CPPFLAGS -I$abs_srcdir/rapidjson/include"
+  CPPFLAGS_backup="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS -I$srcdir/rapidjson/include"
   AC_CHECK_HEADER([rapidjson/document.h], , [have_websocket_interface=no])
+  CPPFLAGS="$CPPFLAGS_backup"
 ])
 
 ENABLE_AUTO([fudi-interface], [FUDI interface (needs Asio and {fmt})],

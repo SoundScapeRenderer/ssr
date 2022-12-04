@@ -75,7 +75,7 @@ Only ``WAVE_FORMAT_PCM`` and ``WAVE_FORMAT_IEEE_FLOAT`` are supported.
 
 Multi-channel WAV files would normally use the format
 ``WAVE_FORMAT_EXTENSIBLE``, see
-http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html.
+https://web.archive.org/web/20220911060540/http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html.
 
 However, Ecasound doesn't know this format, that's why we have to use one of
 the above mentioned formats, although for files with more than 2 channels this
