@@ -143,7 +143,9 @@ jobs:
           path: 'test path with spaces/ssr/flext/build/*'
 
   deken-package:
-    runs-on: ubuntu-latest
+    # Deken is not available on 22.04,
+    # see https://github.com/pure-data/deken/issues/260
+    runs-on: ubuntu-20.04
     needs: [linux, macos, windows]
     steps:
       - name: Clone Git repository
