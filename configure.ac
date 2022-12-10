@@ -105,7 +105,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], ,
 dnl Add support for the `--enable-shared' and `--disable-shared' configure flags
 dnl we don't need that (yet)
 LT_INIT
-dnl AM_PROG_LIBTOOL
 
 dnl set the output variable LN_S (used in data/Makefile.am)
 AC_PROG_LN_S
@@ -114,11 +113,6 @@ dnl If the C compiler does not accept the -c and -o options simultaneously,
 dnl define NO_MINUS_C_MINUS_O.
 dnl TODO: check if we need AM_PROG_CC_C_O!
 dnl AM_PROG_CC_C_O
-
-dnl Macro AC_PROG_LD is obsolete.
-dnl Please use LT_PATH_LD when necessity is discovered.
-dnl see: http://lists.gnu.org/archive/html/autoconf/2010-05/msg00016.html
-dnl AC_PROG_LD
 
 dnl Check how the architecture deals with big-endian.
 dnl The default for action-if-true is to define ‘WORDS_BIGENDIAN’. The default
@@ -329,14 +323,12 @@ ENABLE_AUTO([mmx], [MMX support],
       AS_IF([test x$have_mmx = xyes],
       [
         AC_MSG_CHECKING([whether we can compile MMX code])
-        AC_TRY_LINK( ,
-          asm ("movq 0, %mm0");
-        ,
-        [
+        AC_LINK_IFELSE([
+          AC_LANG_PROGRAM([[]], [[asm ("movq 0, %mm0");]])
+        ],[
           OPT_FLAGS="$OPT_FLAGS -mmmx"
           AC_MSG_RESULT([yes])
-        ],
-        [
+        ],[
           have_mmx=no
           AC_MSG_RESULT([no])
           AC_MSG_WARN([The assembler does not support the MMX command set.])
@@ -373,10 +365,9 @@ ENABLE_AUTO([sse], [SSE support],
       AS_IF([test x$have_sse = xyes],
       [
         AC_MSG_CHECKING([whether we can compile SSE code])
-        AC_TRY_LINK( ,
-          asm ("movntps %xmm0, 0");
-        ,
-        [
+        AC_LINK_IFELSE([
+          AC_LANG_PROGRAM([[]], [[asm ("movntps %xmm0, 0");]])
+        ],[
           OPT_FLAGS="$OPT_FLAGS -msse -mfpmath=sse"
           AC_MSG_RESULT([yes])
           dnl the convolver checks for __SSE__
@@ -385,24 +376,23 @@ ENABLE_AUTO([sse], [SSE support],
           AS_IF([test x$usercxxflags = xno],
           [
             CXXFLAGS_BACKUP="$CXXFLAGS"
-            dnl add OPT_FLAGS just for the AC_TRY_LINK test:
+            dnl add OPT_FLAGS just for the AC_LINK_IFELSE test:
             CXXFLAGS="$CXXFLAGS $OPT_FLAGS"
           ])
-          AC_TRY_LINK( ,
-            #ifndef __SSE__
-            #error
-            #endif
-          ,
-          [
+          AC_LINK_IFELSE([
+            AC_LANG_PROGRAM([[]], [[
+              #ifndef __SSE__
+              #error
+              #endif
+            ]])
+          ],[
             AC_MSG_RESULT([yes])
-          ],
-          [
+          ],[
             AC_MSG_RESULT([no])
             AC_MSG_ERROR([__SSE__ is undefined! Contact $PACKAGE_BUGREPORT!])
           ])
           AS_IF([test x$usercxxflags = xno], [CXXFLAGS="$CXXFLAGS_BACKUP"])
-        ],
-        [
+        ],[
           have_sse=no
           AC_MSG_RESULT([no])
           AC_MSG_WARN([The assembler does not support the SSE command set.])
@@ -437,12 +427,9 @@ ENABLE_AUTO([sse2], [SSE2 support],
       AS_IF([test x$have_sse2 = xyes],
       [
         AC_MSG_CHECKING([whether we can compile SSE2 code])
-        AC_TRY_LINK(
-          #include <emmintrin.h>
-        ,
-          __m128i one;
-        ,
-        [
+        AC_LINK_IFELSE([
+          AC_LANG_PROGRAM([[#include <emmintrin.h>]], [[__m128i one;]])
+        ],[
           OPT_FLAGS="$OPT_FLAGS -msse2 -mfpmath=sse"
           AC_MSG_RESULT([yes])
           dnl check if __SSE2__ is defined, just to be sure:
@@ -450,24 +437,23 @@ ENABLE_AUTO([sse2], [SSE2 support],
           AS_IF([test x$usercxxflags = xno],
           [
             CXXFLAGS_BACKUP="$CXXFLAGS"
-            dnl add OPT_FLAGS just for the AC_TRY_LINK test:
+            dnl add OPT_FLAGS just for the AC_LINK_IFELSE test:
             CXXFLAGS="$CXXFLAGS $OPT_FLAGS"
           ])
-          AC_TRY_LINK( ,
-            #ifndef __SSE2__
-            #error
-            #endif
-          ,
-          [
+          AC_LINK_IFELSE([
+            AC_LANG_PROGRAM([[]], [[
+              #ifndef __SSE2__
+              #error
+              #endif
+            ]])
+          ],[
             AC_MSG_RESULT([yes])
-          ],
-          [
+          ],[
             AC_MSG_RESULT([no])
             AC_MSG_ERROR([__SSE2__ is undefined! Contact $PACKAGE_BUGREPORT!])
           ])
           AS_IF([test x$usercxxflags = xno], [CXXFLAGS="$CXXFLAGS_BACKUP"])
-        ],
-        [
+        ],[
           have_sse=no
           AC_MSG_RESULT([no])
           AC_MSG_WARN([The assembler does not support the SSE2 command set.])
@@ -481,9 +467,9 @@ dnl enable/disable GUI, default: enabled
 ENABLE_FORCED([gui], [graphical user interface (using Qt)],
 [
   # Checking for Qt
-  PKG_CHECK_MODULES([QT], [Qt5Core >= 5.0.0 Qt5Gui >= 5.0.0 Qt5OpenGL >= 5.0.0]
-    ,
-    , [have_gui=no])
+  PKG_CHECK_MODULES([QT], [Qt5Core >= 5.0.0 Qt5Gui >= 5.0.0 Qt5OpenGL >= 5.0.0],
+    [],
+    [have_gui=no])
 
   dnl BTW, the use of AC_CHECK_LIB is discouraged in favor of AC_SEARCH_LIBS!
 
