@@ -113,7 +113,24 @@ For playing/recording audio files:
 
 For the GUI:
 
-- ``libqt5-opengl-dev`` or ``qt`` (``brew link qt --force`` might be needed)
+- ``libqt5-opengl-dev`` or ``qt@5``
+
+  When installing ``qt@5`` with ``brew``,
+  this command should be run before compiling the SSR::
+
+      brew link qt@5 --force
+
+  However, if you already have a newer version of Qt installed
+  (for example if you installed the very useful package ``qjackctl``),
+  you have to run this first::
+
+      brew unlink qt
+
+  Once the SSR is successfully compiled,
+  you can switch back to the newer Qt version
+  (otherwise ``qjackctl`` will not work anymore)::
+
+      brew link qt
 
 For all network interfaces:
 
@@ -121,7 +138,7 @@ For all network interfaces:
 
 For the WebSocket interface:
 
-- ``libwebsocketpp-dev`` (has to be compiled from source on macOS)
+- ``libwebsocketpp-dev`` or ``websocketpp``
 
 For the FUDI network interface:
 
@@ -146,7 +163,7 @@ For a concrete list of Ubuntu and Homebrew packages,
 see the CI configuration file
 :download:`.github/workflows/main.yml <../../.github/workflows/main.yml>`.
 
-For instructions to compile and install ``websocketpp`` and ``libmysofa``
+For instructions to compile and install ``libmysofa``
 on macOS, have a look at the file
 :download:`ci/build-deps-macos.sh <../../ci/build-deps-macos.sh>`
 (``cmake`` must be installed).
