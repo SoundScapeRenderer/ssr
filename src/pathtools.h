@@ -71,7 +71,7 @@ inline fs::path make_path_relative_to_file(const std::string& path
  * @return @p path prepended with the directory name of @p filename,
  *   relative to the current directory.
  **/
-inline fs::path make_path_relative_to_current_dir(const std::string& path
+inline std::string make_path_relative_to_current_dir(const std::string& path
     , const std::string& filename)
 {
   auto p = fs::path{path};
@@ -79,7 +79,7 @@ inline fs::path make_path_relative_to_current_dir(const std::string& path
   {
     return p;
   }
-  return fs::relative(fs::absolute(filename).parent_path() / p);
+  return fs::relative(fs::absolute(filename).parent_path() / p).string();
 }
 
 /** Insert escape characters (\) before whitespace characters.
