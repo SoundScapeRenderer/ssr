@@ -97,6 +97,7 @@ jobs:
             pkg-config
             qt@5
             vrpn
+            websocketpp
           )
           brew install ${PACKAGES[@]}
           brew link qt@5 --force
