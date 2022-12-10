@@ -16,30 +16,12 @@ dist_noinst_SCRIPTS = run-ssr.applescript
 
 nobase_dist_dmgroot_DATA = .background/background.png Jack.webloc Getting-Started.txt
 
-## the helper program dylibbundler is compiled but not installed
-noinst_PROGRAMS = dylibbundler/dylibbundler
-
-dylibbundler_dylibbundler_SOURCES = \
-	dylibbundler/src/Dependency.cpp \
-	dylibbundler/src/Dependency.h \
-	dylibbundler/src/DylibBundler.cpp \
-	dylibbundler/src/DylibBundler.h \
-	dylibbundler/src/main.cpp \
-	dylibbundler/src/Settings.cpp \
-	dylibbundler/src/Settings.h \
-	dylibbundler/src/Utils.cpp \
-	dylibbundler/src/Utils.h
-
-## the makefile is actually not used, we include it for the sake of completeness
-dist_noinst_DATA = dylibbundler/index.html dylibbundler/makefile \
-		   dylibbundler/dylibbundler.png dylibbundler/maclib.jpg
-
 # this is done after installing the executable
 install-exec-hook:
 	cp -f `which ecasound` $(DESTDIR)$(bindir)
 	chmod +w $(DESTDIR)$(bindir)/ecasound
 	for exec in $(SSR_executables) ecasound; do \
-		$(builddir)/dylibbundler/dylibbundler \
+		dylibbundler \
 		--create-dir --overwrite-files --bundle-deps \
 		--fix-file $(DESTDIR)$(bindir)/$$exec \
 		--dest-dir $(DESTDIR)$(contentsdir)/Libraries \
