@@ -12,7 +12,7 @@ extensions = [
 master_doc = 'index'
 
 project = u'SoundScape Renderer'
-copyright = u'2018, SSR Team'
+copyright = u'2022, SSR Team'
 
 try:
     release = check_output(['git', 'describe', '--tags', '--always'])
@@ -45,7 +45,7 @@ html_domain_indices = False
 html_use_index = False
 html_show_copyright = False
 html_copy_source = False
-html_permalinks_icon = '\N{SECTION SIGN}'
+html_permalinks_icon = '#'
 
 # -- Options for LaTeX output --------------------------------------------------
 
