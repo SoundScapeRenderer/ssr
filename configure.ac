@@ -123,12 +123,6 @@ dnl AC_DEFINE writes values in config.h
 dnl AC_DEFINE_UNQUOTED performs additional shell expansions, e.g. substitution
 dnl of variable with value.
 
-AC_CHECK_PROG([have_help2man], [help2man], [yes], [no])
-AM_CONDITIONAL([HAVE_HELP2MAN], [test x$have_help2man = xyes])
-AS_IF([test x$have_help2man != xyes],
- AC_MSG_WARN([Disabling manpage generation due to missing help2man])
-)
-
 ENABLE_AUTO([all],
             [all renderers (use --enable-xyz to re-enable certain renderers)],
 [
@@ -179,6 +173,27 @@ ENABLE_AUTO([dca],[Distance-coded Ambisonics renderer],
 
 dnl Note: For what happens with SSR_executables see src/Makefile.am
 AC_SUBST(SSR_executables)
+
+AC_MSG_CHECKING([for pre-built manpages])
+have_manpages=yes
+for exe in $SSR_executables
+do
+  AS_IF([test -f $srcdir/man/$exe.1], [], [have_manpages=no])
+done
+AS_IF([test x$have_manpages != xyes], [
+  AC_MSG_RESULT([no])
+  AC_CHECK_PROG([have_help2man], [help2man], [yes], [no])
+  have_manpages=$have_help2man
+], [
+  AS_IF([test $srcdir != .], [
+    AC_CONFIG_COMMANDS([manpages], [cp $srcdir/man/*.1 man/])
+  ])
+  AC_MSG_RESULT([yes])
+])
+AM_CONDITIONAL([HAVE_MANPAGES], [test x$have_manpages = xyes])
+AS_IF([test x$have_manpages != xyes],
+ AC_MSG_WARN([Disabling manpage generation due to missing help2man]),
+)
 
 dnl Checking for sndfile
 PKG_CHECK_MODULES([SNDFILE], [sndfile >= 1.0],
@@ -727,7 +742,16 @@ ENABLE_AUTO([browser-gui], [creation of HTML/JavaScript files for browser GUI],
 [
   AC_ARG_VAR([YARN], [Yarn package manager command])
   AC_CHECK_PROGS([YARN], [yarnpkg yarn])
-  AS_IF([test -n "$YARN"], , [have_browser_gui=no])
+  AS_IF([test -f $srcdir/data/websocket_resources/index.html -a $srcdir != .], [
+    AC_CONFIG_COMMANDS(
+      [data/websocket_resources/index.html],
+      [cp $srcdir/data/websocket_resources/index.html data/websocket_resources])
+    AC_CONFIG_COMMANDS(
+      [data/websocket_resources/chunks],
+      [cp -rf $srcdir/data/websocket_resources/chunks data/websocket_resources])
+  ], [
+    AS_IF([test -n "$YARN"], [], [have_browser_gui=no])
+  ])
 ])
 
 AC_SUBST(DMG_NAME)
@@ -818,7 +842,7 @@ AS_IF([test x$have_ecasound = xyes -a x$have_ecasound_program != xyes],
   echo "|>  WARNING: Ecasound (the program, not the library) was not found!"
   echo "|>  It is needed for playing (and recording) sound files with the SSR."
 ])
-AS_IF([test x$have_help2man != xyes],
+AS_IF([test x$have_manpages != xyes],
 [
   echo "|"
   echo "|>  WARNING: help2man was not found!"

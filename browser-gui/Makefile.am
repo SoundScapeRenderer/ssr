@@ -21,7 +21,7 @@ YARN_OPTIONS = --no-progress --non-interactive \
 	--cwd "$(abs_srcdir)" \
 	--modules-folder "$(NODE_PATH)"
 
-WEBPACK_PATH = "$(abs_builddir)/../data/websocket_resources"
+WEBPACK_PATH = ../data/websocket_resources
 INSTALL_PATH = "$(DESTDIR)$(pkgdatadir)/websocket_resources"
 
 all-local: $(WEBPACK_PATH)/index.html
@@ -32,7 +32,7 @@ $(WEBPACK_PATH)/index.html: $(BROWSER_GUI_FILES)
 	$(YARN) $(YARN_OPTIONS) run build --output-path $(WEBPACK_PATH)
 
 install-data-hook:
-	$(MKDIR_P) $(INSTALL_PATH)/chunks/sourcemaps
+	$(MKDIR_P) $(INSTALL_PATH)/chunks
 	$(INSTALL) -m 644 $(WEBPACK_PATH)/index.html $(INSTALL_PATH)
 	$(INSTALL) -m 644 $(WEBPACK_PATH)/chunks/* $(INSTALL_PATH)/chunks
 

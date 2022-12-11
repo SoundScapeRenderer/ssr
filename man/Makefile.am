@@ -5,7 +5,7 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
-if HAVE_HELP2MAN
+if HAVE_MANPAGES
 dist_man_MANS = $(SSR_executables:=.1)
 endif
 
@@ -29,3 +29,6 @@ $(dist_man_MANS): $(top_srcdir)/src/configuration.cpp $(top_srcdir)/configure.ac
                 --name=$(RENDERER_TEXT) \
                 --output=$@ \
                 --locale=$(HELP2MAN_LOCALE) $(top_builddir)/src/$(@:.1=$(EXEEXT))
+
+distclean-local:
+	$(RM) *.1
