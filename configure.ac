@@ -743,14 +743,19 @@ ENABLE_AUTO([browser-gui], [creation of HTML/JavaScript files for browser GUI],
 [
   AC_ARG_VAR([YARN], [Yarn package manager command])
   AC_CHECK_PROGS([YARN], [yarnpkg yarn])
-  AS_IF([test -f $srcdir/data/websocket_resources/index.html -a $srcdir != .], [
-    AC_CONFIG_COMMANDS(
-      [data/websocket_resources/index.html],
-      [cp $srcdir/data/websocket_resources/index.html data/websocket_resources])
-    AC_CONFIG_COMMANDS(
-      [data/websocket_resources/chunks],
-      [cp -rf $srcdir/data/websocket_resources/chunks data/websocket_resources])
+  AC_MSG_CHECKING([for pre-generated browser GUI files])
+  AS_IF([test -f $srcdir/data/websocket_resources/index.html], [
+    AC_MSG_RESULT([yes])
+    AS_IF([test $srcdir != .], [
+      AC_CONFIG_COMMANDS(
+        [data/websocket_resources/index.html],
+        [cp $srcdir/data/websocket_resources/index.html data/websocket_resources])
+      AC_CONFIG_COMMANDS(
+        [data/websocket_resources/chunks],
+        [cp -rf $srcdir/data/websocket_resources/chunks data/websocket_resources])
+    ])
   ], [
+    AC_MSG_RESULT([no])
     AS_IF([test -n "$YARN"], [], [have_browser_gui=no])
   ])
 ])
