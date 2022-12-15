@@ -158,3 +158,16 @@ jobs:
           make
       - run: |
           sudo make install
+      - name: Check dynamic libraries
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          ldd $(which ssr-binaural)
+      - name: Check dynamic libraries
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          otool -L $(which ssr-binaural)
+      # It's probably hard to run the SSR with JACK and everything,
+      # but we can at least check if we can run the executable,
+      # which should also test if all dynamic libraries are found:
+      - run: |
+          ssr-binaural --help
