@@ -146,8 +146,7 @@ For the FUDI network interface:
 
 For SOFA support:
 
-- ``libmysofa-dev`` (has to be compiled from source on macOS,
-  needs ``cunit`` package)
+- ``libmysofa-dev`` (has to be compiled from source on macOS)
 
 For VRPN tracker support:
 

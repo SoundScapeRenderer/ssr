@@ -86,7 +86,6 @@ jobs:
           PACKAGES=(
             asio
             automake
-            cunit  # for libmysofa
             ecasound
             fftw
             fmt
