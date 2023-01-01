@@ -741,7 +741,7 @@ Note that the DCA renderer is experimental at this stage. It currently supports 
 
 Please bear with us. We are going to take care of this soon.
 
-.. [Spors2011] S. Spors, V. Kuscher, and J. Ahrens. Efficient Realization of Model-Based Rendering for 2.5-dimensional Near-Field Compensated Higher Order Ambisonics. In IEEE WASPAA, New Paltz, NY, USA, 2011.
+.. [Spors2011] Sascha Spors, Vincent Kuscher, and Jens Ahrens. Efficient Realization of Model-Based Rendering for 2.5-dimensional Near-Field Compensated Higher Order Ambisonics. In IEEE WASPAA, New Paltz, NY, USA, 2011.
 
 .. _genren:
 
