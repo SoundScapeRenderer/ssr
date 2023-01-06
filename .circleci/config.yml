@@ -91,10 +91,15 @@ jobs:
           command: |
             make distcheck DISTCHECK_CONFIGURE_FLAGS="$CONFIGURE_FLAGS"
             mkdir ~/tarball
-            cp ssr-*.tar.gz ~/tarball
+            # There is only one file, but we don't know the version number:
+            for tarball in ssr-*.tar.gz
+            do
+              sha256sum $tarball > ~/tarball/${tarball%.tar.gz}.sha256
+              mv $tarball ~/tarball
+            done
 
       - store_artifacts:
-          name: Uploading tarball
+          name: Uploading tarball and its SHA256 hash
           path: ~/tarball
           destination: .
 
