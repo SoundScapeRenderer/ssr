@@ -4,7 +4,7 @@
 #
 version: 2
 jobs:
-  build_docs:
+  tarball:
     docker:
       # https://github.com/dante-ev/docker-texlive
       - image: danteev/texlive
@@ -37,7 +37,6 @@ jobs:
             apt-get install -y \
               automake \
               binutils \
-              doxygen \
               help2man \
               libfftw3-dev \
               libjack-jackd2-dev \
@@ -103,16 +102,6 @@ jobs:
           path: ~/tarball
           destination: .
 
-      - run:
-          name: Building Doxygen docs
-          command: |
-            make doc
-
-      - store_artifacts:
-          name: Uploading Doxygen HTML files
-          path: doc/doxygen/html
-          destination: doxygen
-
       - store_artifacts:
           name: Uploading HTML Manual
           path: doc/manual/_build/html
@@ -136,6 +125,6 @@ jobs:
 
 workflows:
   version: 2
-  i-would-like-some-docs:
+  build:
     jobs:
-      - build_docs
+      - tarball
