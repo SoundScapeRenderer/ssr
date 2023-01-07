@@ -14,6 +14,7 @@ autoreconf -vif
   --disable-full-suite \
   --disable-test-coverage \
   --disable-ossfuzzers \
+  --disable-dependency-tracking \
   --
 make
 make install
