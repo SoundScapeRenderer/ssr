@@ -99,30 +99,6 @@ namespace ssr
 
 using Node = XMLParser::Node; ///< a node of the DOM tree
 
-namespace internal
-{
-
-inline void print_about_message()
-{
-  const std::string about_string =
-    "       ___     \n"
-    "      /  ___   \n"
-    "  ___/  /  ___ \n"
-    "    ___/  /    " PACKAGE_STRING "\n"
-    "         /     \n"
-    "               \n"
-    "Website: <" PACKAGE_URL ">\n"
-    "Contact: <" PACKAGE_BUGREPORT ">\n"
-    "\n"
-    SSR_COPYRIGHT
-    ;
-
-  std::cout << about_string << std::endl;
-}
-
-}  // namespace internal
-
-
 /// %Controller class.  Implements the Publisher interface.
 /// The Controller can be either a "leader" or a "follower".
 template<typename Renderer>
@@ -408,7 +384,22 @@ Controller<Renderer>::Controller(int argc, char* argv[])
   , _query_state(query_state(*this, _renderer))
   , _loop(_conf.loop)  // temporary solution
 {
-  internal::print_about_message();
+  const std::string about_string1 =
+    "       ___     \n"
+    "      /  ___   \n"
+    "  ___/  /  ___ \n"
+    "    ___/  /    " PACKAGE_STRING "\n"
+    "         /     renderer type: ";
+
+  const std::string about_string2 =
+    "\n\n"
+    "Website: <" PACKAGE_URL ">\n"
+    "Contact: <" PACKAGE_BUGREPORT ">\n"
+    "\n"
+    SSR_COPYRIGHT
+    ;
+
+  std::cout << about_string1 << _renderer.name() << about_string2 << std::endl;
 
 #ifndef ENABLE_IP_INTERFACE
   if (_conf.ip_server)
