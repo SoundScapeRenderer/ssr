@@ -142,11 +142,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 #endif
   conf.ip_server = false;
   conf.server_port = 4711;
-#ifdef ENABLE_WEBSOCKET_INTERFACE
-  conf.websocket_server = true;
-#else
   conf.websocket_server = false;
-#endif
   conf.websocket_port = 9422;
   conf.fudi_server = false;
   conf.fudi_port = 1174;
@@ -269,10 +265,10 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
 #endif
 #ifdef ENABLE_WEBSOCKET_INTERFACE
 "      --websocket-server[=PORT]\n"
-"                      Start WebSocket server (default on),\n"
+"                      Start WebSocket server (default off),\n"
 "                      a port number can be specified (default 9422)\n"
 "      --no-websocket-server\n"
-"                      Don't start WebSocket server\n"
+"                      Don't start WebSocket server (default)\n"
 #else
 "      --websocket-server\n"
 "                      Start WebSocket server (not enabled at compile time!)\n"
