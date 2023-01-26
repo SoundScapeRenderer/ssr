@@ -395,7 +395,11 @@ file using jack.)
 Using the macOS App Bundle
 --------------------------
 
-1. Run the JackPilot and hit start.
+*Note: As of now, we do not provide an app bundle anymore for technical
+reasons. We still keep the documentation here as we might be able to provide
+a bundle again in the future.*
+
+1. Start JACK.
 2. Double-click the SoundScape Renderer icon |icon|, select the renderer type,
    and off you go!
 
@@ -412,7 +416,6 @@ More options can be specified by using the config file. The details of using
 the config file is described on the Section
 :ref:`ssr_configuration_file`.
 
-
 Running via the Command Line (Terminal)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -424,9 +427,8 @@ should be used on the command line.
 What can be done using configuration files, should be done using configuration
 files.
 
-Both JACK and the SSR can be started on the command line by using::
+SSR can be started on the command line by using::
 
-    open -a JackPilot
     open -a SoundScapeRenderer
 
 If the SSR is placed in ``/Applications`` (or ``$HOME/Applications``) and was

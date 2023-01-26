@@ -101,58 +101,14 @@ If you don't need the :doc:`gui`, there is also the GUI-less package
 ``soundscaperenderer-nox`` with fewer dependencies.
 
 
-.. _mac_os_x:
-
-macOS Application Bundle
-------------------------
-
-You can download the application bundle from http://spatialaudio.net/ssr/download/.
-You will need
-JACK as prerequisite. Refer to `JACK on macOS`_ for instructions how to obtain and
-install it.
-
-The installation should be straightforward. Just double-click on the ``.dmg`` file and
-drag the ``SoundScapeRenderer-x.y.z`` folder to your ``Applications`` folder. Done. When
-double-clicking the SSR application bundle, it will indicate to you that you should
-download and install JACK (that's what this JACK.webloc thingy wants). If JACK is
-installed on your computer, then simply ignore this step and drag the SSR folder to your
-``Applications`` folder.
-
-The application bundle can be placed anywhere, but spaces in path names might
-cause trouble, so it's better to avoid them. Another thing is that macOS
-sort of adds applications placed in the ``/Applications`` folder to the
-environment, so lets assume you put the SSR there (This also works for
-``$HOME/Applications``).
-
-Under new versions of macOS (Sierra and up) the SoundScapeRenderer executable might be stuck in quarantine resulting in files not being loaded properly. The corresponding error message might look like this::
-
-/private/var/folders/_t/67rf88lx507btn91x6g_vfk40000gp/T/AppTranslocation/42F7F94E-AED9-4F39-8647-41D898CCE032/d/SoundScapeRenderer.app/Contents/MacOS/ssr: line 48: 36804 Abort trap: 6           $SSR_EXECUTABLE "${OPTIONS[@]}"
-
-You can allow the SoundScapeRender to run from its original location by running::
-
-  xattr -d com.apple.quarantine SoundScapeRenderer.app
-
-The following warning can occur on High Sierra when using the file dialog::
-
-  objc[50474]: Class FIFinderSyncExtensionHost is implemented in both /System/Library/PrivateFrameworks/FinderKit.framework/Versions/A/FinderKit (0x7fffa1883c90) and /System/Library/PrivateFrameworks/FileProvider.framework/OverrideBundles/FinderSyncCollaborationFileProviderOverride.bundle/Contents/MacOS/FinderSyncCollaborationFileProviderOverride (0x11f84ccd8). One of the two will be used. Which one is undefined.
-
-It is a bug outside of SSR.
-
 .. _jack_mac_os_x:
 
 JACK on macOS
 ^^^^^^^^^^^^^
 
-Tested with version 0.87 (64 bit) which includes:
-
-- Jackdmp 1.9.6
-- JackRouter 0.9.3
-- JackPilot 1.7.0
-
-Note that the site ``http://www.jackosx.com/`` is outdated. The latest version of JACK is
-available from https://jackaudio.org/downloads/.
-
-Or, you can install JACK using Homebrew_.
+Make sure that you install JACK using Homebrew_. You can also obtain QJackCtl
+from there, which is a very useful GUI for JACK. We found unfortunately that
+QJackCtl does not always run stably though.
 
 .. _Homebrew: https://brew.sh/
 
