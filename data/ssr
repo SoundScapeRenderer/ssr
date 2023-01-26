@@ -1,4 +1,10 @@
 #!/bin/bash
->&2 echo "The script 'ssr' is not supported anymore, please use the full name:"
->&2 echo "ssr-binaural, ssr-brs, ssr-vbap, ssr-wfs, ssr-aap, ssr-dca or ssr-generic"
+
+echo "The script 'ssr' is not supported anymore, please use the full name:"
+echo "ssr-binaural, ssr-brs, ssr-vbap, ssr-wfs, ssr-aap, ssr-dca or ssr-generic"
+
+# "make installcheck" seems to require a "success" exit code in these cases ...
+case "$1" in --help | --version) exit 0 ;; esac
+
+# ... but all other uses should be considered a "failure":
 exit 1
