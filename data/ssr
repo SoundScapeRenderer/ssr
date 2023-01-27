@@ -1,10 +1,13 @@
 #!/bin/bash
 
-echo "The script 'ssr' is not supported anymore, please use the full name:"
-echo "ssr-binaural, ssr-brs, ssr-vbap, ssr-wfs, ssr-aap, ssr-dca or ssr-generic"
+case "$1" in
+  # "make installcheck" seems to require a "success" in these cases:
+  --help | --version) FD=1; EXITCODE=0 ;;
+  # ... but we want to signal "failure" in all other cases:
+  *) FD=2; EXITCODE=1 ;;
+esac
 
-# "make installcheck" seems to require a "success" exit code in these cases ...
-case "$1" in --help | --version) exit 0 ;; esac
+>&$FD echo "The script 'ssr' is not supported anymore, please use the full name:"
+>&$FD echo "ssr-binaural, ssr-brs, ssr-vbap, ssr-wfs, ssr-aap, ssr-dca or ssr-generic"
 
-# ... but all other uses should be considered a "failure":
-exit 1
+exit $EXITCODE
