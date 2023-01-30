@@ -1,5 +1,25 @@
 User-visible changes in the SoundScape Renderer. Recent changes on top.
 
+0.6.0 (31 January 2023)
+
+ - 3D support for the binaural renderer using SOFA files
+
+ - new network interfaces: WebSocket and FUDI
+
+ - an experimental browser-based 3D GUI (using the WebSocket interface)
+
+ - Qt GUI:
+   - drag & drop of scene files to GUI
+   - close with Ctrl-q instead of Esc
+
+ - Pd externals: path handling has been fixed, BRS renderer is now also available
+
+ - macOS: No pre-compiled App Bundle will be provided,
+   the possibility for building it locally might be removed in a future version
+
+ - The "ssr" script has been removed, use ssr-binaural, ssr-brs, ssr-vbap,
+   ssr-wfs, ssr-aap, ssr-dca or ssr-generic instead.
+
 0.5.0 (16 November 2018)
 
  - GUI now uses Qt5
