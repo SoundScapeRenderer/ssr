@@ -12,7 +12,7 @@ extensions = [
 master_doc = 'index'
 
 project = u'SoundScape Renderer'
-copyright = u'2022, SSR Team'
+copyright = u'2023, SSR Team'
 
 try:
     release = check_output(['git', 'describe', '--tags', '--always'])
