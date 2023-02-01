@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.8)
 project(SSR)
 
 # The version number
-set(SSR_VERSION 0.5.1-cmake)
+set(SSR_VERSION 0.6.0-cmake)
 
 # Show more of make
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -210,14 +210,27 @@ else(GUI)
 endif(GUI)
 
 # Network
-option(ENABLE_IP_INTERFACE "network (TCP/IP) interface (legacy)" ON)
-if(ENABLE_IP_INTERFACE)
-  #list(APPEND SOURCE_FILES
-  #  src/network/commandparser.cpp
-  #  src/network/connection.cpp
-  #  src/network/networksubscriber.cpp
-  #  src/network/server.cpp
-  #  )
+option(ENABLE_WEBSOCKET_INTERFACE "network websocket interface" ON)
+if(ENABLE_WEBSOCKET_INTERFACE)
+  add_definitions(-DASIO_STANDALONE)
+  set(ASIO_PATH ${PROJECT_SOURCE_DIR}/extern/include/asio/asio/include/)
+  include_directories(${ASIO_PATH})
+
+  add_definitions(-D_WEBSOCKETPP_CPP11_THREAD_)  # https://github.com/zaphoyd/websocketpp/issues/980
+  include_directories(${EXTERN_PATH}/include/websocketpp)
+  set(RAPIDJSON_PATH ${PROJECT_SOURCE_DIR}/rapidjson)
+  include_directories(${RAPIDJSON_PATH}/include/)
+
+  set(WEBSOCKET_PATH ${PROJECT_SOURCE_DIR}/src/websocket/)
+  include_directories(${WEBSOCKET_PATH})
+  message(STATUS "Enabled WEBSOCKET_INTERFACE interface")
+else(ENABLE_WEBSOCKET_INTERFACE)
+  message(WARNING "WEBSOCKET_INTERFACE disabled.")
+endif(ENABLE_WEBSOCKET_INTERFACE)
+
+option(ENABLE_LEGACY_NETWORK_INTERFACE "network (TCP/IP) interface (legacy)" ON)
+if(ENABLE_LEGACY_NETWORK_INTERFACE)
+  add_definitions(-DASIO_STANDALONE)
   set(ASIO_PATH ${PROJECT_SOURCE_DIR}/extern/include/asio/asio/include/)
   include_directories(${ASIO_PATH})
 
@@ -225,16 +238,14 @@ if(ENABLE_IP_INTERFACE)
   list(APPEND SOURCE_FILES ${NETWORK_SOURCE_FILES})
 
   include_directories(${PROJECT_SOURCE_DIR}/src/legacy_network)
-  add_definitions(-DASIO_STANDALONE)
   if(WIN32)
     add_definitions(-D_WIN32_WINNT=0x0601)  # Windows 7
     list(APPEND LINKLIBS "-lws2_32 -lmswsock")
   endif(WIN32)
-  message(STATUS "Enabled network interface (legacy)")
-
-else(ENABLE_IP_INTERFACE)
-  message(WARNING "IP_INTERFACE disabled.")
-endif(ENABLE_IP_INTERFACE)
+  message(STATUS "Enabled LEGACY_NETWORK interface")
+else(ENABLE_LEGACY_NETWORK_INTERFACE)
+  message(WARNING "LEGACY_NETWORK_INTERFACE disabled.")
+endif(ENABLE_LEGACY_NETWORK_INTERFACE)
 
 # Head tracker
 option(HEAD_TRACKER "Basic head tracker support" ON)

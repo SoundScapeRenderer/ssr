@@ -10,8 +10,11 @@
 /* Ecasound soundfile playback/recording */
 #cmakedefine ENABLE_ECASOUND 1
 
-/* network (TCP/IP) interface */
+/* network (TCP/IP) interface : LEGACY*/
 #cmakedefine ENABLE_IP_INTERFACE 1
+
+/* network (TCP/IP) interface : WEBSOCKET*/
+#cmakedefine ENABLE_WEBSOCKET_INTERFACE 1
 
 /* Razor AHRS tracker support */
 #cmakedefine ENABLE_RAZOR 1
