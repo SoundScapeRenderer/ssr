@@ -1,0 +1,56 @@
+/* CMake generates src/config.h from this.*/
+
+
+/* graphical user interface (using Qt) */
+#cmakedefine ENABLE_GUI 1
+
+/* separate control window */
+#cmakedefine ENABLE_FLOATING_CONTROL_PANEL 1
+
+/* Ecasound soundfile playback/recording */
+#cmakedefine ENABLE_ECASOUND 1
+
+/* network (TCP/IP) interface */
+#cmakedefine ENABLE_IP_INTERFACE 1
+
+/* Razor AHRS tracker support */
+#cmakedefine ENABLE_RAZOR 1
+
+/* Polhemus Fastrak/Patriot tracker support */
+#cmakedefine ENABLE_POLHEMUS 1
+
+/*?? support for isatty() ??*/
+#cmakedefine ENABLE_ISATTY 1
+
+/* Name of package */
+#define PACKAGE "ssr"
+
+/* Version number of package */
+#define VERSION @SSR_VERSION@
+
+/* Define to the address where bug reports for this package should be sent. */
+#define PACKAGE_BUGREPORT "ssr@spatialaudio.net"
+
+/* Define to the full name of this package. */
+#define PACKAGE_NAME "SSR (SoundScape Renderer)"
+
+/* Define to the version of this package. */
+#define PACKAGE_VERSION "@SSR_VERSION@"
+
+/* Define to the full name and version of this package. */
+#define PACKAGE_STRING "SSR (SoundScape Renderer) @SSR_VERSION@"
+
+/* Define to the one symbol short name of this package. */
+#define PACKAGE_TARNAME "ssr"
+
+/* Define to the home page for this package. */
+#define PACKAGE_URL "http://spatialaudio.net/ssr/"
+
+/* List of SSR authors */
+#define SSR_AUTHORS "Written by:\n Matthias Geier, Jens Ahrens\nScientific supervision:\n Sascha Spors\nContributions by:\n Peter Bartz, Florian Hinterleitner, Torben Hohn,\n Lukas Kaser, André Möhl, Till Rettberg, Fiete Winter\nGUI design:\n Katharina Bredies, Jonas Loh, Jens Ahrens\nLogo design:\n Fabian Hemmert"
+
+/* List of SSR authors (with Qt markup) */
+#define SSR_AUTHORS_QT "<EM>Written&nbsp;by:</EM><BR>&nbsp;Matthias&nbsp;Geier,&nbsp;Jens&nbsp;Ahrens<BR><BR><EM>Scientific&nbsp;supervision:</EM><BR>&nbsp;Sascha&nbsp;Spors<BR><BR><EM>Contributions&nbsp;by:</EM><BR>&nbsp;Peter&nbsp;Bartz,&nbsp;Florian&nbsp;Hinterleitner,&nbsp;Torben&nbsp;Hohn,<BR>&nbsp;Lukas&nbsp;Kaser,&nbsp;Andr&eacute;&nbsp;M&ouml;hl,&nbsp;Till&nbsp;Rettberg,&nbsp;Fiete&nbsp;Winter<BR><BR><EM>GUI&nbsp;design:</EM><BR>&nbsp;Katharina&nbsp;Bredies,&nbsp;Jonas&nbsp;Loh,&nbsp;Jens&nbsp;Ahrens<BR><BR><EM>Logo&nbsp;design:</EM><BR>&nbsp;Fabian&nbsp;Hemmert"
+
+/* SSR copyright notice */
+#define SSR_COPYRIGHT "Copyright © 2016 Division of Applied Acoustics, Chalmers University of Technology\nCopyright © 2014 Institut für Nachrichtentechnik, Universität Rostock\nCopyright © 2012 Quality & Usability Lab, Telekom Innovation Laboratories, TU Berlin\n\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."

@@ -77,7 +77,7 @@ inline std::string make_path_relative_to_current_dir(const std::string& path
   auto p = fs::path{path};
   if (p.is_absolute() || p == "")
   {
-    return p;
+    return p.string();
   }
   return fs::relative(fs::absolute(filename).parent_path() / p).string();
 }
