@@ -2,25 +2,25 @@
 
 
 /* graphical user interface (using Qt) */
-#cmakedefine ENABLE_GUI 1
+#cmakedefine ENABLE_GUI @ENABLE_GUI@
 
 /* separate control window */
-#cmakedefine ENABLE_FLOATING_CONTROL_PANEL 1
+#cmakedefine ENABLE_FLOATING_CONTROL_PANEL @ENABLE_FLOATING_CONTROL_PANEL@
 
 /* Ecasound soundfile playback/recording */
-#cmakedefine ENABLE_ECASOUND 1
+#cmakedefine ENABLE_ECASOUND 0
 
-/* network (TCP/IP) interface : LEGACY*/
-#cmakedefine ENABLE_IP_INTERFACE 1
+/* XML network (TCP/IP) interface : LEGACY*/
+#cmakedefine ENABLE_IP_INTERFACE @ENABLE_LEGACY_NETWORK_INTERFACE@
 
-/* network (TCP/IP) interface : WEBSOCKET*/
-#cmakedefine ENABLE_WEBSOCKET_INTERFACE 1
+/* Websocket++ network (TCP/IP) interface : WEBSOCKET*/
+#cmakedefine ENABLE_WEBSOCKET_INTERFACE @ENABLE_WEBSOCKET_INTERFACE@
 
 /* Razor AHRS tracker support */
-#cmakedefine ENABLE_RAZOR 1
+#cmakedefine ENABLE_RAZOR @HEAD_TRACKER@
 
 /* Polhemus Fastrak/Patriot tracker support */
-#cmakedefine ENABLE_POLHEMUS 1
+#cmakedefine ENABLE_POLHEMUS @HEAD_TRACKER@
 
 /*?? support for isatty() ??*/
 #cmakedefine ENABLE_ISATTY 1

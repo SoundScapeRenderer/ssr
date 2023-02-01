@@ -12,3 +12,4 @@ src/config.h
 _build/
 bin/
 
+*.exe

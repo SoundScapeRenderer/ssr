@@ -15,7 +15,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # Set the output folder where your program will be created
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/_build)
 if(WIN32)
-  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/ssr-win-bin)
 else(WIN32)
   set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/src)
 endif(WIN32)
@@ -157,7 +157,7 @@ if(GUI)
   #    src/gui/qvolumeslider.cpp
   #    src/gui/qzoomlabel.cpp
   #    )
-  AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/gui GUI_SOURCE_FILES) 
+  aux_source_directory(${PROJECT_SOURCE_DIR}/src/gui GUI_SOURCE_FILES) 
   list(APPEND SOURCE_FILES ${GUI_SOURCE_FILES})
 
   option(ENABLE_GUI "graphical user interface (using Qt)" ON)
@@ -228,18 +228,18 @@ else(ENABLE_WEBSOCKET_INTERFACE)
   message(WARNING "WEBSOCKET_INTERFACE disabled.")
 endif(ENABLE_WEBSOCKET_INTERFACE)
 
-option(ENABLE_LEGACY_NETWORK_INTERFACE "network (TCP/IP) interface (legacy)" ON)
+option(ENABLE_LEGACY_NETWORK_INTERFACE "network xml interface (legacy)" ON)
 if(ENABLE_LEGACY_NETWORK_INTERFACE)
   add_definitions(-DASIO_STANDALONE)
   set(ASIO_PATH ${PROJECT_SOURCE_DIR}/extern/include/asio/asio/include/)
   include_directories(${ASIO_PATH})
 
-  AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/legacy_network NETWORK_SOURCE_FILES) 
+  aux_source_directory(${PROJECT_SOURCE_DIR}/src/legacy_network NETWORK_SOURCE_FILES) 
   list(APPEND SOURCE_FILES ${NETWORK_SOURCE_FILES})
 
   include_directories(${PROJECT_SOURCE_DIR}/src/legacy_network)
   if(WIN32)
-    add_definitions(-D_WIN32_WINNT=0x0601)  # Windows 7
+    #add_definitions(-D_WIN32_WINNT=0x0601)  # Windows 7
     list(APPEND LINKLIBS "-lws2_32 -lmswsock")
   endif(WIN32)
   message(STATUS "Enabled LEGACY_NETWORK interface")
