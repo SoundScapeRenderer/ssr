@@ -218,6 +218,9 @@ if(ENABLE_IP_INTERFACE)
   #  src/network/networksubscriber.cpp
   #  src/network/server.cpp
   #  )
+  set(ASIO_PATH ${PROJECT_SOURCE_DIR}/extern/include/asio/asio/include/)
+  include_directories(${ASIO_PATH})
+
   AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/legacy_network NETWORK_SOURCE_FILES) 
   list(APPEND SOURCE_FILES ${NETWORK_SOURCE_FILES})
 

@@ -19,3 +19,6 @@
 [submodule "example-scenes"]
 	path = example-scenes
 	url = https://github.com/SoundScapeRenderer/example-scenes.git
+[submodule "extern/include/asio"]
+	path = extern/include/asio
+	url = https://github.com/chriskohlhoff/asio.git
