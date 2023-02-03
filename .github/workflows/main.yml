@@ -79,6 +79,7 @@ jobs:
             fmt
             help2man
             jack
+            SoundScapeRenderer/ssr/libmysofa
             libsndfile
             libtool
             pkg-config
@@ -104,10 +105,6 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           ci/build-deps-ubuntu.sh
-      - name: Build some macOS dependencies from source
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          ci/build-deps-macos.sh
       - name: upload VRPN logs
         if: failure() && startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v3

@@ -49,8 +49,8 @@ jobs:
           PACKAGES=(
             autogen
             automake
-            cunit  # for libmysofa
             fftw
+            SoundScapeRenderer/ssr/libmysofa
             pkg-config
           )
           brew install ${PACKAGES[@]}
@@ -64,17 +64,6 @@ jobs:
         working-directory: ssr/ci
         run: |
           ./build-small-libsndfile.sh
-      - name: checkout libmysofa
-        uses: actions/checkout@v3
-        with:
-          repository: hoene/libmysofa
-          path: libmysofa
-      - name: build libmysofa
-        working-directory: libmysofa/build
-        run: |
-          cmake ..
-          make
-          make install
       - name: build externals
         working-directory: ssr/flext
         run: |
