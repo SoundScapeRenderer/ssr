@@ -11,6 +11,7 @@ cflags += \
        `$(PKG_CONFIG) --cflags libxml-2.0` \
        -std=c++17 \
        -DENABLE_SOFA \
+       -DNDEBUG \
 
 define forDarwin
   cflags += -mmacosx-version-min=10.15
