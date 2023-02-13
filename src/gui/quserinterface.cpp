@@ -678,13 +678,14 @@ void ssr::QUserInterface::_resizeControls(int newWidth)
   FILEMENUWIDTH - 2*BUTTONWIDTH - 2*BETWEENLABELSPACE;
 
   // if there is space then show the _time_line
-  if (width()-DEFAULTFRAMERIGHT-FILEMENUWIDTH-150 > _time_line_position_x + 30)
-  {
+  //if (width()-DEFAULTFRAMERIGHT-FILEMENUWIDTH-150 > _time_line_position_x +
+  //30)
+  //{
     _time_line->setGeometry(_time_line_position_x, 23,
                             _zoom_label_position_x - _time_line_position_x - BETWEENBUTTONSPACE, 36);
-    _time_line->show();
-  }
-  else _time_line->hide();
+  //_time_line->show();
+  //}
+  //else _time_line->hide();
 
   // if there is space then show the _zoom_label
   if (_zoom_label_position_x > _time_line_position_x - BETWEENLABELSPACE)
