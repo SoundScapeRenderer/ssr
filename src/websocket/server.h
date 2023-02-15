@@ -163,6 +163,31 @@ public:
     {
       con->set_status(websocketpp::http::status_code::not_found);
       SSR_VERBOSE("Requested file is not available: " << resource);
+      auto error_page = R"(<!DOCTYPE html>
+<title>Error 404 (Resource not found)</title>
+<h1>Error 404</h1>
+<p>The requested file <code>
+)" + resource + R"(
+</code> was not found.</p>
+<p>Maybe just try the <a href="/">main page</a> again?</p>
+<p>Or try the <a href="/test">test client page</a>?</p>
+<p>Maybe the browser GUI resources are not part of your SSR package?
+No problem!  Just go to the
+<a href="https://github.com/SoundScapeRenderer/ssr/releases">SSR release page</a>,
+get the latest tarball (<code>ssr-x.y.z.tar.gz</code>),
+extract its contents and open the file
+<code>data/websocket_resources/index.html</code> in your browser.</p>
+<p>Or maybe you were brave enough to compile the SSR yourself,
+but forgot to enable the browser GUI?
+No problemo, just do it all over again, but this time make sure to use this:</p>
+<pre>
+./configure --enable-browser-gui
+</pre>
+<p>Or maybe you found a bug in the SSR? Wouldn't be the first one!
+Please <a href="https://github.com/SoundScapeRenderer/ssr/issues">create an issue</a>!</p>
+<p>And finally, it's always good to read
+<a href="https://ssr.readthedocs.io/">the manual</a>.</p>)";
+      con->set_body(error_page);
     }
   }
 
