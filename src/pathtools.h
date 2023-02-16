@@ -82,6 +82,35 @@ inline std::string make_path_relative_to_current_dir(const std::string& path
   return fs::relative(fs::absolute(filename).parent_path() / p).string();
 }
 
+/** Cleanup @p in_path, e.g. by adjusting and removing duplicate separators. 
+ * @param path A path given
+ * @return @p path in a canonical and native format.
+ **/
+inline std::string normalize_path(const std::string& in_path) {
+    fs::path p_canonical = fs::weakly_canonical(in_path);
+    std::string p_norm = p_canonical.make_preferred().string();
+    return p_norm;
+}
+
+/** Tries to find a home path, otherwise returns the root path.
+ * @return home path
+ **/
+inline fs::path get_home_dir()
+{
+  fs::path p_home = fs::current_path().root_path();
+  char const* home = getenv("HOME");
+  if (home)
+  {
+    p_home = fs::path(home);
+  }
+  home = getenv("USERPROFILE");
+  if (home)
+  {
+    p_home = fs::path(home);
+  }
+  return p_home;
+}
+
 /** Insert escape characters (\) before whitespace characters.
  * @param filename the file name
  * @return the file name with escaped whitespace characters
