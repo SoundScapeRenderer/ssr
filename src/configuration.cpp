@@ -193,12 +193,14 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   // load system-wide config file (Linux et al.)
   load_config_file("/etc/ssr.conf",conf);
   // load user config file (Mac)
-  std::string filename = getenv("HOME");
+  std::string filename = pathtools::get_home_dir().string();
   filename += "/Library/SoundScapeRenderer/ssr.conf";
+  filename = pathtools::normalize_path(filename);
   load_config_file(filename.c_str(),conf);
   // load user config file (Linux et al.)
-  filename = getenv("HOME");
+  filename = pathtools::get_home_dir().string();
   filename += "/.ssr/ssr.conf";
+  filename = pathtools::normalize_path(filename);
   load_config_file(filename.c_str(),conf);
 
   const std::string usage_string =
@@ -629,6 +631,7 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     SSR_VERBOSE2(entry.first << " = " << entry.second);
   }
 
+  SSR_VERBOSE3("Done with parsing conf.");
   return conf;
 }
 
