@@ -79,7 +79,7 @@ inline std::string make_path_relative_to_current_dir(const std::string& path
   {
     return p.string();
   }
-  return fs::relative(fs::absolute(filename).parent_path() / p).string();
+  return fs::relative(fs::absolute(filename).parent_path() / p).make_preferred().string();
 }
 
 /** Cleanup @p in_path, e.g. by adjusting and removing duplicate separators. 
