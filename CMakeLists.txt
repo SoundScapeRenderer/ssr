@@ -21,7 +21,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/_build)
 if(WIN32)
   set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/ssr-win-bin)
 else(WIN32)
-  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/src)
+  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/ssr-bin)
 endif(WIN32)
 
 # Show the compiler
@@ -64,7 +64,7 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 
 # TODO
-find_package(PkgConfig REQUIRED)
+#find_package(PkgConfig REQUIRED)
 
 if(WIN32)
   # Set Path to extern headers and libraries for Windows builds
@@ -104,7 +104,9 @@ endif(WIN32)
 
 find_library(LIBSNDFILE_LIBRARY NAMES sndfile libsndfile-1)
 list(APPEND LINKLIBS ${LIBSNDFILE_LIBRARY})
-list(APPEND LINKLIBS -lFLAC -lopus -lvorbisenc -lvorbis -logg)
+if(WIN32)
+  list(APPEND LINKLIBS -lFLAC -lopus -lvorbisenc -lvorbis -logg)
+endif(WIN32)
 message(STATUS "Found SNDFILE: " ${LIBSNDFILE_LIBRARY})
 
 option(ENABLE_ECASOUND "Ecasound soundfile playback/recording" OFF)
@@ -135,7 +137,7 @@ list(APPEND LINKLIBS ${FFTWF_LIBRARY})
 message(STATUS "Found FFTWF: " ${FFTWF_LIBRARY})
 
 # GUI
-option(GUI "Build GUI" OFF)
+option(GUI "Build GUI" ON)
 if(GUI)
   # Find includes in corresponding build directories
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -201,7 +203,7 @@ else(GUI)
 endif(GUI)
 
 # Network
-option(ENABLE_WEBSOCKET_INTERFACE "network websocket interface" OFF)
+option(ENABLE_WEBSOCKET_INTERFACE "network websocket interface" ON)
 if(ENABLE_WEBSOCKET_INTERFACE)
   add_definitions(-DASIO_STANDALONE)
   set(ASIO_PATH ${PROJECT_SOURCE_DIR}/extern/include/asio/asio/include/)
@@ -219,8 +221,9 @@ else(ENABLE_WEBSOCKET_INTERFACE)
   message(WARNING "WEBSOCKET_INTERFACE disabled.")
 endif(ENABLE_WEBSOCKET_INTERFACE)
 
-option(ENABLE_LEGACY_NETWORK_INTERFACE "network xml interface (legacy)" OFF)
+option(ENABLE_LEGACY_NETWORK_INTERFACE "network xml interface (legacy)" ON)
 if(ENABLE_LEGACY_NETWORK_INTERFACE)
+  set(ENABLE_IP_INTERFACE ON)
   add_definitions(-DASIO_STANDALONE)
   set(ASIO_PATH ${PROJECT_SOURCE_DIR}/extern/include/asio/asio/include/)
   include_directories(${ASIO_PATH})
@@ -239,7 +242,7 @@ else(ENABLE_LEGACY_NETWORK_INTERFACE)
 endif(ENABLE_LEGACY_NETWORK_INTERFACE)
 
 # Head tracker
-option(HEAD_TRACKER "Basic head tracker support" OFF)
+option(HEAD_TRACKER "Basic head tracker support" ON)
 if(HEAD_TRACKER)
   list(APPEND SOURCE_FILES
     src/trackerrazor.cpp
@@ -259,8 +262,8 @@ endif(HEAD_TRACKER)
 
 # Preprocessor symbols
 add_definitions(-DSSR_DATA_DIR="./data")
-add_definitions(-DAPF_JACK_POLICY_DEBUG)
-add_definitions(-DAPF_JACKCLIENT_DEBUG)
+#add_definitions(-DAPF_JACK_POLICY_DEBUG)
+#add_definitions(-DAPF_JACKCLIENT_DEBUG)
 
 # Config definitions
 # configure a header file to pass some of the CMake settings
@@ -277,26 +280,26 @@ configure_file(
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -fomit-frame-pointer -ffast-math -funroll-loops -march=x86-64 -mmmx -msse -msse2 -mfpmath=sse")
 message(STATUS "Release Flags: " ${CMAKE_CXX_FLAGS_RELEASE})
 # And for debug builds (MAKE_BUILD_TYPE=DEBUG)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wa,-mbig-obj")  # -Weffc++ 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra")  # -Weffc++ -Wa,-mbig-obj
 message(STATUS "Debug Flags: " ${CMAKE_CXX_FLAGS_DEBUG})
 
 # Compile executables
 set(EXECUTABLES
     ssr-binaural
-#    ssr-brs
-#    ssr-vbap
-#    ssr-wfs
-#    ssr-aap
-#    ssr-dca
-#    ssr-generic
+    ssr-brs
+    ssr-vbap
+    ssr-wfs
+    ssr-aap
+    ssr-dca
+    ssr-generic
     )
 add_executable(ssr-binaural src/ssr_binaural.cpp ${SOURCE_FILES})
-#add_executable(ssr-brs src/ssr_brs.cpp ${SOURCE_FILES})
-#add_executable(ssr-vbap src/ssr_vbap.cpp ${SOURCE_FILES})
-#add_executable(ssr-wfs src/ssr_wfs.cpp ${SOURCE_FILES})
-#add_executable(ssr-aap src/ssr_aap.cpp ${SOURCE_FILES})
-#add_executable(ssr-dca src/ssr_dca.cpp ${SOURCE_FILES})
-#add_executable(ssr-generic src/ssr_generic.cpp ${SOURCE_FILES})
+add_executable(ssr-brs src/ssr_brs.cpp ${SOURCE_FILES})
+add_executable(ssr-vbap src/ssr_vbap.cpp ${SOURCE_FILES})
+add_executable(ssr-wfs src/ssr_wfs.cpp ${SOURCE_FILES})
+add_executable(ssr-aap src/ssr_aap.cpp ${SOURCE_FILES})
+add_executable(ssr-dca src/ssr_dca.cpp ${SOURCE_FILES})
+add_executable(ssr-generic src/ssr_generic.cpp ${SOURCE_FILES})
 
 
 # Link
