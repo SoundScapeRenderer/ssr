@@ -11,5 +11,5 @@ src/config.h.in
 src/config.h
 _build/
 bin/
-
+ssr-win-bin/
 *.exe
