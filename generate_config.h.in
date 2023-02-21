@@ -2,34 +2,34 @@
 
 
 /* graphical user interface (using Qt) */
-#cmakedefine ENABLE_GUI @ENABLE_GUI@
+#cmakedefine ENABLE_GUI
 
 /* separate control window */
-#cmakedefine ENABLE_FLOATING_CONTROL_PANEL @ENABLE_FLOATING_CONTROL_PANEL@
+#cmakedefine ENABLE_FLOATING_CONTROL_PANEL
 
 /* Ecasound soundfile playback/recording */
-#cmakedefine ENABLE_ECASOUND 0
+#cmakedefine ENABLE_ECASOUND
 
 /* XML network (TCP/IP) interface : LEGACY*/
-#cmakedefine ENABLE_IP_INTERFACE @ENABLE_LEGACY_NETWORK_INTERFACE@
+#cmakedefine ENABLE_IP_INTERFACE
 
 /* Websocket++ network (TCP/IP) interface : WEBSOCKET*/
-#cmakedefine ENABLE_WEBSOCKET_INTERFACE @ENABLE_WEBSOCKET_INTERFACE@
+#cmakedefine ENABLE_WEBSOCKET_INTERFACE
 
 /* Razor AHRS tracker support */
-#cmakedefine ENABLE_RAZOR @HEAD_TRACKER@
+#cmakedefine ENABLE_RAZOR
 
 /* Polhemus Fastrak/Patriot tracker support */
-#cmakedefine ENABLE_POLHEMUS @HEAD_TRACKER@
+#cmakedefine ENABLE_POLHEMUS
 
 /*?? support for isatty() ??*/
-#cmakedefine ENABLE_ISATTY 1
+#define ENABLE_ISATTY 1
 
 /* Name of package */
 #define PACKAGE "ssr"
 
 /* Version number of package */
-#define VERSION @SSR_VERSION@
+#define VERSION "@SSR_VERSION@"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "ssr@spatialaudio.net"
@@ -50,10 +50,10 @@
 #define PACKAGE_URL "http://spatialaudio.net/ssr/"
 
 /* List of SSR authors */
-#define SSR_AUTHORS "Written by:\n Matthias Geier, Jens Ahrens\nScientific supervision:\n Sascha Spors\nContributions by:\n Peter Bartz, Florian Hinterleitner, Torben Hohn,\n Lukas Kaser, André Möhl, Till Rettberg, Fiete Winter\nGUI design:\n Katharina Bredies, Jonas Loh, Jens Ahrens\nLogo design:\n Fabian Hemmert"
+#define SSR_AUTHORS "Written by:\n Matthias Geier, Jens Ahrens\nScientific supervision:\n Sascha Spors\nContributions by:\n Peter Bartz, Florian Hinterleitner, Torben Hohn,\n Christoph Hohnerlein, Christoph Hold, Lukas Kaser, \n André Möhl, Till Rettberg, David Runge, Fiete Winter, \n IOhannes m zmölnig \nGUI design:\n Katharina Bredies, Jonas Loh, Jens Ahrens\nLogo design:\n Fabian Hemmert"
 
 /* List of SSR authors (with Qt markup) */
-#define SSR_AUTHORS_QT "<EM>Written&nbsp;by:</EM><BR>&nbsp;Matthias&nbsp;Geier,&nbsp;Jens&nbsp;Ahrens<BR><BR><EM>Scientific&nbsp;supervision:</EM><BR>&nbsp;Sascha&nbsp;Spors<BR><BR><EM>Contributions&nbsp;by:</EM><BR>&nbsp;Peter&nbsp;Bartz,&nbsp;Florian&nbsp;Hinterleitner,&nbsp;Torben&nbsp;Hohn,<BR>&nbsp;Lukas&nbsp;Kaser,&nbsp;Andr&eacute;&nbsp;M&ouml;hl,&nbsp;Till&nbsp;Rettberg,&nbsp;Fiete&nbsp;Winter<BR><BR><EM>GUI&nbsp;design:</EM><BR>&nbsp;Katharina&nbsp;Bredies,&nbsp;Jonas&nbsp;Loh,&nbsp;Jens&nbsp;Ahrens<BR><BR><EM>Logo&nbsp;design:</EM><BR>&nbsp;Fabian&nbsp;Hemmert"
+#define SSR_AUTHORS_QT "<EM>The SSR Authors.</EM>"
 
 /* SSR copyright notice */
 #define SSR_COPYRIGHT "Copyright © 2016 Division of Applied Acoustics, Chalmers University of Technology\nCopyright © 2014 Institut für Nachrichtentechnik, Universität Rostock\nCopyright © 2012 Quality & Usability Lab, Telekom Innovation Laboratories, TU Berlin\n\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
