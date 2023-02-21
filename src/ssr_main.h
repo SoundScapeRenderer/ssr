@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
   std::signal(SIGTERM, signal_handler);
   try
   {
+    SSR_VERBOSE3("STARTING SSR");
     // NB: This is static to be cleaned up automatically when exit() is called.
     static ssr::Controller<Renderer> controller{argc, argv};
     controller.run();
