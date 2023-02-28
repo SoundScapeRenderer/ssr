@@ -203,7 +203,9 @@ ssr::QGUI::QGUI(api::Publisher& controller, const LegacyScene& scene, int &argc,
     , path_to_gui_images, path_to_scene_menu)
 {
   // this is a quick hack to allow dynamic specification of path
-  qt_style_sheet.replace(QString("images"), QString( path_to_gui_images.c_str() ));
+  QString url_to_gui_images = path_to_gui_images.c_str();
+  url_to_gui_images.replace(QString("\\"), "/");  // url needs all forward
+  qt_style_sheet.replace(QString("images"), url_to_gui_images);
 
   // set stylesheet
   _qt_app.setStyleSheet(qt_style_sheet);
