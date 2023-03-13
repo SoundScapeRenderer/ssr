@@ -92,23 +92,22 @@ inline std::string normalize_path(const std::string& in_path) {
     return p_norm;
 }
 
-/** Tries to find a home path, otherwise returns the root path.
+/** Tries to find a home path, otherwise returns the current path.
  * @return home path
  **/
 inline fs::path get_home_dir()
 {
-  fs::path p_home = fs::current_path().root_path();
-  char const* home = getenv("HOME");
+  const char* home = getenv("HOME");
   if (home)
   {
-    p_home = fs::path(home);
+    return fs::path{home};
   }
   home = getenv("USERPROFILE");
   if (home)
   {
-    p_home = fs::path(home);
+    return fs::path{home};
   }
-  return p_home;
+  return fs::current_path();
 }
 
 /** Insert escape characters (\) before whitespace characters.
