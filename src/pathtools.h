@@ -77,17 +77,17 @@ inline std::string make_path_relative_to_current_dir(const std::string& path
   auto p = fs::path{path};
   if (p.is_absolute() || p == "")
   {
-    return p.string();
+    return p.make_preferred().string();
   }
   return fs::relative(fs::absolute(filename).parent_path() / p).make_preferred().string();
 }
 
-/** Cleanup @p in_path, e.g. by adjusting and removing duplicate separators. 
+/** Cleanup @p path, e.g. by adjusting and removing duplicate separators. 
  * @param path A path given
  * @return @p path in a canonical and native format.
  **/
-inline std::string normalize_path(const std::string& in_path) {
-    fs::path p_canonical = fs::weakly_canonical(in_path);
+inline std::string normalize_path(const std::string& path) {
+    fs::path p_canonical = fs::weakly_canonical(path);
     std::string p_norm = p_canonical.make_preferred().string();
     return p_norm;
 }
