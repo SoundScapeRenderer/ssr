@@ -92,7 +92,7 @@ inline std::string normalize_path(const std::string& path) {
     return p_norm;
 }
 
-/** Tries to find a home path, otherwise returns the current path.
+/** Tries to find a home path, otherwise returns path().
  * @return home path
  **/
 inline fs::path get_home_dir()
@@ -107,7 +107,7 @@ inline fs::path get_home_dir()
   {
     return fs::path{home};
   }
-  return fs::current_path();
+  return fs::path();
 }
 
 /** Insert escape characters (\) before whitespace characters.
