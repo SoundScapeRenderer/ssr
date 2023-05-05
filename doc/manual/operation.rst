@@ -248,10 +248,10 @@ Head Tracking
 
 We provide integration of the *InterSense InertiaCube3* tracking sensor,
 the *Polhemus Fastrak* and the *Polhemus Patriot* as well as all trackers
-supported by *VRPN*.
-The head trackers are used to update the orientation of
-the reference (in binaural reproduction this is the listener) in
-real-time.
+supported by *VRPN*. The *Supperware* head tracker is supported indirectly via
+the Pd patch ``pd/supperware_head_tracker_to_ssr.pd``. The head trackers are
+used to update the orientation of the reference (in binaural reproduction this
+is the listener) in real-time.
 
 See :ref:`dependencies` for how to compile the SSR with head tracking support.
 
