@@ -6,13 +6,12 @@ version: 2
 jobs:
   tarball:
     docker:
-      # https://github.com/dante-ev/docker-texlive
-      - image: danteev/texlive
+      - image: texlive/texlive
 
     working_directory: ~/checkout
 
     environment:
-      PIP_INSTALL: python3 -m pip install --user --progress-bar off --upgrade
+      PIP_INSTALL: python -m pip install --progress-bar off --upgrade
       CONFIGURE_FLAGS: --disable-ecasound --disable-gui --disable-ip-interface --disable-websocket-interface --disable-fudi-interface --enable-browser-gui
 
     steps:
@@ -34,21 +33,25 @@ jobs:
             curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
             echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
             apt-get update
-            apt-get install -y \
+            apt-get install -y --no-install-recommends \
               automake \
               binutils \
+              build-essential \
               help2man \
               libfftw3-dev \
               libjack-jackd2-dev \
               libsndfile1-dev \
               libxml2-dev \
+              nodejs \
               pkg-config \
-              python3-pip \
+              python3-venv \
               yarn
 
       - run:
           name: Installing Python Packages
           command: |
+            python3 -m venv .venv
+            source .venv/bin/activate
             $PIP_INSTALL -r doc/manual/requirements.txt
 
       - run:
@@ -75,12 +78,14 @@ jobs:
       - run:
           name: Building HTML Manual
           command: |
+            source .venv/bin/activate
             cd doc/manual
             make html -W --keep-going
 
       - run:
           name: Building PDF Manual
           command: |
+            source .venv/bin/activate
             cd doc/manual
             make latexpdf
 
@@ -115,6 +120,7 @@ jobs:
       - run:
           name: Check for broken links in User Manual
           command: |
+            source .venv/bin/activate
             cd doc/manual
             make linkcheck -W --keep-going
 
