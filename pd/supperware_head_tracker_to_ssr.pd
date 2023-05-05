@@ -1,0 +1,170 @@
+#N canvas 802 155 919 927 10;
+#X obj 683 658 list trim;
+#X obj 683 634 list prepend send;
+#X obj 683 682 netsend;
+#X obj 683 710 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1
+-1 0 1;
+#X msg 575 473 connect localhost 1174;
+#X obj 682 515 r azimuth;
+#N canvas 143 25 1321 675 supperware_head_tracker 0;
+#X obj 119 50 sysexin;
+#X obj 119 77 select 240 247;
+#X msg 196 235 240 0 33 66 64 0 127 90 125 30 0 81 247;
+#X msg 184 157 add2 247;
+#X msg 119 157 set 240;
+#X msg 254 157 add2 \$1;
+#X obj 184 186 t b a;
+#X text 28 128 Package up the incoming sysex message into an array
+;
+#X obj 125 307 expr if($i1 >= 8192 \, ($i1-16384)*0.02798 \, $i1*0.02798)
+;
+#X text 21 261 Convert to 14-bit integer Wrap to [-1 \, 1] and convert
+to degrees;
+#X obj 201 361 expr if($i1 >= 8192 \, ($i1-16384)*0.02798 \, $i1*0.02798)
+;
+#X obj 125 282 expr ($i7 * 128 + $i8);
+#X obj 201 336 expr ($i9 * 128 + $i10);
+#X obj 270 418 expr if($i1 >= 8192 \, ($i1-16384)*0.02798 \, $i1*0.02798)
+;
+#X obj 270 394 expr ($i11 * 128 + $i12);
+#X obj 125 506 outlet;
+#X obj 201 507 outlet;
+#X obj 270 506 outlet;
+#X text 130 539 YAW;
+#X text 199 541 PITCH;
+#X text 279 540 ROLL;
+#X obj 995 483 midiout;
+#X msg 955 401 240 \, 0 \, 33 \, 66 \, 0 \, 0 \, 72 \, 1 \, 1 \, 247
+;
+#X msg 1032 364 240 \, 0 \, 33 \, 66 \, 1 \, 0 \, 1 \, 247;
+#X msg 1105 326 240 \, 0 \, 33 \, 66 \, 0 \, 1 \, 0 \, 247;
+#X obj 723 407 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 832 406 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 745 407 LEFT CHIRALITY;
+#X text 859 405 RIGHT CHIRALITY;
+#X msg 719 452 240 \, 0 \, 33 \, 66 \, 0 \, 4 \, 2 \, 247;
+#X msg 759 483 240 \, 0 \, 33 \, 66 \, 0 \, 4 \, 3 \, 247;
+#X obj 725 526 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 748 524 COMPASS CAL;
+#X msg 724 557 240 \, 0 \, 33 \, 66 \, 0 \, 3 \, 4 \, 247;
+#X obj 1032 195 inlet;
+#X obj 955 195 inlet;
+#X obj 1105 197 inlet;
+#X text 1038 155 ZERO;
+#X text 1101 158 SHUT UP!;
+#X text 951 153 TURN ON;
+#X text 507 58 https://supperware.net/headtracker/example-code/;
+#X text 507 34 This subpatch was obtained with kind permission from
+;
+#X connect 0 0 1 0;
+#X connect 1 0 4 0;
+#X connect 1 1 3 0;
+#X connect 1 2 5 0;
+#X connect 2 0 11 0;
+#X connect 2 0 12 0;
+#X connect 2 0 14 0;
+#X connect 3 0 6 0;
+#X connect 4 0 2 0;
+#X connect 5 0 2 0;
+#X connect 6 0 2 0;
+#X connect 6 1 2 0;
+#X connect 8 0 15 0;
+#X connect 10 0 16 0;
+#X connect 11 0 8 0;
+#X connect 12 0 10 0;
+#X connect 13 0 17 0;
+#X connect 14 0 13 0;
+#X connect 22 0 21 0;
+#X connect 23 0 21 0;
+#X connect 24 0 21 0;
+#X connect 25 0 29 0;
+#X connect 26 0 30 0;
+#X connect 29 0 21 0;
+#X connect 30 0 21 0;
+#X connect 31 0 33 0;
+#X connect 33 0 21 0;
+#X connect 34 0 23 0;
+#X connect 35 0 22 0;
+#X connect 36 0 24 0;
+#X restore 127 611 pd supperware_head_tracker;
+#X floatatom 127 687 5 0 0 0 - - -;
+#X text 140 661 YAW;
+#X floatatom 203 689 5 0 0 0 - - -;
+#X text 209 663 PITCH;
+#X floatatom 280 689 5 0 0 0 - - -;
+#X text 289 662 ROLL;
+#X obj 55 746 hsl 128 15 -180 180 0 0 empty empty empty -2 -8 0 10
+-262144 -1 -1 6315 1;
+#X obj 294 734 hsl 128 15 -180 180 0 0 empty empty empty -2 -8 0 10
+-262144 -1 -1 6421 1;
+#X obj 127 715 int 0;
+#X text 67 770 azimuth (integer);
+#X obj 203 742 vsl 15 128 -180 180 0 0 empty empty empty 0 -9 0 10
+-262144 -1 -1 6032 1;
+#X obj 127 799 s azimuth;
+#X obj 127 508 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 203 509 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 127 472 loadbang;
+#X text 214 530 ZERO;
+#X obj 280 510 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 289 532 SHUT UP!;
+#X text 135 532 TURN ON;
+#X text 23 131 Usage:;
+#X text 128 443 ---------- Head tracker ----------;
+#X text 575 450 ---------- Commmunication with SSR ----------;
+#X text 22 11 This Pd patch is based on the Pd patch head-tracker-ypr.pd
+;
+#X text 22 30 that is provided at;
+#X text 22 49 https://supperware.net/headtracker/example-code/ .;
+#X text 22 71 Thanks to Ben Supper for his kind permission of using
+it!;
+#X obj 203 713 int 0;
+#X obj 229 798 s elevation;
+#X obj 280 711 int 0;
+#X obj 280 771 s roll;
+#X obj 682 577 pack 0 0 0;
+#X obj 710 536 r elevation;
+#X obj 739 556 r roll;
+#X text 23 165 1 For elevation and roll to be correct \, the head tracker
+needs to be mounted on the headphones such that the USB cable leaves
+the headtracker on the left relative to the look direction of the user.
+;
+#X text 23 226 2 Select "Head Tracker" as MIDI input device and as
+MIDI output device (Media -> MIDI settings);
+#X text 23 266 3 Click on "TURN ON" below to turn on the head tracker
+;
+#X text 23 298 4 Connect the Pd patch to SSR by clicking on the "connect"
+message on the right (SSR has to be started with the argument --fudi-server=1174)
+;
+#X msg 683 610 ref offset rot \$1 \$2 \$3;
+#X connect 0 0 2 0;
+#X connect 1 0 0 0;
+#X connect 2 0 3 0;
+#X connect 4 0 2 0;
+#X connect 5 0 37 0;
+#X connect 6 0 7 0;
+#X connect 6 1 9 0;
+#X connect 6 2 11 0;
+#X connect 7 0 15 0;
+#X connect 9 0 33 0;
+#X connect 11 0 35 0;
+#X connect 15 0 13 0;
+#X connect 15 0 18 0;
+#X connect 19 0 6 0;
+#X connect 20 0 6 1;
+#X connect 21 0 19 0;
+#X connect 23 0 6 2;
+#X connect 33 0 17 0;
+#X connect 33 0 34 0;
+#X connect 35 0 14 0;
+#X connect 35 0 36 0;
+#X connect 37 0 44 0;
+#X connect 38 0 37 1;
+#X connect 39 0 37 2;
+#X connect 44 0 1 0;
