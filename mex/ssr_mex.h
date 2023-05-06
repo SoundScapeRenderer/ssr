@@ -214,7 +214,7 @@ class SsrMex
 
         if (!filename_list.empty())
         {
-          source_params.set("properties_file", filename_list[i]);
+          source_params.set("properties-file", filename_list[i]);
         }
         auto id = _engine->add_source("", source_params);
         _source_ids.push_back(id);

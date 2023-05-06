@@ -2339,7 +2339,7 @@ Controller<Renderer>::_add_sources(Node& node
 
     if (source.properties_file != "")
     {
-      source_node.new_attribute("properties-file"
+      source_node.new_attribute("properties_file"
           , pathtools::make_path_relative_to_file(source.properties_file
             , scene_file_name));
     }
