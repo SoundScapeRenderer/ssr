@@ -77,9 +77,27 @@ inline std::string make_path_relative_to_current_dir(const std::string& path
   auto p = fs::path{path};
   if (p.is_absolute() || p == "")
   {
-    return p;
+    return p.make_preferred().string();
   }
-  return fs::relative(fs::absolute(filename).parent_path() / p).string();
+  return fs::relative(fs::absolute(filename).parent_path() / p).make_preferred().string();
+}
+
+/** Tries to find a home path, otherwise returns path().
+ * @return home path
+ **/
+inline fs::path get_home_dir()
+{
+  const char* home = getenv("HOME");
+  if (home)
+  {
+    return fs::path{home};
+  }
+  home = getenv("USERPROFILE");
+  if (home)
+  {
+    return fs::path{home};
+  }
+  return fs::path();
 }
 
 /** Insert escape characters (\) before whitespace characters.

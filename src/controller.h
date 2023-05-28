@@ -1526,7 +1526,7 @@ Controller<Renderer>::_load_scene(const std::string& scene_file_name)
     return true;
   }
 
-  std::string file_extension = fs::path(scene_file_name).extension();
+  std::string file_extension = fs::path(scene_file_name).extension().string();
 
   if (file_extension == "")
   {
@@ -2307,7 +2307,7 @@ Controller<Renderer>::_add_sources(Node& node
       {
         _add_audio_file_name(source_node
             , pathtools::make_path_relative_to_file(source.audio_file_name
-              , scene_file_name), source.audio_file_channel);
+              , scene_file_name).string(), source.audio_file_channel);
       }
     }
 
@@ -2341,7 +2341,7 @@ Controller<Renderer>::_add_sources(Node& node
     {
       source_node.new_attribute("properties_file"
           , pathtools::make_path_relative_to_file(source.properties_file
-            , scene_file_name));
+            , scene_file_name).string());
     }
   });
 }
