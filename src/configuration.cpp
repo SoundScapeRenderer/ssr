@@ -192,14 +192,17 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
   load_config_file("/Library/SoundScapeRenderer/ssr.conf",conf);
   // load system-wide config file (Linux et al.)
   load_config_file("/etc/ssr.conf",conf);
-  // load user config file (Mac)
-  fs::path home_dir = pathtools::get_home_dir();
-  fs::path conf_file;
-  conf_file = home_dir / "Library/SoundScapeRenderer/ssr.conf";
-  load_config_file(conf_file.make_preferred().string().c_str(),conf);
-  // load user config file (Linux et al.)
-  conf_file = home_dir / ".ssr/ssr.conf";
-  load_config_file(conf_file.make_preferred().string().c_str(),conf);
+
+  if (auto home_dir = pathtools::get_home_dir(); home_dir != fs::path())
+  {
+    fs::path conf_file;
+    // load user config file (Mac)
+    conf_file = home_dir / "Library" / "SoundScapeRenderer" / "ssr.conf";
+    load_config_file(conf_file.make_preferred().string().c_str(),conf);
+    // load user config file (Linux et al.)
+    conf_file = home_dir / ".ssr" / "ssr.conf";
+    load_config_file(conf_file.make_preferred().string().c_str(),conf);
+  }
 
   const std::string usage_string =
 "Usage: " + std::string(conf.exec_name) + " [OPTIONS] <scene-file>\n";
