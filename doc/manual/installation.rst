@@ -101,14 +101,21 @@ If you don't need the :doc:`gui`, there is also the GUI-less package
 ``soundscaperenderer-nox`` with fewer dependencies.
 
 
-.. _jack_mac_os_x:
+macOS
+-----
 
-JACK on macOS
-^^^^^^^^^^^^^
+Independent of whether you compile SSR yourself or get it from Homebrew_ as
+described below, make sure that you install JACK from Homebrew::
 
-Make sure that you install JACK using Homebrew_. You can also obtain QJackCtl
-from there, which is a very useful GUI for JACK. We found unfortunately that
-QJackCtl does not always run stably though.
+    brew install jack
+
+We also recommed QJackCtl for convenient usage of JACK::
+
+    brew install qjackctl
+
+SSR can be installed via::
+
+    brew install SoundScapeRenderer/ssr/ssr
 
 .. _Homebrew: https://brew.sh/
 

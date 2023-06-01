@@ -57,7 +57,8 @@ run the command::
 
     ./autogen.sh
 
-For this step, you'll need those extra dependencies:
+For this step, you'll need those extra dependencies (see below for how to
+install them for both Linux and macOS):
 
 - ``libtool``
 - ``automake``
@@ -78,18 +79,21 @@ If you want to use ``help2man`` on macOS, you have to install a Perl package::
 Dependencies
 ------------
 
+Linux
+^^^^^
+
 The following list of packages needs to be installed on your system
 to be able to build the SSR.
 The recommended way of installing those packages is to use your distribution's
 `package manager`__.
 On Debian/Ubuntu you can use ``apt-get``, ``aptitude``, ``synaptic`` etc.;
-on macOS, using Homebrew_ (with the main command ``brew``)
-is highly recommended.
+on macOS, using Homebrew is highly recommended (refer
+:ref:`here<dependencies_on_macos>`).
 However, if you prefer, you can of course also download everything as source
 code and compile each program yourself.
 
 __ https://en.wikipedia.org/wiki/List_of_software_package_management_systems
-.. _Homebrew: https://brew.sh
+
 
 .. note::
 
@@ -113,24 +117,7 @@ For playing/recording audio files:
 
 For the GUI:
 
-- ``libqt5-opengl-dev`` or ``qt@5``
-
-  When installing ``qt@5`` with ``brew``,
-  this command should be run before compiling the SSR::
-
-      brew link qt@5 --force
-
-  However, if you already have a newer version of Qt installed
-  (for example if you installed the very useful package ``qjackctl``),
-  you have to run this first::
-
-      brew unlink qt
-
-  Once the SSR is successfully compiled,
-  you can switch back to the newer Qt version
-  (otherwise ``qjackctl`` will not work anymore)::
-
-      brew link qt
+- ``libqt5-opengl-dev``
 
 For all network interfaces:
 
@@ -146,7 +133,7 @@ For the FUDI network interface:
 
 For SOFA support:
 
-- ``libmysofa-dev`` (has to be compiled from source on macOS)
+- ``libmysofa-dev``
 
 For VRPN tracker support:
 
@@ -161,11 +148,6 @@ For support of the *InterSense IntertiaCube3* head tracker:
 For a concrete list of Ubuntu and Homebrew packages,
 see the CI configuration file
 :download:`.github/workflows/main.yml <../../.github/workflows/main.yml>`.
-
-For instructions to compile and install ``libmysofa``
-on macOS, have a look at the file
-:download:`ci/build-deps-macos.sh <../../ci/build-deps-macos.sh>`
-(``cmake`` must be installed).
 
 If the Qt5 library cannot be found during configuration, try using ::
 
@@ -182,6 +164,39 @@ Ensure that ``/etc/ld.so.conf`` or ``LD_LIBRARY_PATH`` are set properly
 and run this after any changes::
 
     sudo ldconfig
+
+
+.. _dependencies_on_macos:
+
+macOS
+^^^^^
+
+We recommend installing all dependencies from Homebrew_::
+
+    brew install make automake libtool pkg-config help2man fftw asio fmt vrpn freeglut yarn llvm
+
+And then::
+
+    brew link libmysofa
+    brew link qt5 --force
+
+However, if you already have a newer version of Qt installed (for example if
+you installed the very useful package ``qjackctl``), you have to run this
+first::
+
+    brew unlink qt
+
+Once SSR has compiled successfully, you can switch back to the newer Qt
+version (otherwise ``qjackctl`` will not work anymore)::
+
+    brew link qt
+
+If you have trouble with installing``libmysofa``, compile and install it from
+source. For instructions on this, have a look at the file
+:download:`ci/build-deps-macos.sh <../../ci/build-deps-macos.sh>`
+(``cmake`` must be installed).
+
+.. _Homebrew: https://brew.sh
 
 
 .. _configuring:
