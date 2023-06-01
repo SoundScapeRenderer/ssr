@@ -22,6 +22,15 @@
 /* Polhemus Fastrak/Patriot tracker support */
 #cmakedefine ENABLE_POLHEMUS
 
+/* VRPN head tracker support */
+#cmakedefine ENABLE_VRPN
+
+/* INTERSENSE tracker support */
+#cmakedefine ENABLE_INTERSENSE
+
+/* SOFA file support */
+#cmakedefine ENABLE_SOFA
+
 /*?? support for isatty() ??*/
 #define ENABLE_ISATTY 1
 

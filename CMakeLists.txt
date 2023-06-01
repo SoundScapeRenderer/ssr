@@ -33,18 +33,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# The following folders will be included
-include_directories(${PROJECT_SOURCE_DIR}/src)
-
-# Include APF
-set(APF_PATH ${PROJECT_SOURCE_DIR}/apf)
-include_directories(${APF_PATH})
-
-# Include GML
-set(GML_PATH ${PROJECT_SOURCE_DIR}/gml/include)
-include_directories(${GML_PATH})
-
-# Files
 set(SOURCE_FILES
     src/configuration.cpp
     src/ssr_global.cpp
@@ -55,9 +43,23 @@ set(SOURCE_FILES
     src/legacy_scene.cpp
     )
 
-# Libraries
-# Add libraries to LINKLIBS
-set(LINKLIBS)
+
+# The following folders will be included
+include_directories(${PROJECT_SOURCE_DIR}/src)
+
+# Dependencies
+
+# Include APF
+set(APF_PATH ${PROJECT_SOURCE_DIR}/apf)
+include_directories(${APF_PATH})
+
+# Include GML
+set(GML_PATH ${PROJECT_SOURCE_DIR}/gml/include)
+include_directories(${GML_PATH})
+
+
+# Add libraries to EXTRA_LIBS
+set(EXTRA_LIBS)
 
 #set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -91,21 +93,21 @@ if(WIN32)
   endif()
   find_package(LibXml2 REQUIRED)
   include_directories(${LIBXML2_INCLUDE_DIR})
-  list(APPEND LINKLIBS ${LIBXML2_LIBRARY})
-  #list(APPEND LINKLIBS "-lxml2 -lz -llzma -lws2_32")
-  list(APPEND LINKLIBS "-llzma -lz")
+  list(APPEND EXTRA_LIBS ${LIBXML2_LIBRARY})
+  #list(APPEND EXTRA_LIBS "-lxml2 -lz -llzma -lws2_32")
+  list(APPEND EXTRA_LIBS "-llzma -lz")
   message(STATUS "Found XML2: " ${LIBXML2_LIBRARY})
   message(STATUS "Found XML2 headers: " ${LIBXML2_INCLUDE_DIR})
 else(WIN32)
   find_package(LibXml2 REQUIRED)
   include_directories(${LIBXML2_INCLUDE_DIR})
-  list(APPEND LINKLIBS ${LIBXML2_LIBRARY})
+  list(APPEND EXTRA_LIBS ${LIBXML2_LIBRARY})
 endif(WIN32)
 
 find_library(LIBSNDFILE_LIBRARY NAMES sndfile libsndfile-1)
-list(APPEND LINKLIBS ${LIBSNDFILE_LIBRARY})
+list(APPEND EXTRA_LIBS ${LIBSNDFILE_LIBRARY})
 if(WIN32)
-  list(APPEND LINKLIBS -lFLAC -lopus -lvorbisenc -lvorbis -logg)
+  list(APPEND EXTRA_LIBS -lFLAC -lopus -lvorbisenc -lvorbis -logg)
 endif(WIN32)
 message(STATUS "Found SNDFILE: " ${LIBSNDFILE_LIBRARY})
 
@@ -118,22 +120,22 @@ if(ENABLE_ECASOUND)
   find_path(ECASOUND_INCLUDE_DIR NAMES ecasoundc.h HINTS /usr/include/libecasoundc)
   include_directories(${ECASOUND_INCLUDE_DIR})
   find_library(ECASOUND_LIBRARY NAMES ecasoundc)
-  list(APPEND LINKLIBS ${ECASOUND_LIBRARY})
+  list(APPEND EXTRA_LIBS ${ECASOUND_LIBRARY})
   message(STATUS "Found ECASOUND: " ${ECASOUND_LIBRARY})
 else(ENABLE_ECASOUND)
   message(WARNING "ECASOUND disabled.")
 endif(ENABLE_ECASOUND)
 
 find_library(JACK_LIBRARY NAMES jack libjack64)
-list(APPEND LINKLIBS ${JACK_LIBRARY})
+list(APPEND EXTRA_LIBS ${JACK_LIBRARY})
 message(STATUS "Found JACK :" ${JACK_LIBRARY})
 
 find_library(FFTW_LIBRARY NAMES fftw3 libfftw3-3)
-list(APPEND LINKLIBS ${FFTW_LIBRARY})
+list(APPEND EXTRA_LIBS ${FFTW_LIBRARY})
 message(STATUS "Found FFTW: " ${FFTW_LIBRARY})
 
 find_library(FFTWF_LIBRARY NAMES fftw3f libfftw3f-3)
-list(APPEND LINKLIBS ${FFTWF_LIBRARY})
+list(APPEND EXTRA_LIBS ${FFTWF_LIBRARY})
 message(STATUS "Found FFTWF: " ${FFTWF_LIBRARY})
 
 # GUI
@@ -193,8 +195,8 @@ if(GUI)
   # OpenGL
   find_package(OpenGL REQUIRED)
   include_directories(${OPENGL_INCLUDE_DIR})
-  list(APPEND LINKLIBS ${OPENGL_gl_LIBRARY})
-  list(APPEND LINKLIBS ${OPENGL_glu_LIBRARY})
+  list(APPEND EXTRA_LIBS ${OPENGL_gl_LIBRARY})
+  list(APPEND EXTRA_LIBS ${OPENGL_glu_LIBRARY})
 
   message(STATUS "Build GUI")
 
@@ -233,8 +235,8 @@ if(ENABLE_LEGACY_NETWORK_INTERFACE)
 
   include_directories(${PROJECT_SOURCE_DIR}/src/legacy_network)
   if(WIN32)
-    add_definitions(-D_WIN32_WINNT=0x0601)  # min Windows 7
-    list(APPEND LINKLIBS "-lws2_32 -lmswsock")
+    #add_definitions(-D_WIN32_WINNT=0x0601)  # min Windows 7, conflict VRPN
+    list(APPEND EXTRA_LIBS "-lws2_32 -lmswsock")
   endif(WIN32)
   message(STATUS "Enabled LEGACY_NETWORK interface")
 else(ENABLE_LEGACY_NETWORK_INTERFACE)
@@ -255,10 +257,52 @@ if(HEAD_TRACKER)
     add_definitions(-DENABLE_O_NDELAY_WORKAROUND)  # bits/fcntl2.h
   endif(WIN32)
   message(STATUS "Basic head tracker support")
+
+  option(VRPN "VRPN tracker support" ON)
+  if(VRPN)
+    message(STATUS "Adding VRPN:")
+    list(APPEND SOURCE_FILES
+      src/trackervrpn.cpp
+    )
+    set(VRPN_BUILD_CLIENT_LIBRARY TRUE CACHE INTERNAL "" FORCE)
+    #add_definitions(-D_TIMEZONE_DEFINED)  # hack
+    add_subdirectory(vrpn)
+    include_directories(vrpn)
+    list(APPEND EXTRA_LIBS vrpn)
+    set(ENABLE_VRPN ON)
+    message(STATUS "VRPN head tracker support")
+  endif(VRPN)
+  option(INTERSENSE "INTERSENSE tracker support" OFF)
+  if(INTERSENSE)
+    add_definitions(-DHAVE_INTERSENSE_404)
+    list(APPEND SOURCE_FILES
+      src/trackerintersense.cpp
+    )
+    include_directories(intersense)
+    list(APPEND EXTRA_LIBS isense)
+    set(ENABLE_INTERSENSE ON)
+    message(STATUS "INTERSENSE head tracker support")
+  endif(INTERSENSE)
 else(HEAD_TRACKER)
   message(WARNING "HEAD_TRACKER disabled.")
 endif(HEAD_TRACKER)
 
+
+# SOFA support
+option(SOFA "SOFA file support" ON)
+if(SOFA)
+  message(STATUS "Adding SOFA:")
+  option(BUILD_TESTS OFF)
+  add_subdirectory(libmysofa)
+  include_directories(libmysofa/src/hrtf)
+  if(${BUILD_SHARED_LIBS})
+    list(APPEND EXTRA_LIBS mysofa-shared)
+  else()
+    list(APPEND EXTRA_LIBS mysofa-static)
+  endif()
+  set(ENABLE_SOFA ON)
+  message(STATUS "SOFA file support")
+endif(SOFA)
 
 # Preprocessor symbols
 add_definitions(-DSSR_DATA_DIR="./data")
@@ -293,13 +337,13 @@ set(EXECUTABLES
     ssr-dca
     ssr-generic
     )
-add_executable(ssr-binaural src/ssr_binaural.cpp ${SOURCE_FILES})
-add_executable(ssr-brs src/ssr_brs.cpp ${SOURCE_FILES})
-add_executable(ssr-vbap src/ssr_vbap.cpp ${SOURCE_FILES})
-add_executable(ssr-wfs src/ssr_wfs.cpp ${SOURCE_FILES})
-add_executable(ssr-aap src/ssr_aap.cpp ${SOURCE_FILES})
-add_executable(ssr-dca src/ssr_dca.cpp ${SOURCE_FILES})
-add_executable(ssr-generic src/ssr_generic.cpp ${SOURCE_FILES})
+add_executable(ssr-binaural src/ssr_binaural.cpp)
+add_executable(ssr-brs src/ssr_brs.cpp)
+add_executable(ssr-vbap src/ssr_vbap.cpp)
+add_executable(ssr-wfs src/ssr_wfs.cpp)
+add_executable(ssr-aap src/ssr_aap.cpp)
+add_executable(ssr-dca src/ssr_dca.cpp)
+add_executable(ssr-generic src/ssr_generic.cpp)
 
 
 # Link
@@ -307,15 +351,21 @@ if(NOT ${BUILD_SHARED_LIBS})
   set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
 endif()
 
-message(STATUS "Linking: "  ${LINKLIBS} ${QT5PLATFORMSUPPORT_LIBS})
+message(STATUS "Linking: "  ${EXTRA_LIBS} ${QT5PLATFORMSUPPORT_LIBS})
 
 foreach(executable ${EXECUTABLES})
+  target_sources(${executable} 
+  PRIVATE 
+      ${SOURCE_FILES}
+  )
   target_link_libraries(${executable} Threads::Threads)
-  target_link_libraries(${executable} ${LINKLIBS})
+  target_link_libraries(${executable} ${EXTRA_LIBS})
   if(GUI)
     target_link_libraries(${executable} Qt5::Gui Qt5::Core Qt5::Widgets Qt5::OpenGL ${QT5PLATFORMSUPPORT_LIBS})
   endif(GUI)
 endforeach(executable ${EXECUTABLES})
 
 
-# ../../mxe/tools/copydlldeps.sh --infile ./ssr-binaural.exe --destdir ./deps --recursivesrcdir ../../mxe/usr/x86_64-w64-mingw32.shared/ --srcdir ./ --copy --enforcedir ../../mxe/usr/x86_64-w64-mingw32.shared/qt5/plugins/platforms/
+# x86_64-w64-mingw32.shared.posix-cmake -S . -B _build/ -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+# x86_64-w64-mingw32.shared.posix-cmake --build ./_build -j4
+# ../mxe/tools/copydlldeps.sh --indir ./ssr-win-bin --destdir ./ssr-win-bin/deps --recursivesrcdir ../mxe/usr/x86_64-w64-mingw32.shared/ --srcdir ./_build --copy --enforcedir ./_build/*.dll --enforcedir ../mxe/usr/x86_64-w64-mingw32.shared/qt5/plugins/platforms/
