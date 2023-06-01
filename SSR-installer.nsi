@@ -2,7 +2,7 @@
 OutFile "SSR-installer.exe"
  
 # The default installation directory
-InstallDir $PROGRAMFILES64\SSR
+InstallDir $PROGRAMFILES64\SoundScapeRenderer
  
 RequestExecutionLevel admin
 
@@ -40,7 +40,7 @@ SectionEnd
 Section "Start Menu Shortcuts (required)"
     # create a shortcut named "SSR" in the start menu programs directory
     # point the new shortcut at the program uninstaller
-    CreateShortcut "$SMPROGRAMS\SoundScapeRenderer(SSR)\uninstall.lnk" "$INSTDIR\uninstall.exe"
+    CreateShortcut "$SMPROGRAMS\SoundScapeRenderer\uninstall.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
 
  
@@ -49,9 +49,12 @@ Section "un.Uninstaller Section"
     # TODO
 
     # Remove the link from the start menu
-    Delete "$SMPROGRAMS\SoundScapeRenderer(SSR)\uninstall.lnk"
+    Delete "$SMPROGRAMS\SoundScapeRenderer\uninstall.lnk"
 
-    RMDir "$SMPROGRAMS\SoundScapeRenderer(SSR)"
+    RMDir "$SMPROGRAMS\SoundScapeRenderer"
     RMDir $INSTDIR
+
+    MessageBox MB_OK "You need to manually remove the files for now!"
+
 # uninstaller section end
 SectionEnd
