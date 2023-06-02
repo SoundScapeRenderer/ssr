@@ -69,10 +69,6 @@ If you want to generate the ``man`` pages
 
 - ``help2man``
 
-If you want to use ``help2man`` on macOS, you have to install a Perl package::
-
-    cpan Locale::gettext
-
 
 .. _dependencies:
 
@@ -173,11 +169,12 @@ macOS
 
 We recommend installing all dependencies from Homebrew_::
 
-    brew install make automake libtool pkg-config help2man fftw asio fmt vrpn freeglut yarn llvm
+    brew install make automake libtool pkg-config help2man fftw asio fmt vrpn freeglut yarn SoundScapeRenderer/ssr/libmysofa llvm
+
+You might be able to skip installing llvm if you have Xcode installed.
 
 And then::
 
-    brew link libmysofa
     brew link qt5 --force
 
 However, if you already have a newer version of Qt installed (for example if
@@ -195,6 +192,10 @@ If you have trouble with installing``libmysofa``, compile and install it from
 source. For instructions on this, have a look at the file
 :download:`ci/build-deps-macos.sh <../../ci/build-deps-macos.sh>`
 (``cmake`` must be installed).
+
+If you want to use ``help2man`` on macOS, you have to install a Perl package::
+
+    cpan Locale::gettext
 
 .. _Homebrew: https://brew.sh
 

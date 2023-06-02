@@ -27,6 +27,8 @@
 Use Cases
 ---------
 
+.. _ssr_in_pure_data:
+
 SSR in Pure Data
 ^^^^^^^^^^^^^^^^
 
