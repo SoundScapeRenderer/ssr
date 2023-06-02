@@ -7,6 +7,7 @@ InstallDir $PROGRAMFILES64\SoundScapeRenderer
 RequestExecutionLevel admin
 
 ;--------------------------------
+Page components
 Page directory
 Page instfiles
 
@@ -37,10 +38,12 @@ Section "Installer Section"
 
 SectionEnd
 
-Section "Start Menu Shortcuts (required)"
-    # create a shortcut named "SSR" in the start menu programs directory
+Section "Start Menu Shortcuts"
+    # create a shortcut named "SoundScapeRenderer" in the start menu programs directory
     # point the new shortcut at the program uninstaller
+    CreateDirectory "$SMPROGRAMS\SoundScapeRenderer"
     CreateShortcut "$SMPROGRAMS\SoundScapeRenderer\uninstall.lnk" "$INSTDIR\uninstall.exe"
+
 SectionEnd
 
  
