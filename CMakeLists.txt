@@ -265,7 +265,6 @@ if(HEAD_TRACKER)
       src/trackervrpn.cpp
     )
     set(VRPN_BUILD_CLIENT_LIBRARY TRUE CACHE INTERNAL "" FORCE)
-    #add_definitions(-D_TIMEZONE_DEFINED)  # hack
     add_subdirectory(vrpn)
     include_directories(vrpn)
     list(APPEND EXTRA_LIBS vrpn)
