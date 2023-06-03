@@ -27,6 +27,30 @@
 Use Cases
 ---------
 
+.. _ssr_in_pure_data:
+
+SSR in Pure Data
+^^^^^^^^^^^^^^^^
+
+The SSR renderers are available as externals in `Pure Data <https://puredata
+.info/>`_. Install them in Pd via Help -> Find externals, then search for
+'ssr'. This is available on both Linux and macOS, whereby the macOS version
+for M1 processors is experimental.
+
+Here is a screenshot of what it looks like when using SSR's binaural renderer
+with the minimum-phase EQ'd HRIRs of the FABIAN manikin and 2 virtual sound
+sources in Pd, whereby the signal that feeds source 1 is a sine of 440 Hz, and
+the signal that feeds source 2 is noise:
+
+.. figure:: images/ssr_binaural_pd.png
+   :align: center
+
+The computational performance of SSR in Pd is somewhat lower than that of the
+standalone version because we have not got it to work in Pd with internal
+block sizes that are larger than 64. Such short blocks cause filters to be
+cut in very large numbers of partitions, which produces computational overhead.
+
+
 .. _listening_experiments:
 
 Using SSR for Listening Experiments

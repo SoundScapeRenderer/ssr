@@ -55,6 +55,10 @@ and
 The following examples use ``ssr-binaural``,
 but you can of course you any renderer you want!
 
+Note that the SSR renderers are also available as externals for
+`Pure Data <https://puredata.info/>`_. Refer to :ref:`SSR in Pure
+Data<ssr_in_pure_data>`.
+
 
 Loading a Single Audio File
 ---------------------------
