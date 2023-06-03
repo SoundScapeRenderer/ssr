@@ -116,6 +116,19 @@ We also recommed QJackCtl for convenient usage of JACK::
 
     brew install qjackctl
 
+.. note::
+
+    Binary packages (so-called "bottles") of the SSR
+    are only available for a few macOS versions.
+    The list of available bottles can be found on the
+    `package release page`__.
+    If no bottle is available for your system,
+    the installation should still work,
+    but the SSR will be compiled from source.
+    This means that more dependencies will be downloaded
+    and the installation process may take significantly longer.
+
+    __ https://github.com/SoundScapeRenderer/homebrew-ssr/releases
 
 MS Windows
 ----------
