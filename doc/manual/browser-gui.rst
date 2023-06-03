@@ -11,7 +11,7 @@ Browser-based GUI
 
 Using the SSR's :doc:`network-websocket`,
 it is possible to control the SSR from an off-the-shelf web browser.
-Just make sure the SSR is running (with the WebSocket feature enabled)
+Just make sure the SSR has been started with the ``--websocket-server`` option
 and visit the URL http://localhost:9422.
 
 If you just want to test the WebSocket connection,
