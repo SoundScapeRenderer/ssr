@@ -632,7 +632,6 @@ ssr::conf_struct ssr::configuration(int& argc, char* argv[])
     SSR_VERBOSE2(entry.first << " = " << entry.second);
   }
 
-  SSR_VERBOSE3("Done with parsing conf.");
   return conf;
 }
 

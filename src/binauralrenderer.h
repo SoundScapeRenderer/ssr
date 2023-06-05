@@ -134,7 +134,6 @@ BinauralRenderer::_load_hrtfs(const std::string& filename, size_t size)
   auto idx = filename.find_last_of(".");
   if (idx != std::string::npos)
   {
-    SSR_VERBOSE3("Loading HRTFS");
     auto ext = filename.substr(idx + 1);
     std::transform(ext.begin(), ext.end(), ext.begin()
         , [](unsigned char c){ return std::tolower(c); });
