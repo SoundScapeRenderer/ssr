@@ -10,7 +10,7 @@ jobs:
     - name: Add MXE repository
       run: |
         sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9 && \
-        sudo add-apt-repository 'deb [arch=amd64] https://mirror.mxe.cc/repos/apt bionic main' && \
+        sudo add-apt-repository 'deb [arch=amd64] https://mirror.mxe.cc/repos/apt focal main' && \
         sudo apt update
     - name: Install pre-build MXE
       run: |
