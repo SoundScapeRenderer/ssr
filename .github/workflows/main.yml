@@ -26,6 +26,8 @@ jobs:
               CC: clang-9
               CXX: clang++-9
               CXXFLAGS: -fno-builtin
+          - os: macos-13
+            xcode: Xcode_14.3
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-11
