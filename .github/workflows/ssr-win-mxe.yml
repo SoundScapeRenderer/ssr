@@ -3,11 +3,10 @@ on: [push, pull_request]
 jobs:
   build-win:
     runs-on: ubuntu-20.04
-    defaults:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    
+
     - name: Add MXE repository
       run: |
         sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9 && \
