@@ -14,6 +14,7 @@ jobs:
         sudo apt update
     - name: Install pre-build MXE
       run: |
+        export PKG_PREFIX=mxe-x86-64-w64-mingw32.shared && \
         sudo apt install ${PKG_PREFIX}-cc \
                           ${PKG_PREFIX}-cmake \
                           ${PKG_PREFIX}-pthreads \
