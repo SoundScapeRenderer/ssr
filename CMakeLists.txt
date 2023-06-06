@@ -1,4 +1,3 @@
-# run e.g.: mkdir -p _build && cd _build && cmake -DCMAKE_BUILD_TYPE=RELEASE .. && make -j3 && cd ..
 # Specify the minimum version for CMake
 message(STATUS "CMAKE_VERSION: " ${CMAKE_VERSION})
 cmake_minimum_required(VERSION 3.8)
@@ -364,7 +363,7 @@ foreach(executable ${EXECUTABLES})
   endif(GUI)
 endforeach(executable ${EXECUTABLES})
 
-
+# Using MXE with LOCAL_PKG_LIST := cc cmake fftw libsndfile libxml2 qtbase jack pthreads 
 # x86_64-w64-mingw32.shared.posix-cmake -S . -B _build/ -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 # x86_64-w64-mingw32.shared.posix-cmake --build ./_build -j4
 # ../mxe/tools/copydlldeps.sh --indir ./ssr-win-bin --destdir ./ssr-win-bin/deps --recursivesrcdir ../mxe/usr/x86_64-w64-mingw32.shared/ --srcdir ./_build --copy --enforcedir ./_build/*.dll --enforcedir ../mxe/usr/x86_64-w64-mingw32.shared/qt5/plugins/platforms/
