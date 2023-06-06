@@ -1,4 +1,4 @@
-name: Build SSR with different compilers
+name: Build SSR-win with MXE
 on: [push, pull_request]
 jobs:
   build-win:
