@@ -104,21 +104,31 @@ If you don't need the :doc:`gui`, there is also the GUI-less package
 macOS
 -----
 
-Independent of whether you compile SSR yourself or get it from Homebrew_ as
-described below, make sure that you install JACK from Homebrew::
-
-    brew install jack
-
-We also recommed QJackCtl for convenient usage of JACK::
-
-    brew install qjackctl
-
-SSR can be installed via::
+The SSR can be installed with Homebrew_,
+all dependencies including the JACK audio server
+will be installed automatically::
 
     brew install SoundScapeRenderer/ssr/ssr
 
 .. _Homebrew: https://brew.sh/
 
+We also recommed QJackCtl for convenient usage of JACK::
+
+    brew install qjackctl
+
+.. note::
+
+    Binary packages (so-called "bottles") of the SSR
+    are only available for a few macOS versions.
+    The list of available bottles can be found on the
+    `package release page`__.
+    If no bottle is available for your system,
+    the installation should still work,
+    but the SSR will be compiled from source.
+    This means that more dependencies will be downloaded
+    and the installation process may take significantly longer.
+
+    __ https://github.com/SoundScapeRenderer/homebrew-ssr/releases
 
 MS Windows
 ----------

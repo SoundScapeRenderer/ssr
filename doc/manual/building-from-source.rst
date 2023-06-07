@@ -82,9 +82,7 @@ The following list of packages needs to be installed on your system
 to be able to build the SSR.
 The recommended way of installing those packages is to use your distribution's
 `package manager`__.
-On Debian/Ubuntu you can use ``apt-get``, ``aptitude``, ``synaptic`` etc.;
-on macOS, using Homebrew is highly recommended (refer
-:ref:`here<dependencies_on_macos>`).
+On Debian/Ubuntu you can use ``apt-get``, ``aptitude``, ``synaptic`` etc.
 However, if you prefer, you can of course also download everything as source
 code and compile each program yourself.
 
@@ -100,16 +98,16 @@ __ https://en.wikipedia.org/wiki/List_of_software_package_management_systems
 - ``make``
 - ``g++`` or ``clang``
 - ``pkg-config``
-- ``libxml2-dev`` (pre-installed on macOS)
-- ``libfftw3-dev`` or ``fftw``
-- ``libsndfile1-dev`` or ``libsndfile``
-- ``libjack-jackd2-dev`` (contained in the Homebrew package ``jack``)
-- ``jackd2`` or ``jack``
+- ``libxml2-dev``
+- ``libfftw3-dev``
+- ``libsndfile1-dev``
+- ``libjack-jackd2-dev``
+- ``jackd2``
 
 For playing/recording audio files:
 
 - ``ecasound``
-- ``libecasoundc-dev`` (contained in the Homebrew package ``ecasound``)
+- ``libecasoundc-dev``
 
 For the GUI:
 
@@ -117,15 +115,15 @@ For the GUI:
 
 For all network interfaces:
 
-- ``libasio-dev`` or ``asio``
+- ``libasio-dev``
 
 For the WebSocket interface:
 
-- ``libwebsocketpp-dev`` or ``websocketpp``
+- ``libwebsocketpp-dev``
 
 For the FUDI network interface:
 
-- ``libfmt-dev`` (>= 5) or ``fmt``
+- ``libfmt-dev``
 
 For SOFA support:
 
