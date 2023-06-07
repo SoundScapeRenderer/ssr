@@ -51,9 +51,9 @@ launch this command in a separate terminal window::
 Now you can type FUDI messages (don't forget the semicolon at the end!)
 which will be sent to the SSR when you press :kbd:`Return`.
 
-For example, to move source 1 to the position (x, y) = (1, 1)::
+To then, for example, move source 1 to the position (x, y) = (1, 1), type::
 
-    nc localhost 1174 <<< "src 1 pos 1 1;"
+    src 1 pos 1 1;
 
 If you want to receive messages from the SSR, use something like this::
 
