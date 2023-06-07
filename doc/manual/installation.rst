@@ -133,10 +133,13 @@ We also recommed QJackCtl for convenient usage of JACK::
 MS Windows
 ----------
 
-The MS Windows version of SSR is experimental at this stage. Find the
-pre-release of the executables at https://github.com/chris-hld/ssr/releases.
+The MS Windows version of the standalone SSR is experimental at this stage. Find
+the pre-release of the executables at https://github.com/chris-hld/ssr/releases.
 Note that this SSR version only works with live inputs currently (it cannot
 play audio files). It has no limitation otherwise.
+
+The :ref:`Pd externals<ssr_in_pure_data>` of the SSR renderers are confirmed to
+work.
 
 .. only:: html
 

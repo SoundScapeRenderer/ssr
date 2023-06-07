@@ -35,7 +35,9 @@ SSR in Pure Data
 The SSR renderers are available as externals in `Pure Data <https://puredata
 .info/>`_. Install them in Pd via Help -> Find externals, then search for
 'ssr'. This is available on both Linux and macOS, whereby the macOS version
-for M1 processors is experimental.
+for Macs with Apple silicon is experimental. If this one does not work for you,
+use Pd for Intel processors with
+`Rosetta <https://en.wikipedia.org/wiki/Rosetta_(software)>`_.
 
 Here is a screenshot of what it looks like when using SSR's binaural renderer
 with the minimum-phase EQ'd HRIRs of the FABIAN manikin and 2 virtual sound
