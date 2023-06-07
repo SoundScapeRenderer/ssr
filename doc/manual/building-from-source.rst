@@ -167,7 +167,7 @@ macOS
 
 We recommend installing all dependencies from Homebrew_::
 
-    brew install make automake libtool pkg-config help2man fftw asio fmt vrpn freeglut yarn ecasound jack libsndfile websocketpp SoundScapeRenderer/ssr/libmysofa llvm
+    brew install make automake libtool pkg-config help2man fftw asio fmt vrpn freeglut yarn ecasound jack libsndfile websocketpp qt@5 SoundScapeRenderer/ssr/libmysofa llvm
 
 You might be able to skip installing llvm if you have Xcode installed.
 
