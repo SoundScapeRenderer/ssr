@@ -122,15 +122,11 @@ to replace the head tracking with another interface that allows us to select the
 desired filter indices. Here is a Pd patch that does exactly this:
 :gh-link-es:`data_linked_in_ssr_manual/select_filter_by_index.pd`
 
-On Linux, start SSR using::
+Start the SSR using::
 
   ssr-binaural --fudi-server=1147 --hrirs=data/scenes/impulse_responses/irs_1-in-1-out.wav
 
 and drag and drop an audio file into the GUI.
-
-On macOS, start SSR just as with Linux. Or, if you have an app bundle, use::
-
-  open -a SoundScapeRenderer --args --brs "--fudi-server=1147 --hrirs=data/scenes/impulse_responses/irs_1-in-1-out.wav"
 
 Start Pd with the control patch and play around with the filter index. You will
 find that, depending on the chosen filter index, different amounts of lowpass

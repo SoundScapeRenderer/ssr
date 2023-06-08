@@ -7,18 +7,7 @@
 
 dist_bin_SCRIPTS = ssr
 
-if ENABLE_APP_BUNDLE
-SUBDIRS = MacOSX
-extrasdir = $(bundledir)/Extras
-scenesdir = $(bundledir)/Scenes
-
-## these are always distributed, but only installed if ENABLE_APP_BUNDLE
-dist_scenes_DATA = \
-	scenes/asdf2html.xsl \
-	scenes/live_input.asd
-else
 extrasdir = $(pkgdatadir)
-endif
 
 ## stuff that will end up in $prefix/share/ssr/
 nobase_dist_pkgdata_DATA = \
@@ -44,7 +33,7 @@ nobase_dist_pkgdata_DATA = \
 ## the whole directory is distributed, including browser GUI files
 EXTRA_DIST = websocket_resources
 
-## stuff that will end up either in $prefix/share/ssr/ or in $bundledir/Extras
+## stuff that will end up in $prefix/share/ssr/
 nobase_dist_extras_DATA = \
 	reproduction_setups/2.0.asd \
 	reproduction_setups/2.1.asd \

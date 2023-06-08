@@ -251,12 +251,6 @@ choose).
 If there are errors, double-check whether all :ref:`dependencies` are installed
 and whether the :ref:`configuration options <configuring>` are correct.
 
-To build the Application Bundle for macOS, use these commands::
-
-    ./configure --enable-app-bundle
-    make
-    make dmg
-
 
 Installing
 ----------

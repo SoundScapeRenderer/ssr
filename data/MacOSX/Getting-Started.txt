@@ -1,7 +1,0 @@
-GETTING (THE SSR) STARTED
-
-You should have a proper version of Jack installed by now (32 or 64 bit - matching the architecture of the SSR build you are using). If not, get it from https://jackaudio.org/ or from Homebrew. You can also obtain QJackCtl from there. 
-
-Open QJackCtl and hit "play". This will start the Jack server process in background, which is needed by the SSR.
-
-Start SSR. It consists of a GUI and a terminal window. The latter provides information about interesting things (e.g. if you forgot to start Jack). If something is not working, have a look there.
