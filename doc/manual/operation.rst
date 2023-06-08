@@ -165,6 +165,9 @@ an overview of the command line options
       -v, --verbose       Increase verbosity level (up to -vvv)
       -V, --version       Show version information and exit
 
+Use ``$HOME`` to refer to your home directory in the case that SSR does not
+resolve the tilde ``~``.
+
 
 .. _ssr_configuration_file:
 
