@@ -123,15 +123,6 @@ doc:
 
 .PHONY: doc
 
-if ENABLE_APP_BUNDLE
-dmg: install
-	$(MAKE) -C data/MacOSX $@
-else
-dmg:
-	@echo "You have to run './configure --enable-app-bundle' first!"; false
-endif
-.PHONY: dmg
-
 .NOTPARALLEL: install
 
 # remove pkgdatadir and docdir (if empty)
