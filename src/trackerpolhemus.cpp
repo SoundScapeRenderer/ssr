@@ -36,7 +36,6 @@
 #include <chrono>    // std::chrono::milliseconds
 
 #include "api.h"  // for Publisher
-#include "legacy_orientation.h"  // for Orientation
 #include "trackerpolhemus.h"
 #include "ssr_global.h"
 #include "apf/stringtools.h"
@@ -47,7 +46,7 @@ ssr::TrackerPolhemus::TrackerPolhemus(api::Publisher& controller
     , const std::string& type, const std::string& ports)
   : Tracker()
   , _controller(controller)
-  , _az_corr(0.0f)
+  , _corr_quat()
   , _stop_thread(false)
 {
   if (ports == "")
@@ -192,7 +191,7 @@ ssr::TrackerPolhemus::_open_serial_port(const char *portname)
 void
 ssr::TrackerPolhemus::calibrate()
 {
-  _az_corr = _current_data.azimuth;
+  _corr_quat = inverse(_current_quat);
 }
 
 void
@@ -236,7 +235,7 @@ ssr::TrackerPolhemus::_thread()
 
       if (error < 1)
       {
-        SSR_ERROR("Can not read from serial port. Stopping Polhemus tracker.");
+        SSR_ERROR("Cannot read from serial port. Stopping Polhemus tracker.");
       }
 
       if ((error = read(_tracker_port, &c, 1)))
@@ -245,13 +244,13 @@ ssr::TrackerPolhemus::_thread()
       }
       else
       {
-        SSR_ERROR("Can not read from serial port.");
+        SSR_ERROR("Cannot read from serial port.");
       }
     }
 
     if (line.size() != _line_size)
     {
-      _current_data.azimuth = 0.0f;
+      // simply keep whatever is store in _current_quat
       continue;
     }
 
@@ -282,16 +281,32 @@ ssr::TrackerPolhemus::_thread()
 // sockets are available and each of the 6 degrees of freedom are represented by
 // 9 bytes, leading to a total of 60 ASCII bytes.
 
-    // extract data
-    lineparse >> _current_data.header
-              >> _current_data.x
-              >> _current_data.y
-              >> _current_data.z
-              >> _current_data.azimuth
-              >> _current_data.elevation
-              >> _current_data.roll;
+    float header;
+    float x;
+    float y;
+    float z;
+    float azimuth;
+    float elevation;
+    float roll;
 
+    // extract data
+    lineparse >> header
+              >> x
+              >> y
+              >> z
+              >> azimuth
+              >> elevation
+              >> roll;
+
+    // convert to quaternion (-azimuth because the tracker assumes that positive
+    // z is downwards; rotation by 90 deg because we assume that the sensor is
+    // mounted such that the cable goes to the left relative to the user's
+    // orientation)
+    _current_quat = angles2quat(-azimuth, elevation, roll)
+                        * angles2quat(90, 0, 0);
+
+    // apply calibration
     _controller.take_control()->reference_rotation_offset(
-        Orientation(-_current_data.azimuth + _az_corr));
+        ssr::quat(_corr_quat * _current_quat));
   };
 }

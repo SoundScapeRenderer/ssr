@@ -289,7 +289,7 @@ the outside of the listener's head to the inside.
 SSR uses HRIRs with an angular resolution of :math:`1^\circ`\ . Thus,
 the HRIR file contains 720 impulse responses (360 for each ear) stored
 as a 720-channel .wav-file. The HRIRs all have to be of equal length and
-have to be arranged in the following order:
+have to be arranged in the following order [#fnsofa]_:
 
 -  1st channel: left ear, virtual source position :math:`0^\circ`
 
@@ -329,6 +329,11 @@ computational load arises when the audio frames have the same size like
 the HRIRs. By choosing shorter frames and thus using partitioned
 convolution the system latency is reduced but computational load is
 increased.
+
+.. [#fnsofa] Note that the binaural renderer has the currently hidden and
+             undocumented feature of being able to read HRIRs in `SOFA
+             <https://www.sofaconventions.org/>`_. It supports head tracking
+             about all three axes of rotation in this case.
 
 The HRIR sets shipped with SSR
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

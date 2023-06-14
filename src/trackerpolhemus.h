@@ -37,6 +37,7 @@
 #include <stdexcept> // for std::runtime_error
 
 #include "tracker.h"
+#include "geometry.h"
 
 namespace ssr
 {
@@ -62,31 +63,14 @@ class TrackerPolhemus : public Tracker
     TrackerPolhemus(api::Publisher& controller, const std::string& type
         , const std::string& ports);
 
-    struct tracker_data_t
-    {
-      float header;
-      float x;
-      float y;
-      float z;
-      float azimuth;
-      float elevation;
-      float roll;
-
-      // contructor
-      tracker_data_t()
-        : header(0.0f), x(0.0f), y(0.0f), z(0.0f)
-        , azimuth(0.0f), elevation(0.0f), roll(0.0f)
-      {}
-    };
-
     api::Publisher& _controller;
 
-    tracker_data_t _current_data;
+    ssr::quat _current_quat;
 
     int _tracker_port;
     int _open_serial_port(const char *portname);
 
-    float _az_corr; ///< correction of the azimuth due to calibration
+    ssr::quat _corr_quat; ///< correction of the orientation due to calibration
 
     std::string::size_type _line_size;
 

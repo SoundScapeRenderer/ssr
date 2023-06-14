@@ -263,6 +263,12 @@ You can calibrate the tracker while the SSR is running by pressing
 ``Return``. The instantaneous orientation will then be interpreted as
 straight forward, i.e. upwards on the screen (:math:`\alpha = 90^\circ`\ ).
 
+SSR is progressively (and silently) moving from 2D scenes to 3D scenes. The
+:ref:`binaural renderer<binaural_renderer>` can handle head tracking about all
+three axes of rotation if the HRIRs are provided in SOFA. We recommend using
+the :ref:`browser-based GUI<browser-based_gui>` to monitor the tracking as the
+built-in GUI only visualizes tracking along the azimuth.
+
 .. _prep_isense:
 
 Preparing InterSense InertiaCube3
@@ -301,6 +307,10 @@ or so.
 
 If you want to disable this tracker, use ``./configure --disable-polhemus``
 and recompile.
+
+If you are using head tracking about all three axes of rotation, make sure
+that the tracking sensor is mounted on the headphones such that the cable
+leaves the sensor towards the left relative to the look direction of the user.
 
 Preparing VRPN
 ^^^^^^^^^^^^^^
