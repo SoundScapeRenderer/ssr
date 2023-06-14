@@ -290,7 +290,7 @@ ssr::QOpenGLPlotter::paintGL()
   _draw_reference();
 
   _draw_objects();
-  
+
   _draw_rubber_band();
 }
 
@@ -362,8 +362,10 @@ void ssr::QOpenGLPlotter::_draw_reference()
   glPushMatrix();
 
   // translate according to reference position
-  glTranslatef(_scene.get_reference().position.x,
-                                 _scene.get_reference().position.y, 0.0f);
+  glTranslatef(_scene.get_reference().position.x +
+                   _scene.get_reference_offset().position.x,
+                       _scene.get_reference().position.y +
+                           _scene.get_reference_offset().position.y, 0.0f);
 
   glPushMatrix();
 
@@ -383,7 +385,9 @@ void ssr::QOpenGLPlotter::_draw_reference()
     glTranslatef(0.03f, -0.03f, 0.0f);
 
     // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
+    glRotatef(_scene.get_reference().orientation.azimuth +
+                  _scene.get_reference_offset().orientation.azimuth
+                      , 0.0f, 0.0f, 1.0f);
 
     glBindTexture(GL_TEXTURE_2D, _listener_shadow_texture);
 
@@ -397,7 +401,9 @@ void ssr::QOpenGLPlotter::_draw_reference()
     glPopMatrix();
 
     // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
+    glRotatef(_scene.get_reference().orientation.azimuth +
+                  _scene.get_reference_offset().orientation.azimuth
+                      ,0.0f, 0.0f, 1.0f);
 
     glBindTexture(GL_TEXTURE_2D, _listener_texture);
 
@@ -414,7 +420,8 @@ void ssr::QOpenGLPlotter::_draw_reference()
   else
   {
     // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
+    glRotatef(_scene.get_reference().orientation.azimuth +
+                  _scene.get_reference_offset().orientation.azimuth, 0.0f, 0.0f, 1.0f);
 
     // background color
     glColor3f(BACKGROUNDCOLOR);
@@ -448,8 +455,9 @@ void ssr::QOpenGLPlotter::_draw_reference()
     // rotate/translate according to reference offset
     glTranslatef(_scene.get_reference_offset().position.x
         , _scene.get_reference_offset().position.y, 0.0f);
-    glRotatef(_scene.get_reference_offset().orientation.azimuth
-        , 0.0f, 0.0f, 1.0f);
+    glRotatef(_scene.get_reference().orientation.azimuth +
+                  _scene.get_reference_offset().orientation.azimuth
+                      , 0.0f, 0.0f, 1.0f);
 
     // draw cross (showing the reference offset)
     glBegin(GL_LINES);
@@ -491,7 +499,7 @@ void ssr::QOpenGLPlotter::_draw_objects()
 
   std::vector<float> output_levels;
 
-  
+
   if (_selected_sources_map.size() > 0)
   {
     output_levels = _scene.get_source(_selected_sources_map.rbegin()->second).output_levels;
@@ -1044,7 +1052,7 @@ void ssr::QOpenGLPlotter::_select_source(int source, bool add_to_selection)
 
     // if source does not exist
     if (source > static_cast<int>(source_buffer_list.size()))
-    { 
+    {
       _id_of_last_clicked_source = 0;
       return;
     }
@@ -1053,13 +1061,13 @@ void ssr::QOpenGLPlotter::_select_source(int source, bool add_to_selection)
 
     // iterate to source
     for (int n = 1; n < source; n++) i++;
-    
+
     // make its id directly available
     _id_of_last_clicked_source = i->id;
-    
+
     // store source and its id
     _selected_sources_map[source] = _id_of_last_clicked_source; // TODO
-        
+
   }
   else if (!_alt_pressed)
   {
@@ -1068,7 +1076,7 @@ void ssr::QOpenGLPlotter::_select_source(int source, bool add_to_selection)
   }
   // if source is already selected then deselect it
   else if (_alt_pressed) _deselect_source(source);
- 
+
 }
 
 void ssr::QOpenGLPlotter::_select_all_sources()

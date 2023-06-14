@@ -1,3 +1,5 @@
+.. _browser-based_gui:
+
 Browser-based GUI
 =================
 
