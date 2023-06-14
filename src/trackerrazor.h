@@ -57,7 +57,7 @@ class TrackerRazor : public Tracker
       if (_tracker != nullptr) delete _tracker;
     }
 
-  virtual void calibrate() { _az_corr = _current_azimuth; }
+  virtual void calibrate() { _az_corr = _current_azimuth + 90; }
 
   private:
     /// constructor
