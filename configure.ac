@@ -729,6 +729,7 @@ pkgdatadir='${datadir}/${PACKAGE}'
 ENABLE_EXPLICIT([windows-installer], [creation of an installer for Windows],
 [
   AC_CHECK_PROG([have_nsis], [nsis], [yes], [no])
+  AC_CHECK_PROG([have_windeployqt], [windeployqt], [yes], [no])
   AS_IF([test x$enable_windows_installer = xyes -o x$enable_windows_installer = x],
     [WINDOWS_INSTALLER=SoundScapeRenderer-$PACKAGE_VERSION],
     [WINDOWS_INSTALLER=$enable_windows_installer])
@@ -856,6 +857,12 @@ AS_IF([test x$have_windows_installer = xyes -a x$have_nsis != xyes],
   echo "|"
   echo "|>  WARNING: NSIS was not found!"
   echo "|>  It is needed for creating the Windows installer."
+])
+AS_IF([test x$have_windows_installer = xyes -a x$have_windeployqt != xyes],
+[
+  echo "|"
+  echo "|>  WARNING: windeployqt was not found!"
+  echo "|>  It is needed for collecting dependencies for the Windows installer."
 ])
 
 echo
