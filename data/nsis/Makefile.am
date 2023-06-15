@@ -8,6 +8,14 @@
 ## This file is only taken into account if --enable-windows-installer was chosen!
 if ENABLE_WINDOWS_INSTALLER
 
+# this is done after installing the executables
+install-exec-hook:
+	for exec in $(SSR_executables); do \
+	  windeployqt --no-compiler-runtime $(DESTDIR)$(bindir)/$$exec \
+	; done
+	$(RM) -r $(DESTDIR)$(bindir)/styles
+	$(RM) -r $(DESTDIR)$(bindir)/imageformats
+
 # create Windows installer
 nsis:
 	@echo "TODO: run NSIS!"

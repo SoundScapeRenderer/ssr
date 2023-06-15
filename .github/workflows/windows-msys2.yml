@@ -27,6 +27,7 @@ jobs:
             mesa:p
             nsis:p
             qt5-base:p
+            qt5-tools:p
             vrpn:p
             yarn:p
       - name: checkout websocketpp
@@ -90,19 +91,11 @@ jobs:
         working-directory: ssr
         run: |
           make install
-      # This is an old shell script for backwards compatibility.
-      # It is not needed on Windows.
-      - name: remove "ssr" script
-        working-directory: ssr/windows-installer
-        run: |
-          rm bin/ssr
       - name: copy dependencies
         working-directory: ssr/windows-installer
         # See https://github.com/msys2/MINGW-packages/issues/5204#issuecomment-1013818547
         run: |
-          ldd bin/* | grep -iv system32 | grep -v :$  | cut -f2 -d\> | cut -f1 -d\( | while read a; do ! [ -e "bin/`basename $a`" ] && cp -v "$a" bin/ || true; done
-          echo "Remaining dependencies:"
-          ldd bin/*
+          ldd bin/*.exe | grep -iv system32 | grep -v :$  | cut -f2 -d\> | cut -f1 -d\( | while read a; do ! [ -e "bin/`basename $a`" ] && cp -v "$a" bin/ || true; done
       - name: make nsis
         working-directory: ssr
         run: |

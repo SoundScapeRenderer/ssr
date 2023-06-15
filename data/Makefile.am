@@ -5,8 +5,6 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
-dist_bin_SCRIPTS = ssr
-
 if ENABLE_WINDOWS_INSTALLER
 SUBDIRS = nsis
 extrasdir = $(prefix)/Extras
@@ -18,6 +16,8 @@ dist_scenes_DATA = \
 	scenes/live_input.asd
 else
 extrasdir = $(pkgdatadir)
+## this compatibility script is not needed for the Windows installer
+dist_bin_SCRIPTS = ssr
 endif
 
 ## stuff that will end up in $prefix/share/ssr/
