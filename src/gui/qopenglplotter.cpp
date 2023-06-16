@@ -362,32 +362,68 @@ void ssr::QOpenGLPlotter::_draw_reference()
   glPushMatrix();
 
   // translate according to reference position
-  glTranslatef(_scene.get_reference().position.x +
-                   _scene.get_reference_offset().position.x,
-                       _scene.get_reference().position.y +
-                           _scene.get_reference_offset().position.y, 0.0f);
+  glTranslatef(_scene.get_reference().position.x,
+                       _scene.get_reference().position.y, 0.0f);
 
-  glPushMatrix();
-
-  glLoadName(REFERENCEINDEX1); // ID of handle to rotate listener
+  // rotate according to reference position
+  glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
 
   float scale = 1.0f;
 
   if (_plot_listener)
   {
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
+
+    // handle to reference
+    glLoadName(REFERENCEINDEX1);
 
     glBindTexture(GL_TEXTURE_2D, _listener_background_texture);
-    gluQuadricTexture(_glu_quadric, GL_TRUE );
-    gluDisk(_glu_quadric, 0.0f, 0.7f, LEVELOFDETAIL,1);
+    gluQuadricTexture(_glu_quadric, GL_TRUE);
+    gluDisk(_glu_quadric, 0.0f, 0.7f, LEVELOFDETAIL, 1);
 
+    glDisable(GL_TEXTURE_2D);
+
+    // gray
+    glColor3f(0.4f, 0.4f, 0.4f);
+
+    // display reference position)
+    glBegin(GL_LINES);
+      glVertex3f( 0.016f,  0.016f, 0.0f);
+      glVertex3f(-0.016f, -0.016f, 0.0f);
+      glVertex3f( 0.016f, -0.016f, 0.0f);
+      glVertex3f(-0.016f,  0.016f, 0.0f);
+    glEnd();
+
+    // display reference rotation
+    glBegin(GL_LINES);
+      glVertex3f(0.7f, 0.0f,  0.0f);
+      glVertex3f(0.65f, 0.0f,  0.0f);
+    glEnd();
+
+    // not sure why
+    glRotatef(-90, 0.0f, 0.0f, 1.0f);
+
+    // translate according to reference offset
+    glTranslatef(_scene.get_reference_offset().position.x,
+                       _scene.get_reference_offset().position.y, 0.0f);
+
+    // undo not-sure-why
+    glRotatef(90, 0.0f, 0.0f, 1.0f);
+
+    // rotate according to reference offset
+    glRotatef(_scene.get_reference_offset().orientation.azimuth
+                  , 0.0f, 0.0f, 1.0f);
+
+    // prevent mouse interaction with reference offset
+    glLoadName(DUMMYINDEX);
+
+    glPushMatrix();
+
+    // small offset for the listener shadow
     glTranslatef(0.03f, -0.03f, 0.0f);
 
-    // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth +
-                  _scene.get_reference_offset().orientation.azimuth
-                      , 0.0f, 0.0f, 1.0f);
+    glEnable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, _listener_shadow_texture);
 
@@ -399,11 +435,6 @@ void ssr::QOpenGLPlotter::_draw_reference()
     glEnd();
 
     glPopMatrix();
-
-    // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth +
-                  _scene.get_reference_offset().orientation.azimuth
-                      ,0.0f, 0.0f, 1.0f);
 
     glBindTexture(GL_TEXTURE_2D, _listener_texture);
 
@@ -419,12 +450,11 @@ void ssr::QOpenGLPlotter::_draw_reference()
   }
   else
   {
-    // rotate according to reference position
-    glRotatef(_scene.get_reference().orientation.azimuth +
-                  _scene.get_reference_offset().orientation.azimuth, 0.0f, 0.0f, 1.0f);
-
     // background color
     glColor3f(BACKGROUNDCOLOR);
+
+    // handle to reference
+    glLoadName(REFERENCEINDEX1);
 
     // define handle to interact with reference
     glBegin(GL_QUADS);
@@ -437,53 +467,102 @@ void ssr::QOpenGLPlotter::_draw_reference()
     // gray
     glColor3f(0.4f, 0.4f, 0.4f);
 
-    // draw rhomb
+    // draw rhomb (representing the reference)
     glBegin(GL_LINES);
-      glVertex3f( 0.0f, -0.05f * scale, 0.0f);
-      glVertex3f( 0.15f * scale, 0.0f,  0.0f);
-      glVertex3f( 0.15f * scale, 0.0f,  0.0f);
-      glVertex3f( 0.0f , 0.05f * scale, 0.0f);
-      glVertex3f( 0.0f , 0.05f * scale, 0.0f);
-      glVertex3f(-0.05f * scale, 0.0f,  0.0f);
-      glVertex3f(-0.05f * scale, 0.0f,  0.0f);
-      glVertex3f( 0.0f, -0.05f * scale, 0.0f);
+        glVertex3f( 0.0f, -0.05f * scale, 0.0f);
+        glVertex3f( 0.15f * scale, 0.0f,  0.0f);
+        glVertex3f( 0.15f * scale, 0.0f,  0.0f);
+        glVertex3f( 0.0f , 0.05f * scale, 0.0f);
+        glVertex3f( 0.0f , 0.05f * scale, 0.0f);
+        glVertex3f(-0.05f * scale, 0.0f,  0.0f);
+        glVertex3f(-0.05f * scale, 0.0f,  0.0f);
+        glVertex3f( 0.0f, -0.05f * scale, 0.0f);
     glEnd();
 
-    // somehow this 90 degree rotation is needed
+    // not sure why
     glRotatef(-90, 0.0f, 0.0f, 1.0f);
 
-    // rotate/translate according to reference offset
-    glTranslatef(_scene.get_reference_offset().position.x
-        , _scene.get_reference_offset().position.y, 0.0f);
-    glRotatef(_scene.get_reference().orientation.azimuth +
-                  _scene.get_reference_offset().orientation.azimuth
-                      , 0.0f, 0.0f, 1.0f);
+    // translate according to reference offset
+    glTranslatef(_scene.get_reference_offset().position.x,
+                       _scene.get_reference_offset().position.y, 0.0f);
+
+    // undo not-sure-why
+    glRotatef(90, 0.0f, 0.0f, 1.0f);
+
+    // rotate according to reference offset
+    glRotatef(_scene.get_reference_offset().orientation.azimuth
+                  , 0.0f, 0.0f, 1.0f);
+
+    // prevent mouse interaction with reference offset
+    glLoadName(DUMMYINDEX);
+
+    // gray
+    glColor3f(0.4f, 0.4f, 0.4f);
 
     // draw cross (showing the reference offset)
     glBegin(GL_LINES);
-      glVertex3f( 0.02f * scale, 0.0f,  0.0f);
-      glVertex3f(-0.02f * scale, 0.0f,  0.0f);
-      glVertex3f( 0.0f, -0.02f * scale, 0.0f);
-      glVertex3f( 0.0f,  0.03f * scale, 0.0f);
+      glVertex3f( 0.15f * scale, 0.0f,  0.0f);
+      glVertex3f(-0.05f * scale, 0.0f,  0.0f);
+      glVertex3f( 0.0f, -0.05f * scale, 0.0f);
+      glVertex3f( 0.0f,  0.05f * scale, 0.0f);
     glEnd();
   }
 
-  glPopMatrix();
+  // back to origin
   glPopMatrix();
 
+  // dummy id to prevend mouse action on coordinate origin
+  glLoadName(DUMMYINDEX);
+
   // mark origin of coordinate system
-  glColor3f(0.4f, 0.4f, 0.4f);
+  glColor3f(0.4f, 0.4f, 0.4f); // gray
 
   // draw origin of coordinate system
   glBegin(GL_LINES);
-    glVertex3f( 0.02f, 0.0f,  0.0f);
-    glVertex3f(-0.02f, 0.0f,  0.0f);
-    glVertex3f( 0.0f, -0.02f, 0.0f);
-    glVertex3f( 0.0f,  0.02f, 0.0f);
+    glVertex3f( 0.016f * scale,  0.016f * scale,  0.0f);
+    glVertex3f(-0.016f * scale, -0.016f * scale,  0.0f);
+    glVertex3f(-0.016f * scale,  0.016f * scale,  0.0f);
+    glVertex3f( 0.016f * scale, -0.016f * scale,  0.0f);
   glEnd();
 
+  glPushMatrix();
+
+  // translate again according to reference position
+  glTranslatef(_scene.get_reference().position.x,
+                       _scene.get_reference().position.y, 0.0f);
+
+  // rotate again according to reference position
+  glRotatef(_scene.get_reference().orientation.azimuth, 0.0f, 0.0f, 1.0f);
+
+  // add a transparent object to make sure that the reference is always
+  // clickable (even if the coordinate cross is drawn on top of it)
+
+  glColor4f(0.0f, 0.0f, 0.0f, 0.0f);
+
+  // handle to reference
+  glLoadName(REFERENCEINDEX1);
+  glEnable(GL_BLEND);
+
+  if (_plot_listener)
+  {
+    gluDisk(_glu_quadric, 0.0f, 0.7f, LEVELOFDETAIL, 1);
+  }
+  else
+  {
+    glBegin(GL_QUADS);
+      glVertex3f( 0.15f * scale, -0.05f * scale, 0.0f);
+      glVertex3f( 0.15f * scale,  0.05f * scale, 0.0f);
+      glVertex3f(-0.05f * scale,  0.05f * scale, 0.0f);
+      glVertex3f(-0.05f * scale, -0.05f * scale, 0.0f);
+    glEnd();
+
+  }
+
+  glDisable(GL_BLEND);
   glDisable(GL_POLYGON_OFFSET_LINE);
   glDisable(GL_MULTISAMPLE);
+
+  glPopMatrix();
 }
 
 void ssr::QOpenGLPlotter::_draw_objects()

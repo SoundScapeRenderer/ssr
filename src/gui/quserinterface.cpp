@@ -988,11 +988,12 @@ void ssr::QUserInterface::mouseMoveEvent(QMouseEvent *event)
     // previous absolut position in OpenGL coordinates
     Position prev_mouse_pos(static_cast<float>(pos_x), static_cast<float>(pos_y));
 
-    // previous position relative to relative position
+    // previous position relative to reference position
     prev_mouse_pos -= _scene.get_reference().position;
 
-    _controller.take_control()->reference_rotation(_scene.get_reference().orientation +
-                                          (mouse_pos.orientation() - prev_mouse_pos.orientation()));
+    _controller.take_control()->reference_rotation(_scene
+    .get_reference().orientation +
+                      (mouse_pos.orientation() - prev_mouse_pos.orientation()));
 
   } // else if
 
