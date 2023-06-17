@@ -10,9 +10,13 @@ if ENABLE_WINDOWS_INSTALLER
 
 # this is done after installing the executables
 install-exec-hook:
+## the line starting with "ldd" was adapted from
+## https://github.com/msys2/MINGW-packages/issues/5204#issuecomment-1013818547
 	for exec in $(SSR_executables); do \
 	  windeployqt --no-compiler-runtime $(DESTDIR)$(bindir)/$$exec ; \
+	  ldd $(DESTDIR)$(bindir)/$$exec | grep -iv system32 | cut -f2 -d\> | cut -f1 -d\( | while read a; do ! [ -e "$(DESTDIR)$(bindir)/`basename $$a`" ] && cp -v "$$a" $(DESTDIR)$(bindir)/ || true; done \
 	done
+## those are copied by windeployqt, but they are not needed:
 	$(RM) -r $(DESTDIR)$(bindir)/styles
 	$(RM) -r $(DESTDIR)$(bindir)/imageformats
 

@@ -87,15 +87,6 @@ jobs:
         working-directory: ssr
         run: |
           make
-      - name: make install-strip
-        working-directory: ssr
-        run: |
-          make install-strip
-      - name: copy dependencies
-        working-directory: ssr/windows-installer
-        # See https://github.com/msys2/MINGW-packages/issues/5204#issuecomment-1013818547
-        run: |
-          ldd bin/*.exe | grep -iv system32 | grep -v :$  | cut -f2 -d\> | cut -f1 -d\( | while read a; do ! [ -e "bin/`basename $a`" ] && cp -v "$a" bin/ || true; done
       - name: make nsis
         working-directory: ssr
         run: |
