@@ -124,7 +124,7 @@ doc:
 .PHONY: doc
 
 if ENABLE_WINDOWS_INSTALLER
-nsis: install
+nsis: install-strip
 	$(MAKE) -C data/nsis $@
 else
 nsis:
