@@ -87,10 +87,10 @@ jobs:
         working-directory: ssr
         run: |
           make
-      - name: make install
+      - name: make install-strip
         working-directory: ssr
         run: |
-          make install
+          make install-strip
       - name: copy dependencies
         working-directory: ssr/windows-installer
         # See https://github.com/msys2/MINGW-packages/issues/5204#issuecomment-1013818547
