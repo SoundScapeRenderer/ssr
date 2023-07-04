@@ -75,6 +75,14 @@ If you want to generate the ``man`` pages
 Dependencies
 ------------
 
+To enable support for the newest `ASDF version 0.4`__,
+the `C-bindings of the asdf-rust library`__ have to be installed
+before compiling the SSR.
+
+__ https://AudioSceneDescriptionFormat.readthedocs.io/
+__ https://github.com/AudioSceneDescriptionFormat/asdf-rust#building-the-c-api
+
+
 Linux
 ^^^^^
 

@@ -144,7 +144,7 @@ Audio Scenes
 Format
 ~~~~~~
 
-The SSR can open ``.asd`` files (refer to the section :ref:`asdf`) as well as
+The SSR can open ``.asd`` files -- refer to the section :ref:`asdf` -- as well as
 normal audio files. If an audio file is opened, SSR creates an
 individual virtual sound source for each channel which the audio file
 contains. If a two-channel audio file is opened, the resulting virtual
@@ -169,7 +169,7 @@ Coordinate System
 
     The coordinate system used in the SSR.
     In ASDF :math:`\alpha` and :math:`\alpha'` are referred to as azimuth
-    (refer to the section :ref:`asdf`).
+    -- refer to the section :ref:`asdf`.
 
 Fig. :ref:`1.1 (a) <coordinate_system>` depicts the
 global coordinate system used in the SSR. Virtual sound sources as well
@@ -213,13 +213,27 @@ Sec. :ref:`Head-Tracking <head_tracking>`.
 Audio Scene Description Format (ASDF)
 -------------------------------------
 
-Besides pure audio files, SSR can also read the current development
-version of the *Audio Scene Description Format (ASDF)* [Geier2008b]_. Note,
-however,
-that so far we have only implemented descriptions of static features.
-That means in the current state it is not possible to describe
-e.g. movements of a virtual sound source.
-See https://github.com/SoundScapeRenderer/ssr/pull/155 for latest developments.
+Besides pure audio files, SSR can also read the
+*Audio Scene Description Format (ASDF)*
+Currently, two versions of the ASDF are supported.
+
+There is a legacy version of the ASDF [Geier2008b]_,
+which has been supported since the beginning,
+but which can only describe static scenes.
+Recently, support for a new version 0.4
+of the format has been added,
+which allows creating scenes with moving sound sources.
+Detailed documentation is available at
+https://AudioSceneDescriptionFormat.readthedocs.io/.
+
+The XML syntax between the two versions is not compatible.
+The new version is only used when version ``0.4`` is specified like this:
+
+.. code-block:: xml
+
+    <asdf version="0.4">
+
+The rest of this section describes the legacy version of the ASDF.
 
 As you can see in the example
 audio scene below, an audio file can be assigned to each virtual sound
@@ -234,8 +248,8 @@ compared to reading all channels from individual files**.
     Format zur Beschreibung von virtuellen 3D-Audioszenen. In 34rd German
     Annual Conference on Acoustics (DAGA), Dresden, Germany, March 2008.
 
-Syntax
-~~~~~~
+Legacy Syntax
+~~~~~~~~~~~~~
 
 The format syntax is quite self-explanatory. See the examples below.
 Note that the paths to the audio files can be either absolute (not
