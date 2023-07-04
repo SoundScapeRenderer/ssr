@@ -6,7 +6,11 @@ WebSocket-based Network Interface
     We did not evaluate any of the network interfaces in terms of security.
     So please be sure that you are in a safe network when using them.
 
-The WebSocket network interface is started by default when starting the SSR.
+The WebSocket network interface can be activated with::
+
+    ssr-binaural --websocket-server
+
+This of course works for all renderers, not only ``ssr-binaural``.
 
 Once the SSR is running, you can use your browser to connect to
 http://localhost:9422/test.
@@ -20,8 +24,6 @@ By default, the port number 9422 is used.
 You can choose a different port with::
 
     ssr-binaural --websocket-server=4321
-
-This of course works for all renderers, not only ``ssr-binaural``.
 
 The relevant settings in the :ref:`ssr_configuration_file` are::
 
