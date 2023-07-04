@@ -194,11 +194,6 @@ version (otherwise ``qjackctl`` will not work anymore)::
 
     brew link qt
 
-If you have trouble with installing``libmysofa``, compile and install it from
-source. For instructions on this, have a look at the file
-:download:`ci/build-deps-macos.sh <../../ci/build-deps-macos.sh>`
-(``cmake`` must be installed).
-
 If you want to use ``help2man`` on macOS, you have to install a Perl package::
 
     cpan Locale::gettext
