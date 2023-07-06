@@ -44,10 +44,8 @@ use Pd for Intel processors with
 Each renderer is available as a separate external, namely
 ``ssr_binaural~``, ``ssr_brs~``, ``ssr_dca~``,
 ``ssr_aap~``, ``ssr_wfs~`` and ``ssr_vbap~``.
-The externals are in a package called ``ssr``,
-which has to be added to Pure Data's path,
-for example by creating an object containing ``[declare -path ssr]``
-(without the brackets) in your patch.
+The externals have to be added to Pure Data's path,
+for example by creating an object ``[declare -path ssr]`` in your patch.
 
 Here is a screenshot of what it looks like when using SSR's binaural renderer
 with the minimum-phase EQ'd HRIRs of the FABIAN manikin and 2 virtual sound
@@ -56,6 +54,10 @@ the signal that feeds source 2 is noise:
 
 .. figure:: images/ssr_binaural_pd.png
    :align: center
+
+The source positions, orientations and many other things
+can be changed by sending messages to the external.
+See the help patch for all available messages.
 
 The computational performance of SSR in Pd is somewhat lower than that of the
 standalone version because we have not got it to work in Pd with internal
