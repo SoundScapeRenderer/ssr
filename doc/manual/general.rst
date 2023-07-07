@@ -221,7 +221,7 @@ There is a legacy version of the ASDF [Geier2008b]_,
 which has been supported since the beginning,
 but which can only describe static scenes.
 Recently, support for a new version 0.4
-of the format has been added,
+of the format was added,
 which allows creating scenes with moving sound sources.
 Detailed documentation is available at
 https://AudioSceneDescriptionFormat.readthedocs.io/.
