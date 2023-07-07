@@ -18,6 +18,8 @@ jobs:
           pacboy: >-
             asio:p
             autotools:p
+            cargo-c:p
+            cmake:p
             fftw:p
             fmt:p
             jack2:p
@@ -28,8 +30,20 @@ jobs:
             nsis:p
             qt5-base:p
             qt5-tools:p
+            rust:p
             vrpn:p
             yarn:p
+      - name: checkout asdf-rust
+        uses: actions/checkout@v3
+        with:
+          repository: AudioSceneDescriptionFormat/asdf-rust
+          ref: '1.0.0'
+          path: asdf
+          submodules: true
+      - name: Install ASDF
+        working-directory: asdf
+        run: |
+          cargo cinstall --verbose --prefix=/ucrt64
       - name: checkout websocketpp
         uses: actions/checkout@v3
         with:
@@ -58,6 +72,7 @@ jobs:
         run: |
           CONFIGURE_OPTIONS=(
             --enable-browser-gui
+            --enable-dynamic-asdf
             --enable-fudi-interface
             --enable-gui
             --enable-ip-interface
