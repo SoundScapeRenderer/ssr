@@ -238,6 +238,12 @@ can pass its location to the configure script using ::
 
     ./configure CPPFLAGS=-Iyourpath
 
+If you are using an ``arm64`` CPU (i.e. M1, M2 or newer) on macOS
+(without Rosetta emulation),
+you might have to explicitly add some paths
+to be able to find the libraries installed with ``brew``::
+
+    ./configure CPPFLAGS=-I/opt/homebrew/include LDFLAGS=-L/opt/homebrew/lib
 
 Building
 --------
