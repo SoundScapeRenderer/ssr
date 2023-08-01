@@ -30,7 +30,6 @@
 #ifndef SSR_FLEXT_H
 #define SSR_FLEXT_H
 
-#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -122,7 +121,7 @@ class SsrFlextBase : public flext_dsp
 
   protected:
     // NB: This has to be called before _update_params()!
-    std::filesystem::path _init_canvasdir()
+    std::string _init_canvasdir()
     {
       char buf[MAXPDSTRING];
       this->GetCanvasDir(buf, sizeof(buf));
@@ -135,7 +134,7 @@ class SsrFlextBase : public flext_dsp
       {
         if (params.has_key(key))
         {
-          params.set(key, (_canvasdir / params.get<std::string>(key)).string());
+          params.set(key, _canvasdir + "/" + params.get<std::string>(key));
         }
       }
 
@@ -554,7 +553,7 @@ class SsrFlextBase : public flext_dsp
     }
 
   protected:
-    std::filesystem::path _canvasdir;
+    std::string _canvasdir;
     Renderer _engine;
     std::vector<std::string> _source_ids;
 };

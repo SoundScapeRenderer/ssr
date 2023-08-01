@@ -14,7 +14,7 @@ cflags += \
        -DNDEBUG \
 
 define forDarwin
-  cflags += -mmacosx-version-min=10.15
+  cflags += -mmacosx-version-min=10.9
 endef
 
 ldlibs = -lfftw3f -lsndfile -lmysofa `$(PKG_CONFIG) --libs libxml-2.0`
