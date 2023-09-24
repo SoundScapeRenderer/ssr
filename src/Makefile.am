@@ -26,7 +26,7 @@ AM_CPPFLAGS += -I$(srcdir)/../gml/include
 AM_CPPFLAGS += -I$(srcdir)/../rapidjson/include
 
 if ENABLE_WINDOWS_INSTALLER
-AM_CPPFLAGS += -DSSR_DATA_DIR=\"../PkgData\"
+AM_CPPFLAGS += -DSSR_DATA_DIR=\"../data\"
 else
 AM_CPPFLAGS += -DSSR_DATA_DIR="\"$(pkgdatadir)\""
 endif

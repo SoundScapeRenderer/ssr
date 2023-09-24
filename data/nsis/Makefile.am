@@ -19,10 +19,12 @@ install-exec-hook:
 ## those are copied by windeployqt, but they are not needed:
 	$(RM) -r $(DESTDIR)$(bindir)/styles
 	$(RM) -r $(DESTDIR)$(bindir)/imageformats
+## this is assumed to be available on the target system:
+	$(RM) -r $(DESTDIR)$(bindir)/libjack*.dll
 
 # create Windows installer
 nsis:
-	@echo "TODO: run NSIS!"
+	cd $(DESTDIR)$(prefix) && MakeNSIS.exe -NOCD $(abs_builddir)/installer-script.nsi
 
 .PHONY: nsis
 

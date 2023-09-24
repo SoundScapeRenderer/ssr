@@ -1,0 +1,57 @@
+# https://nsis.sourceforge.io/Docs/
+
+!define APPNAME "SoundScape Renderer @PACKAGE_VERSION@"
+
+Name "${APPNAME}"
+
+OutFile "@WINDOWS_INSTALLER@.exe"
+
+InstallDir "$PROGRAMFILES64\${APPNAME}"
+
+SetCompressor lzma
+
+#Page license
+#Page components
+Page directory
+Page instfiles
+
+UninstPage uninstConfirm
+UninstPage instfiles
+
+Section "Everything"
+  SetOutPath $INSTDIR
+
+  File /r ".\bin"
+  File /r ".\data"
+
+  WriteUninstaller "$INSTDIR\uninstall.exe"
+
+  # Set the working directory of the following Start Menu shortcuts:
+  SetOutPath "$INSTDIR\bin"
+
+  CreateDirectory "$SMPROGRAMS\${APPNAME}"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\ssr-binaural.lnk" "cmd" "/k ssr-binaural.exe"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\ssr-brs.lnk" "cmd" "/k ssr-brs.exe"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\ssr-wfs.lnk" "cmd" "/k ssr-wfs.exe"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\ssr-vbap.lnk" "cmd" "/k ssr-vbap.exe"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\ssr-aap.lnk" "cmd" "/k ssr-aap.exe"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\ssr-dca.lnk" "cmd" "/k ssr-dca.exe"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\ssr-generic.lnk" "cmd" "/k ssr-generic.exe"
+  CreateShortcut "$SMPROGRAMS\${APPNAME}\uninstall.lnk" "$INSTDIR\uninstall.exe"
+
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" \
+                   "DisplayName" "${APPNAME}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" \
+                   "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+SectionEnd
+
+Section "Uninstall"
+  RMDir /r "$INSTDIR\bin"
+  RMDir /r "$INSTDIR\data"
+	Delete "$INSTDIR\uninstall.exe"
+  RMDir $INSTDIR
+
+  RMDir /r "$SMPROGRAMS\${APPNAME}"
+
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
+SectionEnd
