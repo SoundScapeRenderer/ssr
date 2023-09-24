@@ -85,11 +85,7 @@ jobs:
             --disable-ecasound
             --disable-intersense
             CPPFLAGS="-I/ucrt64/include -I`pwd`/../websocketpp -D_WEBSOCKETPP_CPP11_THREAD_"
-            # TODO: move this to configure.ac:
-            CFLAGS=-mwin32
             LDFLAGS=-L/ucrt64/lib
-            # TODO: move this to configure.ac:
-            LIBS="-lws2_32 -lwsock32 -lglu32 -lopengl32"
           )
           ./configure --disable-dependency-tracking "${CONFIGURE_OPTIONS[@]}"
       - name: upload config.log
@@ -109,6 +105,5 @@ jobs:
       - name: upload installer
         uses: actions/upload-artifact@v3
         with:
-          # TODO: upload the actual installer
           name: ssr-installer
-          path: ssr/windows-installer
+          path: "ssr/windows-installer/SoundScape Renderer * Installer.exe"
