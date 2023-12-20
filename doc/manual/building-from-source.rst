@@ -179,20 +179,14 @@ We recommend installing all dependencies from Homebrew_::
 
 You might be able to skip installing llvm if you have Xcode installed.
 
-And then::
+And then temporarily link the keg-only Qt5 according to homebrew info 
+(this is neccesary if you already have a newer version of Qt installed,
+for example if you installed the very useful package ``qjackctl``)::
 
-    brew link qt5 --force
-
-However, if you already have a newer version of Qt installed (for example if
-you installed the very useful package ``qjackctl``), you have to run this
-first::
-
-    brew unlink qt
-
-Once SSR has compiled successfully, you can switch back to the newer Qt
-version (otherwise ``qjackctl`` will not work anymore)::
-
-    brew link qt
+    export PATH="/usr/local/opt/qt@5/bin:$PATH"
+    export LDFLAGS="-L/usr/local/opt/qt@5/lib"
+    export CPPFLAGS="-I/usr/local/opt/qt@5/include"
+    export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig"
 
 If you want to use ``help2man`` on macOS, you have to install a Perl package::
 
