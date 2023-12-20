@@ -86,7 +86,11 @@ jobs:
             websocketpp
           )
           brew install ${PACKAGES[@]}
-          brew link qt@5 --force
+          # Link keg-only Qt5 according to homebrew info
+          echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
+          echo LDFLAGS="-L/usr/local/opt/qt@5/lib" >> $GITHUB_ENV
+          echo CPPFLAGS="-I/usr/local/opt/qt@5/include" >> $GITHUB_ENV
+          echo PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig" >> $GITHUB_ENV
           # Perl module needed for help2man
           #cpan Locale::gettext
       - name: Install compiler
@@ -130,7 +134,7 @@ jobs:
       - name: Clone ASDF repo
         uses: actions/checkout@v3
         with:
-          repository:  AudioSceneDescriptionFormat/asdf-rust
+          repository: AudioSceneDescriptionFormat/asdf-rust
           submodules: true
           path: asdf-rust
       - name: Build and install ASDF library
