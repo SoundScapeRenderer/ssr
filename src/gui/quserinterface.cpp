@@ -1230,8 +1230,9 @@ void ssr::QUserInterface::wheelEvent(QWheelEvent *event)
   event->accept();
 
   // update zoom
+  int delta = event->angleDelta().y();
   _set_zoom(static_cast<int>(_zoom_factor/STDZOOMFACTOR *
-                             (100.0f+event->delta()/100.f*5.0f) + 0.5f));
+                             (100.0f+delta/100.f*5.0f) + 0.5f));
 }
 
 /** Handles Qt drag & drop events.
