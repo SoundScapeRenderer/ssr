@@ -685,6 +685,9 @@ AS_IF([test x$have_warnings = xyes],
     WARNING_FLAGS="$WARNING_FLAGS -Woverloaded-virtual -Wnon-virtual-dtor"
     WARNING_FLAGS="$WARNING_FLAGS -Wwrite-strings"
 
+    dnl instead of -Wno-deprecated-declarations to silence OpenGL deprecation warnings
+    WARNING_FLAGS="$WARNING_FLAGS -DGL_SILENCE_DEPRECATION"
+
     dnl -Wall sets -Wstrict-overflow=1, we set it to 0:
     WARNING_FLAGS="$WARNING_FLAGS -Wstrict-overflow=0"
 
