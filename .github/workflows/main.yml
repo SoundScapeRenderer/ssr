@@ -77,7 +77,7 @@ jobs:
             ecasound
             fftw
             fmt
-            help2man
+            #help2man
             jack
             SoundScapeRenderer/ssr/libmysofa
             libsndfile
@@ -158,6 +158,14 @@ jobs:
           path: config.log
       - run: |
           make
+      - run: |
+          src/ssr-binaural --version || true
+      - run: |
+          cd src && ./ssr-binaural --version || true
+      - name: Check library dependencies
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          otool -L src/ssr-binaural
       - run: |
           sudo make install
       - name: Check dynamic libraries
