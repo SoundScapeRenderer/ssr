@@ -30,8 +30,6 @@ jobs:
             xcode: Xcode_14.3
           - os: macos-12
             xcode: Xcode_14.2
-          - os: macos-11
-            xcode: Xcode_13.2.1
     runs-on: ${{ matrix.os }}
     env: ${{ matrix.env || fromJSON('{}') }}
     steps:
