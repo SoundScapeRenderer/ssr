@@ -351,7 +351,7 @@ project and assign live inputs to the sources. Amongst the ASDF examples
 we provide on SSR website http://spatialaudio.net/ssr/ you'll find an scene
 description that does exactly this.
 
-DAWs like Ardour (http://www.ardour.org) support JACK and their use is therefore
+DAWs like Ardour (https://ardour.org) support JACK and their use is therefore
 straightforward. DAWs which do not run on Linux or do not support JACK
 can be connected via the input of the sound card.
 
