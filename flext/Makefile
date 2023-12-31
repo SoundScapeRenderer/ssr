@@ -13,6 +13,7 @@ cflags += \
        -DENABLE_SOFA \
        -DNDEBUG \
 
+# At least version 10.15 is needed for std::filesystem
 define forDarwin
   cflags += -mmacosx-version-min=10.15
 endef

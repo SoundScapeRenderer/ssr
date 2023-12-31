@@ -41,8 +41,6 @@ jobs:
 
   macos:
     runs-on: macos-latest
-    env:
-      cflags: -mmacosx-version-min=10.9
     steps:
       - name: install macOS packages
         run: |
