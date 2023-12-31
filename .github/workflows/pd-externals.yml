@@ -120,11 +120,11 @@ jobs:
       - name: build externals
         working-directory: ssr/flext
         run: |
-          make install DESTDIR=build PDLIBDIR=
+          make install DESTDIR=build PDLIBDIR= extension=m_amd64
       - name: Fix dll dependencies
         working-directory: ssr/flext
         run: |
-          sh pd-lib-builder-iem-ci/localdeps/localdeps.win.sh build/ssr_*.dll
+          sh pd-lib-builder-iem-ci/localdeps/localdeps.win.sh build/ssr_*.m_amd64
       - name: upload Windows externals
         uses: actions/upload-artifact@v3
         with:
