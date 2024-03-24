@@ -69,6 +69,14 @@ jobs:
       - name: Install homebrew packages
         if: startsWith(matrix.os, 'macos')
         run: |
+          # This is only needed (temporarily?) for macos-12 and macos-13, see
+          # https://github.com/actions/runner-images/issues/4020
+          # Fix based on https://github.com/TeamForbiddenLLC/warfork-qfusion/pull/325:
+          brew uninstall --force azure-cli
+          brew uninstall --force aws-sam-cli
+          brew install python@3 || brew link --overwrite python@3
+          # End of fix.
+
           PACKAGES=(
             asio
             automake
