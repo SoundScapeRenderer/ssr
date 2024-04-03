@@ -26,6 +26,8 @@ jobs:
               CC: clang-9
               CXX: clang++-9
               CXXFLAGS: -fno-builtin
+          - os: macos-14
+            xcode: Xcode_15.2
           - os: macos-13
             xcode: Xcode_14.3
           - os: macos-12
@@ -134,7 +136,9 @@ jobs:
       - name: Install InterSense SDK
         if: startsWith(matrix.os, 'macos')
         run: |
+          sudo mkdir -p /usr/local/include
           sudo cp SDK/MacOSX/Sample/*.h /usr/local/include
+          sudo mkdir -p /usr/local/lib
           sudo cp SDK/MacOSX/UniversalLib/libisense.dylib /usr/local/lib
       - name: Install cargo-c
         run: |
