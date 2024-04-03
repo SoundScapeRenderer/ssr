@@ -65,7 +65,7 @@ jobs:
       - name: build externals
         working-directory: ssr/flext
         run: |
-          make install DESTDIR=build PDLIBDIR=
+          make install DESTDIR=build PDLIBDIR= arch="arm64 x86_64"
       - name: Fix pd_darwin dependencies
         working-directory: ssr/flext
         run: |
