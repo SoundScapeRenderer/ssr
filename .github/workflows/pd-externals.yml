@@ -61,11 +61,12 @@ jobs:
       - name: Build dependencies
         working-directory: ssr/ci
         run: |
+          sudo chown -R $(whoami):admin /usr/local
           ./build-small-libsndfile.sh
       - name: build externals
         working-directory: ssr/flext
         run: |
-          make install DESTDIR=build PDLIBDIR=
+          make install DESTDIR=build PDLIBDIR= CPPFLAGS=-I/opt/homebrew/include LDFLAGS=-L/opt/homebrew/lib
       - name: Fix pd_darwin dependencies
         working-directory: ssr/flext
         run: |
