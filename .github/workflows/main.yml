@@ -34,7 +34,7 @@ jobs:
     env: ${{ matrix.env || fromJSON('{}') }}
     steps:
       - name: Clone SSR repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Select Xcode
@@ -140,7 +140,7 @@ jobs:
         run: |
           cargo install cargo-c --force
       - name: Clone ASDF repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: AudioSceneDescriptionFormat/asdf-rust
           submodules: true
