@@ -34,7 +34,7 @@ jobs:
         run: |
           sh pd-lib-builder-iem-ci/localdeps/localdeps.linux.sh build/ssr_*.pd_linux
       - name: upload Linux externals
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-externals
           path: ssr/flext/build/*
@@ -72,7 +72,7 @@ jobs:
         run: |
           sh pd-lib-builder-iem-ci/localdeps/localdeps.macos.sh build/ssr_*.pd_darwin
       - name: upload macOS externals
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-externals
           path: ssr/flext/build/*
@@ -125,7 +125,7 @@ jobs:
         run: |
           sh pd-lib-builder-iem-ci/localdeps/localdeps.win.sh build/ssr_*.m_amd64
       - name: upload Windows externals
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-externals
           path: ssr/flext/build/*
@@ -166,7 +166,7 @@ jobs:
         run: |
           deken package -v $(git describe --tags --always) --objects flext/objects.txt ssr
       - name: Upload deken package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Deken package
           path: "*.dek*"
