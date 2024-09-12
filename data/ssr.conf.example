@@ -24,7 +24,7 @@
 #AUTO_ROTATION = off
 
 # Default Scene file name
-#SCENE_FILE_NAME = my_scene.asd
+SCENE_FILE_NAME = reproduction_setups/circle.asd
 
 # GUI scene shortcuts
 #SCENE_MENU = scene_menu.conf
