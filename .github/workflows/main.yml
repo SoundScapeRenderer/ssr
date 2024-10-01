@@ -124,6 +124,7 @@ jobs:
           name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} VRPN logs
           path: "vrpn/build/CMakeFiles/*.log"
       - name: Download and unzip InterSense SDK
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           wget https://www.intersense.com/wp-content/uploads/2018/12/InterSense_SDK_4.2381.zip
           unzip InterSense_SDK_4.2381.zip
@@ -133,11 +134,6 @@ jobs:
           sudo cp SDK/Linux/Sample/*.h /usr/local/include
           sudo cp SDK/Linux/x86_64/libisense.so /usr/local/lib
           sudo ldconfig
-      - name: Install InterSense SDK
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          sudo cp SDK/MacOSX/Sample/*.h /usr/local/include
-          sudo cp SDK/MacOSX/UniversalLib/libisense.dylib /usr/local/lib
       - name: Install cargo-c
         run: |
           cargo install cargo-c --force
@@ -161,7 +157,7 @@ jobs:
       - name: configure
         # NB: browser-gui is tested with CircleCI
         run: |
-          ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-fudi-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --enable-intersense --disable-browser-gui --enable-dynamic-asdf --disable-dependency-tracking
+          ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-fudi-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --disable-browser-gui --enable-dynamic-asdf --disable-dependency-tracking
       - name: upload config.log
         if: failure()
         uses: actions/upload-artifact@v4
