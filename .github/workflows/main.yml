@@ -99,6 +99,7 @@ jobs:
           )
           brew install ${PACKAGES[@]}
           echo CPPFLAGS="-I$(brew --prefix)/include" >> $GITHUB_ENV
+          echo LDFLAGS="-L$(brew --prefix)/lib" >> $GITHUB_ENV
           # Link keg-only Qt5
           echo "$(brew --prefix)/opt/qt@5/bin" >> $GITHUB_PATH
           echo PKG_CONFIG_PATH="$(brew --prefix)/opt/qt@5/lib/pkgconfig" >> $GITHUB_ENV
