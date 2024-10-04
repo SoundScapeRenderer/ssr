@@ -26,13 +26,15 @@ jobs:
               CC: clang-9
               CXX: clang++-9
               CXXFLAGS: -fno-builtin
-          - os: macos-14
-            xcode: Xcode_15.4
-          - os: macos-13
-            xcode: Xcode_15.1
-          - os: macos-13
-            xcode: Xcode_14.3
-          - os: macos-12
+          - os: macos-15 # arm64
+            xcode: Xcode_16.0
+          - os: macos-14 # arm64
+            xcode: Xcode_16.0
+          - os: macos-13 # Intel
+            xcode: Xcode_15.2
+          - os: macos-13 # Intel
+            xcode: Xcode_14.3.1
+          - os: macos-12 # Intel
             xcode: Xcode_14.2
     runs-on: ${{ matrix.os }}
     env: ${{ matrix.env || fromJSON('{}') }}
