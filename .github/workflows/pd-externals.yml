@@ -86,16 +86,18 @@ jobs:
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
+          msystem: ucrt64
           release: false
           path-type: inherit
           install: >-
             unzip
             autogen
             autotools
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-fftw
-            mingw-w64-x86_64-libmysofa
-            mingw-w64-x86_64-ntldd-git
+          pacboy: >-
+            gcc:p
+            fftw:p
+            libmysofa:p
+            ntldd-git:p
       - name: Install Pd
         run: |
           wget -q -O Pd.zip http://msp.ucsd.edu/Software/pd-0.51-3.msw.zip
