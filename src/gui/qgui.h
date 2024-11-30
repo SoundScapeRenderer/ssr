@@ -33,6 +33,12 @@
 #include <QtCore/QObject>
 #include <QtOpenGL/QGLFormat>
 #include <QtWidgets/QApplication>
+#ifdef _WIN32
+#ifdef STATIC_QT
+#include <QtPlugin>
+Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)  // for static build
+#endif  // STATIC_QT
+#endif  // _WIN32
 
 #include "quserinterface.h"
 #include "scene.h"
