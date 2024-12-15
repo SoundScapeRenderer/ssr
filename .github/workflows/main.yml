@@ -34,8 +34,6 @@ jobs:
             xcode: Xcode_15.2
           - os: macos-13 # Intel
             xcode: Xcode_14.3.1
-          - os: macos-12 # Intel
-            xcode: Xcode_14.2
     runs-on: ${{ matrix.os }}
     env: ${{ matrix.env || fromJSON('{}') }}
     steps:
