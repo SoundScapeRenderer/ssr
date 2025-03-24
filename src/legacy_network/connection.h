@@ -60,7 +60,7 @@ class Connection : public std::enable_shared_from_this<Connection>
     typedef std::shared_ptr<Connection> pointer;
     typedef asio::ip::tcp::socket socket_t;
 
-    static pointer create(asio::io_service &io_service
+    static pointer create(asio::io_context &io_context
         , api::Publisher &controller, char end_of_message_character);
 
     void start();
@@ -72,7 +72,7 @@ class Connection : public std::enable_shared_from_this<Connection>
     unsigned int get_source_number(id_t source_id) const;
 
   private:
-    Connection(asio::io_service &io_service, api::Publisher &controller
+    Connection(asio::io_context &io_context, api::Publisher &controller
         , char end_of_message_character);
 
     void start_read();

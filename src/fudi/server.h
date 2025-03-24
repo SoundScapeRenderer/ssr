@@ -48,9 +48,7 @@ private:
   void _do_accept();
 
   api::Publisher& _controller;
-  // TODO: io_context is not yet supported in Asio 1.10
-  //asio::io_context _io_context;
-  asio::io_service _io_service;
+  asio::io_context _io_context;
   asio::ip::tcp::acceptor _acceptor;
   asio::ip::tcp::socket _socket;
   std::thread _thread;

@@ -39,8 +39,8 @@ Server::Server(api::Publisher& controller
     , int port, char end_of_message_character)
   : _controller(controller)
   , _scene_provider(scene_provider)
-  , _io_service()
-  , _acceptor(_io_service
+  , _io_context()
+  , _acceptor(_io_context
       , asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))
   , _network_thread(0)
   , _end_of_message_character(end_of_message_character)
@@ -54,7 +54,7 @@ Server::~Server()
 void
 Server::start_accept()
 {
-  Connection::pointer new_connection = Connection::create(_io_service
+  Connection::pointer new_connection = Connection::create(_io_context
       , _controller, _end_of_message_character);
 
   _acceptor.async_accept(new_connection->socket()
@@ -87,7 +87,7 @@ Server::stop()
   SSR_VERBOSE2("Stopping network thread ...");
   if (_network_thread)
   {
-    _io_service.stop();
+    _io_context.stop();
     _network_thread->join();
   }
   SSR_VERBOSE2("Network thread stopped.");
@@ -97,5 +97,5 @@ void
 Server::run()
 {
   start_accept();
-  _io_service.run();
+  _io_context.run();
 }

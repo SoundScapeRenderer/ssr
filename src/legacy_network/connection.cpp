@@ -34,10 +34,10 @@
 using ssr::legacy_network::Connection;
 
 /// ctor
-Connection::Connection(asio::io_service &io_service
+Connection::Connection(asio::io_context &io_context
     , api::Publisher &controller, char end_of_message_character)
-  : _socket(io_service)
-  , _timer(io_service)
+  : _socket(io_context)
+  , _timer(io_context)
   , _controller(controller)
   , _subscriber(*this)
   , _commandparser(controller)
@@ -45,15 +45,15 @@ Connection::Connection(asio::io_service &io_service
 {}
 
 /** Get an instance of Connection.
- * @param io_service
+ * @param io_context
  * @param controller used to (un)subscribe and get the actual Scene
  * @return ptr to Connection
  **/
 Connection::pointer
-Connection::create(asio::io_service &io_service
+Connection::create(asio::io_context &io_context
     , api::Publisher& controller, char end_of_message_character)
 {
-  return pointer(new Connection(io_service, controller
+  return pointer(new Connection(io_context, controller
       , end_of_message_character));
 }
 
@@ -77,7 +77,7 @@ Connection::start()
   start_read();
 
   // initialize the timer
-  _timer.expires_from_now(std::chrono::milliseconds(100));
+  _timer.expires_after(std::chrono::milliseconds(100));
   _timer.async_wait(std::bind(&Connection::timeout_handler, shared_from_this()
         , std::placeholders::_1));
 }
@@ -94,7 +94,7 @@ Connection::timeout_handler(const asio::error_code &e)
   if (e) return;
 
   // Set timer again.
-  _timer.expires_from_now(std::chrono::milliseconds(100));
+  _timer.expires_after(std::chrono::milliseconds(100));
   _timer.async_wait(std::bind(&Connection::timeout_handler, shared_from_this()
         , std::placeholders::_1));
 }

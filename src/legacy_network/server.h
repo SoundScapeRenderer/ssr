@@ -71,7 +71,7 @@ class Server
     api::Publisher& _controller;
     // Just a hack for get_scene_as_XML():
     LegacyXmlSceneProvider& _scene_provider;
-    asio::io_service _io_service;
+    asio::io_context _io_context;
     asio::ip::tcp::acceptor _acceptor;
     std::thread *_network_thread;
 

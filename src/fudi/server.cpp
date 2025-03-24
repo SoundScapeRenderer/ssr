@@ -36,17 +36,17 @@ using asio::ip::tcp;
 
 Server::Server(api::Publisher& controller, short port)
   : _controller{controller}
-  , _io_service{}
-  , _acceptor{_io_service, tcp::endpoint(tcp::v4(), port)}
-  , _socket{_io_service}
+  , _io_context{}
+  , _acceptor{_io_context, tcp::endpoint(tcp::v4(), port)}
+  , _socket{_io_context}
 {
   _do_accept();
-  _thread = std::thread{[this](){ _io_service.run(); }};
+  _thread = std::thread{[this](){ _io_context.run(); }};
 }
 
 Server::~Server()
 {
-  _io_service.stop();
+  _io_context.stop();
   if (_thread.joinable()) { _thread.join(); }
 }
 
