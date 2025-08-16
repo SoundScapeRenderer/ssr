@@ -4,7 +4,7 @@ set -euo pipefail
 
 git clone https://github.com/libsndfile/libsndfile.git
 cd libsndfile
-git checkout 1.1.0
+git checkout 1.2.2
 autoreconf -vif
 ./configure \
   --disable-sqlite \
