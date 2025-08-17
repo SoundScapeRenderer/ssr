@@ -65,7 +65,6 @@ jobs:
             libqt5opengl5-dev
             libsndfile1-dev
             libtool
-            libwebsocketpp-dev
             libxml2-dev
             pkg-config
           )
@@ -97,7 +96,6 @@ jobs:
             pkg-config
             qt@5
             vrpn
-            websocketpp
           )
           brew install ${PACKAGES[@]}
           echo CPPFLAGS="-I$(brew --prefix)/include" >> $GITHUB_ENV
@@ -121,6 +119,11 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           ci/build-deps-ubuntu.sh
+      - name: Build websocketpp
+        # This is needed until https://github.com/zaphoyd/websocketpp/pull/1164
+        # is merged and available as apt and brew packages.
+        run: |
+          ci/build-websocketpp.sh
       - name: upload VRPN logs
         if: failure() && startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v4
