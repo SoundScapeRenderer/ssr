@@ -36,6 +36,8 @@ linkcheck_ignore = [
     r'http://localhost:\d+',
     # This works in the browser, but not with linkcheck:
     'https://github.com/AudioSceneDescriptionFormat/asdf-rust#building-the-c-api',
+    # "Read timed out":
+    'https://aur.archlinux.org',
 ]
 
 # -- Options for HTML output ---------------------------------------------------
