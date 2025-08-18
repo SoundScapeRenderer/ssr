@@ -133,16 +133,22 @@ jobs:
           path: ssr/flext/build/*
 
   deken-package:
-    # Deken is not available on 22.04,
-    # see https://github.com/pure-data/deken/issues/260
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    container: registry.git.iem.at/pd/deken
     needs: [linux, macos, windows]
     steps:
+      - name: Install Git
+        run: |
+          apt-get update
+          apt-get install --assume-yes --no-install-recommends git
       - name: Clone Git repository
         uses: actions/checkout@v4
         with:
           # check out all tags to get proper version in Deken package
           fetch-depth: 0
+      - name: git clone fix
+        # https://github.com/actions/checkout/issues/1169:
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - name: Retrieve Linux externals
         uses: actions/download-artifact@v4
         with:
@@ -158,12 +164,6 @@ jobs:
         with:
           name: windows-externals
           path: ssr
-      - name: Install deken
-        run: |
-          sudo apt-get install --no-install-recommends deken
-          # work-arounds from https://github.com/pure-data/deken/issues/247:
-          mkdir ~/.deken
-          python3 -m pip install hy==0.19
       - name: Run deken
         run: |
           deken package -v $(git describe --tags --always) --objects flext/objects.txt ssr
