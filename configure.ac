@@ -564,24 +564,27 @@ ENABLE_AUTO([fudi-interface], [FUDI interface (needs Asio and {fmt})],
 
 ENABLE_FORCED([ecasound], [Ecasound soundfile playback/recording],
 [
-  dnl Checking for libecasoundc. It does not provide pkg-config and installs
-  dnl on some systems to non-standard path /usr/include/libecasoundc.
-  AC_MSG_CHECKING([for non-default libecasoundc include directory])
-  for incdir in {/usr,/usr/local,/opt,/opt/local,${HOMEBREW_PREFIX:-/opt/homebrew}}/include/libecasoundc; do
-    AS_IF([test -d $incdir], [ECASOUND_INCLUDE="$incdir"])
-  done
-  AS_IF([test x$ECASOUND_INCLUDE = x], [AC_MSG_RESULT([none found.])],
-  [
-    AC_MSG_RESULT([$ECASOUND_INCLUDE])
-    CPPFLAGS="$CPPFLAGS -I$ECASOUND_INCLUDE"
-  ])
-
-  # now check with possibly redefined CPPFLAGS
-  AC_CHECK_HEADER([ecasoundc.h],             , [have_ecasound=no])
-  AC_CHECK_HEADER([eca-control-interface.h], , [have_ecasound=no])
-  AC_SEARCH_LIBS([eci_init], [ecasoundc],    , [have_ecasound=no])
-  AC_MSG_CHECKING([Ecasound library support (see above)])
-  AC_MSG_RESULT([$have_ecasound])
+  AC_MSG_CHECKING([for libecasoundc-config script])
+  AC_PATH_PROG([LIBECASOUND_CONFIG], [libecasoundc-config])
+  if test -z "$LIBECASOUND_CONFIG"; then
+    have_ecasound=no
+    AC_MSG_RESULT([not found])
+    AC_MSG_WARN([libecasoundc-config not found - Ecasound support will be disabled])
+  else
+    AC_MSG_RESULT([$LIBECASOUND_CONFIG])
+    ECASOUND_CFLAGS=`$LIBECASOUND_CONFIG --cflags`
+    ECASOUND_LIBS=`$LIBECASOUND_CONFIG --libs`
+    ECASOUND_PREFIX=`$LIBECASOUND_CONFIG --prefix`
+    CPPFLAGS="$CPPFLAGS $ECASOUND_CFLAGS"
+    LIBS="$LIBS $ECASOUND_LIBS"
+    AC_MSG_CHECKING([for ecasoundc.h via libecasoundc-config])
+    AC_CHECK_HEADER([ecasoundc.h], [have_ecasound=yes], [have_ecasound=no])
+    AC_MSG_CHECKING([for eca-control-interface.h via libecasoundc-config])
+    AC_CHECK_HEADER([eca-control-interface.h], , [have_ecasound=no])
+    AC_MSG_CHECKING([for Ecasound library via libecasoundc-config])
+    AC_SEARCH_LIBS([eci_init], [ecasoundc], , [have_ecasound=no])
+    AC_MSG_RESULT([$have_ecasound])
+  fi
 ])
 
 AS_IF([test x$have_ecasound != xno],
