@@ -161,6 +161,8 @@ jobs:
           path: asdf-rust
       - name: Build and install ASDF library
         working-directory: asdf-rust
+        env:
+          CMAKE_POLICY_VERSION_MINIMUM: 3.5
         run: |
           cargo cinstall --release --prefix=/usr/local --destdir=temp
           sudo cp -r temp/usr/local/* /usr/local/
