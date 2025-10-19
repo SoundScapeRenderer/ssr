@@ -35,16 +35,14 @@ jobs:
             env:
               CC: clang-13
               CXX: clang++-13
-          - os: macos-15 # arm64
+          - os: macos-15-intel
             xcode: Xcode_26.0
-          - os: macos-15 # arm64
+          - os: macos-15
+            xcode: Xcode_26.0
+          - os: macos-15
             xcode: Xcode_16.4
-          - os: macos-14 # arm64
+          - os: macos-14
             xcode: Xcode_16.2
-          - os: macos-13 # Intel
-            xcode: Xcode_15.2
-          - os: macos-13 # Intel
-            xcode: Xcode_14.3.1
     runs-on: ${{ matrix.os }}
     env: ${{ matrix.env || fromJSON('{}') }}
     steps:
