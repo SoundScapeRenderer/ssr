@@ -133,7 +133,7 @@ jobs:
           ci/build-websocketpp.sh
       - name: upload VRPN logs
         if: failure() && startsWith(matrix.os, 'ubuntu')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} VRPN logs
           path: "vrpn/build/CMakeFiles/*.log"
@@ -176,7 +176,7 @@ jobs:
           ./configure --enable-gui --enable-ip-interface --enable-websocket-interface --enable-fudi-interface --enable-ecasound --enable-sofa --enable-polhemus --enable-razor --enable-vrpn --disable-browser-gui --enable-dynamic-asdf --disable-dependency-tracking
       - name: upload config.log
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os }} ${{ matrix.xcode }}${{ env.CXX }} configure log
           path: config.log
