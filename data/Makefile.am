@@ -5,9 +5,20 @@
 ## comments starting with a single # are copied to Makefile.in (and afterwards
 ## to Makefile), comments with ## are dropped.
 
-dist_bin_SCRIPTS = ssr
+if ENABLE_WINDOWS_INSTALLER
+SUBDIRS = nsis
+extrasdir = $(prefix)/Extras
+scenesdir = $(prefix)/Scenes
 
+## these are always distributed, but only installed if ENABLE_WINDOWS_INSTALLER
+dist_scenes_DATA = \
+	scenes/asdf2html.xsl \
+	scenes/live_input.asd
+else
 extrasdir = $(pkgdatadir)
+## this compatibility script is not needed for the Windows installer
+dist_bin_SCRIPTS = ssr
+endif
 
 ## stuff that will end up in $prefix/share/ssr/
 nobase_dist_pkgdata_DATA = \
@@ -33,7 +44,7 @@ nobase_dist_pkgdata_DATA = \
 ## the whole directory is distributed, including browser GUI files
 EXTRA_DIST = websocket_resources
 
-## stuff that will end up in $prefix/share/ssr/
+## stuff that will end up in $extrasdir
 nobase_dist_extras_DATA = \
 	reproduction_setups/2.0.asd \
 	reproduction_setups/2.1.asd \
@@ -85,17 +96,20 @@ dist_noinst_SCRIPTS = local_ssr.sh
 ##dist-hook:
 ##	...
 
+# https://stackoverflow.com/q/63018330#comment111445661_63020485
+HASH := \#
+
 # compute relative path between $(pkgdatadir) and $(extrasdir)
 REL_LINK_DIR = $(shell \
 	  target="${extrasdir}"; \
 	  common_part="${pkgdatadir}"; \
 	  if test "x$$target" = "x$$common_part"; then echo .; exit; fi; \
 	  back= ; \
-	  while test "x$${target\#$$common_part}" = "x$$target"; do \
+	  while test "x$${target$(HASH)$$common_part}" = "x$$target"; do \
 	    common_part="`dirname "$$common_part"`"; \
 	    back="../$$back" ; \
 	  done; \
-	  echo "$${back}$${target\#$$common_part/}")
+	  echo "$${back}$${target$(HASH)$$common_part/}")
 
 # create symbolic links in the install directory (for default files) and
 # before that, remove old symbolic links
