@@ -1,0 +1,32 @@
+name: Build SSR-win with MXE
+on: [push, pull_request]
+jobs:
+  build-win:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Add MXE repository
+      run: |
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9 && \
+        sudo add-apt-repository 'deb [arch=amd64] https://mirror.mxe.cc/repos/apt focal main' && \
+        sudo apt update
+    - name: Install pre-build MXE
+      run: |
+        export PKG_PREFIX=mxe-x86-64-w64-mingw32.shared && \
+        sudo apt install -y ${PKG_PREFIX}-cc \
+                          ${PKG_PREFIX}-cmake-conf \
+                          ${PKG_PREFIX}-pthreads \
+                          ${PKG_PREFIX}-fftw \
+                          ${PKG_PREFIX}-libsndfile \
+                          ${PKG_PREFIX}-libxml2 \
+                          ${PKG_PREFIX}-qtbase \
+                          ${PKG_PREFIX}-jack
+
+    - name: adapt PATH
+      run: ls /usr/lib/mxe/usr/bin && export PATH=/usr/lib/mxe/usr/bin:$PATH
+    - name: CMAKE
+      run: /usr/lib/mxe/usr/bin/x86_64-w64-mingw32.shared-cmake -S . -B _build/ -DCMAKE_BUILD_TYPE=RELEASE -DVRPN=OFF -DSOFA=OFF ..
+    - name: BUILD
+      run: /usr/lib/mxe/usr/bin/x86_64-w64-mingw32.shared-cmake --build ./_build -j4
