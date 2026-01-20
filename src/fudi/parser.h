@@ -28,7 +28,7 @@
 #ifndef SSR_FUDI_PARSER_H
 #define SSR_FUDI_PARSER_H
 
-#include <cstdlib>  // for std::strtof(), std::strtoul()
+#include <charconv>  // for std::from_chars
 #include <functional>  // for std::function
 #include <variant>
 
@@ -280,9 +280,10 @@ constexpr auto parse_string(std::string& value)
 constexpr auto id_or_number(std::variant<std::string, unsigned int>& value)
 {
   return [&value](std::string_view& input) {
-    char* str_end;
-    unsigned int number = std::strtoul(input.data(), &str_end, 10);
-    if (str_end == input.data())
+    unsigned int number{};
+    auto [str_end, ec] = std::from_chars(
+        input.data(), input.data() + input.size(), number);
+    if (ec != std::errc())
     {
       std::string temp;
       auto result = parse_string(temp)(input);
@@ -333,10 +334,9 @@ constexpr auto parse_float(float& value)
     {
       return Match::incomplete;
     }
-    char* str_end;
-    // TODO: use std::from_chars once it is widely available
-    value = std::strtof(temp.data(), &str_end);
-    if (str_end == temp.data())
+    auto [str_end, ec] = std::from_chars(
+        temp.data(), temp.data() + temp.size(), value);
+    if (ec != std::errc())
     {
       return Match::no;
     }
