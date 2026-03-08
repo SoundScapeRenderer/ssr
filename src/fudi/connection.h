@@ -70,8 +70,7 @@ private:
   void _read_socket()
   {
     auto self{shared_from_this()};
-    // NB: minus one for zero termination
-    auto buffersize = _read_buffer.size() - 1;
+    auto buffersize = _read_buffer.size();
     if (_read_offset >= buffersize)
     {
       SSR_ERROR("Input buffer is full; dropping contents");
@@ -85,9 +84,6 @@ private:
           if (!ec)
           {
             _read_offset += length;
-            // NB: zero termination is needed for std::strtof and std::strtoul
-            // TODO: remove this once std::from_chars is used instead.
-            _read_buffer[_read_offset] = '\0';
             auto input = std::string_view{_read_buffer.data(), _read_offset};
             _parser.parse(input);
             auto consumed = input.data() - _read_buffer.data();
@@ -104,8 +100,7 @@ private:
   }
 
   // See MAXPDSTRING in m_pd.h, and INBUFSIZE in s_inter.c
-  // ... plus one for zero termination
-  std::array<char, 4096 + 1> _read_buffer;
+  std::array<char, 4096> _read_buffer;
   std::size_t _read_offset{0};
   asio::ip::tcp::socket _socket;
   Subscriber _subscriber;
