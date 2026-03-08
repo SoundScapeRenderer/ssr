@@ -19,3 +19,12 @@
 [submodule "example-scenes"]
 	path = example-scenes
 	url = https://github.com/SoundScapeRenderer/example-scenes.git
+[submodule "extern/include/asio"]
+	path = extern/include/asio
+	url = https://github.com/chriskohlhoff/asio.git
+[submodule "extern/include/jack"]
+	path = extern/include/jack
+	url = https://github.com/jackaudio/headers.git
+[submodule "extern/include/websocketpp"]
+	path = extern/include/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git
