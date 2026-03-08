@@ -123,6 +123,15 @@ doc:
 
 .PHONY: doc
 
+if ENABLE_WINDOWS_INSTALLER
+nsis: install-strip
+	$(MAKE) -C data/nsis $@
+else
+nsis:
+	@echo "You have to run './configure --enable-windows-installer' first!"; false
+endif
+.PHONY: nsis
+
 .NOTPARALLEL: install
 
 # remove pkgdatadir and docdir (if empty)
